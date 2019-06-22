@@ -1,0 +1,12 @@
+{
+    "global": {
+        "supervisor": "supervisorname",
+        "identifier": "supervisor.unique",
+    },
+    "markets": {
+        "EURUSD": {
+        }
+    },
+    "parameters": {
+    }
+}

@@ -1,0 +1,64 @@
+{
+    "0": {
+        "idFonc": 0,
+		"idFoncReturn": 0,
+		"foncName" : "echo",
+		"typeServer" : "rpc",
+        "classMessageName": "echoMessage",
+		"unpackMapping": "Bs",
+		"unpackMappingReturn": "<Bs",
+		"infosFonc" : "Return a echo message"
+    },
+   "1": {
+        "idFonc": 1,
+		"idFoncReturn": 1,
+		"foncName" : "subscribe",
+		"typeServer" : "rpc",
+        "classMessageName": "subscribeMessage",
+		"unpackMapping": "BBsd",
+		"unpackMappingReturn": "Bq",
+		"infosFonc" : "subscribe to a tick, ohlc, ... for a market"
+    },
+   "2": {
+        "idFonc": 2,
+		"idFoncReturn": 2,
+		"foncName" : "unsubscribe",
+		"typeServer" : "rpc",
+        "classMessageName": "unsubscribeMessage",
+		"unpackMapping": "Bq",
+		"unpackMappingReturn": "<Bq",
+		"infosFonc" : "unsubscribe"
+    },
+   "3": {
+        "idFonc": 3,
+		"foncName" : "sendTick",
+		"typeServer" : "publisher",
+        "classMessageName": "tickMessage",
+		"unpackMapping": "Bdddd",
+		"infosFonc" : "Return tick message"
+    },
+   "4": {
+        "idFonc": 4,
+		"foncName" : "sendOhlc",
+		"typeServer" : "publisher",
+        "classMessageName": "ohlcMessage",
+		"unpackMapping": "Bdddddddd",
+		"infosFonc" : "Return a ohlc message"
+    },
+   "5": {
+        "idFonc": 5,
+		"foncName" : "sendTickArray",
+		"typeServer" : "publisher",
+        "classMessageName": "tickArrayMessage",
+		"unpackMapping": "dddd",
+		"infosFonc" : "Return a tickArray message"
+    },
+   "6": {
+        "idFonc": 6,
+		"foncName" : "sendOhlcArray",
+		"typeServer" : "publisher",
+        "classMessageName": "ohlcArrayMessage",
+		"unpackMapping": "dddddddd",
+		"infosFonc" : "Return a ohlcArray message"
+    }	
+}

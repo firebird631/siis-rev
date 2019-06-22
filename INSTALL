@@ -1,0 +1,106 @@
+Prerequists
+===========
+
+* Any recents Linux distribution or Microsoft Windows 7+ (prefered is Linux Debian 9+ or Ubuntu 17.04+)
+* Python 3.6+
+* MySQL 5+ or PostgreSQL 8+
+* Enought disk space to store market data (can take many GB, files + database)
+
+
+Python Virtual Environment
+==========================
+
+Unix based systems
+------------------
+
+From a terminal :
+
+$ python3.<x> -m venv <siis.venv>
+$ source <siis.venv>/bin/activate
+
+replace <x> by your most recent Python version and <siis.venv> by any folder name you want or keep that.
+
+
+Microsoft Windows
+-----------------
+
+From a command prompt :
+
+$ python3.<x>.exe /m venv <siis.venv>
+$ <siis.venv>\Scripts\activate
+
+replace <x> by your most recent Python version and <siis.venv> by any folder name you want or keep that.
+
+
+Configuration
+=============
+
+First you must call the install script or to manually create the following structure.
+
+Unix based systems
+------------------
+
+To run the install script from bash :
+    $ python scripts/install.py
+
+You must have a folder .siis in your home folder with the structure :
+    .siis/
+    |- config/
+      |- strategy.ini
+      |- connectors/
+    |- log/
+    |- reports/
+    |- markets/
+
+
+Microsoft Windows
+-----------------
+
+It is similar as Linux, but except you will find a siis folder into your user APPDATA folder.
+
+You must have a folder siis in your home folder with the structure :
+    siis/
+    |- config/
+      |- strategy.ini
+      |- connectors/
+    |- log/
+    |- reports/
+    |- markets/
+
+
+Database
+========
+
+You can choose between MySQL or PostgreSQL.
+
+MySQL
+-----
+
+sql/initmy.sql contains the tables and the instructions to setup it.
+
+PostgreSQL
+----------
+
+sql/initpg.sql contains the tables and the instructions to setup it.
+
+
+Connectors
+==========
+
+...
+
+
+Strategies
+==========
+
+A file <.*siis>/config/strategy.ini must be inspired from config/strategy.ini.template.
+
+...
+
+
+Exit
+====
+
+Exit Python virtual env typing in your terminal, or simply closing it :
+
+$ deactivate

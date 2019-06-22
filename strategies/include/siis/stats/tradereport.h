@@ -1,0 +1,4 @@
+#ifndef TRADEREPORT_H
+#define TRADEREPORT_H
+
+#endif // TRADEREPORT_H

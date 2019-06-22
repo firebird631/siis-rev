@@ -1,0 +1,16 @@
+#!/bin/bash
+mkdir -p $1/bin
+mkdir -p $1/include
+mkdir -p $1/lib
+mkdir -p $1/libexec
+mkdir -p $1/share
+mkdir -p $1/share/aclocal
+mkdir -p $1/share/cmake/Modules
+mkdir -p $1/share/doc
+mkdir -p $1/share/info
+mkdir -p $1/share/locale
+mkdir -p $1/share/man
+mkdir -p $1/share/pkgconfig
+cp ./activate $1/bin/
+chmod +x $1/bin/activate
+cp ./Modules/*.cmake $1/share/cmake/Modules/

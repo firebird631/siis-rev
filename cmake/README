@@ -1,0 +1,29 @@
+Install instructions
+====================
+
+Create in your $HOME a directory or simply call the setupenv script with complete path
+(including amd64 or another folder name of your choice).
+
+$HOME/<dev-path...>/amd64/
+	|- bin
+	|- include
+	|- lib
+	|- libexec
+	|- share
+		|- aclocal
+		|- cmake
+          |- Modules
+		|- doc
+		|- info
+		|- locale
+		|- man
+		|- pkgconfig
+		
+Then copy the activate file into the amd64/bin directory.
+If <dev-path...> is different from 'dev' then modifiy two 2 references of this path into the activate file.
+
+Copy the content of the Modules/ into $HOME/<dev-path...>/amd64/share/cmake/Modules
+
+To initiate the environment tip : source $HOME/<dev-path>/amd64/bin/activate
+
+Then the terminal is ready to works in your local C/C++ environment.

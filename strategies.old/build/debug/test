@@ -1,0 +1,1 @@
+./bin/strategy -s eurusd1.json -f 2018-01-01T00:00:00 -t 2018-12-31T23:59:59 -i 1 -b

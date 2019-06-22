@@ -1,0 +1,1 @@
+[558068.00000] <ERR> The performed operation is invalid, Class name is already registred: Audio at line(135) file(/home/frederic/dev/dreamoverflow/o3d/src/core/classfactory.cpp) function(registerClassInfo)

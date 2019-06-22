@@ -1,0 +1,27 @@
+{
+    "global": {
+        "workers": 8
+    },
+    "database": {
+        "type": "mysql",
+        // "type": "postgresql",
+        "host": "127.0.0.1",
+        "port": 3306,
+        // "port": 5432,
+        "name": "siis",
+        "user": "siis",
+        "password": "siis"
+    },
+    "cache": {
+        "type": "redis",
+        "host": "127.0.0.1",
+        "port": 6379,
+        "name": "siis",
+        "user": "siis",
+        "password": "siis"
+    },
+    "indicators": {
+        "price": "siis.indicator.price",
+        "volume": "siis.indicator.volume"
+    }
+}

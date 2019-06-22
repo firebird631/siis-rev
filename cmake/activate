@@ -1,0 +1,43 @@
+# source this file
+
+deactivate () {
+    echo "todo"
+}
+
+export VIRTUAL_ENV="amd64"
+
+export DEP_PREFIX=$HOME/dev/amd64
+export PREFIX=$HOME/dev/amd64
+
+# PKG config
+export PKG_CONFIG_LIBDIR=$PKG_CONFIG_LIBDIR
+export PKG_CONFIG_PATH=/usr/lib/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:$PREFIX/lib/pkgconfig:$DEP_PREFIX/lib/pkgconfig
+export LD_LIBRARY_PATH=$LB_LIBRARY_PATH:$PREFIX/lib:$DEP_PREFIX/lib
+
+# Used tools
+export PATH=$PREFIX/bin:$DEP_PREFIX/bin:$PATH
+
+# Include
+#export C_INCLUDE_PATH=$DEP_PREFIX/include
+
+export ACLOCAL_FLAGS="-I $DEP_PREFIX/share/aclocal"
+#export CFLAGS="-I$DEP_PREFIX/include -I$PREFIX/include"
+export CFLAGS="-I$PREFIX/include"
+export CPATH="$DEP_PREFIX/include:$PREFIX/include"
+export LDFLAGS="-L$DEP_PREFIX/lib -L$PREFIX/lib"
+
+#export INCLUDE_PATH=$PREFIX/include
+export LIBRARY_PATH=$PREFIX/lib
+export BINARY_PATH=$PREFIX/libexec
+
+# for standard (non cmake toolchain) and for switching to LLVM
+export AR=llvm-ar-7
+export AS=llvm-as-7
+export CC=clang-7
+export CXX=clang++-7
+export LD=lld-7
+# export STRIP=strip
+
+# export PS1='\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]($VIRTUAL_ENV) \[\033[01;34m\]\u@\h:\w\[\033[00m\]\$ '
+export PS1="\[\033[01;32m\]($VIRTUAL_ENV) \[\033[01;34m\]\u@\h:\w\[\033[00m\]\$ "
+export PROMPT_COMMAND='echo -en "\033]0;$PROJECT_NAME\a"'

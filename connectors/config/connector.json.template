@@ -1,0 +1,28 @@
+{
+    "publisher": {
+        "host": "127.0.0.1",
+        "port": 5556
+    },
+    "rpc": {
+        "host": "127.0.0.1",
+        "port": 5555
+    },
+    "database": {
+        "type": "mysql",
+        "host": "127.0.0.1",
+        "port": 3306,
+        "name": "siis",
+        "user": "siis",
+        "password": "siis"
+    },
+    "cache": {
+        "type": "redis",
+        "host": "127.0.0.1",
+        "port": 6379,
+        "name": "siis",
+        "user": "siis",
+        "password": "siis"
+    },
+    "markets": {
+    }
+}
