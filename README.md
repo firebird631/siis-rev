@@ -11,9 +11,13 @@ It support machine-learning supervisors, and genetic algorithm optimizers.
 It also support semi-automated trading in way to manage your entry and exits
 with more possibilities than an exchanges allow.
 
-This version is more robust, performant and evolved version the the prototype Python3 version
+This version is in development, most of the features are not implemented at this time.
+Please look at the [github:siis](https://github.com/dream-overflow/siis) for my previous project,
+still in developpment, because I use it for now, until the new version will be more advanced, and I can prototype with.
+
 It is mainly developped in C++, using TA-lib and Tensorflow. The connectors are developped in Python3,
-but some C++ version could be done in the futur.
+but some C++ version could be done in the futur. What is important is to have an engine and a strategy in C++,
+to have best backtesting performance, low CPU usage and lower latency in live.
 
 A webclient will be developped in ReactJS or AngularJS.
 
@@ -31,7 +35,9 @@ Features
     * Degiro (unofficial, planned)
     * IB (planned)
 * Most of the SiiS prototype version features
-* ...
+* Machine-learning (planned)
+* Strategy optimizer using algo-G (WIP)
+* ... work in progress ...
 
 ### Donation ###
 

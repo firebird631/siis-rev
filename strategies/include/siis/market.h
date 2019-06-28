@@ -141,6 +141,10 @@ public:
     o3d::Double maxQty() const { return m_qtyFilter[1]; }
     o3d::Double stepQty() const { return m_qtyFilter[2]; }
 
+    o3d::Double minPrice() const { return m_priceFilter[0]; }
+    o3d::Double maxPrice() const { return m_priceFilter[1]; }
+    o3d::Double stepPrice() const { return m_priceFilter[2]; }
+
     o3d::Double minNotional() const { return m_notionalFilter[0]; }
     o3d::Double maxNotional() const { return m_notionalFilter[1]; }
     o3d::Double stepNotional() const { return m_notionalFilter[2]; }

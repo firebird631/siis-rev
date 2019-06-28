@@ -23,6 +23,8 @@ class Market(object):
     @todo from watcher define if the market support or not hedging for each market (save it into DB)
     """
 
+    TICK_PRICE_TIMEOUT = 60  # in seconds
+
     TYPE_UNKNOWN = 0
     TYPE_CURRENCY = 1
     TYPE_COMMODITY = 2
@@ -43,9 +45,11 @@ class Market(object):
     CONTRACT_WARRANT = 4
     CONTRACT_TURBO = 5
 
-    MODE_BUY_SELL = 0    # no marginn no short, only buy (hold) and sell
-    MODE_MARGIN = 1      # margin, long and short (individual position, hedging is optionnal)
-    MODE_IND_MARGIN = 2  # indivisble position with margin, long and short (unique position/direction, no hedging option possible)
+    TRADE_BUY_SELL = 0     # no margin no short, only buy (hold) and sell
+    TRADE_ASSET = 0        # synonym for buy-sell/spot
+    TRADE_SPOT = 0         # synonym for buy-sell/asset
+    TRADE_MARGIN = 1       # margin, long and short
+    TRADE_IND_MARGIN = 2   # indivisible position, margin, long and short
 
     # or could have a OrderPolicy because not everywhere same concepts
     ORDER_MARKET = 0
@@ -73,14 +77,13 @@ class Market(object):
     }
 
     def __init__(self, market_id, symbol):
-        # @todo notional, qty and price filters are triplet min/max/step
         # @todo base and quote could be struct with symbol, display, precision, vol24h
         # @todo message market (out only)
 
         self._market_id = market_id
         self._symbol = symbol
 
-        self._mode = Market.MODE_MARGIN
+        self._trade = Market.TRADE_MARGIN
         self._orders = Market.ORDER_ALL
 
         self._base = ""
@@ -101,10 +104,9 @@ class Market(object):
         self._one_pip_means = 1.0
         self._margin_factor = 1.0  # 1.0 / leverage
 
-        self._min_size = 0.0
-        self._max_size = 0.0
-        self._step_size = 1.0
-        self._min_notional = 0.0
+        self._size_limits = (0.0, 0.0, 0.0)
+        self._price_limits = (0.0, 0.0, 0.0)
+        self._notional_limits = (0.0, 0.0, 0.0)
 
         self._market_type = Market.TYPE_UNKNOWN
         self._unit_type = Market.UNIT_CONTRACTS
@@ -119,10 +121,7 @@ class Market(object):
 
         self._hedging = False
 
-        self._maker_fee = 0.0
-        self._taker_fee = 0.0
-
-        self._commission = 0.0
+        self._fees = ([0.0, 0.0], [0.0, 0.0])  # maker 0, taker 1 => fee 0, commission 1
 
         self._timeframes = []  # watched timeframes
         self._previous = []
@@ -136,12 +135,12 @@ class Market(object):
         return self._symbol
 
     @property
-    def mode(self):
-        return self._mode
+    def trade(self):
+        return self._trade
 
     @mode.setter
-    def mode(self, mode):
-        self._mode = mode
+    def trade(self, trade):
+        self._trade = trade
 
     @property
     def orders(self):
@@ -319,53 +318,84 @@ class Market(object):
 
     @property
     def maker_fee(self):
-        return self._maker_fee
+        return self._fees[0][0]
 
     @maker_fee.setter
     def maker_fee(self, maker_fee):
-        self._maker_fee = maker_fee
+        self._fees[0][0] = maker_fee
 
     @property
     def taker_fee(self):
-        return self._taker_fee
+        return self._fees[1][0]
 
     @taker_fee.setter
     def taker_fee(self, taker_fee):
-        self._taker_fee = taker_fee
+        self._fees[1][0] = taker_fee
 
     @property
-    def commission(self):
-        return self._commission
+    def maker_commission(self):
+        return self._fees[0][1]
 
-    @commission.setter
-    def commission(self, commission):
-        self._commission = commission
+    @maker_commission.setter
+    def maker_commission(self, commission):
+        self._fees[0][1] = commission
+
+    @property
+    def taker_commission(self):
+        return self._fees[1][1]
+
+    @taker_commission.setter
+    def taker_commission(self, commission):
+        self._fees[1][1] = commission
 
     #
-    # size
+    # limits
     #
 
     @property
     def min_size(self):
-        return self._min_size
+        return self._size_limits[0]
 
     @property
     def max_size(self):
-        return self._max_size
+        return self._size_limits[1]
 
     @property
     def step_size(self):
-        return self._step_size
+        return self._size_limits[2]
 
     @property
     def min_notional(self):
-        return self._min_notional
+        return self._notional_limits[0]
 
-    def set_size_limits(self, min_size, max_size, step_size, min_notional):
-        self._min_size = min_size
-        self._max_size = max_size
-        self._step_size = step_size
-        self._min_notional = min_notional
+    @property
+    def max_notional(self):
+        return self._notional_limits[1]
+
+    @property
+    def step_notional(self):
+        return self._notional_limits[2]
+
+    @property
+    def min_price(self):
+        return self._price_limits[0]
+
+    @property
+    def max_price(self):
+        return self._price_limits[1]
+
+    @property
+    def step_price(self):
+        return self._price_limits[2]
+
+    def set_size_limits(self, min_size, max_size, step_size):
+        self._size_limits = (min_size, max_size, step_size)
+
+    def set_notional_limits(self, min_notional, max_notional, step_notional):
+        self._notional_limits = (min_notional, max_notional, step_notional)
+
+    def set_price_limits(self, min_price, max_price, step_price):
+        self._price_limits = (min_price, max_price, step_price)
 
     #
     # volume
