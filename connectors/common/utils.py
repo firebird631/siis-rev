@@ -4,23 +4,24 @@
 # Utils
 
 import time
-import datetime
 import math
 
+from datetime import timedelta, tzinfo
 
-class UTC(datetime.tzinfo):
+
+class UTC(tzinfo):
     """
     UTC timezone to set for UTC datetime.
     """
 
     def utcoffset(self, dt):
-        return datetime.timedelta(0)
+        return timedelta(0)
 
     def tzname(self, dt):
         return "UTC"
 
     def dst(self, dt):
-        return datetime.timedelta(0)
+        return timedelta(0)
 
 
 # timeframe to str map (double: str)
@@ -28,13 +29,15 @@ TIMEFRAME_TO_STR_MAP = {
     0: 't',
     1: '1s',
     10: '10s',
-    30: '10s',    
+    30: '30s',
     60: '1m',
     2*60: '2m',
     3*60: '3m',
     5*60: '5m',
     10*60: '10m',
     15*60: '15m',
+    30*60: '30m',
+    45*60: '45m',
     60*60: '1h',
     2*60*60: '2h',
     3*60*60: '3h',
@@ -45,7 +48,7 @@ TIMEFRAME_TO_STR_MAP = {
     2*24*60*60: '2d',
     3*24*60*60: '3d',
     7*24*60*60: '1w',
-    30*24*60*60: '1m'
+    30*24*60*60: '1M'
 }
 
 # timeframe reverse map (str: double)
@@ -53,17 +56,11 @@ TIMEFRAME_FROM_STR_MAP = {v: k for k, v in TIMEFRAME_TO_STR_MAP.items()}
 
 
 def timeframe_to_str(timeframe):
-    if timeframe in TIMEFRAME_TO_STR_MAP:
-        return TIMEFRAME_TO_STR_MAP[timeframe]
-    else:
-        return ""
+    return TIMEFRAME_TO_STR_MAP.get(timeframe, "")
 
 
 def timeframe_from_str(timeframe):
-    if timeframe in TIMEFRAME_FROM_STR_MAP:
-        return TIMEFRAME_FROM_STR_MAP[timeframe]
-    else:
-        return 0.0
+    return TIMEFRAME_FROM_STR_MAP.get(timeframe, 0.0)
 
 
 def matching_symbols_set(configured_symbols, available_symbols):
@@ -125,18 +122,22 @@ def truncate(number, digits) -> float:
     return math.trunc(stepper * number) / stepper
 
 
+def decimal_place(value):
+    return -int(math.floor(math.log10(value)))
+
+
 def basetime(tf, timestamp):
     if tf < 7*24*60*60:
         # simplest
         return int(timestamp / tf) * tf
     elif tf == 7*24*60*60:
         # must find the UTC first day of week
-        dt = datetime.datetime.utcfromtimestamp(timestamp)
-        dt = dt.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=UTC()) - datetime.timedelta(days=dt.weekday())
+        dt = datetime.utcfromtimestamp(timestamp)
+        dt = dt.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=UTC()) - timedelta(days=dt.weekday())
         return dt.timestamp()
     elif tf == 30*24*60*60:
         # replace by first day of month at 00h00 UTC
-        dt = datetime.datetime.utcfromtimestamp(timestamp)
+        dt = datetime.utcfromtimestamp(timestamp)
         dt = dt.replace(day=1, hour=0, minute=0, second=0, microsecond=0, tzinfo=UTC())
         return dt.timestamp()
 

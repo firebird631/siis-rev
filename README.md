@@ -121,7 +121,7 @@ Configuration
 
 First running will try to create a data structure on your local user.
 * /home/<username>/.siis on Linux based systems
-* C:\Users\<username\AppData\Local\siis on Windows
+* C:\Users\<username>\AppData\Local\siis on Windows
 * /Users/<username>/.siis on MacOSX
 
 The directory will contains 4 sub-directories:
