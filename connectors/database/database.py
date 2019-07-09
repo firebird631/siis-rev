@@ -417,13 +417,13 @@ class Database(object):
             self._pending_user_trade_insert.append(data)
         self.unlock()
 
-    def load_user_trades(self, service, appliance, broker_id, account_id, market_id, appliance_id):
+    def load_user_trades(self, service, appliance, broker_id, account_id, appliance_id):
         """
-        Load all asset for a specific appliance_id and market_id
+        Load all user trades data and options for a specific appliance_id / broker_id / account_id
         @param service to be notified once done
         """
         self.lock()
-        self._pending_user_trade_select.append((service, appliance, broker_id, account_id, market_id, appliance_id))
+        self._pending_user_trade_select.append((service, appliance, broker_id, account_id, appliance_id))
         self.unlock()
 
     def store_user_trader(self, data):
@@ -444,13 +444,13 @@ class Database(object):
             self._pending_user_trader_insert.append(data)
         self.unlock()
 
-    def load_user_traders(self, service, appliance, broker_id, account_id, market_id, appliance_id):
+    def load_user_traders(self, service, appliance, broker_id, account_id, appliance_id):
         """
-        Load all asset for a specific appliance_id and market_id
+        Load all user traders data and options for a specific appliance_id / broker_id / account_id
         @param service to be notified once done
         """
         self.lock()
-        self._pending_user_trader_select.append((service, appliance, broker_id, account_id, market_id, appliance_id))
+        self._pending_user_trader_select.append((service, appliance, broker_id, account_id, appliance_id))
         self.unlock()
 
     #

@@ -6,7 +6,7 @@
 import time
 import math
 
-from common.utils import truncate
+from common.utils import truncate, decimal_place
 from constants import LONG, SHORT
 
 
@@ -80,7 +80,7 @@ class Market(object):
     __slots__ = '_market_id', '_symbol', '_trade', '_orders', '_base', '_base_display', '_base_precision', '_quote', '_quote_display', '_quote_precision', \
                 '_expiry', '_is_open', '_contract_size', '_lot_size', '_base_exchange_rate', '_value_per_pip', '_one_pip_means', '_margin_factor', \
                 '_size_limits', '_price_limits', '_notional_limits', '_market_type', '_unit_type', '_contract_type', '_vol24h_base', '_vol24h_quote', \
-                '_hedging', '_fees', '_previous', '_leverages', '_last_update_time', '_bid', '_ofr'
+                '_hedging', '_fees', '_previous', '_leverages', '_last_update_time', '_bid', '_ofr', '_timeframes'
 
     def __init__(self, market_id, symbol):
         self._market_id = market_id

@@ -15,6 +15,7 @@ from strategyclient import StrategyClient, StrategyClientWorker
 
 import logging
 logger = logging.getLogger('siis.connector.server')
+error_logger = logging.getLogger('siis.error.connector.server')
 
 
 class ConnectorServer(object):
@@ -273,19 +274,19 @@ class ConnectorServer(object):
     def monitor(self):
         while self._monitor.poll():
             evt = recv_monitor_message(self._monitor)
-            print(evt)
+            logger.info(str(evt))
 
             if evt['event'] == zmq.EVENT_CONNECTED:
-                print("conn")
+                logger.info("Monitor conn")
             elif evt['event'] == zmq.EVENT_DISCONNECTED:
-                print("disc")
+                logger.info("Monitor disconnected")
            
             if evt['event'] == zmq.EVENT_MONITOR_STOPPED:
                 break
 
-            print("tttttttttttt")
+            logger.info("zmq msg")
 
-        print("tutititi")
+        logger.info("zmq done")
 
     def run(self):
         self._quit = False
@@ -302,7 +303,7 @@ class ConnectorServer(object):
         self._monitor_thread.start()
 
         # zmq.proxy(self._frontend, self._backend)
-        print("iiiiii")
+        logger.info("zmq run")
 
         # don't waste with try/catch, do it only at last level
         # restart the loop if exception thrown
@@ -317,12 +318,12 @@ class ConnectorServer(object):
                                 self._running = False
 
                 except Exception as e:
-                    logger.error(traceback.format_exc())
-                    print(repr(e))
+                    logger.error(repr(e))
+                    error_logger.error(traceback.format_exc())
                     self._error = e
         else:
             while self._running:
-                print("oooooo")
+                logger.info("zmq running")
                 try:
                     while self._running:
                         self.__process_once()
@@ -332,8 +333,8 @@ class ConnectorServer(object):
                                 self._running = False
 
                 except Exception as e:
-                    logger.error(traceback.format_exc())
-                    print(repr(e))
+                    logger.error(repr(e))
+                    error_logger.error(traceback.format_exc())
                     self._error = e
 
         for worker in self._workers:

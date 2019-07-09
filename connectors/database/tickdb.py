@@ -116,7 +116,7 @@ class TickStorage(object):
         n = 0
         try:
             for d in ticks:
-                date_utc = datetime.datetime.utcfromtimestamp(d[2] / 1000.0)
+                date_utc = datetime.datetime.utcfromtimestamp(d[2] * 0.001)
 
                 if self._curr_date and (self._curr_date.year != date_utc.year or self._curr_date.month != date_utc.month):
                     self.close()
@@ -145,7 +145,6 @@ class TickStorage(object):
 
         self._last_save = time.time()
         self.close()  # avoid too many handles
-
 
 
 
@@ -199,6 +198,44 @@ class TickStreamer(object):
                 self._file = open(pathname, "rb")
                 self._is_binary = True
 
+                st = os.stat(pathname)
+                file_size = st.st_size
+
+                # direcrly seek to intial position to avoid useless parsing
+                timestamp = self._curr_date.timestamp()
+                prev_timestamp = 0
+                pos = 0
+                left = 0
+                right = file_size
+
+                while 1:
+                    data = self._file.read(TickStreamer.TICK_SIZE)  # read 4 float64
+
+                    if not data:
+                        break
+
+                    tick = self._struct.unpack(data)
+
+                    if right - left <= TickStreamer.TICK_SIZE:
+                        # found our starting offset
+                        self._file.seek(-TickStreamer.TICK_SIZE, 1)
+                        break
+
+                    if tick[0] < timestamp:
+                        # move forward
+                        left = pos + TickStreamer.TICK_SIZE
+                        prev_timestamp = timestamp
+
+                    elif tick[0] > timestamp:
+                        # move backward
+                        right = pos - TickStreamer.TICK_SIZE
+
+                    elif self._file.tell() == EOF:
+                        break
+
+                    pos = max(0, left + ((right - left) // TickStreamer.TICK_SIZE) // 2 * TickStreamer.TICK_SIZE)
+                    self._file.seek(pos, 0)
+
         # if not binary asked or binary not found try with text file
         if not self._file:
             # no extension
@@ -243,11 +280,11 @@ class TickStreamer(object):
             #   self._buffer = self._buffer[n:]
 
             # until timestamp (pop version is 30% speedup)
-            while self._buffer and self._buffer[0].timestamp <= timestamp:
+            while self._buffer and self._buffer[0][0] <= timestamp:
                 # results.append(self._buffer.pop(0))
                 results.append(self._buffer.popleft())
 
-            if self.finished() or (self._buffer and self._buffer[0].timestamp > timestamp):
+            if self.finished() or (self._buffer and self._buffer[0][0] > timestamp):
                 break
 
         return results
@@ -260,11 +297,11 @@ class TickStreamer(object):
                 self.__bufferize()
 
             # until timestamp
-            while self._buffer and self._buffer[0].timestamp <= timestamp:
+            while self._buffer and self._buffer[0][0] <= timestamp:
                 dest.append(self._buffer.popleft())
                 n += 1
 
-            if self.finished() or (self._buffer and self._buffer[0].timestamp > timestamp):
+            if self.finished() or (self._buffer and self._buffer[0][0] > timestamp):
                 break
 
         return n
@@ -285,13 +322,13 @@ class TickStreamer(object):
                     if len(arr) < self._buffer_size:
                         file_end = True
 
-                    for d in data:
-                        if d[0] < self._from_date.timestamp():
-                            # ignore older than initial date
-                            continue
+                    self._buffer.extend(data)
 
-						# directly append 4 doubles to the buffer
-                        self._buffer.extend(d)
+                    # not really necessary, its slow
+                    # no longer necessary because open() at the best initial position
+                    # for d in data:
+                    #     if d[0] >= self._from_date.timestamp():
+                    #         self._buffer.append(d)
                 else:
                     # text
                     for n in range(0, self._buffer_size):
@@ -303,15 +340,12 @@ class TickStreamer(object):
 
                         ts, bid, ofr, vol = row.rstrip('\n').split('\t')
 
-                        ts = float(ts)/1000.0
+                        ts = float(ts) * 0.001
                         if ts < self._from_date.timestamp():
                             # ignore older than initial date
                             continue
 
-                        self._buffer.append(ts)
-                        self._buffer.append(float(bid))
-                        self._buffer.append(float(ofr))
-                        self._buffer.append(float(vol))
+                        self._buffer.append((ts, float(bid), float(ofr), float(vol)))
             else:
                 file_end = True
 

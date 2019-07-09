@@ -15,7 +15,7 @@ def files_structure(options):
     """
     Create the initial file structure
     """
-    print("Initiating file structure")
+    print("Initialize file structure")
 
     config_path = "./"
     data_path = "./"

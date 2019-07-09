@@ -14,9 +14,9 @@ logger = logging.getLogger('siis.connector.strategyclient')
 
 class StrategyClientWorker(threading.Thread):
 
-    def __init__(self, workder_id, context):
+    def __init__(self, worker_id, context):
         threading.Thread.__init__ (self)
-        self._workder_id = workder_id
+        self._worker_id = worker_id
         self._context = context
         self._running = True
 
@@ -26,7 +26,7 @@ class StrategyClientWorker(threading.Thread):
     def run(self):
         worker = self._context.socket(zmq.DEALER)
         worker.connect("inproc://backend")
-        logger.info("Strategy worker started")
+        logger.info("Strategy client worker %s started" % self._worker_id)
 
         poller = zmq.Poller()
         poller.register(worker, zmq.POLLIN)
@@ -37,7 +37,7 @@ class StrategyClientWorker(threading.Thread):
             socks = dict(poller.poll())
             if worker in socks and socks[worker] == zmq.POLLIN: 
                 ident, msg = worker.recv(zmq.DONTWAIT)
-                print("Worker %s received msg from %s" % (self._workder_id, ident,))
+                logger.info("Worker %s received msg from %s" % (self._worker_id, ident,))
 
             # @todo
             # for msg in self._send_queue:

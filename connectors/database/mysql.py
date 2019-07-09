@@ -104,6 +104,7 @@ class MySql(Database):
                 broker_id VARCHAR(255) NOT NULL, account_id VARCHAR(255) NOT NULL, market_id VARCHAR(255) NOT NULL,
                 appliance_id VARCHAR(255) NOT NULL,
                 trade_id INTEGER NOT NULL,
+                trade_type INTEGER NOT NULL,
                 data TEXT NOT NULL DEFAULT '{}',
                 operations TEXT NOT NULL DEFAULT '{}',
                 UNIQUE KEY(broker_id, account_id, market_id, appliance_id, trade_id))""")
@@ -428,18 +429,18 @@ class MySql(Database):
                 cursor = self._db.cursor()
 
                 for ut in uts:
-                    cursor.execute("""SELECT trade_id, trade_type, data, operations FROM user_trade WHERE
-                        broker_id = '%s' AND account_id = '%s' AND market_id = '%s' AND appliance_id = '%s'""" % (ut[2], ut[3], ut[4], ut[5]))
+                    cursor.execute("""SELECT market_id, trade_id, trade_type, data, operations FROM user_trade WHERE
+                        broker_id = '%s' AND account_id = '%s' AND appliance_id = '%s'""" % (ut[2], ut[3], ut[4]))
 
                     rows = cursor.fetchall()
 
                     user_trades = []
 
                     for row in rows:
-                        user_trades.append((row[0], row[1], json.loads(row[2]), json.loads(row[3])))
+                        user_trades.append((row[0], row[1], row[2], json.loads(row[3]), json.loads(row[4])))
 
                     # notify
-                    ut[0].notify(Signal.SIGNAL_STRATEGY_TRADE_LIST, ut[5], user_trades)
+                    ut[0].notify(Signal.SIGNAL_STRATEGY_TRADE_LIST, ut[4], user_trades)
             except Exception as e:
                 # check database for valid ohlc and volumes
                 logger.error(repr(e))
@@ -494,18 +495,18 @@ class MySql(Database):
                 cursor = self._db.cursor()
 
                 for ut in uts:
-                    cursor.execute("""SELECT activity, data, regions FROM user_trader WHERE
-                        broker_id = '%s' AND account_id = '%s' AND market_id = '%s' AND appliance_id = '%s'""" % (ut[2], ut[3], ut[4], ut[5]))
+                    cursor.execute("""SELECT market_id, activity, data, regions FROM user_trader WHERE
+                        broker_id = '%s' AND account_id = '%s' AND appliance_id = '%s'""" % (ut[2], ut[3], ut[4]))
 
                     rows = cursor.fetchall()
 
                     user_traders = []
 
                     for row in rows:
-                        user_traders.append((row[0], row[1], activity, json.loads(row[2]), json.loads(row[3])))
+                        user_traders.append((row[0], row[1] > 0, json.loads(row[2]), json.loads(row[3])))
 
                     # notify
-                    ut[0].notify(Signal.SIGNAL_STRATEGY_TRADER_DATA, ut[5], user_traders)
+                    ut[0].notify(Signal.SIGNAL_STRATEGY_TRADER_LIST, ut[4], user_traders)
             except Exception as e:
                 # check database for valid ohlc and volumes
                 logger.error(repr(e))
@@ -565,7 +566,7 @@ class MySql(Database):
                 ohlcs = []
 
                 for row in rows:
-                    timestamp = float(row[0]) / 1000.0  # to float second timestamp
+                    timestamp = float(row[0]) * 0.001  # to float second timestamp
                     ohlc = Candle(timestamp, mk[3])
 
                     ohlc.set_bid_ohlc(float(row[1]), float(row[2]), float(row[3]), float(row[4]))

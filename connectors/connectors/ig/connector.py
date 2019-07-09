@@ -329,8 +329,11 @@ class IGConnector(Connector):
         market.trade = Market.TRADE_MARGIN
         market.contract_type = Market.CONTRACT_CFD
 
+        # take minDealSize as tick size
         market.set_size_limits(dealing_rules["minDealSize"]["value"], 0.0, dealing_rules["minDealSize"]["value"])
+        # @todo there is some limits in contract size
         market.set_notional_limits(0.0, 0.0, 0.0)
+        # @todo maybe decimal_place of onePipMeans for tick_size
         market.set_price_limits(0.0, 0.0, 0.0)
 
         # commission for stocks
@@ -343,7 +346,7 @@ class IGConnector(Connector):
         self.unlock()
 
         # store market info
-        Database.inst().store_market_info((self.name, epic, market.symbol,
+        Database.inst().store_market_info((self.name, market_id, market.symbol,
             market.market_type, market.unit_type, market.contract_type,  # type
             market.trade, market.orders,  # type
             market.base, market.base_display, market.base_precision,  # base

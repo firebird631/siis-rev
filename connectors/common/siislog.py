@@ -104,15 +104,45 @@ class SiisLog(object):
         self.file_logger = logging.FileHandler(options['log-path'] + '/' + options['log-name'])
         self.file_logger.setFormatter(self.file_formatter)
 
-        # err_logger = logging.FileHandler(options['log-path'] + '/' + 'error')
-        # err_logger.setFormatter(self.file_formatter)        
+        self.my_logger = self.add_file_logger('siis', self.file_logger)
 
-        my_logger = self.add_file_logger('siis.connector')
+    def upgrade(self, options):
+        """
+        Replace generic siis.log by dedicated loggers for this specific connector configuration.
+        """
+        conn = options.get('connector', {}).get('name')
 
-    def add_file_logger(self, name, level=logging.DEBUG):
+        self.my_logger.removeHandler(self.file_logger)
+        self.file_logger = None
+
+        # a siis logger with <connector>.connector.siis.log
+        self.file_logger = logging.FileHandler(options['log-path'] + '/' + "%s.%s" % (conn, options['log-name']))
+        self.file_logger.setFormatter(self.file_formatter)
+        self.file_logger.setLevel(logging.INFO)
+
+        self.add_file_logger('siis', self.file_logger)
+
+        # a siis logger with exec.<connector>.exec.connector.siis.log
+        self.exec_file_logger = logging.FileHandler(options['log-path'] + '/' + "%s.exec.%s" % (conn, options['log-name']))
+        self.exec_file_logger.setFormatter(self.file_formatter)
+        self.exec_file_logger.setLevel(logging.INFO)
+
+         # don't propagate execution to siis logger
+        self.add_file_logger('siis.exec', self.exec_file_logger, False)
+
+        # a siis logger with error.<connector>.error.connector.siis.log
+        self.error_file_logger = logging.FileHandler(options['log-path'] + '/' + "%s.error.%s" % (conn, options['log-name']))
+        self.error_file_logger.setFormatter(self.file_formatter)
+        self.error_file_logger.setLevel(logging.INFO)
+
+        # don't propagate error trade to siis logger
+        self.add_file_logger('siis.error', self.error_file_logger, False)
+
+    def add_file_logger(self, name, handler, level=logging.DEBUG, propagate=True):
         my_logger = logging.getLogger(name)
 
-        my_logger.addHandler(self.file_logger)
+        my_logger.addHandler(handler)
         my_logger.setLevel(level)
+        my_logger.propagate = propagate
 
         return my_logger

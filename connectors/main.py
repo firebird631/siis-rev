@@ -359,6 +359,10 @@ def application(argv):
                     # use the binarizer
                     options['binarize'] = True
 
+                elif arg == '--sync':
+                    # use the syncer
+                    options['sync'] = True
+
                 elif (arg == '--connector' or arg == '-c') and n+1 < len(argv):
                     # connector conf filename
                     options['connector-config'] = argv[n+1]
@@ -414,6 +418,8 @@ def application(argv):
 
     parse_config(siis_logger, options)
     parse_connector_spec(siis_logger, options)
+
+    siis_log.upgrade(options)
 
     #
     # binarizer

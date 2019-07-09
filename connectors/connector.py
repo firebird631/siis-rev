@@ -218,7 +218,7 @@ class Connector(object):
             self.connect()
 
             if not self.connected:
-                print("Could not reconnect to %s, retry in 2 seconds" % (self._name,))
+                logger.warning("Could not reconnect to %s, retry in 2 seconds" % (self._name,))
                 time.sleep(Connector.CONNECTION_RETRY_DELAY)
             else:
                 self.initial_fetch()
