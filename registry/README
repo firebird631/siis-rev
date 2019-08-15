@@ -1,8 +1,0 @@
-Registry of services.
-
-Allow a mapping name for each running instance of connectors and strategies.
-
-A service can run on a unix file sock or on a TCP socket.
-The mapping name is 256 bytes string.
-
-registry.ini contains listening option and limits.

@@ -15,8 +15,6 @@ class Market(object):
     Useful market data from instrument.
     @note Ofr is a synonym for ask.
 
-    IG : https://labs.ig.com/rest-trading-api-reference/service-detail?id=528
-
     @todo availables margins levels for IG but its complicated to manage
     @todo rollover fee buts its complicated too
     @todo levarage persistance
@@ -115,10 +113,6 @@ class Market(object):
         self._unit_type = Market.UNIT_CONTRACTS
         self._contract_type = Market.CONTRACT_SPOT
 
-        self._bid = 0.0
-        self._ofr = 0.0
-        self._last_update_time = time.time()
-
         self._vol24h_base = None
         self._vol24h_quote = None
 
@@ -126,8 +120,16 @@ class Market(object):
 
         self._fees = ([0.0, 0.0], [0.0, 0.0])  # maker 0, taker 1 => fee 0, commission 1
 
-        self._timeframes = []  # watched timeframes
         self._previous = []
+
+        self._leverages = (1,)  # allowed leverages levels
+
+        self._last_update_time = time.time()
+
+        self._bid = 0.0
+        self._ofr = 0.0
+
+        self._timeframes = []  # watched timeframes
 
     @property
     def market_id(self):
