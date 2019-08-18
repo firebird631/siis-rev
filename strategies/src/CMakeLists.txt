@@ -58,15 +58,18 @@ set(STRATEGY_LIB_CXX
     display/ttydisplayer.cpp
     indicators/atr/atr.cpp
     indicators/bbands/bbands.cpp
+    indicators/bbawe/bbawe.cpp
     indicators/donchian/donchian.cpp
     indicators/ema/ema.cpp
     indicators/hma/hma.cpp
     indicators/macd/macd.cpp
+    indicators/mama/mama.cpp
     indicators/mmt/mmt.cpp
     indicators/price/price.cpp
     indicators/pivotpoint/pivotpoint.cpp
     indicators/rsi/rsi.cpp
     indicators/sar/sar.cpp
+    indicators/sinewave/sinewave.cpp
     indicators/sma/sma.cpp
     indicators/stoch/stoch.cpp
     indicators/stochrsi/stochrsi.cpp
@@ -75,6 +78,7 @@ set(STRATEGY_LIB_CXX
     indicators/volume/volume.cpp
     indicators/vwma/vwma.cpp
     indicators/wma/wma.cpp
+    indicators/zigzag/zigzag.cpp
     learning/learning.cpp
     learning/optimizer.cpp
     learning/stdsupervisor.cpp

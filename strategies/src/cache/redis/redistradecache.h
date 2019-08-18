@@ -40,7 +40,7 @@ public:
     virtual void delTrade(const o3d::String &brokerId, const o3d::String &marketId,
                           const o3d::String &strategyId, const Trade &trade) override;
 
-    virtual void delAll() override;
+    virtual void delAll(const o3d::String &brokerId, const o3d::String &strategyId) override;
 
     virtual void execute() override;
 

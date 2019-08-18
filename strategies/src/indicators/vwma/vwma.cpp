@@ -38,6 +38,11 @@ void Vwma::setConf(IndicatorConfig conf)
 
 void Vwma::compute(o3d::Double timestamp, const DataArray &price, const DataArray &volume)
 {
+    o3d::Int32 lb = lookback();
+    if (price.getSize() <= lb) {
+        return;
+    }
+
     m_prev = m_last;
 
     o3d::Int32 size = price.getSize();
@@ -67,4 +72,9 @@ void Vwma::compute(o3d::Double timestamp, const DataArray &price, const DataArra
 
     m_last = m_vwma.getLast();
     done(timestamp);
+}
+
+o3d::Int32 Vwma::lookback() const
+{
+    return m_len-1;
 }

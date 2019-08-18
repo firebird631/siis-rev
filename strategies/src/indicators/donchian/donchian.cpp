@@ -42,6 +42,10 @@ void Donchian::setConf(IndicatorConfig conf)
 
 void Donchian::compute(o3d::Double timestamp, const DataArray &high, const DataArray &low)
 {
+    if (high.getSize() <= 0) {
+        return;
+    }
+
     m_prevUpper = m_lastUpper;
     m_prevLower = m_lastLower;
 
@@ -65,4 +69,9 @@ void Donchian::compute(o3d::Double timestamp, const DataArray &high, const DataA
     m_lastUpper = m_upper.getLast();
     m_lastLower = m_lower.getLast();
     done(timestamp);
+}
+
+o3d::Int32 Donchian::lookback() const
+{
+    return 0;
 }

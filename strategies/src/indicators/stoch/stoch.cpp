@@ -62,6 +62,11 @@ void Stoch::setConf(IndicatorConfig conf)
 
 void Stoch::compute(o3d::Double timestamp, const DataArray &high, const DataArray &low, const DataArray &close)
 {
+    o3d::Int32 lb = lookback();
+    if (high.getSize() <= lb) {
+        return;
+    }
+
     m_prevSlowK = m_lastSlowK;
     m_prevSlowD = m_lastSlowD;
 
@@ -72,18 +77,24 @@ void Stoch::compute(o3d::Double timestamp, const DataArray &high, const DataArra
         m_slowD.setSize(size);
     }
 
-    int b, n;
+    int b, n;  // first len data are empty so add offset
     TA_RetCode res = ::TA_STOCH(0, high.getSize()-1, high.getData(), low.getData(), close.getData(),
                                 m_fastK_Len, m_slowK_Len, static_cast<TA_MAType>(m_slowK_MAType),
                                 m_slowD_Len, static_cast<TA_MAType>(m_slowD_MAType),
-                                &b, &n, m_slowK.getData()+m_slowK_Len, m_slowD.getData()+m_slowD_Len);
+                                &b, &n, m_slowK.getData()+lb, m_slowD.getData()+lb);
     if (res != TA_SUCCESS) {
         O3D_WARNING(siis::taErrorToStr(res));
     }
 
-    O3D_ASSERT(b == m_slowK_Len);  // m_slowD_Len ... @todo
+    O3D_ASSERT(b == lb);
 
     m_lastSlowK = m_slowK.getLast();
     m_lastSlowD = m_slowD.getLast();
     done(timestamp);
+}
+
+o3d::Int32 Stoch::lookback() const
+{
+    return ::TA_STOCH_Lookback(m_fastK_Len, m_slowK_Len,static_cast<TA_MAType>(m_slowK_MAType),
+                                m_slowD_Len, static_cast<TA_MAType>(m_slowD_MAType));
 }

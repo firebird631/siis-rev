@@ -38,6 +38,11 @@ void Rsi::setConf(IndicatorConfig conf)
 
 void Rsi::compute(o3d::Double timestamp, const DataArray &price)
 {
+    o3d::Int32 lb = lookback();
+    if (price.getSize() <= lb) {
+        return;
+    }
+
     m_prev = m_last;
 
     if (m_rsi.getSize() != price.getSize()) {
@@ -45,13 +50,18 @@ void Rsi::compute(o3d::Double timestamp, const DataArray &price)
     }
 
     int b, n;  // first len data are empty so add offset
-    TA_RetCode res = ::TA_RSI(0, price.getSize(), price.getData(), m_len, &b, &n, m_rsi.getData()+m_len);
+    TA_RetCode res = ::TA_RSI(0, price.getSize(), price.getData(), m_len, &b, &n, m_rsi.getData()+lb);
     if (res != TA_SUCCESS) {
         O3D_WARNING(siis::taErrorToStr(res));
     }
 
-    O3D_ASSERT(b == m_len);
+    O3D_ASSERT(b == lb);
 
     m_last = m_rsi.getLast();
     done(timestamp);
+}
+
+o3d::Int32 Rsi::lookback() const
+{
+    return m_len;  // ::TA_RSI_Lookback(m_len);
 }

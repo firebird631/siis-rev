@@ -56,6 +56,7 @@ void RedisCache::init()
 void siis::RedisCache::terminate()
 {
     if (m_redis) {
+        // trade->delAll(brokerId, strategyId);
         o3d::deletePtr(m_trade);
 
         ::redisFree(m_redis);

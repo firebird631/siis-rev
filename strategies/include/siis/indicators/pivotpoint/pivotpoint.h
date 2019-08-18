@@ -80,6 +80,12 @@ public:
                  const DataArray &open, const DataArray &high,
                  const DataArray &low, const DataArray &close);
 
+    /**
+     * @brief lookback Min number of necessary samples.
+     * @return 1
+     */
+    o3d::Int32 lookback() const;
+
 private:
 
     Method m_method;

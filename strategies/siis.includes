@@ -82,3 +82,11 @@ include/siis/indicators/rsi
 include/siis/indicators/donchian
 include/siis/analysers
 include/siis/stats
+include/siis/indicators/mama
+include/siis/indicators/zigzag
+include/siis/indicators/sinewave
+include/siis/indicators/bbawe
+src/indicators/mama
+src/indicators/zigzag
+src/indicators/sinewave
+src/indicators/bbawe

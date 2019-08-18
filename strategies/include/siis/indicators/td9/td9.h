@@ -136,6 +136,11 @@ public:
                  const DataArray &low,
                  const DataArray &close);
 
+    /**
+     * @brief lookback Min number of necessary samples.
+     */
+    o3d::Int32 lookback() const;
+
 private:
 
     CToken m_c;

@@ -38,6 +38,11 @@ void Sma::setConf(IndicatorConfig conf)
 
 void Sma::compute(o3d::Double timestamp, const DataArray &price)
 {
+    o3d::Int32 lb = lookback();
+    if (price.getSize() <= lb) {
+        return;
+    }
+
     m_prev = m_last;
 
     if (m_sma.getSize() != price.getSize()) {
@@ -45,13 +50,18 @@ void Sma::compute(o3d::Double timestamp, const DataArray &price)
     }
 
     int b, n;  // first len-1 data are empty so add offset
-    TA_RetCode res = ::TA_SMA(0, price.getSize()-1, price.getData(), m_len, &b, &n, m_sma.getData()+m_len-1);
+    TA_RetCode res = ::TA_SMA(0, price.getSize()-1, price.getData(), m_len, &b, &n, m_sma.getData()+lb);
     if (res != TA_SUCCESS) {
         O3D_WARNING(siis::taErrorToStr(res));
     }
 
-    O3D_ASSERT(b == m_len-1);
+    O3D_ASSERT(b == lb);
 
     m_last = m_sma.getLast();
     done(timestamp);
+}
+
+o3d::Int32 Sma::lookback() const
+{
+    return m_len-1;  // ::TA_SMA_Lookback(m_len);
 }

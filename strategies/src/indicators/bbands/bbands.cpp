@@ -65,27 +65,39 @@ void BBands::setConf(IndicatorConfig conf)
 
 void BBands::compute(o3d::Double timestamp, const DataArray &price)
 {
+    o3d::Int32 lb = lookback();
+    if (price.getSize() <= lb) {
+        return;
+    }
+
     m_prevUpper = m_lastUpper;
     m_prevMiddle = m_lastMiddle;
     m_prevLower = m_lastLower;
 
     if (m_upper.getSize() != price.getSize()) {
         m_upper.setSize(price.getSize());
+        m_middle.setSize(price.getSize());
+        m_lower.setSize(price.getSize());
     }
 
     int b, n;
     TA_RetCode res = ::TA_BBANDS(0, price.getSize()-1, price.getData(), m_len,
                                  m_numDevUp, m_numDevDn,
                                  static_cast<TA_MAType>(m_maType),
-                                 &b, &n, m_upper.getData(), m_middle.getData(), m_lower.getData()+m_len);
+                                 &b, &n, m_upper.getData()+lb, m_middle.getData()+lb, m_lower.getData()+lb);
     if (res != TA_SUCCESS) {
         O3D_WARNING(siis::taErrorToStr(res));
     }
 
-    O3D_ASSERT(b == m_len);
+    O3D_ASSERT(b == lb);
 
     m_lastUpper = m_upper.getLast();
     m_lastMiddle = m_middle.getLast();
     m_lastLower = m_lower.getLast();
     done(timestamp);
+}
+
+o3d::Int32 BBands::lookback() const
+{
+    return ::TA_BBANDS_Lookback(m_len, m_numDevUp, m_numDevDn, static_cast<TA_MAType>(m_maType));
 }

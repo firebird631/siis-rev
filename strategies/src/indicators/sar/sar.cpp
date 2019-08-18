@@ -42,6 +42,11 @@ void Sar::setConf(IndicatorConfig conf)
 
 void Sar::compute(o3d::Double timestamp, const DataArray &high, const DataArray &low)
 {
+    o3d::Int32 lb = lookback();
+    if (high.getSize() <= lb) {
+        return;
+    }
+
     m_prev = m_last;
 
     if (m_sar.getSize() != high.getSize()) {
@@ -49,13 +54,18 @@ void Sar::compute(o3d::Double timestamp, const DataArray &high, const DataArray 
     }
 
     int b, n;
-    TA_RetCode res = ::TA_SAR(0, high.getSize()-1, high.getData(), low.getData(), m_accel, m_max, &b, &n, m_sar.getData());
+    TA_RetCode res = ::TA_SAR(0, high.getSize()-1, high.getData(), low.getData(), m_accel, m_max, &b, &n, m_sar.getData()+lb);
     if (res != TA_SUCCESS) {
         O3D_WARNING(siis::taErrorToStr(res));
     }
 
-    O3D_ASSERT(b == 0);  // @todo
+    O3D_ASSERT(b == lb);
 
     m_last = m_sar.getLast();
     done(timestamp);
+}
+
+o3d::Int32 Sar::lookback() const
+{
+    return 1;
 }

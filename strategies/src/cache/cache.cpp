@@ -30,7 +30,8 @@ Cache *Cache::builder(
 
 Cache::Cache() :
     m_thread(this),
-    m_running(false)
+    m_running(false),
+    m_trade(nullptr)
 {
 
 }

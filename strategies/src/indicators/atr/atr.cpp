@@ -45,6 +45,11 @@ void Atr::compute(o3d::Double timestamp,
                   const DataArray &low,
                   const DataArray &close)
 {
+    o3d::Int32 lb = lookback();
+    if (high.getSize() <= lb) {
+        return;
+    }
+
     m_prev = m_last;
 
     if (m_atr.getSize() != high.getSize()) {
@@ -53,12 +58,12 @@ void Atr::compute(o3d::Double timestamp,
 
     int b, n;
     TA_RetCode res = ::TA_ATR(0, high.getSize()-1, high.getData(), low.getData(), close.getData(), m_len,
-                              &b, &n, m_atr.getData()+m_len);
+                              &b, &n, m_atr.getData()+lb);
     if (res != TA_SUCCESS) {
         O3D_WARNING(siis::taErrorToStr(res));
     }
 
-    O3D_ASSERT(b == m_len);
+    O3D_ASSERT(b == lb);
 
     m_last = m_atr.getLast();
 
@@ -76,4 +81,9 @@ void Atr::compute(o3d::Double timestamp,
 //    }
 
     done(timestamp);
+}
+
+o3d::Int32 Atr::lookback() const
+{
+    return m_len;  // ::TA_ATR_Lookback(m_len);
 }

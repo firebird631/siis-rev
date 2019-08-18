@@ -34,7 +34,7 @@ public:
     virtual void delTrade(const o3d::String &brokerId, const o3d::String &marketId,
                           const o3d::String &strategyId, const Trade &trade) = 0;
 
-    virtual void delAll() = 0;
+    virtual void delAll(const o3d::String &brokerId, const o3d::String &strategyId) = 0;
 
     virtual void execute() = 0;
 };

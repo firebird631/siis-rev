@@ -177,7 +177,7 @@ DataArray &DataArray::sub(const DataArray &a, const DataArray &b)
     return *this;
 }
 
-DataArray &DataArray::sma(o3d::Int32 len, DataArray &out)
+DataArray &DataArray::sma(o3d::Int32 len, DataArray &out) const
 {
     int b, n;  // len-1 offset on output data
     TA_RetCode res = ::TA_SMA(0, getSize()-1, m_data, len, &b, &n, out.getData()+len-1);
@@ -188,6 +188,36 @@ DataArray &DataArray::sma(o3d::Int32 len, DataArray &out)
     O3D_ASSERT(b == len-1);
 
     return out;
+}
+
+DataArray &DataArray::ema(o3d::Int32 len, DataArray &out) const
+{
+    int b, n;  // len-1 offset on output data
+    TA_RetCode res = ::TA_EMA(0, getSize()-1, m_data, len, &b, &n, out.getData()+len-1);
+    if (res != TA_SUCCESS) {
+        O3D_WARNING(siis::taErrorToStr(res));
+    }
+
+    O3D_ASSERT(b == len-1);
+
+    return out;
+}
+
+o3d::Int32 DataArray::cross(const DataArray &a) const
+{
+    o3d::Int32 size = getSize();
+
+    if (a.getSize() != size || size < 2) {
+        return 0;
+    }
+
+    if (m_data[size-2] > a.m_data[size-2] && m_data[size-1] < a.m_data[size-1]) {
+        return -1;
+    } else if (m_data[size-2] < a.m_data[size-2] && m_data[size-2] > a.m_data[size-2]) {
+        return 1;
+    }
+
+    return 0;
 }
 
 DataArray siis::DataArray::operator+(const DataArray &a)

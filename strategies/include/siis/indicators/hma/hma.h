@@ -43,6 +43,10 @@ public:
      * @param price A close or any other array of price.
      */
     void compute(o3d::Double timestamp, const DataArray &price);
+    /**
+     * @brief lookback Min number of necessary samples.
+     */
+    o3d::Int32 lookback() const;
 
 private:
 

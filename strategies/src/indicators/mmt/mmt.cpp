@@ -38,20 +38,30 @@ void Mmt::setConf(IndicatorConfig conf)
 
 void Mmt::compute(o3d::Double timestamp, const DataArray &price)
 {
+    o3d::Int32 lb = lookback();
+    if (price.getSize() <= lb) {
+        return;
+    }
+
     m_prev = m_last;
 
     if (m_mmt.getSize() != price.getSize()) {
         m_mmt.setSize(price.getSize());
     }
 
-    int b, n;
-    TA_RetCode res = ::TA_MOM(0, price.getSize()-1, price.getData(), m_len, &b, &n, m_mmt.getData()+m_len-1);
+    int b, n;  // first len data are empty so add offset
+    TA_RetCode res = ::TA_MOM(0, price.getSize()-1, price.getData(), m_len, &b, &n, m_mmt.getData()+lb);
     if (res != TA_SUCCESS) {
         O3D_WARNING(siis::taErrorToStr(res));
     }
 
-    O3D_ASSERT(b == m_len-1);
+    O3D_ASSERT(b == lb);
 
     m_last = m_mmt.getLast();
     done(timestamp);
+}
+
+o3d::Int32 Mmt::lookback() const
+{
+    return m_len;  // ::TA_MOM_Lookback(m_len);
 }

@@ -54,6 +54,12 @@ public:
                  const DataArray &low,
                  const DataArray &close);
 
+    /**
+     * @brief lookback Min number of necessary samples.
+     * @return 1 + (len - 1)
+     */
+    o3d::Int32 lookback() const;
+
 private:
 
     o3d::Int32 m_len;

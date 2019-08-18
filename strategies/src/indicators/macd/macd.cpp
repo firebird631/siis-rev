@@ -46,6 +46,11 @@ void Macd::setConf(IndicatorConfig conf)
 
 void Macd::compute(o3d::Double timestamp, const DataArray &price)
 {
+    o3d::Int32 lb = lookback();
+    if (price.getSize() <= lb) {
+        return;
+    }
+
     m_prev = m_last;
 
     if (m_macd.getSize() != price.getSize()) {
@@ -57,13 +62,18 @@ void Macd::compute(o3d::Double timestamp, const DataArray &price)
     int b, n;
     TA_RetCode res = ::TA_MACD(0, price.getSize()-1, price.getData(),
                                m_fastLen, m_slowLen, m_signalLen,
-                               &b, &n, m_macd.getData(), m_signal.getData(), m_hist.getData());
+                               &b, &n, m_macd.getData()+lb, m_signal.getData()+lb, m_hist.getData()+lb);
     if (res != TA_SUCCESS) {
         O3D_WARNING(siis::taErrorToStr(res));
     }
 
-    O3D_ASSERT(b == m_slowLen-1);  // @todo which one ?
+    O3D_ASSERT(b == lb);
 
     m_last = m_macd.getLast();
     done(timestamp);
+}
+
+o3d::Int32 Macd::lookback() const
+{
+    return ::TA_MACD_Lookback(m_fastLen, m_slowLen, m_signalLen);
 }

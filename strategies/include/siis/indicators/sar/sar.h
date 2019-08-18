@@ -44,6 +44,12 @@ public:
      */
     void compute(o3d::Double timestamp, const DataArray &high, const DataArray &low);
 
+    /**
+     * @brief lookback Min number of necessary samples.
+     * @return 1
+     */
+    o3d::Int32 lookback() const;
+
 private:
 
     o3d::Double m_accel;

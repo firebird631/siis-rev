@@ -58,6 +58,11 @@ void StochRsi::setConf(IndicatorConfig conf)
 
 void StochRsi::compute(o3d::Double timestamp, const DataArray &price)
 {
+    o3d::Int32 lb = lookback();
+    if (price.getSize() <= lb) {
+        return;
+    }
+
     m_prevFastK = m_lastFastK;
     m_prevFastD = m_lastFastD;
 
@@ -71,14 +76,19 @@ void StochRsi::compute(o3d::Double timestamp, const DataArray &price)
     int b, n;
     TA_RetCode res = ::TA_STOCHRSI(0, price.getSize()-1, price.getData(),
                                    m_len, m_fastK_Len, m_fastD_Len, static_cast<TA_MAType>(m_fastD_MAType),
-                                   &b, &n, m_fastK.getData()+m_len, m_fastD.getData()+m_len);
+                                   &b, &n, m_fastK.getData()+lb, m_fastD.getData()+lb);
     if (res != TA_SUCCESS) {
         O3D_WARNING(siis::taErrorToStr(res));
     }
 
-    O3D_ASSERT(b == m_len);  // @todo not clean which one
+    O3D_ASSERT(b == lb);
 
     m_lastFastK = m_fastK.getLast();
     m_lastFastD = m_fastD.getLast();
     done(timestamp);
+}
+
+o3d::Int32 StochRsi::lookback() const
+{
+    return ::TA_STOCHRSI_Lookback(m_len, m_fastK_Len, m_fastD_Len, static_cast<TA_MAType>(m_fastD_MAType));
 }

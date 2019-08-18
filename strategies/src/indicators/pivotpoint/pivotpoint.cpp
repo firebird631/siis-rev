@@ -201,3 +201,8 @@ void PivotPoint::compute(o3d::Double timestamp,
 
     done(timestamp);
 }
+
+o3d::Int32 PivotPoint::lookback() const
+{
+    return 1;
+}

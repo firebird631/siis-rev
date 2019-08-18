@@ -72,6 +72,11 @@ void Td9::compute(o3d::Double timestamp,
     done(timestamp);
 }
 
+o3d::Int32 Td9::lookback() const
+{
+    return 4;
+}
+
 void Td9::td9(o3d::Int32 b, const DataArray &high, const DataArray &low, const DataArray &close)
 {
     // True low/True high – is the lowest and the highest point for a setup,

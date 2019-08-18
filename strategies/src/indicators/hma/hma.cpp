@@ -38,19 +38,13 @@ void Hma::setConf(IndicatorConfig conf)
     m_len = conf.data().get("len", 9).asInt();
 }
 
-DataArray& sma(const DataArray &data, o3d::Int32 len, DataArray &out)
-{
-    int b, n;
-    TA_RetCode res = ::TA_SMA(0, data.getSize()-1, data.getData(), len, &b, &n, out.getData());
-    if (res != TA_SUCCESS) {
-        O3D_WARNING(siis::taErrorToStr(res));
-    }
-
-    return out;
-}
-
 void Hma::compute(o3d::Double timestamp, const DataArray &price)
 {
+    o3d::Int32 lb = lookback();
+    if (price.getSize() <= lb) {
+        return;
+    }
+
     m_prev = m_last;
 
     if (m_hma.getSize() != price.getSize()) {
@@ -127,4 +121,9 @@ void Hma::compute(o3d::Double timestamp, const DataArray &price)
 
     m_last = m_hma.getLast();
     done(timestamp);
+}
+
+o3d::Int32 Hma::lookback() const
+{
+    return m_len-1;  // ::TA_SMA_Lookback(m_len);
 }

@@ -57,7 +57,14 @@ public:
     DataArray& add(const DataArray &a, const DataArray &b);
     DataArray& sub(const DataArray &a, const DataArray &b);
 
-    DataArray& sma(o3d::Int32 len, DataArray &out);
+    DataArray& sma(o3d::Int32 len, DataArray &out) const;
+    DataArray& ema(o3d::Int32 len, DataArray &out) const;
+
+    /**
+     * @brief cross With the two last values
+     * @return -1, 1 or 0 (this cross under a, this cross upper a, none)
+     */
+    o3d::Int32 cross(const DataArray &a) const;
 };
 
 } // namespace siis

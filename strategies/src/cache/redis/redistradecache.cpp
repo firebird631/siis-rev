@@ -22,7 +22,7 @@ RedisTradeCache::RedisTradeCache(RedisCache *cache) :
 
 RedisTradeCache::~RedisTradeCache()
 {
-    delAll();
+    // delAll();
 }
 
 Cache *RedisTradeCache::cache()
@@ -65,24 +65,23 @@ void RedisTradeCache::delTrade(
     m_mutex.unlock();
 }
 
-void RedisTradeCache::delAll()
+void RedisTradeCache::delAll(const o3d::String &brokerId, const o3d::String &strategyId)
 {
     m_mutex.lock();
 
     // this way avoid memory allocation
-    m_buffer = "RPUSH trade.";
-    m_buffer += strategyId;
-    m_buffer += '.';
-    m_buffer += brokerId;
-    m_buffer += '.';
-    m_buffer += marketId;
-    m_buffer += '.';
-    m_buffer.concat(trade.id());
-    m_buffer += " \"";
-    m_buffer.concat(trade.entryPrice());  // @todo serialize all the members
-    m_buffer += '\"';
+//    m_buffer = "RPUSH trade.";
+//    m_buffer += strategyId;
+//    m_buffer += '.';
+//    m_buffer += brokerId;
+//    m_buffer += '.';
+//    m_buffer += marketId;
+//    m_buffer += '.';
+//    m_buffer.concat(trade.id());
+//    m_buffer += " \"";
+//    m_buffer += '\"';
 
-    ::redisCommand(m_redisCache->redis(), "KEYS trade");
+//    ::redisCommand(m_redisCache->redis(), "KEYS trade");
 
     m_mutex.unlock();
 }

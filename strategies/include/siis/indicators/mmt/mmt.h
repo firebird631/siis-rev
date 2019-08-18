@@ -43,6 +43,11 @@ public:
      */
     void compute(o3d::Double timestamp, const DataArray &price);
 
+    /**
+     * @brief lookback Min number of necessary samples.
+     */
+    o3d::Int32 lookback() const;
+
 private:
 
     o3d::Int32 m_len;

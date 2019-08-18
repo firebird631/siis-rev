@@ -38,6 +38,11 @@ void Ema::setConf(IndicatorConfig conf)
 
 void Ema::compute(o3d::Double timestamp, const DataArray &price)
 {
+    o3d::Int32 lb = lookback();
+    if (price.getSize() <= lb) {
+        return;
+    }
+
     m_prev = m_last;
 
     if (m_ema.getSize() != price.getSize()) {
@@ -45,13 +50,18 @@ void Ema::compute(o3d::Double timestamp, const DataArray &price)
     }
 
     int b, n;
-    TA_RetCode res = ::TA_EMA(0, price.getSize()-1, price.getData(), m_len, &b, &n, m_ema.getData()+m_len-1);
+    TA_RetCode res = ::TA_EMA(0, price.getSize()-1, price.getData(), m_len, &b, &n, m_ema.getData()+lb);
     if (res != TA_SUCCESS) {
         O3D_WARNING(siis::taErrorToStr(res));
     }
 
-    O3D_ASSERT(b == m_len-1);
+    O3D_ASSERT(b == lb);
 
     m_last = m_ema.getLast();
     done(timestamp);
+}
+
+o3d::Int32 Ema::lookback() const
+{
+    return m_len-1;  // ::TA_EMA_Lookback(m_len);
 }
