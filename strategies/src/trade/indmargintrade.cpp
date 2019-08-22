@@ -195,7 +195,12 @@ o3d::String IndMarginTrade::stateToStr() const
     }
 }
 
-void IndMarginTrade::save(Database *db, Market *market)
+void IndMarginTrade::dumps(o3d::Variadic &trades, Market *market) const
+{
+    // @todo
+}
+
+void IndMarginTrade::loads(const o3d::Variadic &trade)
 {
     // @todo
 }

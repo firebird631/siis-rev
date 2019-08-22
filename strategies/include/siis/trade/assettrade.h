@@ -82,7 +82,12 @@ public:
     virtual o3d::String formatToStr() const override;
     virtual o3d::String stateToStr() const override;
 
-    virtual void save(class Database *db, class Market *market) override;
+    //
+    // persistance
+    //
+
+    virtual void dumps(o3d::Variadic &trades, class Market *market) const override;
+    virtual void loads(const o3d::Variadic &trade) override;
 
 private:
 

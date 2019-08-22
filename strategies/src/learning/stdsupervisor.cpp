@@ -12,7 +12,14 @@
 using namespace siis;
 
 StdSupervisor::StdSupervisor(Handler *handler, const o3d::String &identifier) :
-    Supervisor(handler, identifier)
+    Supervisor(handler, identifier),
+    m_needUpdate(false),
+    m_baseTimeframe(0.0),
+    m_minTradedTimeframe(0.0),
+    m_maxTradedTimeframe(0.0),
+    m_numEpoch(0),
+    m_batchSize(0),
+    m_tradeManager(nullptr)
 {
 
 }
@@ -39,13 +46,15 @@ void StdSupervisor::init(Config *config)
     conf.parseOverrides(config->getStrategiesPath(), config->getStrategyFilename());
 
     m_needUpdate = conf.root().get("needUpdate", false).asBool();
-    m_minTimeframe = conf.minTimeframe();
+    m_baseTimeframe = conf.baseTimeframe();
+    m_minTradedTimeframe = conf.minTradedTimeframe();
+    m_maxTradedTimeframe = conf.maxTradedTimeframe();
 
     // stream data sources
-    if (m_minTimeframe <= 0.0) {
+    if (m_baseTimeframe <= 0.0) {
         addTickDataSource();
     } else {
-        addMidOhlcDataSource(m_minTimeframe);
+        addMidOhlcDataSource(m_baseTimeframe);
     }
 
     if (conf.root().isMember("timeframes")) {
@@ -124,7 +133,7 @@ void StdSupervisor::finalizeMarketData(Connector *connector, Database *db)
 
 void StdSupervisor::onTickUpdate(o3d::Double timestamp, const TickArray &ticks)
 {
-    if (m_minTimeframe == TF_TICK) {
+    if (m_baseTimeframe == TF_TICK) {
 //        for (Analyser *analyser : m_analysers) {
 //            analyser->onTickUpdate(timestamp, ticks);
 //        }
@@ -133,7 +142,7 @@ void StdSupervisor::onTickUpdate(o3d::Double timestamp, const TickArray &ticks)
 
 void StdSupervisor::onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe, Ohlc::Type ohlcType, const OhlcArray &ohlc)
 {
-    if (m_minTimeframe == timeframe) {
+    if (m_baseTimeframe == timeframe) {
 //        for (Analyser *analyser : m_analysers) {
 //            analyser->onOhlcUpdate(timestamp, ohlcType, ohlc);
 //        }

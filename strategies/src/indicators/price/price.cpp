@@ -67,14 +67,16 @@ void Price::compute(const OhlcCircular &ohlc)
 
     const o3d::Int32 size = ohlc.size();
 
-    m_price.setSize(size);
+    if (size != m_price.getSize()) {
+        m_price.setSize(size);
 
-    m_open.setSize(size);
-    m_high.setSize(size);
-    m_low.setSize(size);
-    m_close.setSize(size);
+        m_open.setSize(size);
+        m_high.setSize(size);
+        m_low.setSize(size);
+        m_close.setSize(size);
 
-    m_timestamp.setSize(size);
+        m_timestamp.setSize(size);
+    }
 
     m_min = o3d::Limits<o3d::Double>::max();
     m_max = 0;
@@ -105,6 +107,7 @@ void Price::compute(const OhlcCircular &ohlc)
         // timestamp, timeframe, open, high, low, close, volume, ended
         o3d::Int32 i = 0;
         const Ohlc *cur;
+        const o3d::Double third = 1.0 / 3.0;
 
         for (auto cit = ohlc.cbegin(); cit != ohlc.cend(); ++cit) {
             cur = *cit;
@@ -115,7 +118,31 @@ void Price::compute(const OhlcCircular &ohlc)
             m_low[i] = cur->low();
             m_close[i] = cur->close();
 
-            m_price[i] = (m_high[i] + m_low[i] + m_close[i]) / 3.0;
+            m_price[i] = (m_high[i] + m_low[i] + m_close[i]) * third;
+
+            m_min = o3d::min(m_min, m_price[i]);
+            m_max = o3d::max(m_max, m_price[i]);
+
+            m_consolidated = cur->consolidated();
+
+            ++i;
+        }
+    } else if (m_method == PRICE_OHLC) {
+        // timestamp, timeframe, open, high, low, close, volume, ended
+        o3d::Int32 i = 0;
+        const Ohlc *cur;
+        const o3d::Double forth = 1.0 / 4.0;
+
+        for (auto cit = ohlc.cbegin(); cit != ohlc.cend(); ++cit) {
+            cur = *cit;
+
+            m_timestamp[i] = cur->timestamp();
+            m_open[i] = cur->open();
+            m_high[i] = cur->high();
+            m_low[i] = cur->low();
+            m_close[i] = cur->close();
+
+            m_price[i] = (m_open[i] + m_high[i] + m_low[i] + m_close[i]) * forth;
 
             m_min = o3d::min(m_min, m_price[i]);
             m_max = o3d::max(m_max, m_price[i]);

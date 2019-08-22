@@ -108,15 +108,15 @@ o3d::Bool OhlcGen::updateFromTickMid(const Tick *tick, OhlcCircular &out)
     // compute the middle price
     const o3d::Double price = (tick->bid() + tick->ofr()) * 0.5;
 
-    o3d::Double curBaseTime = baseTime(tick->timestamp());
-
-    if (m_curOhlc && !m_curOhlc->consolidated() && (m_curOhlc->timestamp() + m_toTf) <= curBaseTime) {
+    if (m_curOhlc && !m_curOhlc->consolidated() && (tick->timestamp() >= m_curOhlc->timestamp() + m_toTf)) {
         // need to close the current ohlc
         m_curOhlc->setConsolidated();
         m_curOhlc = nullptr;
     }
 
     if (!m_curOhlc) {
+        o3d::Double curBaseTime = baseTime(tick->timestamp());
+
         // have a new ohlc, and init a new one as current
         isNew = true;
         m_curOhlc = out.writeElt();
@@ -156,15 +156,15 @@ o3d::Bool OhlcGen::updateFromTickBid(const Tick *tick, OhlcCircular &out)
     // the bid price
     const o3d::Double price = tick->bid();
 
-    o3d::Double curBaseTime = baseTime(tick->timestamp());
-
-    if (m_curOhlc && !m_curOhlc->consolidated() && (m_curOhlc->timestamp() + m_toTf) <= curBaseTime) {
+    if (m_curOhlc && !m_curOhlc->consolidated() && (tick->timestamp() >= m_curOhlc->timestamp() + m_toTf)) {
         // need to close the current ohlc
         m_curOhlc->setConsolidated();
         m_curOhlc = nullptr;
     }
 
     if (!m_curOhlc) {
+        o3d::Double curBaseTime = baseTime(tick->timestamp());
+
         // have a new ohlc, and init a new one as current
         isNew = true;
         m_curOhlc = out.writeElt();
@@ -204,15 +204,15 @@ o3d::Bool OhlcGen::updateFromTickOfr(const Tick *tick, OhlcCircular &out)
     // the ofr price
     const o3d::Double price = tick->ofr();
 
-    o3d::Double curBaseTime = baseTime(tick->timestamp());
-
-    if (m_curOhlc && !m_curOhlc->consolidated() && (m_curOhlc->timestamp() + m_toTf) <= curBaseTime) {
+    if (m_curOhlc && !m_curOhlc->consolidated() && (tick->timestamp() >= m_curOhlc->timestamp() + m_toTf)) {
         // need to close the current ohlc
         m_curOhlc->setConsolidated();
         m_curOhlc = nullptr;
     }
 
     if (!m_curOhlc) {
+        o3d::Double curBaseTime = baseTime(tick->timestamp());
+
         // have a new ohlc, and init a new one as current
         isNew = true;
         m_curOhlc = out.writeElt();

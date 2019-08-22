@@ -51,7 +51,10 @@ public:
 private:
 
     o3d::Bool m_needUpdate;
-    o3d::Double m_minTimeframe;
+    o3d::Double m_baseTimeframe;
+
+    o3d::Double m_minTradedTimeframe;
+    o3d::Double m_maxTradedTimeframe;
 
     o3d::Int32 m_numEpoch;
     o3d::Int32 m_batchSize;

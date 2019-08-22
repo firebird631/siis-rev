@@ -11,10 +11,13 @@
 #include "../base.h"
 #include "../utils/common.h"
 
+#include "tradeoperation.h"
+
 #include "../connector/ordersignal.h"
 #include "../connector/positionsignal.h"
 
 #include <o3d/core/base.h>
+#include <o3d/core/variadic.h>
 
 namespace siis {
 
@@ -67,20 +70,26 @@ public:
     o3d::Double worstPrice;
     o3d::Double worstPriceTimestamp;
 
+    std::list<TradeCondition> conditions;
+
     TradeStats() :
-        bestPrice(0),
-        bestPriceTimestamp(0),
-        worstPrice(0),
-        worstPriceTimestamp(0)
+        bestPrice(0.0),
+        bestPriceTimestamp(0.0),
+        worstPrice(0.0),
+        worstPriceTimestamp(0.0)
     {
     }
 
     void init()
     {
-        bestPrice = 0;
-        bestPriceTimestamp =0;
-        worstPrice = 0;
-        worstPriceTimestamp = 0;
+        bestPrice = 0.0;
+        bestPriceTimestamp = 0.0;
+        worstPrice = 0.0;
+        worstPriceTimestamp = 0.0;
+
+        if (!conditions.empty()) {
+            conditions.clear();
+        }
     }
 };
 
@@ -100,6 +109,8 @@ public:
 
     enum Type {
         TYPE_BUY_SELL = 0,
+        TYPE_ASSET = 0,
+        TYPE_SPOT = 0,
         TYPE_MARGIN = 1,
         TYPE_IND_MARGIN = 2,
         MAX_TYPE = TYPE_IND_MARGIN
@@ -358,7 +369,19 @@ public:
     // persistance
     //
 
-    virtual void save(class Database *db, class Market *market) = 0;
+    /**
+     * @brief dumps Dumps and push the persistant content of the trade to a variadic array.
+     * @param trades Valid Variadic of type array.
+     * @param market Related market.
+     */
+    virtual void dumps(o3d::Variadic &trades, class Market *market) const = 0;
+
+    /**
+     * @brief loads Loads the persistant content of the trade from a variadic object.
+     * @param trade Valid variadic of type object.
+     */
+    virtual void loads(const o3d::Variadic &trade) = 0;
+
 
     //
     // statistics
@@ -368,7 +391,7 @@ public:
 
     const TradeStats& stats() const { return m_stats; }
 
-    const std::list<TradeCondition>& getConditions() const { return m_conditions; }
+    const std::list<TradeCondition>& getConditions() const { return m_stats.conditions; }
 
     void addCondition(
             const o3d::String& name,
@@ -377,6 +400,26 @@ public:
             o3d::Double v3 = 0.0,
             o3d::Double v4 = 0.0);
 
+    //
+    // operations
+    //
+
+    void addOperation(TradeOperation *tradeOp);
+
+    void removeOperation(o3d::Int32 id);
+
+    /**
+     * @brief operations List all pending/peristants operations
+     */
+    // const std::list<TradeOperation*> operations() const { return m_operations; }
+
+    /**
+     * @brief cleanupOperations Regenerate the list of operations by removing the finished operations.
+     */
+    void cleanupOperations();
+
+    // o3d::Bool hasOperations() { return !m_operations.empty(); }
+
 protected:
 
     o3d::Int32 m_id;
@@ -384,7 +427,7 @@ protected:
     Mode m_mode;                  //!< real trade or on the paper trader
 
     o3d::Double m_timeframe;
-    o3d::Double m_timestamp;       //!< trade entry order creation timestamp
+    o3d::Double m_timestamp;      //!< trade entry order creation timestamp
 
     o3d::Int32 m_direction;
 
@@ -401,7 +444,7 @@ protected:
 
     o3d::Double m_profitLossRate;
 
-    std::list<TradeCondition> m_conditions;
+    // std::list<TradeOperation> m_operations;
     TradeStats m_stats;
 };
 

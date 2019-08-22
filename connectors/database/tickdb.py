@@ -246,6 +246,8 @@ class TickStreamer(object):
                 self._file = open(pathname, "rt")
                 self._is_binary = False
 
+                # @todo seeking
+
     def close(self):
         if self._file:
             self._file.close()

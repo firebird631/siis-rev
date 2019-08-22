@@ -62,12 +62,34 @@ o3d::Bool StrategyConfig::parseOverrides(const o3d::Dir &basePath, const o3d::St
     return false;
 }
 
-o3d::Double StrategyConfig::minTimeframe() const
+o3d::Double StrategyConfig::baseTimeframe() const
 {
-    if (m_root->get("minTimeframe", 0).isDouble() || m_root->get("minTimeframe", 0).isIntegral()) {
-        return m_root->get("minTimeframe", 0).asDouble();
-    } else if (m_root->get("minTimeframe", "").isString()) {
-        return siis::timeframeFromStr(m_root->get("minTimeframe", "").asString().c_str());
+    if (m_root->get("baseTimeframe", 0).isDouble() || m_root->get("baseTimeframe", 0).isIntegral()) {
+        return m_root->get("baseTimeframe", 0).asDouble();
+    } else if (m_root->get("baseTimeframe", "").isString()) {
+        return siis::timeframeFromStr(m_root->get("baseTimeframe", "").asString().c_str());
+    } else {
+        return 0.0;
+    }
+}
+
+o3d::Double StrategyConfig::minTradedTimeframe() const
+{
+    if (m_root->get("minTradedTimeframe", 0).isDouble() || m_root->get("minTradedTimeframe", 0).isIntegral()) {
+        return m_root->get("minTradedTimeframe", 0).asDouble();
+    } else if (m_root->get("minTradedTimeframe", "").isString()) {
+        return siis::timeframeFromStr(m_root->get("minTradedTimeframe", "").asString().c_str());
+    } else {
+        return 0.0;
+    }
+}
+
+o3d::Double StrategyConfig::maxTradedTimeframe() const
+{
+    if (m_root->get("maxTradedTimeframe", 0).isDouble() || m_root->get("maxTradedTimeframe", 0).isIntegral()) {
+        return m_root->get("maxTradedTimeframe", 0).asDouble();
+    } else if (m_root->get("maxTradedTimeframe", "").isString()) {
+        return siis::timeframeFromStr(m_root->get("maxTradedTimeframe", "").asString().c_str());
     } else {
         return 0.0;
     }

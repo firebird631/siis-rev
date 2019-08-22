@@ -67,6 +67,9 @@ public:
     o3d::Double timeframe() const { return m_timeframe; }
     o3d::Double lastTimestamp() const { return m_lastTimestamp; }
 
+    // o3d::Int32 lookback() const;
+    // void trace(StrategyLogger &logger) const;
+
 protected:
 
     inline void done(o3d::Double timestamp) { m_lastTimestamp = timestamp; }

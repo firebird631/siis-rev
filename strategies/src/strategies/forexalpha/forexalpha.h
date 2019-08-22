@@ -63,7 +63,10 @@ private:
     o3d::Bool m_needUpdate;
     o3d::Double m_minVol24h;
     o3d::Double m_minPrice;
-    o3d::Double m_minTimeframe;
+
+    o3d::Double m_baseTimeframe;
+    o3d::Double m_minTradedTimeframe;
+    o3d::Double m_maxTradedTimeframe;
 
     std::vector<Analyser*> m_analysers;
     StdTradeManager *m_tradeManager;

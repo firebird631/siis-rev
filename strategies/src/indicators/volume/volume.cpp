@@ -40,7 +40,12 @@ void Volume::compute(const OhlcCircular &ohlc)
 {
     m_prev = m_last;
 
-    m_volume.setSize(ohlc.size());
+    const o3d::Int32 size = ohlc.size();
+
+    if (size != m_volume.getSize()) {
+        m_volume.setSize(ohlc.size());
+    }
+
     o3d::Double timestamp = 0.0;
 
     // timestamp, timeframe, open, high, low, close, volume, ended

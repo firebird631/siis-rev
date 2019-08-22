@@ -24,6 +24,9 @@ static const char* IndiceAlphaParameters = R"JSON(
     "tradeDelay": 30,
     "minTimeframe": 0,
     "needUpdate": false,
+    "baseTimeframe": "t",
+    "minTradedTimeframe': "1m",
+    "maxTradedTimeframe': "1m",
     "minVol24h": 0,
     "minPrice": 0,
     "timeframes": {

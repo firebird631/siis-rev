@@ -73,13 +73,16 @@ void IndiceAlpha::init(Config *config)
     m_needUpdate = conf.root().get("needUpdate", false).asBool();
     m_minVol24h = conf.root().get("minVol24h", 0).asDouble();
     m_minPrice = conf.root().get("minPrice", 0).asDouble();
-    m_minTimeframe = conf.minTimeframe();
+
+    m_baseTimeframe = conf.baseTimeframe();
+    m_minTradedTimeframe = conf.minTradedTimeframe();
+    m_maxTradedTimeframe = conf.maxTradedTimeframe();
 
     // stream data sources
-    if (m_minTimeframe <= 0.0) {
+    if (m_baseTimeframe <= 0.0) {
         addTickDataSource();
     } else {
-        addMidOhlcDataSource(m_minTimeframe);
+        addMidOhlcDataSource(m_baseTimeframe);
     }
 
     if (conf.root().isMember("timeframes")) {
@@ -154,11 +157,12 @@ void IndiceAlpha::finalizeMarketData(Connector *connector, Database *db)
 {
     m_tradeManager = new StdTradeManager(this);
     setReady();
+    setRunning();
 }
 
 void IndiceAlpha::onTickUpdate(o3d::Double timestamp, const TickArray &ticks)
 {
-    if (m_minTimeframe == TF_TICK) {
+    if (m_baseTimeframe == TF_TICK) {
         for (Analyser *analyser : m_analysers) {
             analyser->onTickUpdate(timestamp, ticks);
         }
@@ -167,7 +171,7 @@ void IndiceAlpha::onTickUpdate(o3d::Double timestamp, const TickArray &ticks)
 
 void IndiceAlpha::onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe, Ohlc::Type ohlcType, const OhlcArray &ohlc)
 {
-    if (m_minTimeframe == timeframe) {
+    if (m_baseTimeframe == timeframe) {
         for (Analyser *analyser : m_analysers) {
             analyser->onOhlcUpdate(timestamp, ohlcType, ohlc);
         }

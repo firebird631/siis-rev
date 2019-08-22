@@ -92,9 +92,22 @@ public:
     //
 
     /**
-     * @brief minTimeframe Reference of the minTimeframe can be double, interger or str representation.
+     * @brief baseTimeframe Reference of the baseTimeframe can be double, integer or str representation.
+     * Base timeframe refer to the acquired data timeframe.
      */
-    o3d::Double minTimeframe() const;
+    o3d::Double baseTimeframe() const;
+
+    /**
+     * @brief minTradedTimeframe Reference of the minTradedTimeframe can be double, integer or str representation.
+     * Base timeframe refers to the lowest traded timeframe.
+     */
+    o3d::Double minTradedTimeframe() const;
+
+    /**
+     * @brief maxTradedTimeframe Reference of the maxTradedTimeframe can be double, integer or str representation.
+     * Base timeframe refer to the highest traded timeframe.
+     */
+    o3d::Double maxTradedTimeframe() const;
 
     //
     // helpers

@@ -195,7 +195,12 @@ o3d::String AssetTrade::stateToStr() const
     }
 }
 
-void AssetTrade::save(Database *db, Market *market)
+void AssetTrade::dumps(o3d::Variadic &trades, Market *market) const
+{
+    // @todo
+}
+
+void AssetTrade::loads(const o3d::Variadic &trade)
 {
     // @todo
 }

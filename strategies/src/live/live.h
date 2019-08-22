@@ -77,7 +77,6 @@ private:
 
     virtual o3d::Int32 run(void *) override;
 
-    o3d::Double m_timestamp;
     o3d::FastMutex m_mutex;
     o3d::Thread m_thread;
     o3d::Bool m_running;

@@ -44,7 +44,6 @@ void Trade::init(o3d::Double timeframe)
     m_filledExitQuantity = 0;
     m_profitLossRate = 0;
 
-    m_conditions.clear();
     m_stats.init();
 }
 
@@ -55,7 +54,17 @@ o3d::Bool Trade::isActive() const
 
 void Trade::addCondition(const o3d::String &name, o3d::Double v1, o3d::Double v2, o3d::Double v3, o3d::Double v4)
 {
-    m_conditions.push_back(TradeCondition(name, v1, v2, v3, v4));
+    m_stats.conditions.push_back(TradeCondition(name, v1, v2, v3, v4));
+}
+
+void Trade::addOperation(TradeOperation *tradeOp)
+{
+
+}
+
+void Trade::removeOperation(o3d::Int32 id)
+{
+
 }
 
 void Trade::updateStats(o3d::Double lastPrice, o3d::Double timestamp)

@@ -135,6 +135,7 @@ o3d::Int32 TickStream::fillNext(o3d::Double timestamp, TickArray &out)
 {
     o3d::Int32 n = 0;
     o3d::Int32 t = out.getSize();
+    // o3d::Int32 s = 0;
 
     while (!m_finished) {
         if (m_ofs >= m_buffer.getSize()) {
@@ -164,6 +165,7 @@ o3d::Int32 TickStream::fillNext(o3d::Double timestamp, TickArray &out)
 
             // 4 more double for 1 tick
             out.get(t)->copy(&m_buffer[m_ofs]);
+            // ++s;
 
             m_ofs += 4;   // one more tick of 4 doubles
             ++n;
@@ -171,6 +173,10 @@ o3d::Int32 TickStream::fillNext(o3d::Double timestamp, TickArray &out)
         } else if (m_buffer[m_ofs] > timestamp) {
             break;
         }
+
+//        if (s > 0) {
+//            memcpy(out.getContent(out.getSize()), &m_buffer[m_ofs-s*4], s*4*sizeof(o3d::Double));
+//        }
     }
 
     // new exact number of elements

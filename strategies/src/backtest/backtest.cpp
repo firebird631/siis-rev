@@ -289,7 +289,7 @@ o3d::Int32 Backtest::run(void *)
     Strategy *strategy = nullptr;
     Market *market = nullptr;
     o3d::Int32 n = 0;
-    // DataArray ticks;
+    DataArray ticks;
 
     if (m_strategies.size() <= 1) {
         while (m_running) {
@@ -308,7 +308,7 @@ o3d::Int32 Backtest::run(void *)
                 if (pair.second.tickStream) {
                     // no need to acquire/release because we are always synchronous in backtesting
                     n = pair.second.tickStream->fillNext(m_curTs, market->getTickBuffer());
-                    // n = pair.second.tickStream->fillNext(m_curTs, ticks);
+                   // n = pair.second.tickStream->fillNext(m_curTs, ticks);
                 }
 
                 // inject the tick to the strategy
