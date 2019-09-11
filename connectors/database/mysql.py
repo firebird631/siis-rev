@@ -126,6 +126,67 @@ class MySql(Database):
 
         self._db.commit()
 
+    def setup_ohlc_sql(self):
+        cursor = self._db.cursor()
+
+        # ohlc table
+        cursor.execute("SHOW TABLES LIKE 'ohlc'")
+        if len(cursor.fetchall()) > 0:
+            return
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS ohlc(
+                id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                broker_id VARCHAR(255) NOT NULL, market_id VARCHAR(255) NOT NULL,
+                timestamp BIGINT NOT NULL, timeframe INTEGER NOT NULL,
+                bid_open VARCHAR(32) NOT NULL, bid_high VARCHAR(32) NOT NULL, bid_low VARCHAR(32) NOT NULL, bid_close VARCHAR(32) NOT NULL,
+                ask_open VARCHAR(32) NOT NULL, ask_high VARCHAR(32) NOT NULL, ask_low VARCHAR(32) NOT NULL, ask_close VARCHAR(32) NOT NULL,
+                volume VARCHAR(48) NOT NULL,
+                UNIQUE KEY(broker_id, market_id, timestamp, timeframe))""")
+
+        # liquidation table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS liquidation(
+                id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                broker_id VARCHAR(255) NOT NULL, market_id VARCHAR(255) NOT NULL,
+                timestamp BIGINT NOT NULL,
+                direction INTEGER NOT NULL,
+                price VARCHAR(32) NOT NULL,
+                quantity VARCHAR(32) NOT NULL,
+                UNIQUE KEY(broker_id, market_id))""")
+
+        self._db.commit()
+
+    def setup_ohlc_sql(self):
+        cursor = self._db.cursor()
+
+        # ohlc table
+        cursor.execute("SHOW TABLES LIKE 'ohlc'")
+        if len(cursor.fetchall()) > 0:
+            return
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS ohlc(
+                id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                broker_id VARCHAR(255) NOT NULL, market_id VARCHAR(255) NOT NULL,
+                timestamp BIGINT NOT NULL, timeframe INTEGER NOT NULL,
+                bid_open VARCHAR(32) NOT NULL, bid_high VARCHAR(32) NOT NULL, bid_low VARCHAR(32) NOT NULL, bid_close VARCHAR(32) NOT NULL,
+                ask_open VARCHAR(32) NOT NULL, ask_high VARCHAR(32) NOT NULL, ask_low VARCHAR(32) NOT NULL, ask_close VARCHAR(32) NOT NULL,
+                volume VARCHAR(48) NOT NULL,
+                UNIQUE KEY(broker_id, market_id, timestamp, timeframe))""")
+
+        # liquidation table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS liquidation(
+                id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                broker_id VARCHAR(255) NOT NULL, market_id VARCHAR(255) NOT NULL,
+                timestamp BIGINT NOT NULL,
+                direction INTEGER NOT NULL,
+                price VARCHAR(32) NOT NULL,
+                quantity VARCHAR(32) NOT NULL)""")
+
+        self._db.commit()
+
     def create_ohlc_streamer(self, broker_id, market_id, timeframe, from_date, to_date, buffer_size=8192):
         """
         Create a new ohlc streamer.
@@ -526,71 +587,75 @@ class MySql(Database):
         self._pending_ohlc_select.clear()
         self.unlock()
 
-        try:
-            cursor = self._db.cursor()
+        if mks:
+            try:
+                cursor = self._db.cursor()
 
-            for mk in mks:
-                if mk[6]:
-                    # last n
-                    cursor.execute("""SELECT COUNT(*) FROM ohlc WHERE broker_id = '%s' AND market_id = '%s' AND timeframe = %s""" % (mk[1], mk[2], mk[3]))
-                    count = int(cursor.fetchone()[0])
-                    offset = max(0, count - mk[6])
+                for mk in mks:
+                    if mk[6]:
+                        # last n
+                        cursor.execute("""SELECT COUNT(*) FROM ohlc WHERE broker_id = '%s' AND market_id = '%s' AND timeframe = %s""" % (mk[1], mk[2], mk[3]))
+                        count = int(cursor.fetchone()[0])
+                        offset = max(0, count - mk[6])
 
-                    # LIMIT should not be necessary then
-                    cursor.execute("""SELECT timestamp, bid_open, bid_high, bid_low, bid_close, ask_open, ask_high, ask_low, ask_close, volume FROM ohlc
-                                    WHERE broker_id = '%s' AND market_id = '%s' AND timeframe = %s ORDER BY timestamp ASC LIMIT %i OFFSET %i""" % (
-                                        mk[1], mk[2], mk[3], mk[6], offset))
-                elif mk[4] and mk[5]:
-                    # from to
-                    cursor.execute("""SELECT timestamp, bid_open, bid_high, bid_low, bid_close, ask_open, ask_high, ask_low, ask_close, volume FROM ohlc
-                                    WHERE broker_id = '%s' AND market_id = '%s' AND timeframe = %s AND timestamp >= %i AND timestamp <= %i ORDER BY timestamp ASC""" % (
-                                        mk[1], mk[2], mk[3], mk[4], mk[5]))
-                elif mk[4]:
-                    # from to now
-                    cursor.execute("""SELECT timestamp, bid_open, bid_high, bid_low, bid_close, ask_open, ask_high, ask_low, ask_close, volume FROM ohlc
-                                    WHERE broker_id = '%s' AND market_id = '%s' AND timeframe = %s AND timestamp >= %i ORDER BY timestamp ASC""" % (
-                                        mk[1], mk[2], mk[3], mk[4]))
-                elif mk[5]:
-                    # to now
-                    cursor.execute("""SELECT timestamp, bid_open, bid_high, bid_low, bid_close, ask_open, ask_high, ask_low, ask_close, volume FROM ohlc
-                                    WHERE broker_id = '%s' AND market_id = '%s' AND timeframe = %s AND timestamp <= %i ORDER BY timestamp ASC""" % (
-                                        mk[1], mk[2], mk[3], mk[5]))
-                else:
-                    # all
-                    cursor.execute("""SELECT timestamp, bid_open, bid_high, bid_low, bid_close, ask_open, ask_high, ask_low, ask_close, volume FROM ohlc
-                                    WHERE broker_id = '%s' AND market_id = '%s' AND timeframe = %s ORDER BY timestamp ASC""" % (
-                                        mk[1], mk[2], mk[3]))
+                        # LIMIT should not be necessary then
+                        cursor.execute("""SELECT timestamp, bid_open, bid_high, bid_low, bid_close, ask_open, ask_high, ask_low, ask_close, volume FROM ohlc
+                                        WHERE broker_id = '%s' AND market_id = '%s' AND timeframe = %s ORDER BY timestamp ASC LIMIT %i OFFSET %i""" % (
+                                            mk[1], mk[2], mk[3], mk[6], offset))
+                    elif mk[4] and mk[5]:
+                        # from to
+                        cursor.execute("""SELECT timestamp, bid_open, bid_high, bid_low, bid_close, ask_open, ask_high, ask_low, ask_close, volume FROM ohlc
+                                        WHERE broker_id = '%s' AND market_id = '%s' AND timeframe = %s AND timestamp >= %i AND timestamp <= %i ORDER BY timestamp ASC""" % (
+                                            mk[1], mk[2], mk[3], mk[4], mk[5]))
+                    elif mk[4]:
+                        # from to now
+                        cursor.execute("""SELECT timestamp, bid_open, bid_high, bid_low, bid_close, ask_open, ask_high, ask_low, ask_close, volume FROM ohlc
+                                        WHERE broker_id = '%s' AND market_id = '%s' AND timeframe = %s AND timestamp >= %i ORDER BY timestamp ASC""" % (
+                                            mk[1], mk[2], mk[3], mk[4]))
+                    elif mk[5]:
+                        # to now
+                        cursor.execute("""SELECT timestamp, bid_open, bid_high, bid_low, bid_close, ask_open, ask_high, ask_low, ask_close, volume FROM ohlc
+                                        WHERE broker_id = '%s' AND market_id = '%s' AND timeframe = %s AND timestamp <= %i ORDER BY timestamp ASC""" % (
+                                            mk[1], mk[2], mk[3], mk[5]))
+                    else:
+                        # all
+                        cursor.execute("""SELECT timestamp, bid_open, bid_high, bid_low, bid_close, ask_open, ask_high, ask_low, ask_close, volume FROM ohlc
+                                        WHERE broker_id = '%s' AND market_id = '%s' AND timeframe = %s ORDER BY timestamp ASC""" % (
+                                            mk[1], mk[2], mk[3]))
 
-                rows = cursor.fetchall()
+                    rows = cursor.fetchall()
 
-                ohlcs = []
+                    ohlcs = []
 
-                for row in rows:
-                    timestamp = float(row[0]) * 0.001  # to float second timestamp
-                    ohlc = Candle(timestamp, mk[3])
+                    for row in rows:
+                        timestamp = float(row[0]) * 0.001  # to float second timestamp
+                        ohlc = Candle(timestamp, mk[3])
 
-                    ohlc.set_bid_ohlc(float(row[1]), float(row[2]), float(row[3]), float(row[4]))
-                    ohlc.set_ofr_ohlc(float(row[5]), float(row[6]), float(row[7]), float(row[8]))
+                        ohlc.set_bid_ohlc(float(row[1]), float(row[2]), float(row[3]), float(row[4]))
+                        ohlc.set_ofr_ohlc(float(row[5]), float(row[6]), float(row[7]), float(row[8]))
 
-                    # if float(row[9]) <= 0:
-                    #   # prefer to ignore empty volume ohlc because it can broke volume signal and it is a no way but it could be
-                    #   # a lack of this information like on SPX500 of ig.com. So how to manage that cases...
-                    #   continue
+                        # if float(row[9]) <= 0:
+                        #   # prefer to ignore empty volume ohlc because it can broke volume signal and it is a no way but it could be
+                        #   # a lack of this information like on SPX500 of ig.com. So how to manage that cases...
+                        #   continue
 
-                    ohlc.set_volume(float(row[9]))
+                        ohlc.set_volume(float(row[9]))
 
-                    ohlcs.append(ohlc)
+                        if ohlc.timestamp >= Instrument.basetime(mk[3], time.time()):
+                            ohlc.set_consolidated(False)  # current
 
-                # notify
-                mk[0].notify(Signal.SIGNAL_CANDLE_DATA_BULK, mk[1], (mk[2], mk[3], ohlcs))
-        except Exception as e:
-            # check database for valide ohlc and volumes
-            logger.error(repr(e))
+                        ohlcs.append(ohlc)
 
-            # retry the next time
-            self.lock()
-            self._pending_ohlc_select = mks + self._pending_ohlc_select
-            self.unlock()
+                    # notify
+                    mk[0].notify(Signal.SIGNAL_CANDLE_DATA_BULK, mk[1], (mk[2], mk[3], ohlcs))
+            except Exception as e:
+                # check database for valide ohlc and volumes
+                logger.error(repr(e))
+
+                # retry the next time
+                self.lock()
+                self._pending_ohlc_select = mks + self._pending_ohlc_select
+                self.unlock()
 
         #
         # insert market ohlcs
@@ -624,6 +689,37 @@ class MySql(Database):
                     self.unlock()
 
                 self._last_ohlc_flush = time.time()
+
+        #
+        # insert market liquidation
+        #
+
+        self.lock()
+        mkd = self._pending_liquidation_insert
+        self._pending_liquidation_insert = []
+        self.unlock()
+
+        if mkd:
+            try:
+                cursor = self._db.cursor()
+
+                elts = []
+
+                for mk in mkd:
+                    elts.append("('%s', '%s', %i, %i, '%s', '%s')" % (mk[0], mk[1], mk[2], mk[3], mk[4], mk[5]))
+
+                query = ' '.join(("INSERT INTO liquidation(broker_id, market_id, timestamp, direction, price, quantity) VALUES", ','.join(elts)))
+
+                cursor.execute(query)
+
+                self._db.commit()
+            except Exception as e:
+                logger.error(repr(e))
+
+                # retry the next time
+                self.lock()
+                self._pending_liquidation_insert = mkd + self._pending_liquidation_insert
+                self.unlock()
 
         #
         # clean older ohlcs

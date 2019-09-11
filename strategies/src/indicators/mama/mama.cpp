@@ -73,6 +73,28 @@ void Mama::compute(o3d::Double timestamp, const DataArray &price)
     done(timestamp);
 }
 
+o3d::Int32 Mama::cross() const
+{
+    if (m_prevMama > m_prevFama && m_lastMama < m_lastFama) {
+        return -1;
+    } else if (m_prevMama < m_prevFama && m_lastMama > m_lastFama) {
+        return 1;
+    }
+
+    return 0;
+}
+
+o3d::Int32 Mama::trend() const
+{
+    if (m_lastMama > m_lastFama) {
+        return 1;
+    } else if (m_lastMama < m_lastFama) {
+        return -1;
+    }
+
+    return 0;
+}
+
 o3d::Int32 Mama::lookback() const
 {
     return 32;  // ::TA_MAMA_Lookback(m_fastLimit, m_slowLimit);

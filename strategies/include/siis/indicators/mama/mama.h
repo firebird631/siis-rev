@@ -53,6 +53,16 @@ public:
     void compute(o3d::Double timestamp, const DataArray &price);
 
     /**
+     * @brief Is mama goes upper (1) or lower (-1) or none (0) of the fama.
+     */
+    o3d::Int32 cross() const;
+
+    /**
+     * @brief Is mama is higher (1) or lower (-1) or none (0) than the fama.
+     */
+    o3d::Int32 trend() const;
+
+    /**
      * @brief lookback Min number of necessary samples.
      * @return 32
      */

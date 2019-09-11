@@ -132,6 +132,16 @@ class PgSql(Database):
                 volume VARCHAR(48) NOT NULL,
                 UNIQUE(broker_id, market_id, timestamp, timeframe))""")
 
+        # liquidation
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS liquidation(
+                id SERIAL PRIMARY KEY,
+                broker_id VARCHAR(255) NOT NULL, market_id VARCHAR(255) NOT NULL,
+                timestamp BIGINT NOT NULL,
+                direction INTEGER NOT NULL,
+                price VARCHAR(32) NOT NULL,
+                quantity VARCHAR(32) NOT NULL)""")
+
         self._db.commit()
 
     def create_ohlc_streamer(self, broker_id, market_id, timeframe, from_date, to_date, buffer_size=8192):
@@ -590,6 +600,9 @@ class PgSql(Database):
 
                         ohlc.set_volume(float(row[9]))
 
+                        if ohlc.timestamp >= Instrument.basetime(mk[3], time.time()):
+                            ohlc.set_consolidated(False)  # current
+
                         ohlcs.append(ohlc)
 
                     # notify
@@ -647,6 +660,42 @@ class PgSql(Database):
                     self.unlock()
 
                 self._last_ohlc_flush = time.time()
+
+        #
+        # insert market liquidation
+        #
+
+        self.lock()
+        mkd = self._pending_liquidation_insert
+        self._pending_liquidation_insert = []
+        self.unlock()
+
+        if mkd:
+            try:
+                cursor = self._db.cursor()
+
+                elts = []
+                data = set()
+
+                for mk in mkd:
+                    if (mk[0], mk[1], mk[2]) not in data:
+                        elts.append("('%s', '%s', %i, %i, '%s', '%s')" % (mk[0], mk[1], mk[2], mk[3], mk[4], mk[5]))
+                        data.add((mk[0], mk[1], mk[2]))
+
+                query = ' '.join(("INSERT INTO liquidation(broker_id, market_id, timestamp, direction, price, quantity) VALUES",
+                            ','.join(elts),
+                            "ON CONFLICT (broker_id, market_id, timestamp) DO NOTHING"))
+
+                cursor.execute(query)
+
+                self._db.commit()
+            except Exception as e:
+                logger.error(repr(e))
+
+                # retry the next time
+                self.lock()
+                self._pending_liquidation_insert = mkd + self._pending_liquidation_insert
+                self.unlock()
 
         #
         # clean older ohlcs
