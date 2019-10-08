@@ -11,7 +11,6 @@ import threading
 import copy
 import traceback
 import pathlib
-import MySQLdb
 
 from market import Market
 from trader.asset import Asset
@@ -28,26 +27,38 @@ logger = logging.getLogger('siis.database')
 class MySql(Database):
     """
     Storage service, mysql implementation.
-    @todo for ohlc storage use a bulk insert !
+    @todo try_reconnect
     """
     def __init__(self):
         super().__init__()
         self._db = None
+        self._conn_params = {}
+        self.MySQLdb = None
+
+        try:
+            self.MySQLdb = import_module('MySQLdb', package='')
+        except ModuleNotFoundError as e:
+            logger.error(repr(e))
 
     def connect(self, config):
-        self._db = MySQLdb.connect(
-            db=config.get('name', "siis"),
-            host=config.get('host', "localhost"),
-            port=config.get('port', 3306),
-            user=config.get('user', "siis"),
-            passwd=config.get('password', "siis"),
-            connect_timeout=5)
+        if self.MySQLdb:
+            self._conn_params = {
+                'db': config.get('name', "siis"),
+                'host': config.get('host', "localhost"),
+                'port': config.get('port', 3306),
+                'user': config.get('user', "siis"),
+                'passwd': config.get('password', "siis"),
+                'connect_timeout': 5
+            }
+
+            self._db = self.MySQLdb.connect(**self._conn_params)
 
     def disconnect(self):
         # postresql db
         if self._db:
             self._db.close()
             self._db = None
+            self._conn_params = {}
 
     def setup_market_sql(self):
         cursor = self._db.cursor()
@@ -236,19 +247,19 @@ class MySql(Database):
                                         min_price, max_price, step_price,
                                         maker_fee, taker_fee, maker_commission, taker_commission) 
                                     VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                                    ON DUPLICATE KEY UPDATE symbol = %s,
-                                        market_type = %s, unit_type = %s, contract_type = %s,
-                                        trade_type = %s, orders = %s,
-                                        base = %s, base_display = %s, base_precision = %s,
-                                        quote = %s, quote_display = %s, quote_precision = %s,
-                                        expiry = %s, timestamp = %s,
-                                        lot_size = %s, contract_size = %s, base_exchange_rate = %s,
-                                        value_per_pip = %s, one_pip_means = %s, margin_factor = %s,
-                                        min_size = %s, max_size = %s, step_size = %s,
-                                        min_notional = %s, max_notional = %s, step_notional = %s,
-                                        min_price = %s, max_price = %s, step_price = %s,
-                                        maker_fee = %s, taker_fee = %s, maker_commission = %s, taker_commission = %s""",
-                                    (*mi, *mi[2:]))
+                                    ON DUPLICATE KEY UPDATE symbol = VALUES(symbol),
+                                        market_type = VALUES(market_type), unit_type = VALUES(unit_type), contract_type = VALUES(contract_type),
+                                        trade_type = VALUES(trade_type), orders = VALUES(orders),
+                                        base = VALUES(base), base_display = VALUES(base_display), base_precision = VALUES(base_precision),
+                                        quote = VALUES(quote), quote_display = VALUES(quote_display), quote_precision = VALUES(quote_precision),
+                                        expiry = VALUES(expiry), timestamp = VALUES(timestamp),
+                                        lot_size = VALUES(lot_size), contract_size = VALUES(contract_size), base_exchange_rate = VALUES(base_exchange_rate),
+                                        value_per_pip = VALUES(value_per_pip), one_pip_means = VALUES(one_pip_means), margin_factor = VALUES(margin_factor),
+                                        min_size = VALUES(min_size), max_size = VALUES(max_size), step_size = VALUES(step_size),
+                                        min_notional = VALUES(min_notional), max_notional = VALUES(max_notional), step_notional = VALUES(step_notional),
+                                        min_price = VALUES(min_price), max_price = VALUES(max_price), step_price = VALUES(step_price),
+                                        maker_fee = VALUES(maker_fee), taker_fee = VALUES(taker_fee), maker_commission = VALUES(maker_commission), taker_commission = VALUES(taker_commission)""",
+                                    (*mi,))
 
                 self._db.commit()
             except Exception as e:
@@ -393,7 +404,7 @@ class MySql(Database):
                         INSERT INTO asset(broker_id, account_id, asset_id, last_trade_id, timestamp, quantity, price, quote_symbol)
                             VALUES(%s, %s, %s, %s, %s, %s, %s, %s)
                         ON DUPLICATE KEY UPDATE 
-                            last_trade_id = %s, timestamp = %s, quantity = %s, price = %s, quote_symbol = %s""", (*ua, *ua[3:]))
+                            last_trade_id = VALUES(last_trade_id), timestamp = VALUES(timestamp), quantity = VALUES(quantity), price = VALUES(price), quote_symbol = VALUES(price)""", (*ua,))
 
                 self._db.commit()
             except Exception as e:
@@ -740,3 +751,14 @@ class MySql(Database):
                 logger.error(repr(e))
 
             self._last_ohlc_clean = time.time()
+
+    def on_error(self, e):
+        logger.error(repr(e))
+        time.sleep(5.0)
+
+    def try_reconnect(self, e):
+        pass  # @todo
+
+    @property
+    def connected(self):
+        return self._db != None

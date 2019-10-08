@@ -118,10 +118,10 @@ void BBawe::compute(o3d::Double timestamp, const DataArray &high, const DataArra
     // Calc breakouts
     o3d::Int32 cross = m_fastMA.cross(m_bbBasis);
 
-    if (cross < 0 && price.getLast() < m_bbBasis.getLast() && o3d::abs(awesome) == 2) {
-        m_signal = 1;
-    } else if (cross > 0 && price.getLast() > m_bbBasis.getLast() && o3d::abs(awesome) == 1) {
+    if (cross < 0 && price.getLast() < m_bbBasis.getLast() && awesome < 0) {  // o3d::abs(awesome) == 2) {
         m_signal = -1;
+    } else if (cross > 0 && price.getLast() > m_bbBasis.getLast() && awesome > 0) {  // o3d::abs(awesome) == 1) {
+        m_signal = 1;
     } else {
         m_signal = 0;
     }
