@@ -18,7 +18,7 @@ from trader.asset import Asset
 from database.tickdb import TickStorage, TickStreamer
 from database.ohlcdb import OhlcStorage, OhlcStreamer
 
-from database.database import Database
+from database.database import Database, DatabaseException
 
 import logging
 logger = logging.getLogger('siis.database.pgsql')
@@ -51,14 +51,25 @@ class PgSql(Database):
 
     def connect(self, config):
         if self.psycopg2:
-            self._conn_str = "dbname=%s user=%s password=%s host=%s port=%i" % (
-                config.get('name', "siis"),
-                config.get('user', "siis"),
-                config.get('password', "siis"),
-                config.get('host', "localhost"),
-                config.get('port', 5432))
+            if config['siis'].get('host'):
+                # hostname provided
+                self._conn_str = "dbname=%s user=%s password=%s host=%s port=%i" % (
+                    config.get('name', "siis"),
+                    config.get('user', "siis"),
+                    config.get('password', "siis"),
+                    config.get('host', "localhost"),
+                    config.get('port', 5432))
+            else:
+                # local unix socket
+                self._conn_str = "dbname=%s user=%s password=%s" % (
+                    config.get('name', "siis"),
+                    config.get('user', "siis"),
+                    config.get('password', "siis"))
 
             self._db = self.psycopg2.connect(self._conn_str)
+
+        if not self._db:
+            raise DatabaseException("Unable to connect to postgresql database ! Verify you have psycopg2 installed and your user database.json file.")
 
     def disconnect(self):
         # postresql db
@@ -123,7 +134,8 @@ class PgSql(Database):
                 appliance_id VARCHAR(255) NOT NULL,
                 activity INTEGER NOT NULL DEFAULT 1,
                 data TEXT NOT NULL DEFAULT '{}',
-                regions TEXT NOT NULL DEFAULT '{}',
+                regions TEXT NOT NULL DEFAULT '[]',
+                alerts TEXT NOT NULL DEFAULT '[]',
                 UNIQUE(broker_id, account_id, market_id, appliance_id))""")
 
         self._db.commit()
@@ -189,6 +201,8 @@ class PgSql(Database):
                             margin_factor = row[0]
                             mi = list(mi)
                             mi[16] = margin_factor
+                        else:
+                            mi[16] = "1.0"
 
                         cursor.execute("""INSERT INTO market(broker_id, market_id, symbol,
                                         market_type, unit_type, contract_type,
@@ -465,7 +479,7 @@ class PgSql(Database):
                     "INSERT INTO user_trade(broker_id, account_id, market_id, appliance_id, trade_id, trade_type, data, operations) VALUES",
                     ','.join(["('%s', '%s', '%s', '%s', %i, %i, '%s', '%s')" % (ut[0], ut[1], ut[2], ut[3], ut[4], ut[5],
                             str(ut[6]).replace("'", "''"), str(ut[7]).replace("'", "''")) for ut in uti]),
-                    "ON CONFLICT (broker_id, account_id, market_id, appliance_id, trade_id) DO UPDATE SET data = EXCLUDED.data, operations = EXCLUDED.operations"
+                    "ON CONFLICT (broker_id, account_id, market_id, appliance_id, trade_id) DO UPDATE SET trade_type = EXCLUDED.trade_type, data = EXCLUDED.data, operations = EXCLUDED.operations"
                 ))
 
                 cursor.execute(query)
@@ -541,10 +555,12 @@ class PgSql(Database):
                 cursor = self._db.cursor()
 
                 query = ' '.join((
-                    "INSERT INTO user_trader(broker_id, account_id, market_id, appliance_id, activity, data, regions) VALUES",
+                    "INSERT INTO user_trader(broker_id, account_id, market_id, appliance_id, activity, data, regions, alerts) VALUES",
                     ','.join(["('%s', '%s', '%s', '%s', %i, '%s', '%s')" % (ut[0], ut[1], ut[2], ut[3], 1 if ut[4] else 0,
-                            str(ut[5]).replace("'", "''"), str(ut[6]).replace("'", "''")) for ut in uti]),
-                    "ON CONFLICT (broker_id, market_id, appliance_id) DO UPDATE SET activity = EXCLUDED.activity, data = EXCLUDED.data, regions = EXCLUDED.regions"
+                            str(ut[5]).replace("'", "''"),
+                            str(ut[6]).replace("'", "''"),
+                            str(ut[7]).replace("'", "''")) for ut in uti]),
+                    "ON CONFLICT (broker_id, market_id, appliance_id) DO UPDATE SET activity = EXCLUDED.activity, data = EXCLUDED.data, regions = EXCLUDED.regions, alerts = EXCLUDED.alerts"
                 ))
 
                 cursor.execute(query)
@@ -579,7 +595,7 @@ class PgSql(Database):
                 cursor = self._db.cursor()
 
                 for ut in uts:
-                    cursor.execute("""SELECT market_id, activity, data, regions FROM user_trader WHERE
+                    cursor.execute("""SELECT market_id, activity, data, regions, alerts FROM user_trader WHERE
                         broker_id = '%s' AND account_id = '%s' AND appliance_id = '%s'""" % (ut[2], ut[3], ut[4]))
 
                     rows = cursor.fetchall()
@@ -587,7 +603,7 @@ class PgSql(Database):
                     user_traders = []
 
                     for row in rows:
-                        user_traders.append((row[0], row[1] > 0, json.loads(row[2]), json.loads(row[3])))
+                        user_traders.append((row[0], row[1] > 0, json.loads(row[2]), json.loads(row[3]), json.loads(row[4])))
 
                     # notify
                     ut[0].notify(Signal.SIGNAL_STRATEGY_TRADER_LIST, ut[4], user_traders)
@@ -596,14 +612,14 @@ class PgSql(Database):
 
                 # retry the next time
                 self.lock()
-                self._pending_user_trade_select = uts + self._pending_user_trade_select
+                self._pending_user_trader_select = uts + self._pending_user_trader_select
                 self.unlock()
             except Exception as e:
                 self.on_error(e)
 
                 # retry the next time
                 self.lock()
-                self._pending_user_trade_select = uts + self._pending_user_trade_select
+                self._pending_user_trader_select = uts + self._pending_user_trader_select
                 self.unlock()
 
     def process_ohlc(self):       

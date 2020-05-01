@@ -39,8 +39,11 @@ public:
     const DataArray& signal() const { return m_signal; }
     const DataArray& hist() const { return m_hist; }
 
-    o3d::Double last() const { return m_last; }
-    o3d::Double prev() const { return m_prev; }
+    o3d::Double last_macd() const { return m_last_macd; }
+    o3d::Double prev_macd() const { return m_prev_macd; }
+
+    o3d::Double last_signal() const { return m_last_signal; }
+    o3d::Double prev_signal() const { return m_prev_signal; }
 
     /**
      * @brief compute Compute a SMA.
@@ -63,8 +66,11 @@ private:
     DataArray m_signal;
     DataArray m_hist;
 
-    o3d::Double m_prev;
-    o3d::Double m_last;
+    o3d::Double m_prev_macd;
+    o3d::Double m_last_macd;
+
+    o3d::Double m_prev_signal;
+    o3d::Double m_last_signal;
 };
 
 } // namespace siis

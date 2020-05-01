@@ -51,7 +51,7 @@ void PivotPoint::setConf(IndicatorConfig conf)
 
 const DataArray &PivotPoint::support(o3d::Int32 i) const
 {
-    if (i < 0 || i >> 2) {
+    if (i < 0 || i > 2) {
         O3D_ERROR(o3d::E_IndexOutOfRange("PivotPoint support index"));
     }
 
@@ -60,7 +60,7 @@ const DataArray &PivotPoint::support(o3d::Int32 i) const
 
 const DataArray &PivotPoint::resistance(o3d::Int32 i) const
 {
-    if (i < 0 || i >> 2) {
+    if (i < 0 || i > 2) {
         O3D_ERROR(o3d::E_IndexOutOfRange("PivotPoint resistance index"));
     }
 

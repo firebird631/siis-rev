@@ -19,8 +19,10 @@ Macd::Macd(const o3d::String &name, o3d::Double timeframe, o3d::Int32 fastLen, o
     m_fastLen(fastLen),
     m_slowLen(slowLen),
     m_signalLen(signalLen),
-    m_prev(0.0),
-    m_last(0.0)
+    m_prev_macd(0.0),
+    m_last_macd(0.0),
+    m_prev_signal(0.0),
+    m_last_signal(0.0)
 {
 }
 
@@ -29,8 +31,10 @@ Macd::Macd(const o3d::String &name, o3d::Double timeframe, IndicatorConfig conf)
     m_fastLen(0),
     m_slowLen(0),
     m_signalLen(0),
-    m_prev(0.0),
-    m_last(0.0)
+    m_prev_macd(0.0),
+    m_last_macd(0.0),
+    m_prev_signal(0.0),
+    m_last_signal(0.0)
 {
      m_fastLen = conf.data().get("fastLen", 26).asInt();
      m_slowLen = conf.data().get("slowLen", 12).asInt();
@@ -51,7 +55,8 @@ void Macd::compute(o3d::Double timestamp, const DataArray &price)
         return;
     }
 
-    m_prev = m_last;
+    m_prev_macd = m_last_macd;
+    m_prev_signal = m_last_signal;
 
     if (m_macd.getSize() != price.getSize()) {
         m_macd.setSize(price.getSize());
@@ -69,7 +74,9 @@ void Macd::compute(o3d::Double timestamp, const DataArray &price)
 
     O3D_ASSERT(b == lb);
 
-    m_last = m_macd.getLast();
+    m_last_macd = m_macd.getLast();
+    m_last_signal = m_signal.getLast();
+
     done(timestamp);
 }
 
