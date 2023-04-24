@@ -21,6 +21,7 @@
 #include "siis/trade/tradesignal.h"
 
 #include "siis/display/ncursesdisplayer.h"
+#include "siis/display/ttydisplayer.h"
 
 #include "live/live.h"
 #include "backtest/backtest.h"
@@ -41,6 +42,7 @@ using namespace siis;
 
 static volatile sig_atomic_t catch_sigint = 0;
 static volatile sig_atomic_t catch_sigquit = 0;
+static volatile sig_atomic_t catch_sigterm = 0;
 
 static void sig_handler(int signo)
 {
@@ -48,6 +50,8 @@ static void sig_handler(int signo)
         catch_sigint = 1;
     } else if (signo == SIGQUIT) {
         catch_sigquit = 1;
+    } else if (signo == SIGTERM) {
+        catch_sigterm = 1;
     }
 }
 
@@ -85,13 +89,16 @@ public:
         printf("\n");
         printf("  -h --help This help message\n");
         printf("  -v --version SiiS strategy version number\n");
+        printf("  -n --nointeractive To disable ncurse interactive mode\n");
         printf("\n");
+        printf("  -p --profile <filename.json> To define the profile configuration\n");
         printf("  -s --strategy <filename.json> To define the strategy configuration\n");
+        printf("  -x --learning <filename.json> To define the learning override configuration\n");
         printf("  -S --supervisor <filename.json> To define the supervisor configuration\n");
         printf("  -m --market To define one ore more specific markets only (must exists in configuration file)\n");
         printf("\n");
         printf("  -l --live Live (mode) Live real or paper trading (see -p flag) using the connector\n");
-        printf("  -p --paper Paper trader only in live mode (see -l flag)\n");
+        printf("  -P --paper Paper trader only in live mode (see -l flag)\n");
         printf("  -b --backtest (mode) Process a backtesting (need -f -t and -i options). Not compatible with others mode\n");
         printf("  -L --learn (mode) Machine learning training\n");
         printf("  -o --optimize (mode) Machine learning optimization\n");
@@ -100,7 +107,8 @@ public:
         printf("  -t --to Define the stop datetime for backtest/learn/optimize mode in format YYYY-mm-ddTHH:MM:SS (example 2019-01-01T00:00:00)\n");
         printf("  -i --timestep Timestep increment in second or in string for the backtest/learn/optimize mode (example 1m for 1 minute, 4h, 1M for 1 month)\n");
         printf("\n");
-        printf("During the processing type the 'q' key and confirm with 'y' to exit the program or cancel with 'n'.\n");
+        printf("In interactive mode type the 'q' key and confirm with 'y' to exit the program or cancel with 'n'.\n");
+        printf("Else simply type CTRL-C signal.\n");
     }
 
     void displayVersion()
@@ -112,12 +120,15 @@ public:
     {
         signal(SIGINT, sig_handler);
         signal(SIGQUIT, sig_handler);
+        signal(SIGTERM, sig_handler);
 
         // minimalist command line options (need specific config file)
         CommandLine *cmd = Application::getCommandLine();
         cmd->addSwitch('h', "help");
         cmd->addSwitch('v', "version");
+        cmd->addOption('p', "profile");
         cmd->addOption('s', "strategy");
+        cmd->addOption('x', "learning");
         cmd->addOption('S', "supervisor");
         cmd->addRepeatableOption('m', "market");
         cmd->addOptionalOption('f', "from", "");
@@ -125,7 +136,8 @@ public:
         cmd->addOptionalOption('i', "timestep", "0");
         cmd->addSwitch('l', "live");
         cmd->addSwitch('b', "backtest");
-        cmd->addSwitch('p', "paper");
+        cmd->addSwitch('P', "paper");
+        cmd->addSwitch('n', "nointerative");
         cmd->addSwitch('L', "learn");
         cmd->addSwitch('o', "optimize");
 
@@ -144,10 +156,12 @@ public:
         }
 
         String strategyConfigFileName = cmd->getOptionValue('s');
+        String learningConfigFileName = cmd->getOptionValue('x');
+        String profileConfigFileName = cmd->getOptionValue('p');
         String supervisorConfigFileName = cmd->getOptionValue('S');
 
-        if ((cmd->getSwitch('l') || cmd->getSwitch('b')) && strategyConfigFileName.isEmpty()) {
-            throw E_InvalidParameter("No strategy configuration file specified");
+        if ((cmd->getSwitch('l') || cmd->getSwitch('b')) && strategyConfigFileName.isEmpty() && profileConfigFileName.isEmpty()) {
+            throw E_InvalidParameter("No strategy or porfile configuration file specified");
         }
 
         if ((cmd->getSwitch('L') || cmd->getSwitch('o')) && supervisorConfigFileName.isEmpty()) {
@@ -255,7 +269,12 @@ public:
             m_handler->setPaperMode(true);
         }
 
-        m_displayer = new NcursesDisplayer();
+        if (m_config->isNoInteractive()) {
+            m_displayer = new TtyDisplayer();
+        } else {
+            m_displayer = new NcursesDisplayer();
+        }
+
         m_displayer->init(m_config);
 
         m_handler->init(m_displayer, m_config, m_strategyCollection, m_poolWorker, m_database, m_cache);
@@ -342,47 +361,56 @@ public:
     {
         bool running = true;
         bool waitExitConfirm = false;
+        double prevProgress = 0.0;
 
         char c = 0;
 
         while (running) {
             // don't waste the CPU on the primary thread
             o3d::System::waitMs(10);
-            c = static_cast<char>(getch());
 
-            if (c >= 32 && c <= 126) {
-                // @todo set pos
-                m_displayer->echo(static_cast<o3d::WChar>(c));
+            if (!m_config->isNoInteractive()) {
+                c = static_cast<char>(getch());
 
-                if (c == 'q' and !waitExitConfirm) {
-                    waitExitConfirm = true;
-                    m_displayer->display("notice", "Do you really want to quit ? [y/n] ");
+                if (c >= 32 && c <= 126) {
+                    // @todo set pos
+                    m_displayer->echo(static_cast<o3d::WChar>(c));
 
-                    c = 0;
-                } else if (waitExitConfirm) {
-                    if (c == 'y' || c == 'Y') {
-                        running = false;
+                    if (c == 'q' and !waitExitConfirm) {
+                        waitExitConfirm = true;
+                        m_displayer->display("notice", "Do you really want to quit ? [y/n] ");
+
                         c = 0;
-                    } else if (c == 'n' || c == 'N') {
-                        waitExitConfirm = false;
-                        c = 0;
-                        m_displayer->clear("notice");
+                    } else if (waitExitConfirm) {
+                        if (c == 'y' || c == 'Y') {
+                            running = false;
+                            c = 0;
+                        } else if (c == 'n' || c == 'N') {
+                            waitExitConfirm = false;
+                            c = 0;
+                            m_displayer->clear("notice");
+                        } else {
+                            m_displayer->display("notice", "Do you really want to quit ? [y/n] (again) ");
+                        }
+                    } else if (c == '?') {
+                        m_poolWorker->ping();
                     } else {
-                        m_displayer->display("notice", "Do you really want to quit ? [y/n] (again) ");
+                        m_displayer->clear("notice");
+                        c = 0;
                     }
-                } else if (c == '?') {
-                    m_poolWorker->ping();
-                } else {
-                    m_displayer->clear("notice");
-                    c = 0;
                 }
             }
 
             if (catch_sigint) {
                 // manual exit using CTRL+C
                 catch_sigint = 0;
-                waitExitConfirm = true;
-                m_displayer->display("notice", "Do you really want to quit ? [y/n] ");
+                if (m_config->isNoInteractive()) {
+                    running = false;
+                    m_displayer->display("notice", "CTRL-C hitted. Now quit ! ");
+                } else {
+                    waitExitConfirm = true;
+                    m_displayer->display("notice", "Do you really want to quit ? [y/n] ");
+                }
             }
 
             if (catch_sigquit) {
@@ -391,9 +419,29 @@ public:
                 running = false;
             }
 
-            o3d::DateTime dt;
-            dt.fromTime(m_handler->timestamp(), False);
-            m_displayer->display("time", dt.buildString("%Y-%m-%d %H:%M:%S"));
+            if (catch_sigterm) {
+                // exit signal received
+                catch_sigterm = 0;
+                running = false;
+            }
+
+            if (m_config->isNoInteractive()) {
+                // display progression in percent
+                if (m_handler->progress() < 100.0 && (m_handler->progress() - prevProgress >= 5.0)) {
+                    m_displayer->display("notice", o3d::String::print("Progress %.2f%% ...", m_handler->progress()));
+                    prevProgress = m_handler->progress();
+                }
+
+                if (m_handler->progress() >= 100.0) {
+                    m_displayer->display("notice", o3d::String::print("Completed !"));
+                    running = false;
+                }
+            } else {
+                // update datetime in interactive mode
+                o3d::DateTime dt;
+                dt.fromTime(m_handler->timestamp(), False);
+                m_displayer->display("time", dt.buildString("%Y-%m-%d %H:%M:%S"));
+            }
 
             // sync display to main thread
             m_displayer->sync();

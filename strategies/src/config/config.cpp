@@ -19,11 +19,15 @@ using o3d::Logger;
 
 Config::Config() :
     m_configPath("."),
+    m_strategiesPath("."),
+    m_profilesPath("."),
     m_marketsPath("."),
     m_logsPath("."),
     m_reportsPath("."),
+    m_learningPath("."),
     m_handlerType(HANDLER_LIVE),
     m_paperMode(false),
+    m_noInteractive(false),
     m_dbType("mysql"),
     m_dbName("siis"),
     m_dbHost("127.0.0.1"),
@@ -68,6 +72,12 @@ void Config::initPaths(const o3d::Dir &basePath)
     }
     m_strategiesPath.cd("strategies");
 
+    m_profilesPath = m_configPath;
+    if (m_profilesPath.check("profiles") != 0) {
+        m_profilesPath.makeDir("profiles");
+    }
+    m_profilesPath.cd("profiles");
+
     m_supervisorsPath = m_configPath;
     if (m_supervisorsPath.check("supervisors") != 0) {
         m_supervisorsPath.makeDir("supervisors");
@@ -91,6 +101,12 @@ void Config::initPaths(const o3d::Dir &basePath)
         m_reportsPath.makeDir("reports");
     }
     m_reportsPath.cd("reports");
+
+    m_learningPath = m_configPath;
+    if (m_learningPath.check("learning") != 0) {
+        m_learningPath.makeDir("learning");
+    }
+    m_learningPath.cd("learning");
 }
 
 void Config::loadCmdLine(const o3d::CommandLine *cmdLine)
@@ -161,6 +177,12 @@ void Config::loadCmdLine(const o3d::CommandLine *cmdLine)
             m_paperMode = true;
         } else {
             m_paperMode = false;
+        }
+
+        if (cmdLine->getSwitch('n')) {
+            m_noInteractive = true;
+        } else {
+            m_noInteractive= false;
         }
     }
 }

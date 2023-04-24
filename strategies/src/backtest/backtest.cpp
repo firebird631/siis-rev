@@ -199,6 +199,11 @@ o3d::Double Backtest::timestamp() const
     return m_curTs;
 }
 
+o3d::Double Backtest::progress() const
+{
+    return (m_curTs - m_fromTs) / (m_toTs - m_fromTs) * 100.0;
+}
+
 const TraderProxy *Backtest::traderProxy() const
 {
     return m_traderProxy;

@@ -190,6 +190,11 @@ o3d::Double Optimization::timestamp() const
     return m_curTs;
 }
 
+o3d::Double Optimization::progress() const
+{
+    return (m_curTs - m_fromTs) / (m_toTs - m_fromTs) * 100.0;
+}
+
 const TraderProxy *Optimization::traderProxy() const
 {
     return m_traderProxy;

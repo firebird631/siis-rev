@@ -35,7 +35,7 @@ siis::RedisCache::RedisCache(
     if (m_redis == nullptr) {
         O3D_ERROR(o3d::E_InvalidParameter("Couldn't connect to redis server"));
     } else if (m_redis->err) {
-        O3D_ERROR(o3d::E_InvalidResult(m_redis->errstr));
+        O3D_ERROR(o3d::E_InvalidResult("Error connection to redis server : " + o3d::String(m_redis->errstr)));
     }
 
     // @todo auth

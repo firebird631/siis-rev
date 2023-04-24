@@ -36,7 +36,17 @@ void TtyDisplayer::sync()
 
 void TtyDisplayer::display(const o3d::String &panel, const o3d::String &msg, o3d::System::MessageLevel type)
 {
-    o3d::System::print(msg, panel, type);
+    if (panel == "win1" || panel == "default") {
+        o3d::System::print(msg, panel, type);
+    } else if (panel == "win2" || panel == "content") {
+        o3d::System::print(msg, panel, type);
+    } else if (panel == "notice") {
+        o3d::System::print(msg, panel, type);
+    } else if (panel == "time") {
+        // don't display time
+    } else {
+        o3d::System::print(msg, panel, type);
+    }
 }
 
 void TtyDisplayer::clear(const o3d::String &panel)

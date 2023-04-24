@@ -8,13 +8,14 @@
 #ifndef SIIS_ZMQCONNECTOR_H
 #define SIIS_ZMQCONNECTOR_H
 
+#include <zmq.hpp>
+
 #include "connector.h"
 
 #include <o3d/core/hashmap.h>
 #include <o3d/core/thread.h>
 #include <o3d/core/mutex.h>
 
-#include <zmq.hpp>
 #include <queue>
 
 namespace siis {

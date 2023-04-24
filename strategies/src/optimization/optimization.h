@@ -52,6 +52,7 @@ public:
     virtual void sync() override;
 
     virtual o3d::Double timestamp() const override;
+    virtual o3d::Double progress() const override;
 
     virtual const TraderProxy* traderProxy() const override;
     virtual TraderProxy* traderProxy() override;

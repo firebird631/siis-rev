@@ -15,6 +15,7 @@
 #include <o3d/core/configfile.h>
 #include <o3d/core/stringlist.h>
 
+#include <cstddef>
 #include <json/reader.h>
 #include <json/value.h>
 

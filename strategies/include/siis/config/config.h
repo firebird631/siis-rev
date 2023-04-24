@@ -74,6 +74,7 @@ public:
 
     HandlerType getHandlerType() const { return m_handlerType; }
     o3d::Bool isPaperMode() const { return m_paperMode; }
+    o3d::Bool isNoInteractive() const { return m_noInteractive; }
 
     //
     // connector
@@ -115,6 +116,7 @@ public:
     const o3d::Dir& getMarketsPath() const { return m_marketsPath; }
     const o3d::Dir& getLogsPath() const { return m_logsPath; }
     const o3d::Dir& getReportsPath() const { return m_reportsPath; }
+    const o3d::Dir& getLearningPath() const { return m_learningPath; }
 
     //
     // strategy and workers
@@ -179,13 +181,16 @@ private:
 
     o3d::Dir m_configPath;
     o3d::Dir m_strategiesPath;
+    o3d::Dir m_profilesPath;
     o3d::Dir m_supervisorsPath;
     o3d::Dir m_marketsPath;
     o3d::Dir m_logsPath;
     o3d::Dir m_reportsPath;
+    o3d::Dir m_learningPath;
 
     HandlerType m_handlerType;
     o3d::Bool m_paperMode;
+    o3d::Bool m_noInteractive;
 
     o3d::String m_brokerId;
     o3d::String m_connectorHost;
@@ -224,8 +229,10 @@ private:
     std::list<MarketConfig*> m_configuredMarkets;
     o3d::T_StringList m_markets;
 
+    o3d::String m_profileFilename;
     o3d::String m_strategyFilename;
     o3d::String m_supervisorFilename;
+    o3d::String m_learningFilename;
 };
 
 } // namespace siis

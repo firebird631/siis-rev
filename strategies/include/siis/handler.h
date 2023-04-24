@@ -67,6 +67,11 @@ public:
     virtual o3d::Double timestamp() const = 0;
 
     /**
+     * @brief progress Return the progression in percent. Only for non live modes.
+     */
+    virtual o3d::Double progress() const = 0;
+
+    /**
      * @brief traderProxy Unique trader proxy instance (read only).
      */
     virtual const TraderProxy* traderProxy() const = 0;

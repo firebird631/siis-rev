@@ -150,6 +150,11 @@ o3d::Double Live::timestamp() const
     return static_cast<o3d::Double>(o3d::System::getEpochTime()) / 10000000.0;
 }
 
+o3d::Double Live::progress() const
+{
+    return 0.0;
+}
+
 const TraderProxy *Live::traderProxy() const
 {
     return m_traderProxy;

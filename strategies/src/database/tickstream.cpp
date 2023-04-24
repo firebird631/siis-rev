@@ -242,11 +242,17 @@ o3d::Int32 TickStream::fillNext(o3d::Double timestamp, TickArray &out)
 void TickStream::bufferize()
 {
     if (m_cur < m_to) {
-        if (!m_file) {
-            open();
-        }
-
         o3d::Bool fileEnd = false;
+
+        if (!m_file) {
+            try {
+                open();
+            } catch (o3d::E_InvalidResult) {
+                fileEnd = true;
+            } catch (o3d::E_InvalidParameter) {
+                fileEnd = true;
+            }
+        }
 
         if (m_file) {
             if (m_curMode == MODE_BINARY) {
@@ -304,7 +310,13 @@ void TickStream::bufferize()
             }
 
             if (m_cur < m_to) {
-                open();
+                try {
+                    open();
+                } catch (o3d::E_InvalidResult &e) {
+                    fileEnd = true;
+                } catch (o3d::E_InvalidParameter &e) {
+                    fileEnd = true;
+                }
             }
 
             if (!m_file) {

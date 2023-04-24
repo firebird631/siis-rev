@@ -75,6 +75,7 @@ find_package(Objective3D REQUIRED)
 find_package(TA REQUIRED)
 find_package(ZMQ REQUIRED)
 find_package(JSONCPP REQUIRED)
+find_package (Threads REQUIRED)
 # find_package(PostgreSQL REQUIRED)
 
 include_directories(${JSONCPP_INCLUDE_DIR})
