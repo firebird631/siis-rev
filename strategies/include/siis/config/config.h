@@ -20,6 +20,7 @@ class StrategyConfig;
 
 /**
  * @brief Per market specific config.
+ * @todo maybe add quote-to-base mode
  */
 class MarketConfig
 {
@@ -57,6 +58,11 @@ public:
  *  - First reason for compatibility,
  *  - Second reason because SiiS Python can call strategy backtests/training/learning directly in way to improve
  *  performance.
+ *
+ *  Either load a strategy configuration, either a profile configuration file.
+ *  After that it is allowed to override somes paramters using a learning configuration file.
+ *
+ *  Supervisor for now are not implemented and might change.
  */
 class Config
 {
@@ -80,6 +86,7 @@ public:
 
     void loadStrategySpec(const o3d::String filename);
     void loadProfileSpec(const o3d::String filename);
+    void loadLearningSpec(const o3d::String filename);
     void loadSupervisorSpec(const o3d::String filename);
 
     HandlerType getHandlerType() const { return m_handlerType; }
@@ -143,21 +150,38 @@ public:
 
     /**
      * @brief getStrategyFilename Filename defined by loadStrategySpec.
-     * @return
      */
     const o3d::String& getStrategyFilename() const { return m_strategyFilename; }
 
     /**
      * @brief getProfileFilename Filename defined by loadProfileSpec.
-     * @return
      */
     const o3d::String& getProfileFilename() const { return m_profileFilename; }
 
     /**
      * @brief getLearningFilename Filename defined by loadLearningSpec.
-     * @return
      */
     const o3d::String& getLearningFilename() const { return m_learningFilename; }
+
+    /**
+     * @brief getAuthor Profile/strategy author nmae.
+     */
+    const o3d::String& getAuthor() const { return m_author; }
+
+    /**
+     * @brief getCreated Profile/strategy creation date and time.
+     */
+    const o3d::DateTime& getCreated() const { return m_created; }
+
+    /**
+     * @brief getModified Profile/strategy revision date and time.
+     */
+    const o3d::DateTime& getModified() const { return m_modified; }
+
+    /**
+     * @brief getRevision Profile/strategy revision number.
+     */
+    const o3d::Int32 getRevision() const { return m_revision; }
 
     //
     // supervisor for machine learning
@@ -256,6 +280,11 @@ private:
     o3d::String m_strategyFilename;
     o3d::String m_supervisorFilename;
     o3d::String m_learningFilename;
+
+    o3d::String m_author;
+    o3d::DateTime m_created;
+    o3d::DateTime m_modified;
+    o3d::Int32 m_revision;
 };
 
 } // namespace siis

@@ -23,48 +23,47 @@ static const char* MaAdxParameters = R"JSON(
     "max-trades": 3,
     "trade-delay": 30,
     "need-update": false,
+    "contexts": {
+        "ma-adx-5m-1m": {
+        }
+    },
     "timeframes": {
         "4hours": {
             "enabled": true,
             "timeframe": "4h",
             "sub-timeframe": "5m",
-            "mode": "A",
-            "depth": 56,
-            "history": 56,
+            "mode": "trend",
+            "depth": 25,
+            "history": 25,
             "indicators": {
                 "price": {"method": "HLC"},
-                "rsi": {"len" : 21},
-                "stochrsi": {"len": 13, "fastK_Len": 13, "fastD_Len": 13},
-                "slowSma": {"len": 200},
-                "midSma": {"len": 55},
-                "sma": {"len": 20},
-                "ema": {"len": 8},
-                "atr": {"len": 14, "factor": 2.5}
+                "ma-high": {"len": 20},
+                "ma-mid": {"len": 20},
+                "ma-low": {"len": 20}
             }
         },
          "5min": {
             "enabled": true,
             "timeframe": "5m",
             "sub-timeframe": "1m",
-            "mode": "A",
-            "depth": 41,
-            "history": 41,
+            "mode": "sig",
+            "depth": 25,
+            "history": 25,
             "indicators": {
                 "price": {"method": "HLC"},
-                "rsi": {"len" : 21},
-                "stochrsi": {"len": 13, "fastK_Len": 13, "fastD_Len": 13},
-                "sma": {"len": 20},
-                "ema": {"len": 8},
-                "atr": {"len": 14, "factor": 2.5}
+                "ma-high": {"len": 6},
+                "ma-mid": {"len": 6},
+                "ma-low": {"len": 6},
+                "adx": {"len": 5}
             }
         },
         "1min": {
             "enabled": true,
             "timeframe": "1m",
             "sub-timeframe": "t",
-            "mode": "B",
-            "depth": 20,
-            "history": 20,
+            "mode": "conf",
+            "depth": 10,
+            "history": 10,
             "indicators": {
                 "price": {"method": "HLC"}
             }

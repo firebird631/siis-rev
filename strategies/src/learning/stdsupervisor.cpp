@@ -43,7 +43,7 @@ void StdSupervisor::init(Config *config)
     // strategie parameters
     StrategyConfig conf;
     conf.parseDefaults("{}");
-    conf.parseOverrides(config->getStrategiesPath(), config->getStrategyFilename());
+    conf.parseStrategyOverrides(config->getStrategiesPath(), config->getStrategyFilename());
 
     m_needUpdate = conf.root().get("need-update", false).asBool();
     m_baseTimeframe = conf.baseTimeframe();

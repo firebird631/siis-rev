@@ -60,7 +60,7 @@ void ForexAlpha::init(Config *config)
     // strategie parameters
     StrategyConfig conf;
     conf.parseDefaults(ForexAlphaParameters);
-    conf.parseOverrides(config->getStrategiesPath(), config->getStrategyFilename());
+    conf.parseStrategyOverrides(config->getStrategiesPath(), config->getStrategyFilename());
 
     m_reversal = conf.root().get("reversal", true).asBool();
     m_pyramided = conf.root().get("pyramided", 0).asInt();

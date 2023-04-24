@@ -156,19 +156,23 @@ public:
         }
 
         String strategyConfigFileName = cmd->getOptionValue('s');
-        String learningConfigFileName = cmd->getOptionValue('x');
         String profileConfigFileName = cmd->getOptionValue('p');
+        String learningConfigFileName = cmd->getOptionValue('x');
         String supervisorConfigFileName = cmd->getOptionValue('S');
 
+        if (strategyConfigFileName.isValid() && profileConfigFileName.isValid()) {
+            throw E_InvalidParameter("Either strategy or profile configuration file can be specified");
+        }
+
         if ((cmd->getSwitch('l') || cmd->getSwitch('b')) && strategyConfigFileName.isEmpty() && profileConfigFileName.isEmpty()) {
-            throw E_InvalidParameter("No strategy or porfile configuration file specified");
+            throw E_InvalidParameter("No strategy or profile configuration file specified");
         }
 
         if ((cmd->getSwitch('L') || cmd->getSwitch('o')) && supervisorConfigFileName.isEmpty()) {
             throw E_InvalidParameter("No supervisor configuration file specified");
         }
 
-        if (strategyConfigFileName.isEmpty() && supervisorConfigFileName.isEmpty()) {
+        if (strategyConfigFileName.isEmpty() && profileConfigFileName.isEmpty() && supervisorConfigFileName.isEmpty()) {
             displayHelp();
             return 1;
         }
@@ -181,6 +185,8 @@ public:
         CommandLine *cmd = Application::getCommandLine();
 
         String strategyConfigFileName = cmd->getOptionValue('s');
+        String profileConfigFileName = cmd->getOptionValue('p');
+        String learningConfigFileName = cmd->getOptionValue('x');
         String supervisorConfigFileName = cmd->getOptionValue('S');
 
         // config
@@ -192,6 +198,12 @@ public:
 
         if (strategyConfigFileName.isValid()) {
             m_config->loadStrategySpec(strategyConfigFileName);
+        } else if (profileConfigFileName.isValid()) {
+            m_config->loadProfileSpec(profileConfigFileName);
+        }
+
+        if (learningConfigFileName.isValid()) {
+            m_config->loadLearningSpec(learningConfigFileName);
         }
 
         if (supervisorConfigFileName.isValid()) {

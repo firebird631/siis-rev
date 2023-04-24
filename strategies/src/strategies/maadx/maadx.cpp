@@ -59,7 +59,7 @@ void MaAdx::init(Config *config)
     // strategie parameters
     StrategyConfig conf;
     conf.parseDefaults(MaAdxParameters);
-    conf.parseOverrides(config->getStrategiesPath(), config->getStrategyFilename());
+    conf.parseOverrides(config);
 
     m_reversal = conf.root().get("reversal", true).asBool();
     m_pyramided = conf.root().get("pyramided", 0).asInt();
