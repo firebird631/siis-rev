@@ -48,6 +48,15 @@ public:
  * @brief Worker for the pool executor.
  * @author Frederic Scherma
  * @date 2019-03-05
+ *
+ * Contain any elements of configuration.
+ *
+ * Different between profile and strategy configuration file :
+ * - Strategy file based configuration is light and new format for SiiS.
+ * - Profile file based configureation is original SiiS format coming from Python version. It is kept for many reasons.
+ *  - First reason for compatibility,
+ *  - Second reason because SiiS Python can call strategy backtests/training/learning directly in way to improve
+ *  performance.
  */
 class Config
 {
@@ -70,6 +79,7 @@ public:
     void loadCommon();
 
     void loadStrategySpec(const o3d::String filename);
+    void loadProfileSpec(const o3d::String filename);
     void loadSupervisorSpec(const o3d::String filename);
 
     HandlerType getHandlerType() const { return m_handlerType; }
@@ -113,6 +123,7 @@ public:
 
     const o3d::Dir& getConfigPath() const { return m_configPath; }
     const o3d::Dir& getStrategiesPath() const { return m_strategiesPath; }
+    const o3d::Dir& getProfilesPath() const { return m_profilesPath; }
     const o3d::Dir& getMarketsPath() const { return m_marketsPath; }
     const o3d::Dir& getLogsPath() const { return m_logsPath; }
     const o3d::Dir& getReportsPath() const { return m_reportsPath; }
@@ -135,6 +146,18 @@ public:
      * @return
      */
     const o3d::String& getStrategyFilename() const { return m_strategyFilename; }
+
+    /**
+     * @brief getProfileFilename Filename defined by loadProfileSpec.
+     * @return
+     */
+    const o3d::String& getProfileFilename() const { return m_profileFilename; }
+
+    /**
+     * @brief getLearningFilename Filename defined by loadLearningSpec.
+     * @return
+     */
+    const o3d::String& getLearningFilename() const { return m_learningFilename; }
 
     //
     // supervisor for machine learning

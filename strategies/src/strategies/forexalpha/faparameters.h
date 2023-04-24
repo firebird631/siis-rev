@@ -20,25 +20,25 @@ static const char* ForexAlphaParameters = R"JSON(
     "reversal": true,
     "pyramided": 0,
     "hedging": false,
-    "maxTrades": 3,
-    "tradeDelay": 30,
+    "max-trades": 3,
+    "trade-delay": 30,
     "minTimeframe": 0,
-    "needUpdate": false,
+    "need-update": false,
     "minVol24h": 0,
     "minPrice": 0,
     "timeframes": {
         "weekly": {
             "enabled": true,
             "timeframe": "1w",
-            "subTimeframe": "daily",
+            "sub-timeframe": "daily",
             "mode": "C",
             "depth": 22,
             "history": 22,
             "indicators": {
                 "price": {"method": "HLC"},
-                "volumeEma": {"len": 8},
+                "volumeema": {"len": 8},
                 "rsi": {"len": 21},
-                "stochRsi": {"len": 13, "fastK_Len": 13, "fastD_Len": 13},
+                "stochrsi": {"len": 13, "fastK_Len": 13, "fastD_Len": 13},
                 "sma": {"len": 20},
                 "ema": {"len": 21},
                 "atr": {"len": 14, "factor": 2.5}
@@ -47,15 +47,15 @@ static const char* ForexAlphaParameters = R"JSON(
         "daily": {
             "enabled": true,
             "timeframe": "1d",
-            "subTimeframe": "4h",
+            "sub-timeframe": "4h",
             "mode": "A",
             "depth": 41,
             "history": 41,
             "indicators": {
                 "price": {"method": "HLC"},
-                "volumeEma": {"len" : 8},
+                "volumeema": {"len" : 8},
                 "rsi": {"len" : 21},
-                "stochRsi": {"len": 13, "fastK_Len": 13, "fastD_Len": 13},
+                "stochrsi": {"len": 13, "fastK_Len": 13, "fastD_Len": 13},
                 "sma": {"len": 20},
                 "ema": {"len": 8},
                 "atr": {"len": 14, "factor": 2.5}
@@ -64,15 +64,15 @@ static const char* ForexAlphaParameters = R"JSON(
         "4hours": {
             "enabled": true,
             "timeframe": "4h",
-            "subTimeframe": "1h",
+            "sub-timeframe": "1h",
             "mode": "D",
             "depth": 56,
             "history": 56,
             "indicators": {
                 "price": {"method": "HLC"},
-                "volumeEma": {"len" : 8},
+                "volumeema": {"len" : 8},
                 "rsi": {"len" : 21},
-                "stochRsi": {"len": 13, "fastK_Len": 13, "fastD_Len": 13},
+                "stochrsi": {"len": 13, "fastK_Len": 13, "fastD_Len": 13},
                 "slowSma": {"len": 200},
                 "midSma": {"len": 55},
                 "sma": {"len": 20},
@@ -83,15 +83,15 @@ static const char* ForexAlphaParameters = R"JSON(
         "hourly": {
             "enabled": true,
             "timeframe": "1h",
-            "subTimeframe": "15m",
+            "sub-timeframe": "15m",
             "mode": "A",
             "depth": 41,
             "history": 41,
             "indicators": {
                 "price": {"method": "HLC"},
-                "volumeEma": {"len" : 8},
+                "volumeema": {"len" : 8},
                 "rsi": {"len" : 21},
-                "stochRsi": {"len": 13, "fastK_Len": 13, "fastD_Len": 13},
+                "stochrsi": {"len": 13, "fastK_Len": 13, "fastD_Len": 13},
                 "sma": {"len": 20},
                 "ema": {"len": 8},
                 "atr": {"len": 14, "factor": 2.5}
@@ -100,15 +100,15 @@ static const char* ForexAlphaParameters = R"JSON(
         "15min": {
             "enabled": true,
             "timeframe": "15m",
-            "subTimeframe": "5m",
+            "sub-timeframe": "5m",
             "mode": "A",
             "depth": 41,
             "history": 41,
             "indicators": {
                 "price": {"method": "HLC"},
-                "volumeEma": {"len" : 8},
+                "volumeema": {"len" : 8},
                 "rsi": {"len" : 21},
-                "stochRsi": {"len": 13, "fastK_Len": 13, "fastD_Len": 13},
+                "stochrsi": {"len": 13, "fastK_Len": 13, "fastD_Len": 13},
                 "sma": {"len": 20},
                 "ema": {"len": 8},
                 "atr": {"len": 14, "factor": 2.5}
@@ -117,15 +117,15 @@ static const char* ForexAlphaParameters = R"JSON(
         "5min": {
             "enabled": true,
             "timeframe": "5m",
-            "subTimeframe": "1m",
+            "sub-timeframe": "1m",
             "mode": "A",
             "depth": 41,
             "history": 41,
             "indicators": {
                 "price": {"method": "HLC"},
-                "volumeEma": {"len" : 8},
+                "volumeema": {"len" : 8},
                 "rsi": {"len" : 21},
-                "stochRsi": {"len": 13, "fastK_Len": 13, "fastD_Len": 13},
+                "stochrsi": {"len": 13, "fastK_Len": 13, "fastD_Len": 13},
                 "sma": {"len": 20},
                 "ema": {"len": 8},
                 "atr": {"len": 14, "factor": 2.5}
@@ -134,14 +134,14 @@ static const char* ForexAlphaParameters = R"JSON(
         "1min": {
             "enabled": false,
             "timeframe": "1m",
-            "subTimeframe": "t",
+            "sub-timeframe": "t",
             "mode": "B",
             "depth": 20,
             "history": 20,
             "indicators": {
                 "price": {"method": "HLC"},
                 "rsi": {"len" : 8},
-                "stochRsi": {"len": 13, "fastK_Len": 13, "fastD_Len": 13},
+                "stochrsi": {"len": 13, "fastK_Len": 13, "fastD_Len": 13},
                 "sma": {"len": 20},
                 "ema": {"len": 8},
                 "atr": {"len": 14, "factor": 2.5}

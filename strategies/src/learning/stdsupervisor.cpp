@@ -45,7 +45,7 @@ void StdSupervisor::init(Config *config)
     conf.parseDefaults("{}");
     conf.parseOverrides(config->getStrategiesPath(), config->getStrategyFilename());
 
-    m_needUpdate = conf.root().get("needUpdate", false).asBool();
+    m_needUpdate = conf.root().get("need-update", false).asBool();
     m_baseTimeframe = conf.baseTimeframe();
     m_minTradedTimeframe = conf.minTradedTimeframe();
     m_maxTradedTimeframe = conf.maxTradedTimeframe();
@@ -65,7 +65,7 @@ void StdSupervisor::init(Config *config)
             o3d::String mode = timeframe.get("mode", "").asString().c_str();
 
             o3d::Double tf = conf.timeframeAsDouble(timeframe, "timeframe");
-            o3d::Double subTf = conf.timeframeAsDouble(timeframe, "subTimeframe");
+            o3d::Double subTf = conf.timeframeAsDouble(timeframe, "sub-timeframe");
 
             o3d::Int32 depth = timeframe.get("depth", 0).asInt();
             o3d::Int32 history = timeframe.get("history", 0).asInt();

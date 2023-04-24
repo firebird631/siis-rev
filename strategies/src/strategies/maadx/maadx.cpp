@@ -1,27 +1,23 @@
 /**
- * @brief SiiS strategy indicealpha.
- * @copyright Copyright (C) 2019 SiiS
+ * @brief SiiS strategy MAADX.
+ * @copyright Copyright (C) 2023 SiiS
  * @author Frederic SCHERMA (frederic.scherma@gmail.com)
- * @date 2019-06-03
+ * @date 2023-04-24
  */
 
-#include "indicealpha.h"
-#include "iaparameters.h"
+#include "maadx.h"
+#include "maadxparameters.h"
 
 #include "siis/config/strategyconfig.h"
-
 #include "siis/handler.h"
 
 #include "siis/connector/connector.h"
-#include "siis/connector/traderproxy.h"
-
 #include "siis/database/database.h"
 #include "siis/database/tradedb.h"
 
-#include "iaaanalyser.h"
-#include "iabanalyser.h"
-#include "iacanalyser.h"
-#include "iadanalyser.h"
+#include "maadxtrendanalyser.h"
+#include "maadxsiganalyser.h"
+#include "maadxconfanalyser.h"
 
 using namespace siis;
 using o3d::Logger;
@@ -32,37 +28,37 @@ extern "C"
 
 SIIS_PLUGIN_API siis::Strategy* siisStrategy(Handler *handler, const o3d::String &identifier)
 {
-    return new siis::IndiceAlpha(handler, identifier);
+    return new siis::MaAdx(handler, identifier);
 }
 
 } // extern "C"
 
-IndiceAlpha::IndiceAlpha(Handler *handler, const o3d::String &identifier) :
+MaAdx::MaAdx(Handler *handler, const o3d::String &identifier) :
     Strategy(handler, identifier)
 {
 
 }
 
-IndiceAlpha::~IndiceAlpha()
+MaAdx::~MaAdx()
 {
 
 }
 
-void IndiceAlpha::init(Config *config)
+void MaAdx::init(Config *config)
 {
     Strategy::init(config);
 
     // author defined strategy properties details
-    setProperty("name", "indicealpha");
+    setProperty("name", "maadx");
     setProperty("author", "Frederic SCHERMA (frederic.scherma@gmail.com)");
-    setProperty("date", "2019-06-03");
+    setProperty("date", "2023-04-24");
     setProperty("revision", "1");
-    setProperty("copyright", "2018-2019 Dream Overflow");
-    setProperty("comment", "Indice (DAX,SPX,DJI) dedicaded strategy");
+    setProperty("copyright", "2018-2023 Dream Overflow");
+    setProperty("comment", "Crypto, indices and stocks big caps dedicaded strategy");
 
     // strategie parameters
     StrategyConfig conf;
-    conf.parseDefaults(IndiceAlphaParameters);
+    conf.parseDefaults(MaAdxParameters);
     conf.parseOverrides(config->getStrategiesPath(), config->getStrategyFilename());
 
     m_reversal = conf.root().get("reversal", true).asBool();
@@ -71,12 +67,8 @@ void IndiceAlpha::init(Config *config)
     m_maxTrades = conf.root().get("max-trades", 1).asInt();
     m_tradeDelay = conf.root().get("trade-delay", 30).asDouble();
     m_needUpdate = conf.root().get("need-update", false).asBool();
-    m_minVol24h = conf.root().get("minVol24h", 0).asDouble();
-    m_minPrice = conf.root().get("minPrice", 0).asDouble();
 
     m_baseTimeframe = conf.baseTimeframe();
-    m_minTradedTimeframe = conf.minTradedTimeframe();
-    m_maxTradedTimeframe = conf.maxTradedTimeframe();
 
     // stream data sources
     if (m_baseTimeframe <= 0.0) {
@@ -102,37 +94,36 @@ void IndiceAlpha::init(Config *config)
                 continue;
             }
 
-            if (mode == "A") {
-                Analyser *a = new IaAAnalyser(this, tf, subTf, depth, history);
+            if (mode == "A" || mode == "trend") {
+                Analyser *a = new MaAdxTrendAnalyser(this, tf, subTf, depth, history);
                 a->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(a);
-            } else if (mode == "B") {
-                Analyser *b = new IaBAnalyser(this, tf, subTf, depth, history);
-                b->init(AnalyserConfig(timeframe));
+            } else if (mode == "B" || mode == "sig") {
+                Analyser *a = new MaAdxSigAnalyser(this, tf, subTf, depth, history);
+                a->init(AnalyserConfig(timeframe));
 
-                m_analysers.push_back(b);
-            } else if (mode == "C") {
-                Analyser *c = new IaCAnalyser(this, tf, subTf, depth, history);
-                c->init(AnalyserConfig(timeframe));
+                m_analysers.push_back(a);
+            } else if (mode == "C" || mode == "conf") {
+                Analyser *a = new MaAdxConfAnalyser(this, tf, subTf, depth, history);
+                a->init(AnalyserConfig(timeframe));
 
-                m_analysers.push_back(c);
-            } else if (mode == "D") {
-                Analyser *d = new IaDAnalyser(this, tf, subTf, depth, history);
-                d->init(AnalyserConfig(timeframe));
-
-                m_analysers.push_back(d);
+                m_analysers.push_back(a);
             } else {
                 // ignored, unknow mode
-                O3D_WARNING(o3d::String("ForexAlpha strategy unknow mode {0}").arg(mode));
+                O3D_WARNING(o3d::String("MaAdx strategy unknow mode {0}").arg(mode));
             }
         }
+    }
+
+    if (conf.root().isMember("contexts")) {
+        // @todo
     }
 
     setInitialized();
 }
 
-void IndiceAlpha::terminate(Connector *connector, Database *db)
+void MaAdx::terminate(Connector *connector, Database *db)
 {
     for (Analyser *analyser : m_analysers) {
         analyser->terminate();
@@ -148,19 +139,19 @@ void IndiceAlpha::terminate(Connector *connector, Database *db)
     setTerminated();
 }
 
-void IndiceAlpha::prepareMarketData(Connector *connector, Database *db)
+void MaAdx::prepareMarketData(Connector *connector, Database *db)
 {
     setMarketDataPrepared();
 }
 
-void IndiceAlpha::finalizeMarketData(Connector *connector, Database *db)
+void MaAdx::finalizeMarketData(Connector *connector, Database *db)
 {
     m_tradeManager = new StdTradeManager(this);
     setReady();
     setRunning();
 }
 
-void IndiceAlpha::onTickUpdate(o3d::Double timestamp, const TickArray &ticks)
+void MaAdx::onTickUpdate(o3d::Double timestamp, const TickArray &ticks)
 {
     if (m_baseTimeframe == TF_TICK) {
         for (Analyser *analyser : m_analysers) {
@@ -169,7 +160,7 @@ void IndiceAlpha::onTickUpdate(o3d::Double timestamp, const TickArray &ticks)
     }
 }
 
-void IndiceAlpha::onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe, Ohlc::Type ohlcType, const OhlcArray &ohlc)
+void MaAdx::onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe, Ohlc::Type ohlcType, const OhlcArray &ohlc)
 {
     if (m_baseTimeframe == timeframe) {
         for (Analyser *analyser : m_analysers) {
@@ -178,17 +169,17 @@ void IndiceAlpha::onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe, Ohl
     }
 }
 
-void IndiceAlpha::onOrderSignal(const OrderSignal &orderSignal)
+void MaAdx::onOrderSignal(const OrderSignal &orderSignal)
 {
     m_tradeManager->onOrderSignal(orderSignal);
 }
 
-void IndiceAlpha::onPositionSignal(const PositionSignal &positionSignal)
+void MaAdx::onPositionSignal(const PositionSignal &positionSignal)
 {
     m_tradeManager->onPositionSignal(positionSignal);
 }
 
-void IndiceAlpha::prepare(o3d::Double timestamp)
+void MaAdx::prepare(o3d::Double timestamp)
 {
     // prepare before compute
     for (Analyser *analyser : m_analysers) {
@@ -196,7 +187,7 @@ void IndiceAlpha::prepare(o3d::Double timestamp)
     }
 }
 
-void IndiceAlpha::compute(o3d::Double timestamp)
+void MaAdx::compute(o3d::Double timestamp)
 {
     o3d::Bool sig = false;
 
@@ -248,12 +239,12 @@ void IndiceAlpha::compute(o3d::Double timestamp)
     }
 }
 
-void IndiceAlpha::finalize(o3d::Double timestamp)
+void MaAdx::finalize(o3d::Double timestamp)
 {
     // cleanup
 }
 
-void IndiceAlpha::orderEntry(
+void MaAdx::orderEntry(
         o3d::Double timestamp,
         o3d::Double timeframe,
         o3d::Int32 direction,
@@ -261,28 +252,10 @@ void IndiceAlpha::orderEntry(
         o3d::Double limitPrice,
         o3d::Double stopPrice)
 {
-    Trade* trade = handler()->traderProxy()->createTrade(market(), timeframe);
-    if (trade) {
-        m_tradeManager->addTrade(trade);
-
-        o3d::Double quantity = 1.0;  // @todo
-
-        // query open
-        trade->open(handler()->traderProxy(), market(), direction, Trade::ORDER_CREATE, price, quantity, stopPrice, limitPrice);
-
-        log(timeframe, "content", "entry");
-    }
+    log(timeframe, "content", "entry");
 }
 
-void IndiceAlpha::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price)
+void MaAdx::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price)
 {
-    if (trade) {
-        if (price > 0.0) {
-            // if price defined, limit close else market close
-        } else {
-            trade->close(handler()->traderProxy(), market());
-        }
-
-        log(trade->tf(), "content", "exit");
-    }
+    log(trade->tf(), "content", "exit");
 }

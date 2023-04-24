@@ -251,7 +251,7 @@ void Config::loadStrategySpec(const o3d::String filename)
         // connector
         Json::Value connector = parser.root().get("connector", Json::Value());
 
-        m_brokerId = connector.get("brokerId", "").asString().c_str();
+        m_brokerId = connector.get("broker-id", "").asString().c_str();
         m_connectorHost = connector.get("host", "127.0.0.1").asString().c_str();
         m_connectorPort = static_cast<o3d::UInt32>(connector.get("port", 6401).asInt());
         m_connectorKey = connector.get("key", "").asString().c_str();
@@ -265,15 +265,15 @@ void Config::loadStrategySpec(const o3d::String filename)
         }
 
         // default market conf
-        if (global.isMember("tradeMode")) {
-            o3d::String tradeMode = global.get("tradeMode", "fixedQuantity").asString().c_str();
-            if (tradeMode == "fixedQuantity") {
+        if (global.isMember("trade-mode")) {
+            o3d::String tradeMode = global.get("trade-mode", "fixed-quantity").asString().c_str();
+            if (tradeMode == "fixed-quantity") {
                 defaultTradeMode = MarketConfig::TRADE_FIXED_QUANTITY;
-            } else if (tradeMode == "minMaxQuantity") {
+            } else if (tradeMode == "min-max-quantity") {
                 defaultTradeMode = MarketConfig::TRADE_MIN_MAX_QUANTITY;
-            } else if (tradeMode == "accountPercent") {
+            } else if (tradeMode == "account-percent") {
                 defaultTradeMode = MarketConfig::TRADE_ACCOUNT_PERCENT;
-            } else if (tradeMode == "minMaxAccountPercent") {
+            } else if (tradeMode == "min-max-account-percent") {
                 defaultTradeMode = MarketConfig::TRADE_MIN_MAX_ACCOUNT_PERCENT;
             } else {
                 o3d::String msg = o3d::String("Unsupported default market tradeMode value {0}").arg(defaultTradeMode);
@@ -291,13 +291,13 @@ void Config::loadStrategySpec(const o3d::String filename)
         }
 
         if (defaultTradeMode == MarketConfig::TRADE_MIN_MAX_QUANTITY || defaultTradeMode == MarketConfig::TRADE_MIN_MAX_ACCOUNT_PERCENT) {
-            if (!global.isMember("minQuantity") || !global.isMember("maxQuantity")) {
-                o3d::String msg = o3d::String("Missing default minQuantity or maxQuantity key");
+            if (!global.isMember("min-quantity") || !global.isMember("max-quantity")) {
+                o3d::String msg = o3d::String("Missing default min-quantity or max-quantity key");
                 O3D_ERROR(o3d::E_InvalidFormat(msg));
             }
 
-            defaultTradeQuantity[0] = global.get("minQuantity", 0.0).asDouble();
-            defaultTradeQuantity[1] = global.get("maxQuantity", 0.0).asDouble();
+            defaultTradeQuantity[0] = global.get("min-quantity", 0.0).asDouble();
+            defaultTradeQuantity[1] = global.get("max-quantity", 0.0).asDouble();
         }
 
         // markets conf
@@ -308,28 +308,28 @@ void Config::loadStrategySpec(const o3d::String filename)
             MarketConfig *mc = new MarketConfig;
             mc->marketId = it.name().c_str();
 
-            if (market.isMember("mappedBrokerId") && market.isMember("mappedMarketId")) {
-                mc->mappedBrokerId = market.get("mappedBrokerId", "").asString().c_str();
-                mc->mappedMarketId = market.get("mappedMarketId", "").asString().c_str();
+            if (market.isMember("mapped-broker-id") && market.isMember("mapped-market-id")) {
+                mc->mappedBrokerId = market.get("mapped-broker-id", "").asString().c_str();
+                mc->mappedMarketId = market.get("mapped-market-id", "").asString().c_str();
             }
 
-            if (market.isMember("multipleMarketsId")) {
+            if (market.isMember("multiple-markets-id")) {
                 // for multiple market list, case of backtesting on a futur contract, have history of a previous market
-                Json::Value multipleMarketsId = market.get("multipleMarketsId", Json::Value());
+                Json::Value multipleMarketsId = market.get("multiple-markets-id", Json::Value());
                 for (auto it = multipleMarketsId.begin(); it != multipleMarketsId.end(); ++it) {
                     mc->multipleMarketsId.push_back((*it).asCString());
                 }
             }
 
-            if (market.isMember("tradeMode")) {
-                o3d::String tradeMode = market.get("tradeMode", "fixedQuantity").asString().c_str();
-                if (tradeMode == "fixedQuantity") {
+            if (market.isMember("trade-mode")) {
+                o3d::String tradeMode = market.get("trade-mode", "fixed-quantity").asString().c_str();
+                if (tradeMode == "fixed-quantity") {
                     mc->tradeMode = MarketConfig::TRADE_FIXED_QUANTITY;
-                } else if (tradeMode == "minMaxQuantity") {
+                } else if (tradeMode == "min-max-quantity") {
                     mc->tradeMode = MarketConfig::TRADE_MIN_MAX_QUANTITY;
-                } else if (tradeMode == "accountPercent") {
+                } else if (tradeMode == "account-percent") {
                     mc->tradeMode = MarketConfig::TRADE_ACCOUNT_PERCENT;
-                } else if (tradeMode == "minMaxAccountPercent") {
+                } else if (tradeMode == "min-max-account-percent") {
                     mc->tradeMode = MarketConfig::TRADE_MIN_MAX_ACCOUNT_PERCENT;
                 } else {
                     o3d::String msg = o3d::String("Unsupported market tradeMode value {0} for {1}").arg(tradeMode).arg(mc->marketId);
@@ -340,7 +340,7 @@ void Config::loadStrategySpec(const o3d::String filename)
                 mc->tradeMode = defaultTradeMode;
             }
 
-            if (market.isMember("tradeMode")) {
+            if (market.isMember("trade-mode")) {
                 if (mc->tradeMode == MarketConfig::TRADE_FIXED_QUANTITY || mc->tradeMode == MarketConfig::TRADE_ACCOUNT_PERCENT) {
                     if (!market.isMember("quantity")) {
                         o3d::String msg = o3d::String("Missing quantity key for {0}").arg(mc->marketId);
@@ -352,14 +352,14 @@ void Config::loadStrategySpec(const o3d::String filename)
                 }
                 else if (mc->tradeMode == MarketConfig::TRADE_MIN_MAX_QUANTITY || mc->tradeMode == MarketConfig::TRADE_MIN_MAX_ACCOUNT_PERCENT)
                 {
-                    if (!market.isMember("minQuantity") || !market.isMember("maxQuantity")) {
-                        o3d::String msg = o3d::String("Missing minQuantity or maxQuantity key for {0}").arg(mc->marketId);
+                    if (!market.isMember("min-quantity") || !market.isMember("max-quantity")) {
+                        o3d::String msg = o3d::String("Missing min-quantity or max-quantity key for {0}").arg(mc->marketId);
                         o3d::deletePtr(mc);
                         O3D_ERROR(o3d::E_InvalidFormat(msg));
                     }
 
-                    mc->tradeQuantity[0] = market.get("minQuantity", 0.0).asDouble();
-                    mc->tradeQuantity[1] = market.get("maxQuantity", 0.0).asDouble();
+                    mc->tradeQuantity[0] = market.get("min-quantity", 0.0).asDouble();
+                    mc->tradeQuantity[1] = market.get("max-quantity", 0.0).asDouble();
                 }
             } else {
                 mc->tradeQuantity[0] = defaultTradeQuantity[0];
@@ -371,6 +371,154 @@ void Config::loadStrategySpec(const o3d::String filename)
     }
 
     m_strategyFilename = filename;
+}
+
+void Config::loadProfileSpec(const o3d::String filename)
+{
+    o3d::File lfile(m_profilesPath.getFullPathName(), filename);
+    if (!lfile.exists()) {
+        throw o3d::E_InvalidParameter(o3d::String("{0} profile configuration file not found").arg(filename));
+    }
+
+    MarketConfig::TradeMode defaultTradeMode = MarketConfig::TRADE_FIXED_QUANTITY;
+    o3d::Double defaultTradeQuantity[] = {1.0, 1.0};
+
+    JsonParser parser;
+    if (parser.parse(m_profilesPath, filename)) {
+        // @todo
+        // global
+//        Json::Value global = parser.root().get("global", Json::Value());
+
+//        // overrides
+//        m_numWorkers = global.get("workers", m_numWorkers).asInt();
+
+//        // specific
+//        m_strategy = global.get("strategy", "").asString().c_str();
+//        m_strategyIdentifier = global.get("identifier", "").asString().c_str();
+
+//        // connector
+//        Json::Value connector = parser.root().get("connector", Json::Value());
+
+//        m_brokerId = connector.get("brokerId", "").asString().c_str();
+//        m_connectorHost = connector.get("host", "127.0.0.1").asString().c_str();
+//        m_connectorPort = static_cast<o3d::UInt32>(connector.get("port", 6401).asInt());
+//        m_connectorKey = connector.get("key", "").asString().c_str();
+
+//        if (m_brokerId.isEmpty()) {
+//            O3D_ERROR(o3d::E_InvalidParameter("Undefined connector brokerId"));
+//        }
+
+//        if (m_connectorHost.isEmpty()) {
+//            O3D_ERROR(o3d::E_InvalidParameter("Undefined connector host"));
+//        }
+
+//        // default market conf
+//        if (global.isMember("tradeMode")) {
+//            o3d::String tradeMode = global.get("tradeMode", "fixedQuantity").asString().c_str();
+//            if (tradeMode == "fixedQuantity") {
+//                defaultTradeMode = MarketConfig::TRADE_FIXED_QUANTITY;
+//            } else if (tradeMode == "minMaxQuantity") {
+//                defaultTradeMode = MarketConfig::TRADE_MIN_MAX_QUANTITY;
+//            } else if (tradeMode == "accountPercent") {
+//                defaultTradeMode = MarketConfig::TRADE_ACCOUNT_PERCENT;
+//            } else if (tradeMode == "minMaxAccountPercent") {
+//                defaultTradeMode = MarketConfig::TRADE_MIN_MAX_ACCOUNT_PERCENT;
+//            } else {
+//                o3d::String msg = o3d::String("Unsupported default market tradeMode value {0}").arg(defaultTradeMode);
+//                O3D_ERROR(o3d::E_InvalidFormat(msg));
+//            }
+//        }
+
+//        if (defaultTradeMode == MarketConfig::TRADE_FIXED_QUANTITY || defaultTradeMode == MarketConfig::TRADE_ACCOUNT_PERCENT) {
+//            if (!global.isMember("quantity")) {
+//                o3d::String msg = o3d::String("Missing default quantity");
+//                O3D_ERROR(o3d::E_InvalidFormat(msg));
+//            }
+
+//            defaultTradeQuantity[0] = defaultTradeQuantity[1] = global.get("quantity", 0.0).asDouble();
+//        }
+
+//        if (defaultTradeMode == MarketConfig::TRADE_MIN_MAX_QUANTITY || defaultTradeMode == MarketConfig::TRADE_MIN_MAX_ACCOUNT_PERCENT) {
+//            if (!global.isMember("minQuantity") || !global.isMember("maxQuantity")) {
+//                o3d::String msg = o3d::String("Missing default minQuantity or maxQuantity key");
+//                O3D_ERROR(o3d::E_InvalidFormat(msg));
+//            }
+
+//            defaultTradeQuantity[0] = global.get("minQuantity", 0.0).asDouble();
+//            defaultTradeQuantity[1] = global.get("maxQuantity", 0.0).asDouble();
+//        }
+
+//        // markets conf
+//        Json::Value markets = parser.root().get("markets", Json::Value());
+//        for (auto it = markets.begin(); it!= markets.end(); ++it) {
+//            Json::Value market = *it;
+
+//            MarketConfig *mc = new MarketConfig;
+//            mc->marketId = it.name().c_str();
+
+//            if (market.isMember("mappedBrokerId") && market.isMember("mappedMarketId")) {
+//                mc->mappedBrokerId = market.get("mappedBrokerId", "").asString().c_str();
+//                mc->mappedMarketId = market.get("mappedMarketId", "").asString().c_str();
+//            }
+
+//            if (market.isMember("multipleMarketsId")) {
+//                // for multiple market list, case of backtesting on a futur contract, have history of a previous market
+//                Json::Value multipleMarketsId = market.get("multipleMarketsId", Json::Value());
+//                for (auto it = multipleMarketsId.begin(); it != multipleMarketsId.end(); ++it) {
+//                    mc->multipleMarketsId.push_back((*it).asCString());
+//                }
+//            }
+
+//            if (market.isMember("tradeMode")) {
+//                o3d::String tradeMode = market.get("tradeMode", "fixedQuantity").asString().c_str();
+//                if (tradeMode == "fixedQuantity") {
+//                    mc->tradeMode = MarketConfig::TRADE_FIXED_QUANTITY;
+//                } else if (tradeMode == "minMaxQuantity") {
+//                    mc->tradeMode = MarketConfig::TRADE_MIN_MAX_QUANTITY;
+//                } else if (tradeMode == "accountPercent") {
+//                    mc->tradeMode = MarketConfig::TRADE_ACCOUNT_PERCENT;
+//                } else if (tradeMode == "minMaxAccountPercent") {
+//                    mc->tradeMode = MarketConfig::TRADE_MIN_MAX_ACCOUNT_PERCENT;
+//                } else {
+//                    o3d::String msg = o3d::String("Unsupported market tradeMode value {0} for {1}").arg(tradeMode).arg(mc->marketId);
+//                    o3d::deletePtr(mc);
+//                    O3D_ERROR(o3d::E_InvalidFormat(msg));
+//                }
+//            } else {
+//                mc->tradeMode = defaultTradeMode;
+//            }
+
+//            if (market.isMember("tradeMode")) {
+//                if (mc->tradeMode == MarketConfig::TRADE_FIXED_QUANTITY || mc->tradeMode == MarketConfig::TRADE_ACCOUNT_PERCENT) {
+//                    if (!market.isMember("quantity")) {
+//                        o3d::String msg = o3d::String("Missing quantity key for {0}").arg(mc->marketId);
+//                        o3d::deletePtr(mc);
+//                        O3D_ERROR(o3d::E_InvalidFormat(msg));
+//                    }
+
+//                    mc->tradeQuantity[0] = mc->tradeQuantity[1] = market.get("quantity", 0.0).asDouble();
+//                }
+//                else if (mc->tradeMode == MarketConfig::TRADE_MIN_MAX_QUANTITY || mc->tradeMode == MarketConfig::TRADE_MIN_MAX_ACCOUNT_PERCENT)
+//                {
+//                    if (!market.isMember("minQuantity") || !market.isMember("maxQuantity")) {
+//                        o3d::String msg = o3d::String("Missing minQuantity or maxQuantity key for {0}").arg(mc->marketId);
+//                        o3d::deletePtr(mc);
+//                        O3D_ERROR(o3d::E_InvalidFormat(msg));
+//                    }
+
+//                    mc->tradeQuantity[0] = market.get("minQuantity", 0.0).asDouble();
+//                    mc->tradeQuantity[1] = market.get("maxQuantity", 0.0).asDouble();
+//                }
+//            } else {
+//                mc->tradeQuantity[0] = defaultTradeQuantity[0];
+//                mc->tradeQuantity[1] = defaultTradeQuantity[1];
+//            }
+
+//           m_configuredMarkets.push_back(mc);
+//        }
+    }
+
+    m_profileFilename = filename;
 }
 
 void Config::loadSupervisorSpec(const o3d::String filename)

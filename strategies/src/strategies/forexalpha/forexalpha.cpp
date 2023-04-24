@@ -65,9 +65,9 @@ void ForexAlpha::init(Config *config)
     m_reversal = conf.root().get("reversal", true).asBool();
     m_pyramided = conf.root().get("pyramided", 0).asInt();
     m_hedging = conf.root().get("hedging", false).asBool();
-    m_maxTrades = conf.root().get("maxTrades", 1).asInt();
-    m_tradeDelay = conf.root().get("tradeDelay", 30).asDouble();
-    m_needUpdate = conf.root().get("needUpdate", false).asBool();
+    m_maxTrades = conf.root().get("max-trades", 1).asInt();
+    m_tradeDelay = conf.root().get("trade-delay", 30).asDouble();
+    m_needUpdate = conf.root().get("need-update", false).asBool();
     m_minVol24h = conf.root().get("minVol24h", 0).asDouble();
     m_minPrice = conf.root().get("minPrice", 0).asDouble();
 
@@ -90,7 +90,7 @@ void ForexAlpha::init(Config *config)
             o3d::String mode = timeframe.get("mode", "").asString().c_str();
 
             o3d::Double tf = conf.timeframeAsDouble(timeframe, "timeframe");
-            o3d::Double subTf = conf.timeframeAsDouble(timeframe, "subTimeframe");
+            o3d::Double subTf = conf.timeframeAsDouble(timeframe, "sub-timeframe");
 
             o3d::Int32 depth = timeframe.get("depth", 0).asInt();
             o3d::Int32 history = timeframe.get("history", 0).asInt();

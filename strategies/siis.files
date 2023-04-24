@@ -681,6 +681,17 @@ src/strategies/indicealpha/iadanalyser.h
 src/strategies/indicealpha/iaparameters.h
 src/strategies/indicealpha/indicealpha.cpp
 src/strategies/indicealpha/indicealpha.h
+src/strategies/maadx/CMakeLists.txt
+src/strategies/maadx/README
+src/strategies/maadx/maadx.cpp
+src/strategies/maadx/maadx.h
+src/strategies/maadx/maadxconfanalyser.cpp
+src/strategies/maadx/maadxconfanalyser.h
+src/strategies/maadx/maadxparameters.h
+src/strategies/maadx/maadxsiganalyser.cpp
+src/strategies/maadx/maadxsiganalyser.h
+src/strategies/maadx/maadxtrendanalyser.cpp
+src/strategies/maadx/maadxtrendanalyser.h
 src/strategy.cpp
 src/strategy.cpp
 src/strategy.cpp
