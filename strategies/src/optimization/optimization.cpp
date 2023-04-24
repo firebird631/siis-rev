@@ -192,7 +192,7 @@ o3d::Double Optimization::timestamp() const
 
 o3d::Double Optimization::progress() const
 {
-    return (m_curTs - m_fromTs) / (m_toTs - m_fromTs) * 100.0;
+    return o3d::clamp((m_curTs - m_fromTs) / (m_toTs - m_fromTs) * 100.0, 0.0, 100.0);
 }
 
 const TraderProxy *Optimization::traderProxy() const

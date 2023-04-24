@@ -90,3 +90,9 @@ src/indicators/mama
 src/indicators/zigzag
 src/indicators/sinewave
 src/indicators/bbawe
+include/siis/indicators/adx
+src/indicators/adx
+include/siis/indicators/dmi
+include/siis/indicators/cci
+src/indicators/dmi
+src/indicators/cci

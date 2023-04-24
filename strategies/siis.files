@@ -137,6 +137,7 @@ include/siis/display/ttydisplayer.h
 include/siis/display/ttydisplayer.h
 include/siis/handler.h
 include/siis/handler.h
+include/siis/indicators/adx/adx.h
 include/siis/indicators/atr/atr.h
 include/siis/indicators/atr/atr.h
 include/siis/indicators/atr/atr.h
@@ -144,6 +145,8 @@ include/siis/indicators/bbands/bbands.h
 include/siis/indicators/bbands/bbands.h
 include/siis/indicators/bbands/bbands.h
 include/siis/indicators/bbawe/bbawe.h
+include/siis/indicators/cci/cci.h
+include/siis/indicators/dmi/dmi.h
 include/siis/indicators/donchian/donchian.h
 include/siis/indicators/donchian/donchian.h
 include/siis/indicators/donchian/donchian.h
@@ -501,6 +504,7 @@ src/display/ncursesdisplayer.cpp
 src/display/ttydisplayer.cpp
 src/display/ttydisplayer.cpp
 src/display/ttydisplayer.cpp
+src/indicators/adx/adx.cpp
 src/indicators/atr/atr.cpp
 src/indicators/atr/atr.cpp
 src/indicators/atr/atr.cpp
@@ -510,6 +514,8 @@ src/indicators/bbands/bbands.cpp
 src/indicators/bbands/bbands.cpp
 src/indicators/bbands/bbands.cpp
 src/indicators/bbawe/bbawe.cpp
+src/indicators/cci/cci.cpp
+src/indicators/dmi/dmi.cpp
 src/indicators/donchian/donchian.cpp
 src/indicators/donchian/donchian.cpp
 src/indicators/donchian/donchian.cpp

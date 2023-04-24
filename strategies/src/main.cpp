@@ -235,6 +235,7 @@ public:
             }
         }
 
+        // supervisors
         o3d::Dir supervisorsDir(o3d::Application::getAppPath() + "/supervisors");
         if (!supervisorsDir.exists()) {
             supervisorsDir = o3d::Dir(o3d::FileManager::instance()->getWorkingDirectory() + "/supervisors");

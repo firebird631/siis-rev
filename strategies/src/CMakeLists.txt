@@ -57,9 +57,12 @@ set(STRATEGY_LIB_CXX
     display/ncursesdisplayer.cpp
     display/ttydisplayer.cpp
     indicators/atr/atr.cpp
+    indicators/adx/adx.cpp
     indicators/bbands/bbands.cpp
     indicators/bbawe/bbawe.cpp
+    indicators/cci/cci.cpp
     indicators/donchian/donchian.cpp
+    indicators/dmi/dmi.cpp
     indicators/ema/ema.cpp
     indicators/hma/hma.cpp
     indicators/macd/macd.cpp
