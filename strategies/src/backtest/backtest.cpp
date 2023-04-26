@@ -83,10 +83,10 @@ void Backtest::init(
     }
 
     o3d::DateTime fromDt;
-    fromDt.fromTime(m_fromTs, true);
+    fromDt.fromTime(m_fromTs, false);
 
     o3d::DateTime toDt;
-    toDt.fromTime(m_toTs, true);
+    toDt.fromTime(m_toTs, false);
 
     for (MarketConfig *mc : config->getConfiguredMarkets()) {
         Market *market = new Market(mc->marketId, mc->marketId, "", "");  // @todo fetch market from DB if exists

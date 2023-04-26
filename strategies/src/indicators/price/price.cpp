@@ -53,12 +53,20 @@ Price::Price(const o3d::String &name, o3d::Double timeframe, IndicatorConfig con
     m_prev(0),
     m_last(0)
 {
-    m_method = methodFromString(conf.data().get("method", "CLOSE").asCString());
+    if (conf.data().isObject()) {
+        m_method = methodFromString(conf.data().get("method", "CLOSE").asCString());
+    } else if (conf.data().isArray()) {
+        m_method = static_cast<Method>(o3d::clamp(conf.data().get((Json::ArrayIndex)1, 0).asInt(), 0, 2));
+    }
 }
 
 void Price::setConf(IndicatorConfig conf)
 {
-    m_method = methodFromString(conf.data().get("method", "CLOSE").asCString());
+    if (conf.data().isObject()) {
+        m_method = methodFromString(conf.data().get("method", "CLOSE").asCString());
+    } else if (conf.data().isArray()) {
+        m_method = static_cast<Method>(o3d::clamp(conf.data().get((Json::ArrayIndex)1, 0).asInt(), 0, 2));
+    }
 }
 
 void Price::compute(const OhlcCircular &ohlc)

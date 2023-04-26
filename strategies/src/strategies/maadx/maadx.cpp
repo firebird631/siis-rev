@@ -95,17 +95,17 @@ void MaAdx::init(Config *config)
             }
 
             if (mode == "A" || mode == "trend") {
-                Analyser *a = new MaAdxTrendAnalyser(this, tf, subTf, depth, history);
+                Analyser *a = new MaAdxTrendAnalyser(this, tf, subTf, depth, history, Price::PRICE_HLC);
                 a->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(a);
             } else if (mode == "B" || mode == "sig") {
-                Analyser *a = new MaAdxSigAnalyser(this, tf, subTf, depth, history);
+                Analyser *a = new MaAdxSigAnalyser(this, tf, subTf, depth, history, Price::PRICE_HLC);
                 a->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(a);
             } else if (mode == "C" || mode == "conf") {
-                Analyser *a = new MaAdxConfAnalyser(this, tf, subTf, depth, history);
+                Analyser *a = new MaAdxConfAnalyser(this, tf, subTf, depth, history, Price::PRICE_CLOSE);
                 a->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(a);

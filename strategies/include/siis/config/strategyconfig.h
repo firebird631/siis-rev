@@ -53,6 +53,11 @@ public:
      */
     const Json::Value& data() const { return m_data; }
 
+    /**
+     * @brief indicator sub-tree.
+     */
+    Json::Value indicators() const { return m_data.get("indicators", Json::Value()); }
+
 private:
 
     Json::Value m_data;
@@ -306,8 +311,10 @@ private:
 template <class T>
 void configureIndictor(AnalyserConfig &conf, const o3d::CString &name, T &indicator)
 {
-    if (conf.data().isMember(name.getData())) {
-        Json::Value cnf = conf.data().get(name.getData(), Json::Value());
+    Json::Value indicators = conf.indicators();
+
+    if (indicators.isMember(name.getData())) {
+        Json::Value cnf = indicators.get(name.getData(), Json::Value());
         indicator.setConf(IndicatorConfig(cnf));
     }
 }

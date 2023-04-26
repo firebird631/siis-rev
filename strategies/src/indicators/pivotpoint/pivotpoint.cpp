@@ -26,6 +26,8 @@ static PivotPoint::Method methodFromString(const o3d::String &method)
         return PivotPoint::CLASSICAL;
     } else if (method == "WOODIE" || method == "woodie") {
         return PivotPoint::WOODIE;
+//    } else if (method == "FIBONACCI" || method == "fibonacci") {
+//        return PivotPoint::FIBONACCI; @todo line 49
     } else {
         return PivotPoint::CLASSICAL;
     }
@@ -41,12 +43,20 @@ PivotPoint::PivotPoint(const o3d::String &name, o3d::Double timeframe, Indicator
     Indicator(name, timeframe),
     m_method(CLASSICAL)
 {
-    m_method = methodFromString(conf.data().get("method", "CLASSICAL").asCString());
+    if (conf.data().isObject()) {
+        m_method = methodFromString(conf.data().get("method", "CLASSICAL").asCString());
+    } else if (conf.data().isArray()) {
+        m_method = static_cast<Method>(o3d::clamp(conf.data().get((Json::ArrayIndex)1, 0).asInt(), 0, 4/*5*/));
+    }
 }
 
 void PivotPoint::setConf(IndicatorConfig conf)
 {
-    m_method = methodFromString(conf.data().get("method", "CLASSICAL").asCString());
+    if (conf.data().isObject()) {
+        m_method = methodFromString(conf.data().get("method", "CLASSICAL").asCString());
+    } else if (conf.data().isArray()) {
+        m_method = static_cast<Method>(o3d::clamp(conf.data().get((Json::ArrayIndex)1, 0).asInt(), 0, 4/*5*/));
+    }
 }
 
 const DataArray &PivotPoint::support(o3d::Int32 i) const

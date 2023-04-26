@@ -104,6 +104,17 @@ DataArray siis::DataArray::operator/(const DataArray &a)
     return r;
 }
 
+DataArray &DataArray::zero(o3d::Int32 len)
+{
+    o3d::Int32 l = len >= 0 ? len : getSize();
+
+    for (o3d::Int32 i = 0; i < l; ++i) {
+        m_data[i] = 0.0;
+    }
+
+    return *this;
+}
+
 DataArray &DataArray::mult(const DataArray &a, const DataArray &b)
 {
     O3D_ASSERT(a.getSize() == b.getSize());
@@ -180,6 +191,8 @@ DataArray &DataArray::sub(const DataArray &a, const DataArray &b)
 DataArray &DataArray::sma(o3d::Int32 len, DataArray &out) const
 {
     int b, n;  // len-1 offset on output data
+//    int lookback = TA_SMA_Lookback(len);
+//    printf("%i %i  ", lookback, len-1);
     TA_RetCode res = ::TA_SMA(0, getSize()-1, m_data, len, &b, &n, out.getData()+len-1);
     if (res != TA_SUCCESS) {
         O3D_WARNING(siis::taErrorToStr(res));

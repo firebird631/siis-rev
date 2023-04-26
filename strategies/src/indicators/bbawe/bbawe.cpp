@@ -42,22 +42,38 @@ BBawe::BBawe(const o3d::String &name, o3d::Double timeframe, IndicatorConfig con
     m_useEma(false),
     m_signal(0)
 {
-    m_bb_Len = conf.data().get("bb_Len", 20).asInt();
-    m_baseMultiplier = conf.data().get("baseMultiplier", 2).asInt();
-    m_fastMA_Len = conf.data().get("fastMA_Len", 3).asInt();
-    m_awesomeFast_Len = conf.data().get("awesomeFast_Len", 5).asInt();
-    m_awesomeSlow_Len = conf.data().get("awesomeSlow_Len", 34).asInt();
-    m_useEma = conf.data().get("useEma", false).asBool();
+    if (conf.data().isObject()) {
+        m_bb_Len = conf.data().get("bb_Len", 20).asInt();
+        m_baseMultiplier = conf.data().get("baseMultiplier", 2).asInt();
+        m_fastMA_Len = conf.data().get("fastMA_Len", 3).asInt();
+        m_awesomeFast_Len = conf.data().get("awesomeFast_Len", 5).asInt();
+        m_awesomeSlow_Len = conf.data().get("awesomeSlow_Len", 34).asInt();
+        m_useEma = conf.data().get("useEma", false).asBool();
+    } else if (conf.data().isArray()) {
+        m_bb_Len = conf.data().get((Json::ArrayIndex)1, 20).asInt();
+        m_fastMA_Len = conf.data().get((Json::ArrayIndex)2, 3).asInt();
+        m_awesomeFast_Len = conf.data().get((Json::ArrayIndex)3, 5).asInt();
+        m_awesomeSlow_Len = conf.data().get((Json::ArrayIndex)4, 34).asInt();
+        m_useEma = conf.data().get((Json::ArrayIndex)5, false).asBool();
+    }
 }
 
 void BBawe::setConf(IndicatorConfig conf)
 {
-    m_bb_Len = conf.data().get("bb_Len", 20).asInt();
-    m_baseMultiplier = conf.data().get("baseMultiplier", 2).asInt();
-    m_fastMA_Len = conf.data().get("fastMA_Len", 3).asInt();
-    m_awesomeFast_Len = conf.data().get("awesomeFast_Len", 5).asInt();
-    m_awesomeSlow_Len = conf.data().get("awesomeSlow_Len", 34).asInt();
-    m_useEma = conf.data().get("useEma", false).asBool();
+    if (conf.data().isObject()) {
+        m_bb_Len = conf.data().get("bb_Len", 20).asInt();
+        m_baseMultiplier = conf.data().get("baseMultiplier", 2).asInt();
+        m_fastMA_Len = conf.data().get("fastMA_Len", 3).asInt();
+        m_awesomeFast_Len = conf.data().get("awesomeFast_Len", 5).asInt();
+        m_awesomeSlow_Len = conf.data().get("awesomeSlow_Len", 34).asInt();
+        m_useEma = conf.data().get("useEma", false).asBool();
+    } else if (conf.data().isArray()) {
+        m_bb_Len = conf.data().get((Json::ArrayIndex)1, 20).asInt();
+        m_fastMA_Len = conf.data().get((Json::ArrayIndex)2, 3).asInt();
+        m_awesomeFast_Len = conf.data().get((Json::ArrayIndex)3, 5).asInt();
+        m_awesomeSlow_Len = conf.data().get((Json::ArrayIndex)4, 34).asInt();
+        m_useEma = conf.data().get((Json::ArrayIndex)5, false).asBool();
+    }
 }
 
 void BBawe::compute(o3d::Double timestamp, const DataArray &high, const DataArray &low, const DataArray &price)

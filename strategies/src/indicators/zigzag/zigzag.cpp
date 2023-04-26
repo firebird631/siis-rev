@@ -24,12 +24,20 @@ ZigZag::ZigZag(const o3d::String &name, o3d::Double timeframe, IndicatorConfig c
     Indicator(name, timeframe),
     m_threshold(0.0)
 {
-    m_threshold = conf.data().get("threshold", 0.05).asDouble();
+    if (conf.data().isObject()) {
+        m_threshold = conf.data().get("threshold", 0.05).asDouble();
+    } else if (conf.data().isArray()) {
+        m_threshold = conf.data().get((Json::ArrayIndex)1, 0.05).asDouble();
+    }
 }
 
 void ZigZag::setConf(IndicatorConfig conf)
 {
-    m_threshold = conf.data().get("threshold", 0.05).asDouble();
+    if (conf.data().isObject()) {
+        m_threshold = conf.data().get("threshold", 0.05).asDouble();
+    } else if (conf.data().isArray()) {
+        m_threshold = conf.data().get((Json::ArrayIndex)1, 0.05).asDouble();
+    }
 }
 
 void ZigZag::compute(o3d::Double timestamp, const DataArray &open, const DataArray &high, const DataArray &low, const DataArray &close)

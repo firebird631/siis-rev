@@ -13,6 +13,7 @@
 #include <o3d/core/processor.h>
 #include <o3d/core/filemanager.h>
 
+#include "siis/logger.h"
 #include "siis/poolworker.h"
 #include "siis/config/config.h"
 #include "siis/collection.h"
@@ -69,13 +70,21 @@ public:
         m_database(nullptr),
         m_cache(nullptr),
         m_handler(nullptr),
-        m_displayer(nullptr)
+        m_displayer(nullptr),
+        m_analysisLog(nullptr),
+        m_orderLog(nullptr)
     {
         struct passwd *pw = getpwuid(getuid());
         m_siisPath = Dir(pw->pw_dir);
         m_siisPath.cd(".siis");
 
         Debug::instance()->setDefaultLog(m_siisPath.getFullPathName() + "/log/strategy.log");
+
+        m_analysisLog = new FileLogger(m_siisPath.getFullPathName() + "/log/strategy-analysis.log");
+        m_orderLog = new FileLogger(m_siisPath.getFullPathName() + "/log/strategy-order.log");
+
+        analysisLog = m_analysisLog;
+        orderLog = m_orderLog;
     }
 
     ~SiisStrategy()
@@ -348,6 +357,12 @@ public:
 
         deletePtr(m_config);
         deletePtr(m_displayer);
+
+        analysisLog = nullptr;
+        orderLog = nullptr;
+
+        deletePtr(m_analysisLog);
+        deletePtr(m_orderLog);
     }
 
 //    void message(const o3d::String msg)
@@ -530,6 +545,9 @@ private:
     Cache *m_cache;
     Handler *m_handler;
     Displayer *m_displayer;
+
+    Logger *m_analysisLog;
+    Logger *m_orderLog;
 };
 
 class StrategyAppSettings : public AppSettings
@@ -542,7 +560,7 @@ public:
         sizeOfFastAlloc32 = 16384;
         sizeOfFastAlloc64 = 16384;
         useDisplay = false;
-        clearLog = true;
+        clearLog = false;
     }
 };
 

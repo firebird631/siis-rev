@@ -23,7 +23,8 @@ namespace siis {
  * @brief SiiS strategy price bid/ofr model and array
  * @author Frederic Scherma
  * @date 2019-03-07
- * It contain 4 double values arranged : timestamp, bid, ofr, volume.
+ * It contain 6 double values arranged : timestamp, bid, ofr, last, volume, buy/sell.
+ * Plus 2 ignored double for align.
  */
 class SIIS_API Tick
 {
@@ -38,43 +39,47 @@ public:
 
     inline void zero()
     {
-        memset(D, 0, 24); //4*sizeof(o3d::Double));
+        memset(D, 0, 6*8); //6*sizeof(o3d::Double));
     }
 
     Tick()
     {
-        D = reinterpret_cast<o3d::Double*>(O3D_FAST_ALLOC(32));
+        D = reinterpret_cast<o3d::Double*>(O3D_FAST_ALLOC(64));
         zero();
     }
 
-    Tick(o3d::Double ts, o3d::Double bid, o3d::Double ofr, o3d::Double v)
+    Tick(o3d::Double ts, o3d::Double bid, o3d::Double ask, o3d::Double last, o3d::Double v, o3d::Int8 bos)
     {
-        D = reinterpret_cast<o3d::Double*>(O3D_FAST_ALLOC(32));
+        D = reinterpret_cast<o3d::Double*>(O3D_FAST_ALLOC(64));
         D[0] = ts;
         D[1] = bid;
-        D[2] = ofr;
-        D[3] = v;
+        D[2] = ask;
+        D[3] = last;
+        D[4] = v;
+        D[5] = static_cast<o3d::Double>(bos);
     }
 
     Tick(const Tick &d)
     {
-        D = reinterpret_cast<o3d::Double*>(O3D_FAST_ALLOC(32));
-        memcpy(D, d.D, 4*sizeof(o3d::Double));
+        D = reinterpret_cast<o3d::Double*>(O3D_FAST_ALLOC(64));
+        memcpy(D, d.D, 6*sizeof(o3d::Double));
     }
 
-    ~Tick() { O3D_FAST_FREE(D, 32); }
+    ~Tick() { O3D_FAST_FREE(D, 64); }
 
     inline void copy(const o3d::Double *d)
     {
-        memcpy(D, d, 4*sizeof(o3d::Double));
+        memcpy(D, d, 6*sizeof(o3d::Double));
     }
 
-    inline void set(o3d::Double ts, o3d::Double bid, o3d::Double ofr, o3d::Double v)
+    inline void set(o3d::Double ts, o3d::Double bid, o3d::Double ofr, o3d::Double last, o3d::Double vol, o3d::Int8 bos)
     {
         D[0] = ts;
         D[1] = bid;
         D[2] = ofr;
-        D[3] = v;
+        D[3] = last;
+        D[4] = vol;
+        D[5] = static_cast<o3d::Double>(bos);
     }
 
     inline o3d::Double timestamp() const { return D[0]; }
@@ -88,9 +93,14 @@ public:
     inline o3d::Double o() const { return D[2]; }
     inline o3d::Double a() const { return D[2]; }
 
-    inline o3d::Double volume() const { return D[3]; }
-    inline o3d::Double vol() const { return D[3]; }
-    inline o3d::Double v() const { return D[3]; }
+    inline o3d::Double last() const { return D[3]; }
+    inline o3d::Double l() const { return D[3]; }
+
+    inline o3d::Double volume() const { return D[4]; }
+    inline o3d::Double vol() const { return D[4]; }
+    inline o3d::Double v() const { return D[4]; }
+
+    inline o3d::Int8 buyOrSell() const { return static_cast<o3d::Int8>(D[5]); }
 
     inline o3d::Double price() const { return (D[1]+D[2])*0.5; }
     inline o3d::Double p() const { return (D[1]+D[2])*0.5; }
@@ -99,7 +109,8 @@ public:
 
     inline o3d::String toString() const
     {
-        return o3d::String("ts={0}, bid={1}, ofr={2}, vol={3}").arg(D[0]).arg(D[1]).arg(D[2]).arg(D[3]);
+        return o3d::String("ts={0}, bid={1}, ask={2}, last={3}, vol={4}, bos={5}").arg(D[0]).arg(D[1]).arg(D[2]).
+                arg(D[3]).arg(D[4]).arg(static_cast<o3d::Int8>(D[5]));
     }
 
 private:
@@ -113,8 +124,9 @@ private:
 
 /**
  * @brief TickArray Tick 16 bytes memory aligned array for data, with object management and a growth capacity.
+ * It is 64 bytes size and can contains 8 doubles but only 6 are payload.
  */
-class SIIS_API TickArray : public o3d::AtomicArray<Tick, o3d::Double, 5>
+class SIIS_API TickArray : public o3d::AtomicArray<Tick, o3d::Double, 6>
 {
 public:
 
@@ -141,8 +153,8 @@ public:
             forceSize(0);
         } else {
             // save content, resize, recopy
-            size_t nbytes = static_cast<size_t>(getSize()*32);
-            o3d::Double *cpy = new o3d::Double[static_cast<size_t>(getSize()*4)];
+            size_t nbytes = static_cast<size_t>(getSize()*8*8);
+            o3d::Double *cpy = new o3d::Double[static_cast<size_t>(getSize()*8)];
             memcpy(cpy, getData(), nbytes);  // its linear
 
             o3d::Int32 prevSize = getSize();

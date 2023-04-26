@@ -214,6 +214,7 @@ include/siis/learning/stdsupervisor.h
 include/siis/learning/stdsupervisor.h
 include/siis/learning/supervisor.h
 include/siis/learning/supervisor.h
+include/siis/logger.h
 include/siis/main.h
 include/siis/main.h
 include/siis/main.h
@@ -608,6 +609,7 @@ src/live/live.cpp
 src/live/live.h
 src/live/live.h
 src/live/live.h
+src/logger.cpp
 src/main.cpp
 src/main.cpp
 src/main.cpp

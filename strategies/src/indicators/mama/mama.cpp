@@ -34,14 +34,24 @@ Mama::Mama(const o3d::String &name, o3d::Double timeframe, IndicatorConfig conf)
     m_lastMama(0.0),
     m_prevMama(0.0)
 {
-    m_fastLimit = conf.data().get("fastLimit", 0.5).asDouble();
-    m_slowLimit = conf.data().get("slowLimit", 0.05).asDouble();
+    if (conf.data().isObject()) {
+        m_fastLimit = conf.data().get("fastLimit", 0.5).asDouble();
+        m_slowLimit = conf.data().get("slowLimit", 0.05).asDouble();
+    } else if (conf.data().isArray()) {
+        m_fastLimit = conf.data().get((Json::ArrayIndex)1, 0.5).asDouble();
+        m_slowLimit = conf.data().get((Json::ArrayIndex)2, 0.05).asDouble();
+    }
 }
 
 void Mama::setConf(IndicatorConfig conf)
 {
-    m_fastLimit = conf.data().get("fastLimit", 0.5).asDouble();
-    m_slowLimit = conf.data().get("slowLimit", 0.05).asDouble();
+    if (conf.data().isObject()) {
+        m_fastLimit = conf.data().get("fastLimit", 0.5).asDouble();
+        m_slowLimit = conf.data().get("slowLimit", 0.05).asDouble();
+    } else if (conf.data().isArray()) {
+        m_fastLimit = conf.data().get((Json::ArrayIndex)1, 0.5).asDouble();
+        m_slowLimit = conf.data().get((Json::ArrayIndex)2, 0.05).asDouble();
+    }
 }
 
 void Mama::compute(o3d::Double timestamp, const DataArray &price)

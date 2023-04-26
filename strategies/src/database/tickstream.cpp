@@ -32,14 +32,15 @@ TickStream::TickStream(
     m_from(from),
     m_to(to),
     m_cur(from),
-    m_buffer(bufferSize*4, bufferSize*4),
+    m_preBuffer(bufferSize*TICK_STORED_SIZE, bufferSize*TICK_STORED_SIZE),
+    m_buffer(bufferSize*TICK_MEM_SIZE, bufferSize*TICK_MEM_SIZE),
     m_bufferSize(bufferSize),
     m_finished(false),
     m_ofs(0),
     m_file(nullptr)
 {
-    m_fromTs = from.toDoubleTimestamp();
-    m_toTs = to.toDoubleTimestamp();
+    m_fromTs = from.toDoubleTimestamp(false);
+    m_toTs = to.toDoubleTimestamp(false);
 }
 
 TickStream::~TickStream()
@@ -111,17 +112,17 @@ o3d::Int32 TickStream::fillNext(o3d::Double timestamp, DataArray &out)
         }
 
         if (m_buffer[m_ofs] < m_fromTs) {
-            m_ofs += 4;  // ignore older than min timestamp
+            m_ofs += 8;  // ignore older than min timestamp (8 doubles memory size)
         } else if (m_buffer[m_ofs] > m_toTs) {
             // finished when reach max timestamp
             m_finished = true;
             close();
             break;
         } else if (m_buffer[m_ofs] <= timestamp) {
-            // 4 more double for 1 tick
-            out.pushArray(&m_buffer[m_ofs], 4);
+            // 8 more double for 1 tick
+            out.pushArray(&m_buffer[m_ofs], 8);
 
-            m_ofs += 4;   // one more tick of 4 doubles
+            m_ofs += 8;   // one more tick of 8 doubles
             ++n;
         } else if (m_buffer[m_ofs] > timestamp) {
             break;
@@ -150,8 +151,10 @@ o3d::Int32 TickStream::fillNext(o3d::Double timestamp, TickArray &out)
             continue;
         }
 
+        // printf("%f %f %f %f %f %f\n", m_buffer[m_ofs], m_buffer[m_ofs+1], m_buffer[m_ofs+2], m_buffer[m_ofs+3], m_buffer[m_ofs+4], m_buffer[m_ofs+5]);
+
         if (m_buffer[m_ofs] < m_fromTs) {
-            m_ofs += 4;  // ignore older than min timestamp
+            m_ofs += 8;  // ignore older than min timestamp (8 doubles memory size)
         } else if (m_buffer[m_ofs] > m_toTs) {
             // finished when reach max timestamp
             m_finished = true;
@@ -163,11 +166,11 @@ o3d::Int32 TickStream::fillNext(o3d::Double timestamp, TickArray &out)
                 out.growSize();
             }
 
-            // 4 more double for 1 tick
+            // 6+2 more double for 1 tick
             out.get(t)->copy(&m_buffer[m_ofs]);
             // ++s;
 
-            m_ofs += 4;   // one more tick of 4 doubles
+            m_ofs += 8;   // one more tick of 8 doubles (memory size)
             ++n;
             ++t;
         } else if (m_buffer[m_ofs] > timestamp) {
@@ -175,7 +178,7 @@ o3d::Int32 TickStream::fillNext(o3d::Double timestamp, TickArray &out)
         }
 
 //        if (s > 0) {
-//            memcpy(out.getContent(out.getSize()), &m_buffer[m_ofs-s*4], s*4*sizeof(o3d::Double));
+//            memcpy(out.getContent(out.getSize()), &m_buffer[m_ofs-s*8], s*8*sizeof(o3d::Double));
 //        }
     }
 
@@ -256,9 +259,28 @@ void TickStream::bufferize()
 
         if (m_file) {
             if (m_curMode == MODE_BINARY) {
-                // fill the buffer with n x 4doubles
-                o3d::Int32 n = m_file->read(m_buffer.getData(), static_cast<o3d::UInt32>(m_bufferSize<<2)) >> 3;
-                m_buffer.forceSize(n);
+                // fill a byte pre-buffer and next convert to a buffer of doubles (per 8)
+                o3d::Int32 n = m_file->read(m_preBuffer.getData(), static_cast<o3d::UInt32>(m_bufferSize*TICK_STORED_SIZE));
+                m_preBuffer.forceSize(n);
+
+                o3d::Int32 x = n / TICK_STORED_SIZE;
+                o3d::Int32 ofs = 0;
+                o3d::Double *d_ptr = nullptr;
+
+                for (o3d::Int32 i = 0; i < x; ++i, ofs += TICK_STORED_SIZE) {
+                    d_ptr = reinterpret_cast<o3d::Double*>(&m_preBuffer[ofs]);
+
+                    m_buffer.push(d_ptr[0]);  // from s
+                    m_buffer.push(d_ptr[1]);  // bid
+                    m_buffer.push(d_ptr[2]);  // ask
+                    m_buffer.push(d_ptr[3]);  // last
+                    m_buffer.push(d_ptr[4]);  // volume
+                    m_buffer.push(static_cast<o3d::Double>(m_preBuffer[40]));  // buy or sell
+
+                    // align to 8 doubles
+                    m_buffer.push(0.0);
+                    m_buffer.push(0.0);
+                }
 
                 if (n <= 0) {
                     fileEnd = true;
@@ -272,26 +294,38 @@ void TickStream::bufferize()
                     }
 
                     o3d::StringTokenizer tokenizer(line, "\t");
-                    if (tokenizer.countTokens() != 4) {
+                    if (tokenizer.countTokens() != 6) {
                         continue;
                     }
 
                     if (tokenizer.hasMoreElements()) {
                         // timestamp is in millisecond, we want it in second
-                        m_buffer.push(tokenizer.nextElement().toDouble() / 1000.0);
+                        m_buffer.push(tokenizer.nextElement().toDouble() * 0.001);
                     }
                     if (tokenizer.hasMoreElements()) {
                         // bid
                         m_buffer.push(tokenizer.nextElement().toDouble());
                     }
                     if (tokenizer.hasMoreElements()) {
-                        // ofr
+                        // ask
+                        m_buffer.push(tokenizer.nextElement().toDouble());
+                    }
+                    if (tokenizer.hasMoreElements()) {
+                        // last
                         m_buffer.push(tokenizer.nextElement().toDouble());
                     }
                     if (tokenizer.hasMoreElements()) {
                         // vol
                         m_buffer.push(tokenizer.nextElement().toDouble());
                     }
+                    if (tokenizer.hasMoreElements()) {
+                        // bos
+                        m_buffer.push(static_cast<o3d::Double>(tokenizer.nextElement().toChar()));
+                    }
+
+                    // align to 8 double
+                    m_buffer.push(0.0);
+                    m_buffer.push(0.0);
                 }
             }
         } else {

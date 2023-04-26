@@ -30,14 +30,24 @@ Sar::Sar(const o3d::String &name, o3d::Double timeframe, IndicatorConfig conf) :
     m_prev(0.0),
     m_last(0.0)
 {
-    m_accel = conf.data().get("accel", 0.0).asDouble();
-    m_max = conf.data().get("max", 0.0).asDouble();
+    if (conf.data().isObject()) {
+        m_accel = conf.data().get("accel", 0.0).asDouble();
+        m_max = conf.data().get("max", 0.0).asDouble();
+    } else if (conf.data().isArray()) {
+        m_accel = conf.data().get((Json::ArrayIndex)1, 0.0).asDouble();
+        m_max = conf.data().get((Json::ArrayIndex)2, 0.0).asDouble();
+    }
 }
 
 void Sar::setConf(IndicatorConfig conf)
 {
-    m_accel = conf.data().get("accel", 0.0).asDouble();
-    m_max = conf.data().get("max", 0.0).asDouble();
+    if (conf.data().isObject()) {
+        m_accel = conf.data().get("accel", 0.0).asDouble();
+        m_max = conf.data().get("max", 0.0).asDouble();
+    } else if (conf.data().isArray()) {
+        m_accel = conf.data().get((Json::ArrayIndex)1, 0.0).asDouble();
+        m_max = conf.data().get((Json::ArrayIndex)2, 0.0).asDouble();
+    }
 }
 
 void Sar::compute(o3d::Double timestamp, const DataArray &high, const DataArray &low)

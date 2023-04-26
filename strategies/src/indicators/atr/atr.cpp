@@ -30,14 +30,24 @@ Atr::Atr(const o3d::String &name, o3d::Double timeframe, IndicatorConfig conf) :
     m_prev(0.0),
     m_last(0.0)
 {
-    m_len = conf.data().get("len", 20).asInt();
-    m_factor = conf.data().get("factor", 3.5).asDouble();
+    if (conf.data().isObject()) {
+        m_len = conf.data().get("len", 20).asInt();
+        m_factor = conf.data().get("factor", 3.5).asDouble();
+    } else if (conf.data().isArray()) {
+        m_len = conf.data().get((Json::ArrayIndex)1, 20).asInt();
+        m_factor = conf.data().get((Json::ArrayIndex)2, 3.5).asDouble();
+    }
 }
 
 void Atr::setConf(IndicatorConfig conf)
 {
-    m_len = conf.data().get("len", 20).asInt();
-    m_factor = conf.data().get("factor", 3.5).asDouble();
+    if (conf.data().isObject()) {
+        m_len = conf.data().get("len", 20).asInt();
+        m_factor = conf.data().get("factor", 3.5).asDouble();
+    } else if (conf.data().isArray()) {
+        m_len = conf.data().get((Json::ArrayIndex)1, 20).asInt();
+        m_factor = conf.data().get((Json::ArrayIndex)2, 3.5).asDouble();
+    }
 }
 
 void Atr::compute(o3d::Double timestamp,

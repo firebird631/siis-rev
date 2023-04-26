@@ -36,16 +36,28 @@ Macd::Macd(const o3d::String &name, o3d::Double timeframe, IndicatorConfig conf)
     m_prev_signal(0.0),
     m_last_signal(0.0)
 {
-     m_fastLen = conf.data().get("fastLen", 26).asInt();
-     m_slowLen = conf.data().get("slowLen", 12).asInt();
-     m_signalLen = conf.data().get("signalLen", 9).asInt();
+    if (conf.data().isObject()) {
+        m_fastLen = conf.data().get("fastLen", 26).asInt();
+        m_slowLen = conf.data().get("slowLen", 12).asInt();
+        m_signalLen = conf.data().get("signalLen", 9).asInt();
+    } else if (conf.data().isArray()) {
+        m_fastLen = conf.data().get((Json::ArrayIndex)1, 26).asInt();
+        m_slowLen = conf.data().get((Json::ArrayIndex)2, 12).asInt();
+        m_signalLen = conf.data().get((Json::ArrayIndex)3, 9).asInt();
+    }
 }
 
 void Macd::setConf(IndicatorConfig conf)
 {
-    m_fastLen = conf.data().get("fastLen", 26).asInt();
-    m_slowLen = conf.data().get("slowLen", 12).asInt();
-    m_signalLen = conf.data().get("signalLen", 9).asInt();
+    if (conf.data().isObject()) {
+        m_fastLen = conf.data().get("fastLen", 26).asInt();
+        m_slowLen = conf.data().get("slowLen", 12).asInt();
+        m_signalLen = conf.data().get("signalLen", 9).asInt();
+    } else if (conf.data().isArray()) {
+        m_fastLen = conf.data().get((Json::ArrayIndex)1, 26).asInt();
+        m_slowLen = conf.data().get((Json::ArrayIndex)2, 12).asInt();
+        m_signalLen = conf.data().get((Json::ArrayIndex)3, 9).asInt();
+    }
 }
 
 void Macd::compute(o3d::Double timestamp, const DataArray &price)

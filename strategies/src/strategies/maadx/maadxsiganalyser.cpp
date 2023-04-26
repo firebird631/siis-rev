@@ -19,9 +19,9 @@ MaAdxSigAnalyser::MaAdxSigAnalyser(
             o3d::Int32 history,
             Price::Method priceMethod) :
     StdAnalyser(strategy, timeframe, subTimeframe, depth, history, priceMethod),
-    m_h_ma("ma-high", timeframe),
-    m_m_ma("ma-mid", timeframe),
-    m_l_ma("ma-low", timeframe),
+    m_slow_h_ma("slow_h_ma", timeframe),
+    m_slow_m_ma("slow_m_ma", timeframe),
+    m_slow_l_ma("slow_l_ma", timeframe),
     m_adx("adx", timeframe)
 {
 
@@ -34,9 +34,9 @@ MaAdxSigAnalyser::~MaAdxSigAnalyser()
 
 void MaAdxSigAnalyser::init(AnalyserConfig conf)
 {
-    configureIndictor(conf, "ma-high", m_h_ma);
-    configureIndictor(conf, "ma-mid", m_m_ma);
-    configureIndictor(conf, "ma-low", m_l_ma);
+    configureIndictor(conf, "slow_h_ma", m_slow_h_ma);
+    configureIndictor(conf, "slow_m_ma", m_slow_m_ma);
+    configureIndictor(conf, "slow_l_ma", m_slow_l_ma);
 
     configureIndictor(conf, "adx", m_adx);
 
@@ -52,9 +52,9 @@ TradeSignal MaAdxSigAnalyser::compute(o3d::Double timestamp, o3d::Double lastTim
 {
     TradeSignal signal(timeframe(), timestamp);
 
-    m_h_ma.compute(lastTimestamp, price().close());
-    m_m_ma.compute(lastTimestamp, price().price());
-    m_l_ma.compute(lastTimestamp, price().close());
+    m_slow_h_ma.compute(lastTimestamp, price().close());
+    m_slow_m_ma.compute(lastTimestamp, price().price());
+    m_slow_l_ma.compute(lastTimestamp, price().close());
 
     m_adx.compute(lastTimestamp, price().high(), price().low(), price().close());
 

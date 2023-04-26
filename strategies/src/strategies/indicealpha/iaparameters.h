@@ -64,7 +64,7 @@ static const char* IndiceAlphaParameters = R"JSON(
                 "atr": {"len": 14, "factor": 2.5}
             }
         },
-        "4hours": {
+        "4hour": {
             "enabled": true,
             "timeframe": "4h",
             "sub-timeframe": "1h",

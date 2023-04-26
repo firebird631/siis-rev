@@ -24,6 +24,7 @@ namespace siis {
  * @author Frederic Scherma
  * @date 2019-03-10
  * @todo stream using a list of multiples markets in case of futurs contracts
+ * Tick format is dddddb with timestamp (ms), bid, ask, last, volume, buy/sell (1/-1)
  */
 class SIIS_API TickStream
 {
@@ -35,13 +36,16 @@ public:
         MODE_TEXT = 1
     };
 
+    const o3d::Int32 TICK_STORED_SIZE = 5*8+1;
+    const o3d::Int32 TICK_MEM_SIZE = (6+2)*8;
+
     TickStream(
             const o3d::String &marketPath,
             const o3d::String &brokerId,
             const o3d::String &marketId,
             const o3d::DateTime &from,
             const o3d::DateTime &to,
-            o3d::Int32 bufferSize = 8192,  //!< multiplied by 4 float per tick
+            o3d::Int32 bufferSize = 8192,  //!< multiplied by TICK_STORED_SIZE
             Mode mode = MODE_BINARY);
 
     ~TickStream();
@@ -92,6 +96,7 @@ private:
     o3d::Double m_fromTs;
     o3d::Double m_toTs;
 
+    o3d::ArrayInt8 m_preBuffer;
     DataArray m_buffer;
     o3d::Int32 m_bufferSize;
 

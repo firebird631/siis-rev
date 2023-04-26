@@ -28,12 +28,20 @@ Rsi::Rsi(const o3d::String &name, o3d::Double timeframe, IndicatorConfig conf) :
     m_prev(0.0),
     m_last(0.0)
 {
-    m_len = conf.data().get("len", 21).asInt();
+    if (conf.data().isObject()) {
+        m_len = conf.data().get("len", 21).asInt();
+    } else if (conf.data().isArray()) {
+        m_len = conf.data().get((Json::ArrayIndex)1, 21).asInt();
+    }
 }
 
 void Rsi::setConf(IndicatorConfig conf)
 {
-    m_len = conf.data().get("len", 21).asInt();
+    if (conf.data().isObject()) {
+        m_len = conf.data().get("len", 21).asInt();
+    } else if (conf.data().isArray()) {
+        m_len = conf.data().get((Json::ArrayIndex)1, 21).asInt();
+    }
 }
 
 void Rsi::compute(o3d::Double timestamp, const DataArray &price)

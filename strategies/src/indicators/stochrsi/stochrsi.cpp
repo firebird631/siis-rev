@@ -40,20 +40,34 @@ StochRsi::StochRsi(const o3d::String &name, o3d::Double timeframe, IndicatorConf
     m_prevFastD(0.0),
     m_lastFastD(0.0)
 {
-    m_len = conf.data().get("len", 21).asInt();
+    if (conf.data().isObject()) {
+        m_len = conf.data().get("len", 21).asInt();
 
-    m_fastK_Len = conf.data().get("fastK_Len", 12).asInt();
-    m_fastD_Len = conf.data().get("fastD_Len", 9).asInt();
-    m_fastD_MAType = siis::maTypeFromStr(conf.data().get("fastD_MAType", "SMA").asCString());
+        m_fastK_Len = conf.data().get("fastK_Len", 12).asInt();
+        m_fastD_Len = conf.data().get("fastD_Len", 9).asInt();
+        m_fastD_MAType = siis::maTypeFromStr(conf.data().get("fastD_MAType", "SMA").asCString());
+    } else if (conf.data().isArray()) {
+        m_len = conf.data().get((Json::ArrayIndex)1, 21).asInt();
+
+        m_fastK_Len = conf.data().get((Json::ArrayIndex)2, 12).asInt();
+        m_fastD_Len = conf.data().get((Json::ArrayIndex)3, 9).asInt();
+    }
 }
 
 void StochRsi::setConf(IndicatorConfig conf)
 {
-    m_len = conf.data().get("len", 21).asInt();
+    if (conf.data().isObject()) {
+        m_len = conf.data().get("len", 21).asInt();
 
-    m_fastK_Len = conf.data().get("fastK_Len", 12).asInt();
-    m_fastD_Len = conf.data().get("fastD_Len", 9).asInt();
-    m_fastD_MAType = siis::maTypeFromStr(conf.data().get("fastD_MAType", "SMA").asCString());
+        m_fastK_Len = conf.data().get("fastK_Len", 12).asInt();
+        m_fastD_Len = conf.data().get("fastD_Len", 9).asInt();
+        m_fastD_MAType = siis::maTypeFromStr(conf.data().get("fastD_MAType", "SMA").asCString());
+    } else if (conf.data().isArray()) {
+        m_len = conf.data().get((Json::ArrayIndex)1, 21).asInt();
+
+        m_fastK_Len = conf.data().get((Json::ArrayIndex)2, 12).asInt();
+        m_fastD_Len = conf.data().get((Json::ArrayIndex)3, 9).asInt();
+    }
 }
 
 void StochRsi::compute(o3d::Double timestamp, const DataArray &price)

@@ -6,6 +6,7 @@ set(EXEC_NAME strategy)
 set(STRATEGY_LIB_CXX
     collection.cpp
     dataarray.cpp
+    logger.cpp
     market.cpp
     poolworker.cpp
     strategy.cpp

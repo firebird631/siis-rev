@@ -78,7 +78,9 @@ o3d::Int32 RedisCache::run(void *)
         // ::redisCommand(m_redis, "SET toto titi");
         // ::redisCommand(m_redis, "EXPIRE toto 2");
 
-        m_trade->execute();
+        if (m_trade) {
+            m_trade->execute();
+        }
 
         o3d::System::waitMs(0);
     }

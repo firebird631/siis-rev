@@ -32,12 +32,20 @@ Dmi::Dmi(const o3d::String &name, o3d::Double timeframe, IndicatorConfig conf) :
     m_prev_p(0.0),
     m_last_p(0.0)
 {
-    m_len = conf.data().get("len", 14).asInt();
+    if (conf.data().isObject()) {
+        m_len = conf.data().get("len", 14).asInt();
+    } else if (conf.data().isArray()) {
+        m_len = conf.data().get((Json::ArrayIndex)1, 14).asInt();
+    }
 }
 
 void Dmi::setConf(IndicatorConfig conf)
 {
-    m_len = conf.data().get("len", 14).asInt();
+    if (conf.data().isObject()) {
+        m_len = conf.data().get("len", 14).asInt();
+    } else if (conf.data().isArray()) {
+        m_len = conf.data().get((Json::ArrayIndex)1, 14).asInt();
+    }
 }
 
 void Dmi::compute(o3d::Double timestamp, const DataArray &high, const DataArray &low, const DataArray &close)

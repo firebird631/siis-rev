@@ -28,7 +28,7 @@ static const char* MaAdxParameters = R"JSON(
         }
     },
     "timeframes": {
-        "4hours": {
+        "4hour": {
             "enabled": true,
             "timeframe": "4h",
             "sub-timeframe": "5m",
@@ -37,9 +37,9 @@ static const char* MaAdxParameters = R"JSON(
             "history": 25,
             "indicators": {
                 "price": {"method": "HLC"},
-                "ma-high": {"len": 20},
-                "ma-mid": {"len": 20},
-                "ma-low": {"len": 20}
+                "slow_h_ma": {"len": 20},
+                "slow_m_ma": {"len": 20},
+                "slow_l_ma": {"len": 20}
             }
         },
          "5min": {
@@ -51,9 +51,9 @@ static const char* MaAdxParameters = R"JSON(
             "history": 25,
             "indicators": {
                 "price": {"method": "HLC"},
-                "ma-high": {"len": 6},
-                "ma-mid": {"len": 6},
-                "ma-low": {"len": 6},
+                "fast_h_ma": {"len": 6},
+                "fast_m_ma": {"len": 6},
+                "fast_l_ma": {"len": 6},
                 "adx": {"len": 5}
             }
         },

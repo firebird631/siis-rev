@@ -89,10 +89,11 @@ void RedisTradeCache::delAll(const o3d::String &brokerId, const o3d::String &str
 #include "siis/trade/assettrade.h"
 void RedisTradeCache::execute()
 {
-    AssetTrade trade(1.0);
-    trade.setId(1);
-    setTrade("binance.com", "ETHUSDT", "SUP", trade);
-    o3d::System::waitMs(2000);
+    // @todo remove debug test
+//    AssetTrade trade(1.0);
+//    trade.setId(1);
+//    setTrade("binance.com", "ETHUSDT", "SUP", trade);
+    // o3d::System::waitMs(2000);
 
     m_mutex.lock();
 

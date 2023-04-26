@@ -19,14 +19,24 @@ using o3d::Logger;
 // Recursively copy the values of b into a. Both a and b must be objects.
 static void update(Json::Value& a, const Json::Value& b)
 {
-    if (!a.isObject() || !b.isObject()) return;
+    if (!a.isObject() || !b.isObject()) {
+        return;
+    }
 
     for (const auto& key : b.getMemberNames()) {
-        //if (a[key].isObject()) {
-        if(a[key].type() == Json::objectValue && b[key].type() == Json::objectValue) {
+        if (!a.isMember(key)) {
+            continue;
+        }
+
+        if(a[key].isObject() && b[key].isObject()) {
+            // common case recurse into
             update(a[key], b[key]);
+        } else if(a[key].isObject() && b[key].isArray()) {
+            // case of compatibility configuration for indicators
+            a[key].copy(b[key]);
         } else {
-            a[key] = b[key];
+            // case of leaves
+            a[key].copy(b[key]);
         }
     }
 }

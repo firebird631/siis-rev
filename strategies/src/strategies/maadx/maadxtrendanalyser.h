@@ -42,9 +42,9 @@ public:
 
 private:
 
-    Hma m_h_ma;
-    Hma m_m_ma;
-    Hma m_l_ma;
+    Hma m_slow_h_ma;
+    Hma m_slow_l_ma;
+    Hma m_slow_m_ma;
 };
 
 } // namespace siis

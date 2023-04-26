@@ -44,6 +44,8 @@ namespace siis {
  * Woodie:
  * Pivot = (H + L + 2 x C) / 4
  * Like as classicial
+ *
+ * @todo add fibonnaci method
  */
 class SIIS_API PivotPoint : public Indicator
 {
@@ -57,7 +59,8 @@ public:
         CLASSICAL_OHLC = 1,
         CLASSICAL_OHL = 2,
         CAMARILLA = 3,
-        WOODIE = 4
+        WOODIE = 4,
+        // FIBONNACI = 5
     };
 
     PivotPoint(const o3d::String &name, o3d::Double timeframe, Method method=CLASSICAL);

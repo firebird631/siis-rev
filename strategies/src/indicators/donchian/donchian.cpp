@@ -32,12 +32,20 @@ Donchian::Donchian(const o3d::String &name, o3d::Double timeframe, IndicatorConf
     m_prevLower(0.0),
     m_lastLower(0.0)
 {
-    m_len = conf.data().get("len", 14).asInt();
+    if (conf.data().isObject()) {
+        m_len = conf.data().get("len", 14).asInt();
+    } else if (conf.data().isArray()) {
+        m_len = conf.data().get((Json::ArrayIndex)1, 14).asInt();
+    }
 }
 
 void Donchian::setConf(IndicatorConfig conf)
 {
-    m_len = conf.data().get("len", 14).asInt();
+    if (conf.data().isObject()) {
+        m_len = conf.data().get("len", 14).asInt();
+    } else if (conf.data().isArray()) {
+        m_len = conf.data().get((Json::ArrayIndex)1, 14).asInt();
+    }
 }
 
 void Donchian::compute(o3d::Double timestamp, const DataArray &high, const DataArray &low)

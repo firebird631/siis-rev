@@ -51,6 +51,8 @@ public:
     DataArray operator* (o3d::Double scale);
     DataArray operator/ (const DataArray &a);
 
+    DataArray& zero(o3d::Int32 len=-1);
+
     DataArray& mult(const DataArray &a, const DataArray &b);
     DataArray& mult(const DataArray &a, o3d::Double scale);
     DataArray& div(const DataArray &a, const DataArray &b);

@@ -42,22 +42,34 @@ Stoch::Stoch(const o3d::String &name, o3d::Double timeframe, IndicatorConfig con
     m_prevSlowD(0.0),
     m_lastSlowD(0.0)
 {
-    m_fastK_Len = conf.data().get("fastK_Len", 9).asInt();
-    m_slowK_Len = conf.data().get("slowK_Len", 12).asInt();
-    m_slowK_MAType = siis::maTypeFromStr(conf.data().get("slowK_MAType", "SMA").asCString());
+    if (conf.data().isObject()) {
+        m_fastK_Len = conf.data().get("fastK_Len", 9).asInt();
+        m_slowK_Len = conf.data().get("slowK_Len", 12).asInt();
+        m_slowK_MAType = siis::maTypeFromStr(conf.data().get("slowK_MAType", "SMA").asCString());
 
-    m_slowD_Len = conf.data().get("slowD_Len", 3).asInt();
-    m_slowD_MAType = siis::maTypeFromStr(conf.data().get("slowD_MAType", "SMA").asCString());
+        m_slowD_Len = conf.data().get("slowD_Len", 3).asInt();
+        m_slowD_MAType = siis::maTypeFromStr(conf.data().get("slowD_MAType", "SMA").asCString());
+    } else if (conf.data().isArray()) {
+        m_fastK_Len = conf.data().get((Json::ArrayIndex)1, 9).asInt();
+        m_slowK_Len = conf.data().get((Json::ArrayIndex)2, 12).asInt();
+        m_slowD_Len = conf.data().get((Json::ArrayIndex)3, 3).asInt();
+    }
 }
 
 void Stoch::setConf(IndicatorConfig conf)
 {
-    m_fastK_Len = conf.data().get("fastK_Len", 9).asInt();
-    m_slowK_Len = conf.data().get("slowK_Len", 12).asInt();
-    m_slowK_MAType = siis::maTypeFromStr(conf.data().get("slowK_MAType", "SMA").asCString());
+    if (conf.data().isObject()) {
+        m_fastK_Len = conf.data().get("fastK_Len", 9).asInt();
+        m_slowK_Len = conf.data().get("slowK_Len", 12).asInt();
+        m_slowK_MAType = siis::maTypeFromStr(conf.data().get("slowK_MAType", "SMA").asCString());
 
-    m_slowD_Len = conf.data().get("slowD_Len", 3).asInt();
-    m_slowD_MAType = siis::maTypeFromStr(conf.data().get("slowD_MAType", "SMA").asCString());
+        m_slowD_Len = conf.data().get("slowD_Len", 3).asInt();
+        m_slowD_MAType = siis::maTypeFromStr(conf.data().get("slowD_MAType", "SMA").asCString());
+    } else if (conf.data().isArray()) {
+        m_fastK_Len = conf.data().get((Json::ArrayIndex)1, 9).asInt();
+        m_slowK_Len = conf.data().get((Json::ArrayIndex)2, 12).asInt();
+        m_slowD_Len = conf.data().get((Json::ArrayIndex)3, 3).asInt();
+    }
 }
 
 void Stoch::compute(o3d::Double timestamp, const DataArray &high, const DataArray &low, const DataArray &close)
