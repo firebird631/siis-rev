@@ -40,8 +40,11 @@ public:
     virtual void terminate() override;
     virtual TradeSignal compute(o3d::Double timestamp, o3d::Double lastTimestamp) override;
 
+    inline o3d::Int32 confirmation() const { return m_confirmation; }
+
 private:
 
+    o3d::Int32 m_confirmation;
 };
 
 } // namespace siis

@@ -215,7 +215,8 @@ public:
     void clear() { forceSize(0); }
 
     /**
-     * @brief push Push back a tick, growth of the array size if necessary.
+     * @brief push Push back an ohlc, growth of the array size if necessary.
+     * @todo check size... debug
      */
     inline void push(const Ohlc &ohlc)
     {
@@ -248,10 +249,16 @@ public:
 
         Cit& operator++ ()
         {
+            if (!b->full() && p == b->m_last) {
+                p = nullptr;
+                return *this;
+            }
+
             ++p;
 
             if (p == b->m_last) {
                 p = nullptr;
+                return *this;
             }
 
             if (p == b->m_end) {
@@ -295,6 +302,7 @@ public:
     {
         m_first = m_last = get(0);
         m_size = 0;
+        m_first->zero();
     }
 
     /**
@@ -315,10 +323,11 @@ public:
             ++m_size;
         }
 
+        res->zero();
         return res;
     }
 
-    inline Cit cbegin() const { return Cit(this, m_first); }
+    inline Cit cbegin() const { return Cit(this, m_size > 0 ? m_first : nullptr); }
     inline Cit cend() const { return Cit(this, nullptr); }
 
     inline o3d::Int32 size() const { return m_size; }

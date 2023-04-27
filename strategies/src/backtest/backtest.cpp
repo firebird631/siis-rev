@@ -83,10 +83,10 @@ void Backtest::init(
     }
 
     o3d::DateTime fromDt;
-    fromDt.fromTime(m_fromTs, false);
+    fromDt.fromTime(m_fromTs, true);
 
     o3d::DateTime toDt;
-    toDt.fromTime(m_toTs, false);
+    toDt.fromTime(m_toTs, true);
 
     for (MarketConfig *mc : config->getConfiguredMarkets()) {
         Market *market = new Market(mc->marketId, mc->marketId, "", "");  // @todo fetch market from DB if exists
@@ -316,7 +316,17 @@ o3d::Int32 Backtest::run(void *)
                    // n = pair.second.tickStream->fillNext(m_curTs, ticks);
                 }
 
-                // inject the tick to the strategy
+                if (n <= 0) {
+                    // no ticks for this run
+                    continue;
+                }
+
+//                printf("%i %f\n", market->getTickBuffer().getSize(), m_curTs);
+//                if (market->getTickBuffer().getSize() > 0) {
+//                    printf(">%f \n", market->getTickBuffer().getData()[0]);
+//                }
+
+                // inject ticks into the strategy
                 strategy->onTickUpdate(m_curTs, market->getTickBuffer());
 
                 // consume them
@@ -358,7 +368,12 @@ o3d::Int32 Backtest::run(void *)
                     // n = pair.second.tickStream->fillNext(m_curTs, ticks);
                 }
 
-                // inject the tick to the strategy
+                if (n <= 0) {
+                    // no ticks for this run
+                    continue;
+                }
+
+                // inject ticks into the strategy
                 strategy->onTickUpdate(m_curTs, market->getTickBuffer());
 
                 // consume them

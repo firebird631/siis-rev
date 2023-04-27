@@ -42,8 +42,8 @@ OhlcStream::OhlcStream(
 {
     O3D_ASSERT(db != nullptr);
 
-    m_fromTs = from.toDoubleTimestamp();
-    m_toTs = to.toDoubleTimestamp();
+    m_fromTs = from.toDoubleTimestamp(true);
+    m_toTs = to.toDoubleTimestamp(true);
 
     // @todo build a new ohlcDb from db
 }

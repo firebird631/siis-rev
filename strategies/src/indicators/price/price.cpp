@@ -108,7 +108,6 @@ void Price::compute(const OhlcCircular &ohlc)
             m_max = o3d::max(m_max, m_price[i]);
 
             m_consolidated = cur->consolidated();
-
             ++i;
         }
     } else if (m_method == PRICE_HLC) {
@@ -132,7 +131,6 @@ void Price::compute(const OhlcCircular &ohlc)
             m_max = o3d::max(m_max, m_price[i]);
 
             m_consolidated = cur->consolidated();
-
             ++i;
         }
     } else if (m_method == PRICE_OHLC) {

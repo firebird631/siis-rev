@@ -117,7 +117,7 @@ o3d::Double siis::baseTime(o3d::Double timestamp, o3d::Double timeframe)
         // must find the UTC first day of week
         o3d::DateTime dt;
 
-        dt.fromTime(timestamp);
+        dt.fromTime(timestamp, true); // true utc
         dt.hour = 0;
         dt.minute = 0;
         dt.second = 0;

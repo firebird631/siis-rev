@@ -71,5 +71,5 @@ void Adx::compute(o3d::Double timestamp, const DataArray &high, const DataArray 
 
 o3d::Int32 Adx::lookback() const
 {
-    return m_len-1;  // ::TA_ADX_Lookback(m_len);
+    return ::TA_ADX_Lookback(m_len);
 }

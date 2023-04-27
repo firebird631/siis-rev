@@ -22,6 +22,10 @@
 
 namespace siis {
 
+class MaAdxTrendAnalyser;
+class MaAdxSigAnalyser;
+class MaAdxConfAnalyser;
+
 /**
  * @brief Strategy MAADX.
  * @author Frederic Scherma
@@ -67,6 +71,10 @@ private:
     std::vector<Analyser*> m_analysers;
     StdTradeManager *m_tradeManager;
 
+    MaAdxTrendAnalyser *m_trendAnalyser;
+    MaAdxSigAnalyser *m_sigAnalyser;
+    MaAdxConfAnalyser *m_confAnalyser;
+
     void orderEntry(o3d::Double timestamp,
                     o3d::Double timeframe,
                     o3d::Int32 direction,
@@ -75,6 +83,8 @@ private:
                     o3d::Double stopPrice);
 
     void orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price);
+
+    TradeSignal compteSignal(o3d::Double timestamp) const;
 };
 
 } // namespace siis

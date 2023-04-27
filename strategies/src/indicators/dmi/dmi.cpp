@@ -83,5 +83,5 @@ void Dmi::compute(o3d::Double timestamp, const DataArray &high, const DataArray 
 
 o3d::Int32 Dmi::lookback() const
 {
-    return m_len-1;  // ::TA_PLUS_DMI_Lookback(m_len); ::TA_MINUS_DMI_Lookback(m_len);
+    return ::TA_PLUS_DI_Lookback(m_len);  // ::TA_MINUS_DI_Lookback(m_len);
 }

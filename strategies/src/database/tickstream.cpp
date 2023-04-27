@@ -39,8 +39,8 @@ TickStream::TickStream(
     m_ofs(0),
     m_file(nullptr)
 {
-    m_fromTs = from.toDoubleTimestamp(false);
-    m_toTs = to.toDoubleTimestamp(false);
+    m_fromTs = from.toDoubleTimestamp(true);
+    m_toTs = to.toDoubleTimestamp(true);
 }
 
 TickStream::~TickStream()
@@ -169,6 +169,8 @@ o3d::Int32 TickStream::fillNext(o3d::Double timestamp, TickArray &out)
             // 6+2 more double for 1 tick
             out.get(t)->copy(&m_buffer[m_ofs]);
             // ++s;
+
+            // printf("%f %f %f %f %f %i\n",out.get(t)->timestamp(), out.get(t)->b(), out.get(t)->a(), out.get(t)->l(), out.get(t)->v(), out.get(t)->buyOrSell());
 
             m_ofs += 8;   // one more tick of 8 doubles (memory size)
             ++n;

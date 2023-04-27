@@ -41,13 +41,20 @@ public:
     virtual void terminate() override;
     virtual TradeSignal compute(o3d::Double timestamp, o3d::Double lastTimestamp) override;
 
+    inline o3d::Double adx() const { return m_adx.last(); }
+    inline o3d::Int32 trend() const { return m_trend; }
+    inline o3d::Int32 sig() const { return m_sig; }
+
 private:
 
-    Hma m_slow_h_ma;
-    Hma m_slow_m_ma;
-    Hma m_slow_l_ma;
+    Hma m_fast_h_ma;
+    Hma m_fast_m_ma;
+    Hma m_fast_l_ma;
 
     Adx m_adx;
+
+    o3d::Int32 m_trend;
+    o3d::Int32 m_sig;
 };
 
 } // namespace siis

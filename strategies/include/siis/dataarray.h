@@ -52,6 +52,7 @@ public:
     DataArray operator/ (const DataArray &a);
 
     DataArray& zero(o3d::Int32 len=-1);
+    DataArray& nan(o3d::Int32 len=-1);
 
     DataArray& mult(const DataArray &a, const DataArray &b);
     DataArray& mult(const DataArray &a, o3d::Double scale);
@@ -67,6 +68,12 @@ public:
      * @return -1, 1 or 0 (this cross under a, this cross upper a, none)
      */
     o3d::Int32 cross(const DataArray &a) const;
+
+    /**
+     * @brief cross With the two last values
+     * @return -1, 1 or 0 (this cross under a, this cross upper a, none)
+     */
+    static o3d::Int32 cross(const DataArray &a, const DataArray &b);
 };
 
 } // namespace siis

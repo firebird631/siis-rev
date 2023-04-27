@@ -21,7 +21,8 @@ MaAdxTrendAnalyser::MaAdxTrendAnalyser(
     StdAnalyser(strategy, timeframe, subTimeframe, depth, history, priceMethod),
     m_slow_h_ma("slow_h_ma", timeframe),
     m_slow_m_ma("slow_m_ma", timeframe),
-    m_slow_l_ma("slow_l_ma", timeframe)
+    m_slow_l_ma("slow_l_ma", timeframe),
+    m_trend(0)
 {
 
 }
@@ -37,6 +38,8 @@ void MaAdxTrendAnalyser::init(AnalyserConfig conf)
     configureIndictor(conf, "slow_m_ma", m_slow_m_ma);
     configureIndictor(conf, "slow_l_ma", m_slow_l_ma);
 
+    m_trend = 0;
+
     StdAnalyser::init(conf);
 }
 
@@ -49,9 +52,18 @@ TradeSignal MaAdxTrendAnalyser::compute(o3d::Double timestamp, o3d::Double lastT
 {
     TradeSignal signal(timeframe(), timestamp);
 
-    m_slow_h_ma.compute(lastTimestamp, price().close());
+    m_slow_h_ma.compute(lastTimestamp, price().price());
     m_slow_m_ma.compute(lastTimestamp, price().price());
-    m_slow_l_ma.compute(lastTimestamp, price().close());
+    m_slow_l_ma.compute(lastTimestamp, price().price());
+
+    o3d::Int32 hc = DataArray::cross(price().close(), m_slow_h_ma.hma());
+    o3d::Int32 lc = DataArray::cross(price().close(), m_slow_l_ma.hma());
+
+    if (hc > 0) {
+        m_trend = 1;
+    } else if (lc < 0) {
+        m_trend = -1;
+    }
 
     return signal;
 }

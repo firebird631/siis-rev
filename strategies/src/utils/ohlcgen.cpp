@@ -106,7 +106,7 @@ o3d::Bool OhlcGen::updateFromTickMid(const Tick *tick, OhlcCircular &out)
     }
 
     // compute the middle price
-    const o3d::Double price = (tick->bid() + tick->ofr()) * 0.5;
+    const o3d::Double price = tick->price();
 
     if (m_curOhlc && !m_curOhlc->consolidated() && (tick->timestamp() >= m_curOhlc->timestamp() + m_toTf)) {
         // need to close the current ohlc

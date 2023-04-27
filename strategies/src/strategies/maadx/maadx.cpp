@@ -34,7 +34,16 @@ SIIS_PLUGIN_API siis::Strategy* siisStrategy(Handler *handler, const o3d::String
 } // extern "C"
 
 MaAdx::MaAdx(Handler *handler, const o3d::String &identifier) :
-    Strategy(handler, identifier)
+    Strategy(handler, identifier),
+    m_reversal(false),
+    m_pyramided(true),
+    m_hedging(false),
+    m_maxTrades(1),
+    m_tradeDelay(0.0),
+    m_needUpdate(false),
+    m_trendAnalyser(nullptr),
+    m_sigAnalyser(nullptr),
+    m_confAnalyser(nullptr)
 {
 
 }
@@ -94,21 +103,24 @@ void MaAdx::init(Config *config)
                 continue;
             }
 
-            if (mode == "A" || mode == "trend") {
+            if (tf == TF_4HOUR) { //mode == "A" || mode == "trend") {
                 Analyser *a = new MaAdxTrendAnalyser(this, tf, subTf, depth, history, Price::PRICE_HLC);
                 a->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(a);
-            } else if (mode == "B" || mode == "sig") {
+                m_trendAnalyser = static_cast<MaAdxTrendAnalyser*>(a);
+            } else if (tf == TF_5MIN) { //mode == "B" || mode == "sig") {
                 Analyser *a = new MaAdxSigAnalyser(this, tf, subTf, depth, history, Price::PRICE_HLC);
                 a->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(a);
-            } else if (mode == "C" || mode == "conf") {
+                m_sigAnalyser = static_cast<MaAdxSigAnalyser*>(a);
+            } else if (tf == TF_MIN) { // mode == "C" || mode == "conf") {
                 Analyser *a = new MaAdxConfAnalyser(this, tf, subTf, depth, history, Price::PRICE_CLOSE);
                 a->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(a);
+                m_confAnalyser = static_cast<MaAdxConfAnalyser*>(a);
             } else {
                 // ignored, unknow mode
                 O3D_WARNING(o3d::String("MaAdx strategy unknow mode {0}").arg(mode));
@@ -122,6 +134,8 @@ void MaAdx::init(Config *config)
 
     setInitialized();
 }
+    static int l = 0;
+    static int s = 0;
 
 void MaAdx::terminate(Connector *connector, Database *db)
 {
@@ -129,6 +143,11 @@ void MaAdx::terminate(Connector *connector, Database *db)
         analyser->terminate();
         o3d::deletePtr(analyser);
     }
+
+    m_trendAnalyser = nullptr;
+    m_sigAnalyser = nullptr;
+    m_confAnalyser = nullptr;
+
     m_analysers.clear();
 
     if (m_tradeManager) {
@@ -137,6 +156,8 @@ void MaAdx::terminate(Connector *connector, Database *db)
     }
 
     setTerminated();
+
+        printf("%i %i\n", l, s);
 }
 
 void MaAdx::prepareMarketData(Connector *connector, Database *db)
@@ -195,10 +216,25 @@ void MaAdx::compute(o3d::Double timestamp)
         sig |= analyser->process(timestamp, lastTimestamp());
     }
 
+    // compute entries
+    TradeSignal signal = compteSignal(timestamp);
+    if (signal.type() == TradeSignal::ENTRY) {
+        o3d::Bool doOrder = true;
+        // second level : entry invalidation
+        // @todo
+
+        if (doOrder) {
+            orderEntry(timestamp, signal.tf(), signal.d(), signal.price(), signal.tp(), signal.sl());
+        }
+    }
+
+    // apply reversal
+    // @todo
+
     // update the existing trades
     m_tradeManager->process(timestamp);
 
-    if (sig) {
+    /*if (sig) {
         Trade *trade = nullptr;
         o3d::Double maxExitTf = 0;
 
@@ -236,7 +272,7 @@ void MaAdx::compute(o3d::Double timestamp)
                 }
             }
         }
-    }
+    }*/
 }
 
 void MaAdx::finalize(o3d::Double timestamp)
@@ -258,4 +294,35 @@ void MaAdx::orderEntry(
 void MaAdx::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price)
 {
     log(trade->tf(), "content", "exit");
+}
+
+TradeSignal MaAdx::compteSignal(o3d::Double timestamp) const
+{
+    TradeSignal signal(m_sigAnalyser->timeframe(), timestamp);
+
+    if (m_trendAnalyser->trend() > 0) {
+        if (m_sigAnalyser->adx() > 25) {
+            if (m_sigAnalyser->sig() > 0) {
+            l++;
+    //printf("ttt\n");
+                if (m_confAnalyser->confirmation() > 0) {
+                    signal.setEntry();
+                    signal.setLong();
+                }
+            }
+        }
+    } else if (m_trendAnalyser->trend() < 0) {
+        if (m_sigAnalyser->adx() > 25) {
+            if (m_sigAnalyser->sig() < 0) {
+            s++;
+    //printf("ooo\n");
+                if (m_confAnalyser->confirmation() < 0) {
+                    signal.setEntry();
+                    signal.setShort();
+                }
+            }
+        }
+    }
+
+    return signal;
 }

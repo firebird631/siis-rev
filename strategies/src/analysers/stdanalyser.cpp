@@ -45,7 +45,6 @@ void StdAnalyser::onTickUpdate(o3d::Double timestamp, const TickArray &ticks)
 {
     // generate the ohlc from the last market update
     m_ohlcGen.genFromTicks(ticks, m_ohlc);
-    // printf("%i ", ticks.getSize());
 }
 
 void StdAnalyser::onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe, const OhlcArray &ohlc)
@@ -76,6 +75,13 @@ o3d::Bool StdAnalyser::process(o3d::Double timestamp, o3d::Double lastTimestamp)
         return false;
     }
 
+    if ((*m_ohlc.cbegin())->timestamp() <= 0.0) {
+        // not enought samples
+        return false;
+    }
+
+    if (lastTimestamp)
+
     m_price.compute(m_ohlc);
     m_volume.compute(m_ohlc);
 
@@ -85,7 +91,7 @@ o3d::Bool StdAnalyser::process(o3d::Double timestamp, o3d::Double lastTimestamp)
     TradeSignal tradeSignal = compute(timestamp, lastInputTimestamp);
 
     if (m_price.consolidated()) {
-        // last OHLC is consolidated then the next timestamp is incremented of timeframe.
+        // last OHLC is consolidated then the next timestamp is incremented by timeframe.
         processCompleted(lastInputTimestamp + timeframe());
     } else {
         // last OHLC is not consolidated then the next timestamp is the timestamp of this last OHLC

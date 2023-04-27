@@ -71,5 +71,5 @@ void Cci::compute(o3d::Double timestamp, const DataArray &high, const DataArray 
 
 o3d::Int32 Cci::lookback() const
 {
-    return m_len-1;  // ::TA_CCI_Lookback(m_len);
+    return ::TA_CCI_Lookback(m_len);
 }

@@ -48,15 +48,76 @@ void Hma::setConf(IndicatorConfig conf)
     }
 }
 
-// could use TA_WMA for the three stages
-//    int b, n;
-//    TA_RetCode res = ::TA_WMA(0, price.getSize()-1, price.getData(), m_len, &b, &n, m_wma.getData()+lb);
-//    if (res != TA_SUCCESS) {
-//        O3D_WARNING(siis::taErrorToStr(res));
+void Hma::compute(o3d::Double timestamp, const DataArray &price)
+{
+    // this version is 2x fast than below
+    o3d::Int32 lb = lookback();
+    if (price.getSize() <= lb) {
+        return;
+    }
+
+    m_prev = m_last;
+
+    if (m_hma.getSize() != price.getSize()) {
+        m_hma.setSize(price.getSize());
+    }
+
+    o3d::Int32 N = m_len;
+    o3d::Int32 N_2 = o3d::max(1, static_cast<o3d::Int32>(m_len*0.5));
+    o3d::Int32 N_sqrt = o3d::max(1, static_cast<o3d::Int32>(o3d::Math::sqrt(m_len)));
+
+    o3d::Int32 size = price.getSize();
+
+    if (m_tmp1.getSize() != size) {
+        m_hma12.setSize(size);
+        m_tmp1.setSize(size);
+    }
+
+    int b, n;
+    lb = N_2 - 1;
+    TA_RetCode res = ::TA_WMA(0, price.getSize()-1, price.getData(), N_2, &b, &n, m_hma12.getData()+lb);
+    if (res != TA_SUCCESS) {
+        O3D_WARNING(siis::taErrorToStr(res));
+    }
+
+    O3D_ASSERT(b == lb);
+
+    m_hma12 *= 2.0;
+
+    lb = N - 1;
+    res = ::TA_WMA(0, price.getSize()-1, price.getData(), N, &b, &n, m_tmp1.getData()+lb);
+    if (res != TA_SUCCESS) {
+        O3D_WARNING(siis::taErrorToStr(res));
+    }
+
+    O3D_ASSERT(b == lb);
+
+    m_hma12 -= m_tmp1;
+    for (o3d::Int32 i = 0; i < N-1; ++i) {
+       m_hma12[i] = m_hma12[N-1];
+    }
+
+    lb = N_sqrt - 1;
+    res = ::TA_WMA(0, m_hma12.getSize()-1, m_hma12.getData(), N_sqrt, &b, &n, m_hma.getData()+lb);
+    if (res != TA_SUCCESS) {
+        O3D_WARNING(siis::taErrorToStr(res));
+    }
+
+    O3D_ASSERT(b == lb);
+
+    m_hma.nan((N-1) + (N_sqrt-1));
+
+//    printf("->%i # %i %i %i\n", price.getSize(), N, N_2, N_sqrt);
+//    for (int i = 0; i < m_hma.getSize(); ++i) {
+//        //printf("(%i) %f/ %f/ %f/ %f, ", N, price[i], m_hma12[i], m_tmp1[i], m_hma[i]);
+//        printf("%f, ", N, m_hma[i]);
 //    }
+//    printf("\n");}
 
-//    O3D_ASSERT(b == lb);
-
+    m_last = m_hma.getLast();
+    done(timestamp);
+}
+/*
 void Hma::compute(o3d::Double timestamp, const DataArray &price)
 {
     o3d::Int32 lb = lookback();
@@ -71,14 +132,15 @@ void Hma::compute(o3d::Double timestamp, const DataArray &price)
     }
 
     o3d::Int32 N = m_len;
-    o3d::Int32 N_2 = static_cast<o3d::Int32>(m_len*0.5);
-    o3d::Int32 N_sqrt = static_cast<o3d::Int32>(o3d::Math::sqrt(m_len));
+    o3d::Int32 N_2 = o3d::max(1, static_cast<o3d::Int32>(m_len*0.5));
+    o3d::Int32 N_sqrt = o3d::max(1, static_cast<o3d::Int32>(o3d::Math::sqrt(m_len)));
 
     o3d::Int32 size = price.getSize();
 
     if (m_weights.getSize() != size) {
         m_weights.setSize(size);
 
+        m_hma12.setSize(size);
         m_pv.setSize(size);
         m_tmp1.setSize(size);
         m_tmp2.setSize(size);
@@ -109,8 +171,8 @@ void Hma::compute(o3d::Double timestamp, const DataArray &price)
     }
 
     // clear for next loopback area
-    m_tmp2.zero(N-1);
-    m_tmp3.zero(N-1);
+    m_tmp2.nan(N-1);
+    m_tmp3.nan(N-1);
 
     //
     // #2 calculate a WMA for period n and subtract if from step 1
@@ -132,8 +194,8 @@ void Hma::compute(o3d::Double timestamp, const DataArray &price)
     }
 
     // clear for next loopback area
-    m_tmp2.zero(N_sqrt-1);
-    m_tmp3.zero(N_sqrt-1);
+    m_tmp2.nan(N_sqrt-1);
+    m_tmp3.nan(N_sqrt-1);
 
     //
     // #3 calculate a WMA with period sqrt(n) using the data from step 2
@@ -142,24 +204,31 @@ void Hma::compute(o3d::Double timestamp, const DataArray &price)
 
     m_tmp1.mult(m_hma12, m_weights);  // hma12*weights => tmp1
 
+    // set loopback to avoid nan
+    // m_tmp1.zero(N-1);
+    // m_tmp1.nan(N-1);
     for (o3d::Int32 i = 0; i < N-1; ++i) {
-        // loopback nan to value
-        m_tmp1[i] = m_tmp1[N-1];
+       m_tmp1[i] = m_tmp1[N-1];
     }
+
+    // loopback area
+    // m_hma.nan(m_len-1);
 
     m_tmp1.sma(N_sqrt, m_tmp2);       // SMA(hma12*weights, N_sqrt) => tmp2
     m_weights.sma(N_sqrt, m_tmp3);    // SMA(weights, N_sqrt) => tmp3
     m_hma.div(m_tmp2, m_tmp3);
+
 //    for (int i = 0; i < m_tmp1.getSize(); ++i) {
-//        printf("%i %f,", N, m_hma[i]);
+//        printf("(%i) %f/ %f/ %f, ", N, m_tmp1[i], m_tmp2[i], m_hma[i]);
 //    }
 //    printf("\n");
 
     m_last = m_hma.getLast();
     done(timestamp);
 }
-
+*/
 o3d::Int32 Hma::lookback() const
 {
-    return m_len-1;  // ::TA_SMA_Lookback(m_len);
+    o3d::Int32 N_sqrt = static_cast<o3d::Int32>(o3d::Math::sqrt(m_len));
+    return m_len-1 + N_sqrt-1;  // ::TA_SMA_Lookback(m_len) + ::TA_SMA_Lookback(N_sqrt);
 }

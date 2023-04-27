@@ -135,7 +135,7 @@ void Config::loadCmdLine(const o3d::CommandLine *cmdLine)
                 O3D_ERROR(o3d::E_InvalidFormat("From date time"));
             }
 
-            m_fromTs = dt.toDoubleTimestamp(false);
+            m_fromTs = dt.toDoubleTimestamp(true);
         }
 
         if (toDt.isValid()) {
@@ -144,7 +144,7 @@ void Config::loadCmdLine(const o3d::CommandLine *cmdLine)
                 O3D_ERROR(o3d::E_InvalidFormat("To date time"));
             }
 
-            m_toTs = dt.toDoubleTimestamp(false);
+            m_toTs = dt.toDoubleTimestamp(true);
         } else {
             m_toTs = static_cast<o3d::Double>(o3d::System::getMsTime()) / 1000.0;
         }

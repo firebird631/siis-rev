@@ -115,6 +115,19 @@ DataArray &DataArray::zero(o3d::Int32 len)
     return *this;
 }
 
+#include <limits>
+
+DataArray &DataArray::nan(o3d::Int32 len)
+{
+    o3d::Int32 l = len >= 0 ? len : getSize();
+
+    for (o3d::Int32 i = 0; i < l; ++i) {
+        m_data[i] = std::numeric_limits<double>::quiet_NaN();  // o3d::Limits<o3d::Double>::nan()
+    }
+
+    return *this;
+}
+
 DataArray &DataArray::mult(const DataArray &a, const DataArray &b)
 {
     O3D_ASSERT(a.getSize() == b.getSize());
@@ -226,7 +239,24 @@ o3d::Int32 DataArray::cross(const DataArray &a) const
 
     if (m_data[size-2] > a.m_data[size-2] && m_data[size-1] < a.m_data[size-1]) {
         return -1;
-    } else if (m_data[size-2] < a.m_data[size-2] && m_data[size-2] > a.m_data[size-2]) {
+    } else if (m_data[size-2] < a.m_data[size-2] && m_data[size-1] > a.m_data[size-1]) {
+        return 1;
+    }
+
+    return 0;
+}
+
+o3d::Int32 DataArray::cross(const DataArray &a, const DataArray &b)
+{
+    o3d::Int32 size = a.getSize();
+
+    if (b.getSize() != size || size < 2) {
+        return 0;
+    }
+
+    if (a.m_data[size-2] > b.m_data[size-2] && a.m_data[size-1] < b.m_data[size-1]) {
+        return -1;
+    } else if (a.m_data[size-2] < b.m_data[size-2] && a.m_data[size-1] > b.m_data[size-1]) {
         return 1;
     }
 

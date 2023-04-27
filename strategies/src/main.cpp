@@ -466,7 +466,7 @@ public:
                 }
             } else {
                 // update datetime in interactive mode
-                o3d::DateTime dt;
+                o3d::DateTime dt;  // @todo localdatetime
                 dt.fromTime(m_handler->timestamp(), False);
                 m_displayer->display("time", dt.buildString("%Y-%m-%d %H:%M:%S"));
             }

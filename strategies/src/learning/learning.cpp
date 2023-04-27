@@ -311,6 +311,11 @@ o3d::Int32 Learning::run(void *)
                     // n = pair.second.tickStream->fillNext(m_curTs, ticks);
                 }
 
+                if (n <= 0) {
+                    // no ticks for this run
+                    continue;
+                }
+
                 // inject the tick to the strategy
 //                supervisor->onTickUpdate(m_curTs, market->getTickBuffer());
 
@@ -352,6 +357,11 @@ o3d::Int32 Learning::run(void *)
                     // no need to acquire/release because we are always synchronous in backtesting
                     n = pair.second.tickStream->fillNext(m_curTs, market->getTickBuffer());
                     // n = pair.second.tickStream->fillNext(m_curTs, ticks);
+                }
+
+                if (n <= 0) {
+                    // no ticks for this run
+                    continue;
                 }
 
                 // inject the tick to the strategy
