@@ -1,19 +1,19 @@
 /**
- * @brief SiiS strategy indivisible position, margin trade model specialization.
+ * @brief SiiS strategy position trade model.
  * @copyright Copyright (C) 2019 SiiS
  * @author Frederic SCHERMA (frederic.scherma@gmail.com)
- * @date 2019-03-17
+ * @date 2023-04-28
  */
 
-#include "siis/trade/indmargintrade.h"
+#include "siis/trade/positiontrade.h"
 #include "siis/utils/common.h"
 #include "siis/connector/traderproxy.h"
 #include "siis/market.h"
 
 using namespace siis;
 
-IndMarginTrade::IndMarginTrade() :
-    Trade(Trade::TYPE_IND_MARGIN, -1.0),
+PositionTrade::PositionTrade() :
+    Trade(Trade::TYPE_POSITION, -1.0),
     m_entryState(STATE_NONE),
     m_stopState(STATE_NONE),
     m_limitState(STATE_NONE)
@@ -21,8 +21,8 @@ IndMarginTrade::IndMarginTrade() :
 
 }
 
-IndMarginTrade::IndMarginTrade(o3d::Double timeframe) :
-    Trade(Trade::TYPE_IND_MARGIN, timeframe),
+PositionTrade::PositionTrade(o3d::Double timeframe) :
+    Trade(Trade::TYPE_POSITION, timeframe),
     m_entryState(STATE_NONE),
     m_stopState(STATE_NONE),
     m_limitState(STATE_NONE)
@@ -30,12 +30,12 @@ IndMarginTrade::IndMarginTrade(o3d::Double timeframe) :
 
 }
 
-IndMarginTrade::~IndMarginTrade()
+PositionTrade::~PositionTrade()
 {
 
 }
 
-void IndMarginTrade::open(TraderProxy *trader,
+void PositionTrade::open(TraderProxy *trader,
         Market *market,
         o3d::Int32 direction,
         Trade::OrderType orderType,
@@ -51,52 +51,54 @@ void IndMarginTrade::open(TraderProxy *trader,
     m_stopLossPrice = stopLossPrice;
 }
 
-void IndMarginTrade::remove(TraderProxy *trader)
+void PositionTrade::remove(TraderProxy *trader)
 {
 
 }
 
-void IndMarginTrade::cancelOpen(TraderProxy *trader)
+void PositionTrade::cancelOpen(TraderProxy *trader)
 {
 
 }
 
-void IndMarginTrade::cancelClose(TraderProxy *trader)
+void PositionTrade::cancelClose(TraderProxy *trader)
 {
 
 }
 
-void IndMarginTrade::modifyTakeProfit(TraderProxy *trader, Market *market, o3d::Double price, o3d::Bool asOrder)
+void PositionTrade::modifyTakeProfit(TraderProxy *trader, Market *market, o3d::Double price, o3d::Bool asOrder)
 {
 
 }
 
-void IndMarginTrade::modifyStopLoss(TraderProxy *trader, Market *market, o3d::Double price, o3d::Bool asOrder)
+void PositionTrade::modifyStopLoss(TraderProxy *trader, Market *market, o3d::Double price, o3d::Bool asOrder)
 {
 
 }
 
-void IndMarginTrade::close(TraderProxy *trader, Market *market)
+void PositionTrade::close(TraderProxy *trader, Market *market)
 {
-
+    // @todo
+    m_filledExitQuantity = m_orderQuantity;
 }
 
-o3d::Bool IndMarginTrade::canDelete() const
+o3d::Bool PositionTrade::canDelete() const
+{
+    // @todo
+    return m_filledExitQuantity >= m_filledEntryQuantity;
+}
+
+o3d::Bool PositionTrade::isActive() const
+{
+    return m_filledExitQuantity < m_filledEntryQuantity;
+}
+
+o3d::Bool PositionTrade::isOpened() const
 {
     return false;
 }
 
-o3d::Bool IndMarginTrade::isActive() const
-{
-    return false;
-}
-
-o3d::Bool IndMarginTrade::isOpened() const
-{
-    return false;
-}
-
-o3d::Bool IndMarginTrade::isCanceled() const
+o3d::Bool PositionTrade::isCanceled() const
 {
     if (m_entryState == STATE_REJECTED) {
         return true;
@@ -117,57 +119,57 @@ o3d::Bool IndMarginTrade::isCanceled() const
     return false;
 }
 
-o3d::Bool IndMarginTrade::isOpening() const
+o3d::Bool PositionTrade::isOpening() const
 {
     return m_entryState == STATE_OPENED || m_entryState == STATE_PARTIALLY_FILLED;
 }
 
-o3d::Bool IndMarginTrade::isClosing() const
+o3d::Bool PositionTrade::isClosing() const
 {
     return false;
 }
 
-o3d::Bool IndMarginTrade::isClosed() const
+o3d::Bool PositionTrade::isClosed() const
 {
     return false;
 }
 
-o3d::Bool IndMarginTrade::isEntryTimeout(o3d::Double timestamp, o3d::Double timeout) const
+o3d::Bool PositionTrade::isEntryTimeout(o3d::Double timestamp, o3d::Double timeout) const
 {
     return false;
 }
 
-o3d::Bool IndMarginTrade::isExitTimeout(o3d::Double timestamp, o3d::Double timeout) const
+o3d::Bool PositionTrade::isExitTimeout(o3d::Double timestamp, o3d::Double timeout) const
 {
     return false;
 }
 
-o3d::Bool IndMarginTrade::isValid() const
+o3d::Bool PositionTrade::isValid() const
 {
     return false;
 }
 
-void IndMarginTrade::orderSignal(const OrderSignal &signal)
+void PositionTrade::orderSignal(const OrderSignal &signal)
 {
 
 }
 
-void IndMarginTrade::positionSignal(const PositionSignal &signal)
+void PositionTrade::positionSignal(const PositionSignal &signal)
 {
 
 }
 
-o3d::Bool IndMarginTrade::isTargetOrder(const o3d::String &orderId, const o3d::String &orderRefId) const
-{
-    return false;
-}
-
-o3d::Bool IndMarginTrade::isTargetPosition(const o3d::String &positionId, const o3d::String &orderRefId) const
+o3d::Bool PositionTrade::isTargetOrder(const o3d::String &orderId, const o3d::String &orderRefId) const
 {
     return false;
 }
 
-o3d::String IndMarginTrade::formatToStr() const
+o3d::Bool PositionTrade::isTargetPosition(const o3d::String &positionId, const o3d::String &orderRefId) const
+{
+    return false;
+}
+
+o3d::String PositionTrade::formatToStr() const
 {
     o3d::String result;
 
@@ -176,7 +178,7 @@ o3d::String IndMarginTrade::formatToStr() const
     return result;
 }
 
-o3d::String IndMarginTrade::stateToStr() const
+o3d::String PositionTrade::stateToStr() const
 {
     if (m_entryState == STATE_NEW) {
         return "new";
@@ -199,12 +201,12 @@ o3d::String IndMarginTrade::stateToStr() const
     }
 }
 
-void IndMarginTrade::dumps(o3d::Variadic &trades, Market *market) const
+void PositionTrade::dumps(o3d::Variadic &trades, Market *market) const
 {
     // @todo
 }
 
-void IndMarginTrade::loads(const o3d::Variadic &trade)
+void PositionTrade::loads(const o3d::Variadic &trade)
 {
     // @todo
 }

@@ -24,7 +24,7 @@ public:
         TYPE_TICK = 0,
         TICK_OHLC_MID = 1,
         TICK_OHLC_BID = 2,
-        TICK_OHLC_OFR = 3,
+        TICK_OHLC_ASK = 3,
         TICK_ORDER_BOOK = 4
     };
 

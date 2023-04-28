@@ -89,9 +89,11 @@ set(STRATEGY_LIB_CXX
     learning/supervisor.cpp
     live/live.cpp
     optimization/optimization.cpp
+    statistics/statistics.cpp
     trade/assettrade.cpp
     trade/indmargintrade.cpp
     trade/margintrade.cpp
+    trade/positiontrade.cpp
     trade/stdtrademanager.cpp
     trade/trade.cpp
     trade/tradeoperation.cpp

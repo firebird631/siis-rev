@@ -113,7 +113,8 @@ public:
         TYPE_SPOT = 0,
         TYPE_MARGIN = 1,
         TYPE_IND_MARGIN = 2,
-        MAX_TYPE = TYPE_IND_MARGIN
+        TYPE_POSITION = 3,
+        MAX_TYPE = TYPE_POSITION
     };
 
     static constexpr o3d::Int32 NUM_TYPES = MAX_TYPE + 1;
@@ -142,6 +143,11 @@ public:
      * @brief init Init the members.
      */
     void init(o3d::Double timeframe);
+
+    /**
+     * @brief zero Zero the members.
+     */
+    void reset() { init(0.0); }
 
     //
     // getters
@@ -205,9 +211,8 @@ public:
      * @param orderType @see OrderType
      * @param orderPrice If <= 0 then market order, else limit order.
      * @param quantity
-     * @param stopLossPrice If > 0 then defines the stop-loss (stop) price of the position or a TP order.
      * @param takeProfitPrice If > 0 then defines the take-profit (limit) price of the position or a SL order.
-     * @param leverage Should not be used with most of the exchanges.
+     * @param stopLossPrice If > 0 then defines the stop-loss (stop) price of the position or a TP order.
      */
     virtual void open(
             TraderProxy *trader,
@@ -216,9 +221,8 @@ public:
             OrderType orderType,
             o3d::Double orderPrice,
             o3d::Double quantity,
-            o3d::Double stopLossPrice,
             o3d::Double takeProfitPrice,
-            o3d::Double leverage = 1.0) = 0;
+            o3d::Double stopLossPrice) = 0;
 
     /**
      * @brief remove Remove the trade and related existings orders.

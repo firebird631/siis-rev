@@ -22,7 +22,7 @@ public:
         TICK = 0,
         OHLC_MID = 1,
         OHLC_BID = 2,
-        OHLC_OFR = 3,
+        OHLC_ASK = 3,
         ORDER_BOOK = 4
     };
 

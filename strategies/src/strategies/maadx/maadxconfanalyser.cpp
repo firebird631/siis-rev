@@ -33,19 +33,18 @@ void MaAdxConfAnalyser::init(AnalyserConfig conf)
 {
     StdAnalyser::init(conf);
 }
-static int n=0;
+
 void MaAdxConfAnalyser::terminate()
 {
-printf(">>> %i\n", n);
+
 }
 
 TradeSignal MaAdxConfAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
 {
     TradeSignal signal(timeframe(), timestamp);
-++n;
+
     m_confirmation = 0;
 
-    // @todo or one more candle
     if (price().consolidated()) {
         if (price().close().getLast() > price().open().getLast()) {
             m_confirmation = 1;

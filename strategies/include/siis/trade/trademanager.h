@@ -62,15 +62,35 @@ public:
      */
     void process(o3d::Double timestamp) { T::process(timestamp); }
 
-    o3d::Bool hasTrade(o3d::Int32 id) const { return T::hasTrade(id); }
+    o3d::Bool hasTrades() const { return T::hasTrades(); }
+
+    o3d::Bool hasTradesByDirection(o3d::Int32 dir) const { return T::hasTradesByDirection(dir); }
+
+    o3d::Bool hasTradeById(o3d::Int32 id) const { return T::hasTradeById(id); }
 
     Trade* getTrade(o3d::Int32 id) { return T::getTrade(id); }
     const Trade* getTrade(o3d::Int32 id) const { return T::getTrade(id); }
 
-    o3d::Bool hasTrade(o3d::Double timeframe) const { return T::hasTrade(timeframe); }
+    o3d::Bool hasTradeByTimeframe(o3d::Double timeframe) const { return T::hasTradeByTimeframe(timeframe); }
 
     Trade* findTrade(o3d::Double timeframe) { return T::findTrade(timeframe); }
     const Trade* findTrade(o3d::Double timeframe) const { return T::findTrade(timeframe); }
+
+    /**
+     * @brief closeAll Close all trades at market.
+     * @param timestamp Last timestamp
+     * @param price Last market price.
+     */
+    void closeAll(o3d::Double timestamp, o3d::Double price) { T::closeAll(timestamp, price); }
+
+    /**
+     * @brief closeAllByDirection Similar as closeAll by only trade from a specific direction.
+     * @param dir
+     * @param timestamp
+     * @param price
+     */
+    void closeAllByDirection(o3d::Int32 dir, o3d::Double timestamp, o3d::Double price) {
+        T::closeAllByDirection(timestamp, price); }
 
     //
     // signals

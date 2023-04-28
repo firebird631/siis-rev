@@ -11,6 +11,8 @@
 #include "siis/config/strategyconfig.h"
 #include "siis/handler.h"
 
+#include "siis/connector/traderproxy.h"
+
 #include "siis/connector/connector.h"
 #include "siis/database/database.h"
 #include "siis/database/tradedb.h"
@@ -36,14 +38,14 @@ SIIS_PLUGIN_API siis::Strategy* siisStrategy(Handler *handler, const o3d::String
 MaAdx::MaAdx(Handler *handler, const o3d::String &identifier) :
     Strategy(handler, identifier),
     m_reversal(false),
-    m_pyramided(true),
     m_hedging(false),
     m_maxTrades(1),
     m_tradeDelay(0.0),
     m_needUpdate(false),
     m_trendAnalyser(nullptr),
     m_sigAnalyser(nullptr),
-    m_confAnalyser(nullptr)
+    m_confAnalyser(nullptr),
+    m_lastSignal(0, 0)
 {
 
 }
@@ -71,7 +73,6 @@ void MaAdx::init(Config *config)
     conf.parseOverrides(config);
 
     m_reversal = conf.root().get("reversal", true).asBool();
-    m_pyramided = conf.root().get("pyramided", 0).asInt();
     m_hedging = conf.root().get("hedging", false).asBool();
     m_maxTrades = conf.root().get("max-trades", 1).asInt();
     m_tradeDelay = conf.root().get("trade-delay", 30).asDouble();
@@ -103,19 +104,19 @@ void MaAdx::init(Config *config)
                 continue;
             }
 
-            if (tf == TF_4HOUR) { //mode == "A" || mode == "trend") {
+            if (mode == "trend") {
                 Analyser *a = new MaAdxTrendAnalyser(this, tf, subTf, depth, history, Price::PRICE_HLC);
                 a->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(a);
                 m_trendAnalyser = static_cast<MaAdxTrendAnalyser*>(a);
-            } else if (tf == TF_5MIN) { //mode == "B" || mode == "sig") {
+            } else if (mode == "sig") {
                 Analyser *a = new MaAdxSigAnalyser(this, tf, subTf, depth, history, Price::PRICE_HLC);
                 a->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(a);
                 m_sigAnalyser = static_cast<MaAdxSigAnalyser*>(a);
-            } else if (tf == TF_MIN) { // mode == "C" || mode == "conf") {
+            } else if (mode == "conf") {
                 Analyser *a = new MaAdxConfAnalyser(this, tf, subTf, depth, history, Price::PRICE_CLOSE);
                 a->init(AnalyserConfig(timeframe));
 
@@ -157,7 +158,7 @@ void MaAdx::terminate(Connector *connector, Database *db)
 
     setTerminated();
 
-        printf("%i %i\n", l, s);
+    printf("*** %i %i\n", l, s);
 }
 
 void MaAdx::prepareMarketData(Connector *connector, Database *db)
@@ -219,6 +220,9 @@ void MaAdx::compute(o3d::Double timestamp)
     // compute entries
     TradeSignal signal = compteSignal(timestamp);
     if (signal.type() == TradeSignal::ENTRY) {
+        // keep to avoid repetitions
+        m_lastSignal = signal;
+
         o3d::Bool doOrder = true;
         // second level : entry invalidation
         // @todo
@@ -228,51 +232,8 @@ void MaAdx::compute(o3d::Double timestamp)
         }
     }
 
-    // apply reversal
-    // @todo
-
     // update the existing trades
     m_tradeManager->process(timestamp);
-
-    /*if (sig) {
-        Trade *trade = nullptr;
-        o3d::Double maxExitTf = 0;
-
-        // one or more potential entries or exits signals
-        for (Analyser *analyser : m_analysers) {
-            if (analyser->lastSignal().type() == TradeSignal::ENTRY) {
-                // entry signal
-                const TradeSignal &signal = analyser->lastSignal();
-                o3d::Bool doOrder = true;
-
-                // second level : entry invalidation
-                // ...
-
-                if (doOrder) {
-                    // @todo problem want only in live mode, not during backtesting
-                    o3d::Double height = 0.0;  // market().height(entry.timeframe, -1)
-
-                    // @todo or trade at order book, compute the limit price from what the order book offer or could use ATR
-                    o3d::Double signalPrice = signal.price() + height;
-
-                    orderEntry(timestamp, signal.tf(), signal.d(), signalPrice, signal.tp(), signal.sl());
-                }
-            } else if (analyser->lastSignal().type() == TradeSignal::EXIT) {
-                // exit signal
-                const TradeSignal &signal = analyser->lastSignal();
-
-                // process it on the related timeframe if we have a trade on
-                trade = m_tradeManager->findTrade(signal.timeframe());
-                if (trade) {
-                    // o3d::Double height = 0.0;  // market().height(entry.timeframe, -1)
-                    // o3d::Double signalPrice = signal.price() + height;
-
-                    // market exit @todo look for at least a limit
-                    orderExit(timestamp, trade, signal.price());
-                }
-            }
-        }
-    }*/
 }
 
 void MaAdx::finalize(o3d::Double timestamp)
@@ -285,15 +246,43 @@ void MaAdx::orderEntry(
         o3d::Double timeframe,
         o3d::Int32 direction,
         o3d::Double price,
-        o3d::Double limitPrice,
-        o3d::Double stopPrice)
+        o3d::Double takeProfitPrice,
+        o3d::Double stopLossPrice)
 {
-    log(timeframe, "content", "entry");
+    if (m_reversal && m_tradeManager->hasTradesByDirection(-direction)) {
+        m_tradeManager->closeAllByDirection(-direction, timestamp, price);
+    }
+
+    Trade* trade = handler()->traderProxy()->createTrade(market(), timeframe);
+    if (trade) {
+        m_tradeManager->addTrade(trade);
+
+        o3d::Double quantity = 1.0;  // @todo
+
+        // query open
+        trade->open(handler()->traderProxy(), market(), direction, Trade::ORDER_CREATE, price, quantity,
+                    takeProfitPrice, stopLossPrice);
+
+        o3d::String msg = o3d::String("#{0} {1} at {2}").arg(trade->id()).arg(direction > 0 ? "long" : "short").arg(price);
+        log(timeframe, "trade-entry", msg);
+    }
 }
 
 void MaAdx::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price)
 {
-    log(trade->tf(), "content", "exit");
+    if (trade) {
+        if (price > 0.0) {
+            // if price defined, limit/stop close else market close
+        } else {
+            trade->close(handler()->traderProxy(), market());
+
+            // free trade once completed @todo done by tradeManager
+            handler()->traderProxy()->freeTrade(trade);
+        }
+
+        o3d::String msg = o3d::String("#{0}").arg(trade->id());
+        log(trade->tf(), "trade-exit", msg);
+    }
 }
 
 TradeSignal MaAdx::compteSignal(o3d::Double timestamp) const
@@ -303,22 +292,30 @@ TradeSignal MaAdx::compteSignal(o3d::Double timestamp) const
     if (m_trendAnalyser->trend() > 0) {
         if (m_sigAnalyser->adx() > 25) {
             if (m_sigAnalyser->sig() > 0) {
-            l++;
-    //printf("ttt\n");
                 if (m_confAnalyser->confirmation() > 0) {
-                    signal.setEntry();
-                    signal.setLong();
+                    // keep only one signal per timeframe
+                    if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
+                        l++;
+
+                        signal.setEntry();
+                        signal.setLong();
+                        signal.setPrice(m_confAnalyser->lastPrice());
+                    }
                 }
             }
         }
     } else if (m_trendAnalyser->trend() < 0) {
         if (m_sigAnalyser->adx() > 25) {
             if (m_sigAnalyser->sig() < 0) {
-            s++;
-    //printf("ooo\n");
                 if (m_confAnalyser->confirmation() < 0) {
-                    signal.setEntry();
-                    signal.setShort();
+                    // keep only one signal per timeframe
+                    if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
+                        s++;
+
+                        signal.setEntry();
+                        signal.setShort();
+                        signal.setPrice(m_confAnalyser->lastPrice());
+                    }
                 }
             }
         }

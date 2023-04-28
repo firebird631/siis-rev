@@ -7,6 +7,8 @@
 
 #include "siis/config/config.h"
 #include "siis/config/strategyconfig.h"
+#include "siis/market.h"
+#include "siis/statistics/statistics.h"
 
 #include <o3d/core/filemanager.h>
 #include <o3d/core/file.h>
@@ -195,7 +197,7 @@ void Config::loadCommon()
 {
     o3d::File lfile(m_configPath.getFullPathName(), "strategy.json");
     if (!lfile.exists()) {
-        throw o3d::E_InvalidParameter("strategy.json configuration file not found");
+        O3D_ERROR(o3d::E_InvalidParameter("strategy.json configuration file not found"));
     }
 
     JsonParser parser;
@@ -230,11 +232,26 @@ void Config::loadCommon()
     }
 }
 
+o3d::Int32 marketModeFromStr(const o3d::String &mode)
+{
+    if (mode == "spot" || mode == "asset" || mode == "buysell") {
+        return Market::MODE_BUY_SELL;
+    } else if (mode == "margin") {
+        return Market::MODE_MARGIN;
+    } else if (mode == "ind-margin") {
+        return Market::MODE_IND_MARGIN;
+    } else if (mode == "position") {
+        return Market::MODE_POSITION;
+    } else {
+        O3D_ERROR(o3d::E_InvalidParameter(o3d::String("{0} is not a valide mode").arg(mode)));
+    }
+}
+
 void Config::loadStrategySpec(const o3d::String filename)
 {
     o3d::File lfile(m_strategiesPath.getFullPathName(), filename);
     if (!lfile.exists()) {
-        throw o3d::E_InvalidParameter(o3d::String("{0} strategy configuration file not found").arg(filename));
+        O3D_ERROR(o3d::E_InvalidParameter(o3d::String("{0} strategy configuration file not found").arg(filename)));
     }
 
     MarketConfig::TradeMode defaultTradeMode = MarketConfig::TRADE_FIXED_QUANTITY;
@@ -371,6 +388,14 @@ void Config::loadStrategySpec(const o3d::String filename)
                     mc->tradeQuantity[1] = defaultTradeQuantity[1];
                 }
 
+                // initial market detail but will be overrided if found in DB
+                if (market.isMember("market-mode")) {
+                    o3d::String marketMode = market.get("market-mode", "").asString().c_str();
+                    mc->marketMode = marketModeFromStr(marketMode);
+                }
+
+                // ...
+
                 m_configuredMarkets.push_back(mc);
             }
         }
@@ -490,6 +515,14 @@ void Config::loadProfileSpec(const o3d::String filename)
                     O3D_MESSAGE(o3d::String("Find market {0} min-trade-quantity={1}").arg(mc->marketId).arg(mc->tradeQuantity[0]));
 
                     mc->tradeMode = MarketConfig::TRADE_FIXED_QUANTITY;
+
+                    // initial market detail but will be overrided if found in DB
+                    if (instrument.isMember("market-mode")) {
+                        o3d::String marketMode = instrument.get("market-", "").asString().c_str();
+                        mc->marketMode = marketModeFromStr(marketMode);
+                    }
+
+                    // ...
                 } else {
                     // must have an instrument with a wildchar and market-id have a {0} placeholder
                     // @todo
@@ -552,7 +585,7 @@ void Config::loadSupervisorSpec(const o3d::String filename)
 {
     o3d::File lfile(m_supervisorsPath.getFullPathName(), filename);
     if (!lfile.exists()) {
-        throw o3d::E_InvalidParameter(o3d::String("{0} supervisor configuration file not found").arg(filename));
+        O3D_ERROR(o3d::E_InvalidParameter(o3d::String("{0} supervisor configuration file not found").arg(filename)));
     }
 
     try {
@@ -572,5 +605,68 @@ void Config::loadSupervisorSpec(const o3d::String filename)
     }
     catch (Json::LogicError &e) {
         O3D_ERROR(o3d::E_InvalidParameter("Invalid JSON format for supervisor " + filename));
+    }
+}
+
+void Config::overwriteLearningFile(const GlobalStatistics &global, const AccountStatistics &account) const
+{
+    if (m_learningFilename.isEmpty()) {
+        return;
+    }
+
+    o3d::File lfile(m_learningPath.getFullPathName(), m_learningFilename);
+    if (!lfile.exists()) {
+        O3D_ERROR(o3d::E_InvalidParameter(o3d::String("{0} learning configuration file not found").arg(m_learningFilename)));
+    }
+
+    try {
+        JsonParser parser;
+        if (parser.parse(m_learningPath, m_learningFilename)) {
+            // add revision, perf stats
+            Json::Value &root = parser.modifyRoot();
+
+            o3d::DateTime today;
+            today.setCurrent(true);
+
+            root["revision"] = today.buildString("%Y-%m-%dT%H:%M:%SZ").toAscii().getData();
+
+            Json::Value samples(Json::arrayValue);
+            // @todo samples
+            for (auto sample : account.samples) {
+                Json::Value s(Json::arrayValue);
+
+                s.append(sample.timestamp);
+                s.append(sample.equity);
+                s.append(sample.profitLoss);
+                s.append(sample.drawDown);
+
+                samples.append(s);
+            }
+
+            root["performance"] = global.performance;
+            root["max-draw-down"] = global.maxDrawDown;
+            // root["initial-equity"] = account.initialEquity;
+            root["final-equity"] = account.finalEquity;
+            root["stats-samples"] = samples;
+            root["profit-loss"] = account.profitLoss;
+
+            root["best"] = global.best;
+            root["worst"] = global.worst;
+            root["succeed-trades"] = global.succeedTrades;
+            root["failed-trades"] = global.failedTrades;
+            root["roe-trades"] = global.roeTrades;
+            root["total-trades"] = global.totalTrades;
+            root["open-trades"] = global.openTrades;
+            root["active-trades"] = global.activeTrades;
+            root["stop-loss-in-loss"] = global.stopLossInLoss;
+            root["take-profit-in-loss"] = global.takeProfitInLoss;
+            root["stop-loss-in-gain"] = global.stopLossInGain;
+            root["take-profit-in-gain"] = global.takeProfitInGain;
+
+            parser.save(m_learningPath.getFullPathName(), m_learningFilename);
+        }
+    }
+    catch (Json::LogicError &e) {
+        O3D_ERROR(o3d::E_InvalidParameter("Invalid JSON format for learning " + m_learningFilename));
     }
 }

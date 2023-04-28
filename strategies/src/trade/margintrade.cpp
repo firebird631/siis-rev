@@ -1,5 +1,5 @@
 /**
- * @brief SiiS strategy asset trade model.
+ * @brief SiiS strategy margin trade model.
  * @copyright Copyright (C) 2019 SiiS
  * @author Frederic SCHERMA (frederic.scherma@gmail.com)
  * @date 2019-03-17
@@ -7,6 +7,8 @@
 
 #include "siis/trade/margintrade.h"
 #include "siis/utils/common.h"
+#include "siis/connector/traderproxy.h"
+#include "siis/market.h"
 
 using namespace siis;
 
@@ -33,18 +35,20 @@ MarginTrade::~MarginTrade()
 
 }
 
-void MarginTrade::open(
-        TraderProxy *trader,
+void MarginTrade::open(TraderProxy *trader,
         Market *market,
         o3d::Int32 direction,
         Trade::OrderType orderType,
         o3d::Double orderPrice,
         o3d::Double quantity,
-        o3d::Double stopLossPrice,
         o3d::Double takeProfitPrice,
-        o3d::Double leverage)
+        o3d::Double stopLossPrice)
 {
-
+    // @todo
+    m_direction = direction;
+    m_orderQuantity = quantity;
+    m_takeProfitPrice = takeProfitPrice;
+    m_stopLossPrice = stopLossPrice;
 }
 
 void MarginTrade::remove(TraderProxy *trader)

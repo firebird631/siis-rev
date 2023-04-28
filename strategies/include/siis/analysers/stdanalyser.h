@@ -47,6 +47,8 @@ public:
     virtual o3d::Bool process(o3d::Double timestamp, o3d::Double lastTimestamp) override;
     virtual TradeSignal compute(o3d::Double timestamp, o3d::Double lastTimestamp) = 0;
 
+    virtual o3d::Double lastPrice() const override;
+
 protected:
 
     inline const Price& price() { return m_price; }

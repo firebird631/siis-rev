@@ -36,7 +36,7 @@ class Market;
  * @brief Strategy trader proxy.
  * @author Frederic Scherma
  * @date 2019-03-17
- * By default pre-allocate 100 orders, 100 trade of each type (asset, margin, ind-margin).
+ * By default pre-allocate 100 orders, 100 trade of each type.
  */
 class SIIS_API TraderProxy
 {
@@ -59,7 +59,7 @@ public:
     //
 
     /**
-     * @brief createTrade Create a new StrategyTrade object according to the type of the market.
+     * @brief createTrade Create a new trade object according to the type of the market.
      */
     Trade* createTrade(Market *market, o3d::Double timeframe);
 
@@ -67,6 +67,12 @@ public:
      * @brief createTrade Not the prefered way because it have to lookup for the market trought the handler.
      */
     Trade* createTrade(const o3d::String &marketId, o3d::Double timeframe);
+
+    /**
+     * @brief freeTrade Once a trade is processed, closed release with this method.
+     * @param order Valid trade to release.
+     */
+    void freeTrade(Trade *trade);
 
     //
     // order
@@ -147,6 +153,10 @@ protected:
     Connector *m_connector;
 
     o3d::Bool m_alive;  //!< true if connection on the client connector is alive
+
+    o3d::Int32 m_nextTradeId;
+    o3d::Int32 m_nextOrderId;
+    o3d::Int32 m_nextPositionId;
 
     o3d::Double m_freeMargin;
     o3d::Double m_reservedMargin;

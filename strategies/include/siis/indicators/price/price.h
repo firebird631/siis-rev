@@ -74,6 +74,7 @@ private:
     DataArray m_timestamp;
 
     o3d::Bool m_consolidated;
+    o3d::Double m_lastClosedTimestamp;
 
     o3d::Double m_min;
     o3d::Double m_max;

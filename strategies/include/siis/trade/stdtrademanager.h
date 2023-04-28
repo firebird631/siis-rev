@@ -22,7 +22,7 @@ class Strategy;
  * @brief Strategy standard implementation of the trades manager.
  * @author Frederic Scherma
  * @date 2019-03-17
- * @todo Uses a stdlist of trade, but this could involve some memory allocation, could be more
+ * @todo Uses a std::list of trades, but this could be optimized.
  */
 class SIIS_API StdTradeManager : public TradeManager<StdTradeManager>
 {
@@ -40,15 +40,20 @@ public:
 
     void process(o3d::Double timestamp);
 
-    o3d::Bool hasTrade(o3d::Int32 id) const;
+    o3d::Bool hasTrades() const;
+    o3d::Bool hasTradesByDirection(o3d::Int32 dir) const;
+    o3d::Bool hasTradeById(o3d::Int32 id) const;
 
     Trade* getTrade(o3d::Int32 id);
     const Trade* getTrade(o3d::Int32 id) const;
 
-    o3d::Bool hasTrade(o3d::Double timeframe) const;
+    o3d::Bool hasTradeByTimeframe(o3d::Double timeframe) const;
 
     Trade* findTrade(o3d::Double timeframe);
     const Trade* findTrade(o3d::Double timeframe) const;
+
+    void closeAll(o3d::Double timestamp, o3d::Double price);
+    void closeAllByDirection(o3d::Int32 dir, o3d::Double timestamp, o3d::Double price);
 
     void onOrderSignal(const OrderSignal &orderSignal);
     void onPositionSignal(const PositionSignal &positionSignal);

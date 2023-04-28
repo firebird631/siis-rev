@@ -38,6 +38,10 @@ public:
 
     o3d::Bool isValid() const { return m_root != nullptr; }
     const Json::Value& root() const { return *m_root; }
+    Json::Value& modifyRoot() { return *m_root; }
+
+    o3d::String dumps(o3d::Bool humanize=false);
+    void save(const o3d::Dir &basePath, const o3d::String &filename);
 
 private:
 

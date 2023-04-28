@@ -66,13 +66,12 @@ void IndiceAlpha::init(Config *config)
     conf.parseStrategyOverrides(config->getStrategiesPath(), config->getStrategyFilename());
 
     m_reversal = conf.root().get("reversal", true).asBool();
-    m_pyramided = conf.root().get("pyramided", 0).asInt();
     m_hedging = conf.root().get("hedging", false).asBool();
     m_maxTrades = conf.root().get("max-trades", 1).asInt();
     m_tradeDelay = conf.root().get("trade-delay", 30).asDouble();
     m_needUpdate = conf.root().get("need-update", false).asBool();
-    m_minVol24h = conf.root().get("minVol24h", 0).asDouble();
-    m_minPrice = conf.root().get("minPrice", 0).asDouble();
+    m_minVol24h = conf.root().get("min-vol-24h", 0).asDouble();
+    m_minPrice = conf.root().get("min-price", 0).asDouble();
 
     m_baseTimeframe = conf.baseTimeframe();
     m_minTradedTimeframe = conf.minTradedTimeframe();
@@ -282,6 +281,8 @@ void IndiceAlpha::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double pri
         } else {
             trade->close(handler()->traderProxy(), market());
         }
+
+        // @todo trade manager removeTrader and it must also freeTrade from tradeproxy
 
         log(trade->tf(), "content", "exit");
     }

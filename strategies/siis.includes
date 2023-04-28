@@ -97,3 +97,6 @@ include/siis/indicators/cci
 src/indicators/dmi
 src/indicators/cci
 src/strategies/maadx
+.
+include/siis/statistics
+src/statistics

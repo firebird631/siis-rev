@@ -30,6 +30,7 @@ Price::Price(const o3d::String &name, o3d::Double timeframe, Method method) :
     m_price(20, 20),
     m_timestamp(20, 20),
     m_consolidated(false),
+    m_lastClosedTimestamp(0.0),
     m_min(0),
     m_max(0),
     m_prev(0),
@@ -48,6 +49,7 @@ Price::Price(const o3d::String &name, o3d::Double timeframe, IndicatorConfig con
     m_price(20, 20),
     m_timestamp(20, 20),
     m_consolidated(false),
+    m_lastClosedTimestamp(0.0),
     m_min(0),
     m_max(0),
     m_prev(0),
@@ -88,6 +90,7 @@ void Price::compute(const OhlcCircular &ohlc)
 
     m_min = o3d::Limits<o3d::Double>::max();
     m_max = 0;
+    m_consolidated = false;
 
     if (m_method == PRICE_CLOSE) {
         // timestamp, timeframe, open, high, low, close, volume, ended
@@ -107,8 +110,12 @@ void Price::compute(const OhlcCircular &ohlc)
             m_min = o3d::min(m_min, m_price[i]);
             m_max = o3d::max(m_max, m_price[i]);
 
-            m_consolidated = cur->consolidated();
             ++i;
+        }
+
+        if (size > 1 && cur && cur->timestamp() > m_lastClosedTimestamp) {
+            m_consolidated = true;
+            m_lastClosedTimestamp = cur->timestamp();
         }
     } else if (m_method == PRICE_HLC) {
         // timestamp, timeframe, open, high, low, close, volume, ended
@@ -130,8 +137,12 @@ void Price::compute(const OhlcCircular &ohlc)
             m_min = o3d::min(m_min, m_price[i]);
             m_max = o3d::max(m_max, m_price[i]);
 
-            m_consolidated = cur->consolidated();
             ++i;
+        }
+
+        if (size > 1 && cur && cur->timestamp() > m_lastClosedTimestamp) {
+            m_consolidated = true;
+            m_lastClosedTimestamp = cur->timestamp();
         }
     } else if (m_method == PRICE_OHLC) {
         // timestamp, timeframe, open, high, low, close, volume, ended
@@ -153,9 +164,12 @@ void Price::compute(const OhlcCircular &ohlc)
             m_min = o3d::min(m_min, m_price[i]);
             m_max = o3d::max(m_max, m_price[i]);
 
-            m_consolidated = cur->consolidated();
-
             ++i;
+        }
+
+        if (size > 1 && cur && cur->timestamp() > m_lastClosedTimestamp) {
+            m_consolidated = true;
+            m_lastClosedTimestamp = cur->timestamp();
         }
     }
 

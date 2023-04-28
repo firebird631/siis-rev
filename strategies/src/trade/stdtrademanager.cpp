@@ -8,6 +8,8 @@
 #include "siis/trade/stdtrademanager.h"
 #include "siis/database/tradedb.h"
 #include "siis/strategy.h"
+#include "siis/connector/traderproxy.h"
+#include "siis/handler.h"
 
 using namespace siis;
 
@@ -48,7 +50,7 @@ void StdTradeManager::removeTrade(Trade *trade)
 
 void StdTradeManager::process(o3d::Double timestamp)
 {
-    std::list<Trade*> m_deleted;
+    std::list<Trade*> removed_trades;
 
     m_mutex.lock();
 
@@ -59,7 +61,7 @@ void StdTradeManager::process(o3d::Double timestamp)
         // @todo more or less as in python trademanager
     }
 
-    for (Trade *trade : m_deleted) {
+    for (Trade *trade : removed_trades) {
         // @todo as in python trademanager
         m_trades.remove(trade);
     }
@@ -67,7 +69,34 @@ void StdTradeManager::process(o3d::Double timestamp)
     m_mutex.unlock();
 }
 
-o3d::Bool StdTradeManager::hasTrade(o3d::Int32 id) const
+o3d::Bool StdTradeManager::hasTrades() const
+{
+    o3d::Bool result = false;
+    m_mutex.lock();
+
+    result = !m_trades.empty();
+
+    m_mutex.unlock();
+    return result;
+}
+
+o3d::Bool StdTradeManager::hasTradesByDirection(o3d::Int32 dir) const
+{
+    o3d::Bool result = false;
+    m_mutex.lock();
+
+    for (Trade *trade : m_trades) {
+        if (trade->direction() == dir) {
+            result = true;
+            break;
+        }
+    }
+
+    m_mutex.unlock();
+    return result;
+}
+
+o3d::Bool StdTradeManager::hasTradeById(o3d::Int32 id) const
 {
     o3d::Bool result = false;
     m_mutex.lock();
@@ -115,7 +144,7 @@ const Trade *StdTradeManager::getTrade(o3d::Int32 id) const
     return result;
 }
 
-o3d::Bool StdTradeManager::hasTrade(o3d::Double timeframe) const
+o3d::Bool StdTradeManager::hasTradeByTimeframe(o3d::Double timeframe) const
 {
     o3d::Bool found = false;
     m_mutex.lock();
@@ -161,6 +190,42 @@ const Trade *StdTradeManager::findTrade(o3d::Double timeframe) const
 
     m_mutex.unlock();
     return result;
+}
+
+void StdTradeManager::closeAll(o3d::Double timestamp, o3d::Double price)
+{
+    m_mutex.lock();
+
+    for (Trade *trade : m_trades) {
+        if (trade->isActive()) {
+            // found : apply
+            trade->close(m_strategy->handler()->traderProxy(), m_strategy->market());
+        } else if (!trade->isActive()) {
+            trade->cancelOpen(m_strategy->handler()->traderProxy());
+        }
+    }
+
+    m_mutex.unlock();
+}
+
+void StdTradeManager::closeAllByDirection(o3d::Int32 dir, o3d::Double timestamp, o3d::Double price)
+{
+    m_mutex.lock();
+
+    for (Trade *trade : m_trades) {
+        if (trade->direction() != dir) {
+            continue;
+        }
+
+        if (trade->isActive()) {
+            // found : apply
+            trade->close(m_strategy->handler()->traderProxy(), m_strategy->market());
+        } else if (!trade->isActive()) {
+            trade->cancelOpen(m_strategy->handler()->traderProxy());
+        }
+    }
+
+    m_mutex.unlock();
 }
 
 void StdTradeManager::onOrderSignal(const OrderSignal &orderSignal)

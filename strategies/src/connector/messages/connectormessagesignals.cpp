@@ -138,7 +138,7 @@ void ConnectorMessageMarketSignal::read(zmq::message_t *message)
 	m_signal->notionalFilter[2] = readDouble();
 
 	m_signal->bid = readDouble();
-	m_signal->ofr = readDouble();
+	m_signal->ask = readDouble();
 
     readFee(m_signal->fees[0]);
     readFee(m_signal->fees[1]);

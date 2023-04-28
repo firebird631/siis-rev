@@ -27,7 +27,7 @@ Market::Market(const o3d::String &marketId,
     m_baseExchangeRate(1.0),
     m_marginFactor(1.0),
     m_bid(0.0),
-    m_ofr(0.0),
+    m_ask(0.0),
     m_hedging(false),
     m_qtyFilter{0.0, 0.0, 0.0},
     m_notionalFilter{0.0, 0.0, 0.0},
@@ -113,10 +113,10 @@ void Market::setState(o3d::Double baseExchangeRate, o3d::Bool tradeable)
     m_tradeable = tradeable;
 }
 
-void Market::setPrice(o3d::Double bid, o3d::Double ofr, o3d::Double timestamp)
+void Market::setPrice(o3d::Double bid, o3d::Double ask, o3d::Double timestamp)
 {
     m_bid = bid >= 0.0 ? bid : m_bid;
-    m_ofr = ofr >= 0.0 ? ofr : m_ofr;
+    m_ask = ask >= 0.0 ? ask : m_ask;
     m_lastTimestamp = timestamp >= 0.0 ? timestamp : m_lastTimestamp;
 }
 

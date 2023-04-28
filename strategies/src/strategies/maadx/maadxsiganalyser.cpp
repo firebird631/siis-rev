@@ -46,43 +46,41 @@ void MaAdxSigAnalyser::init(AnalyserConfig conf)
 
     StdAnalyser::init(conf);
 }
-static int n=0;
-static int ll=0;
-static int ss=0;
+
 void MaAdxSigAnalyser::terminate()
 {
-printf(">>> %i * %i %i\n", n, ll, ss);
+
 }
 
 TradeSignal MaAdxSigAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
 {
     TradeSignal signal(timeframe(), timestamp);
 
-    m_fast_h_ma.compute(lastTimestamp, price().price());
-    m_fast_m_ma.compute(lastTimestamp, price().price());
-    m_fast_l_ma.compute(lastTimestamp, price().price());
+    if (price().consolidated()) {
+        // compute only at close
+        m_fast_h_ma.compute(lastTimestamp, price().price());
+        m_fast_m_ma.compute(lastTimestamp, price().price());
+        m_fast_l_ma.compute(lastTimestamp, price().price());
 
-    m_adx.compute(lastTimestamp, price().high(), price().low(), price().close());
+        m_adx.compute(lastTimestamp, price().high(), price().low(), price().close());
 
-    // @todo or option at close ts
-    o3d::Int32 hc = DataArray::cross(price().close(), m_fast_h_ma.hma());
-    o3d::Int32 lc = DataArray::cross(price().close(), m_fast_l_ma.hma());
-++n;
-    if (hc > 0) {
-        m_trend = 1;
-        ++ll;
-    o3d::Int32 size = price().close().getSize();
-    printf("+++ %f %i %f %f - %f %f - %f %f\n", timestamp, size, price().close()[size-2], price().close()[size-1], m_fast_h_ma.hma()[size-2], m_fast_h_ma.hma()[size-1], price().timestamp()[size-2], price().timestamp()[size-1]);
-        m_sig = 1;
-    } else if (lc < 0) {
-        m_trend = -1;
-        ++ss;
-    o3d::Int32 size = price().close().getSize();
-    printf("--- %f %i %f %f - %f %f - %f %f\n", timestamp, size, price().close()[size-2], price().close()[size-1], m_fast_h_ma.hma()[size-2], m_fast_h_ma.hma()[size-1], price().timestamp()[size-2], price().timestamp()[size-1]);
-        m_sig = -1;
-    } else {
-        m_sig = 0;
+        o3d::Int32 hc = DataArray::cross(price().close(), m_fast_h_ma.hma());
+        o3d::Int32 lc = DataArray::cross(price().close(), m_fast_l_ma.hma());
+
+        // @todo need to take either the first cross signal either the last of the candle
+        if (hc > 0) {
+            m_trend = 1;
+            //    o3d::Int32 size = price().close().getSize();
+            //    printf("+++ %f %i %f %f - %f %f - %f %f\n", timestamp, size, price().close()[size-2], price().close()[size-1], m_fast_h_ma.hma()[size-2], m_fast_h_ma.hma()[size-1], price().timestamp()[size-2], price().timestamp()[size-1]);
+            m_sig = 1;
+        } else if (lc < 0) {
+            m_trend = -1;
+            //    o3d::Int32 size = price().close().getSize();
+            //    printf("--- %f %i %f %f - %f %f - %f %f\n", timestamp, size, price().close()[size-2], price().close()[size-1], m_fast_h_ma.hma()[size-2], m_fast_h_ma.hma()[size-1], price().timestamp()[size-2], price().timestamp()[size-1]);
+            m_sig = -1;
+        } else {
+            m_sig = 0;
+        }
     }
-
     return signal;
 }

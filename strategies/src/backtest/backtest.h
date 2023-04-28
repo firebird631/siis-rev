@@ -89,7 +89,7 @@ private:
         class Strategy *strategy;
         class Market *market;
         class TickStream *tickStream;
-        // class OhlcStream *ohlcStream;
+        class OhlcStream *ohlcStream;
     };
 
     o3d::StringMap<StrategyElt> m_strategies;

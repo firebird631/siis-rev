@@ -2,6 +2,7 @@
 CMakeLists.txt
 CMakeLists.txt
 INSTALL
+TODO
 build/debug/CMakeFiles/3.13.2/CompilerIdC/CMakeCCompilerId.c
 build/debug/CMakeFiles/3.13.2/CompilerIdCXX/CMakeCXXCompilerId.cpp
 build/debug/CMakeFiles/feature_tests.c
@@ -234,7 +235,8 @@ include/siis/order.h
 include/siis/poolworker.h
 include/siis/poolworker.h
 include/siis/position.h
-include/siis/stats/tradereport.h
+include/siis/statistics/statistics.h
+include/siis/statistics/tradereport.h
 include/siis/strategy.h
 include/siis/strategy.h
 include/siis/strategy.h
@@ -253,6 +255,7 @@ include/siis/trade/indmargintrade.h
 include/siis/trade/indmargintrade.h
 include/siis/trade/margintrade.h
 include/siis/trade/margintrade.h
+include/siis/trade/positiontrade.h
 include/siis/trade/stdtrademanager.h
 include/siis/trade/stdtrademanager.h
 include/siis/trade/trade.h
@@ -640,6 +643,7 @@ src/poolworker.cpp
 src/poolworker.cpp
 src/poolworker.h
 src/poolworker.h
+src/statistics/statistics.cpp
 src/strategies/CMakeLists.txt
 src/strategies/CMakeLists.txt
 src/strategies/bitcoinalpha/README
@@ -722,6 +726,7 @@ src/trade/indmargintrade.cpp
 src/trade/margintrade.cpp
 src/trade/margintrade.cpp
 src/trade/margintrade.cpp
+src/trade/positiontrade.cpp
 src/trade/stdtrademanager.cpp
 src/trade/stdtrademanager.cpp
 src/trade/stdtrademanager.cpp

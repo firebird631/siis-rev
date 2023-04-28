@@ -90,7 +90,7 @@ private:
         class Market *market;
         class TickStream *tickStream;
         class Supervisor *supervisor;
-        // class OhlcStream *ohlcStream;
+        class OhlcStream *ohlcStream;
     };
 
     o3d::StringMap<LearningElt> m_learnings;

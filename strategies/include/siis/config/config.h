@@ -17,6 +17,8 @@
 namespace siis {
 
 class StrategyConfig;
+class GlobalStatistics;
+class AccountStatistics;
 
 /**
  * @brief Per market specific config.
@@ -42,7 +44,13 @@ public:
     o3d::T_StringList multipleMarketsId;
 
     TradeMode tradeMode;
-    o3d::Double tradeQuantity[2];  //!< [min,max] or at index 0 fixed quantity/percent
+    o3d::Double tradeQuantity[2];    //!< [min,max] or at index 0 fixed quantity/percent
+
+    o3d::Int32 marketMode = -1;      //!< -1 if not specified (compatible with Market::Mode)
+    o3d::Int32 marketOrderCapacity = -1;  //!< -1 if not specified (compatible with Market::OrderCapacity)
+    o3d::Int32 marketContract = -1;  //!< -1 if not specified (compatible with Market::Contract)
+    o3d::Int32 marketType = -1;      //!< -1 if not specified (compatible with Market::Type)
+    o3d::Int32 marketUnit = - 1;     //!< -1 if not specified (compatible with Market::Unit)
 };
 
 /**
@@ -223,6 +231,11 @@ public:
      * @brief marketsConfig Configured market from the configuration file.
      */
     const std::list<MarketConfig*> getConfiguredMarkets() const { return m_configuredMarkets; }
+
+    /**
+     * @brief overwriteLearningFile Overwrite the previously loaded learning file with results of the training.
+     */
+    void overwriteLearningFile(const GlobalStatistics &global, const AccountStatistics &account) const;
 
 private:
 

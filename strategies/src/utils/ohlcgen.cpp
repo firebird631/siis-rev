@@ -44,7 +44,7 @@ o3d::UInt32 OhlcGen::genFromTicks(const TickArray &ticks, OhlcCircular &out)
         }
     } else if (m_ohlcType == Ohlc::TYPE_OFR) {
         for (o3d::Int32 i = 0; i < ticks.getSize(); ++i) {
-            if (updateFromTickOfr(ticks.get(i), out)) {
+            if (updateFromTickAsk(ticks.get(i), out)) {
                 n += 1;
             }
         }
@@ -72,7 +72,7 @@ o3d::UInt32 OhlcGen::genFromOhlc(const OhlcArray &ohlc, OhlcCircular &out)
         }
     } else if (m_ohlcType == Ohlc::TYPE_OFR) {
         for (o3d::Int32 i = 0; i < ohlc.getSize(); ++i) {
-            if (updateFromOhlcOfr(ohlc.get(i), out)) {
+            if (updateFromOhlcAsk(ohlc.get(i), out)) {
                 n += 1;
             }
         }
@@ -192,7 +192,7 @@ o3d::Bool OhlcGen::updateFromTickBid(const Tick *tick, OhlcCircular &out)
     return isNew;
 }
 
-o3d::Bool OhlcGen::updateFromTickOfr(const Tick *tick, OhlcCircular &out)
+o3d::Bool OhlcGen::updateFromTickAsk(const Tick *tick, OhlcCircular &out)
 {
     o3d::Bool isNew = false;
 
@@ -201,8 +201,8 @@ o3d::Bool OhlcGen::updateFromTickOfr(const Tick *tick, OhlcCircular &out)
         return false;
     }
 
-    // the ofr price
-    const o3d::Double price = tick->ofr();
+    // the ask price
+    const o3d::Double price = tick->ask();
 
     if (m_curOhlc && !m_curOhlc->consolidated() && (tick->timestamp() >= m_curOhlc->timestamp() + m_toTf)) {
         // need to close the current ohlc
@@ -254,7 +254,7 @@ o3d::Bool OhlcGen::updateFromOhlcBid(const Ohlc *ohlc, OhlcCircular &out)
     return isNew;
 }
 
-o3d::Bool OhlcGen::updateFromOhlcOfr(const Ohlc *ohlc, OhlcCircular &out)
+o3d::Bool OhlcGen::updateFromOhlcAsk(const Ohlc *ohlc, OhlcCircular &out)
 {
     o3d::Bool isNew = false;
 

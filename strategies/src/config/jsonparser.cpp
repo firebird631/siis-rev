@@ -6,10 +6,13 @@
  */
 
 #include "siis/config/jsonparser.h"
+#include "siis/config/jsonparser.h"
 
 #include <o3d/core/filemanager.h>
 #include <o3d/core/file.h>
 #include <o3d/core/debug.h>
+
+#include <json/writer.h>
 
 using namespace siis;
 using o3d::Debug;
@@ -65,4 +68,24 @@ o3d::Bool JsonParser::parse(const o3d::Dir &basePath, const o3d::String &filenam
     o3d::deleteArray(buf);
 
     return result;
+}
+
+o3d::String JsonParser::dumps(o3d::Bool humanize)
+{
+    o3d::String content;
+
+    // @todo
+
+    return content;
+}
+
+void JsonParser::save(const o3d::Dir &basePath, const o3d::String &filename)
+{
+    o3d::File file(basePath.getFullPathName(), filename);
+    o3d::OutStream *os = o3d::FileManager::instance()->openOutStream(file.getFullFileName(), o3d::FileOutStream::CREATE);
+
+    o3d::String content = dumps(true);
+
+    os->writeString(content);
+    o3d::deletePtr(os);
 }

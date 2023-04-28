@@ -79,6 +79,11 @@ public:
      */
     virtual o3d::Bool isNeedUpdate(o3d::Double timestamp) const;
 
+    /**
+     * @brief lastPrice Last updated price.
+     */
+    virtual o3d::Double lastPrice() const = 0;
+
     const Strategy* strategy() const { return m_strategy; }
     Strategy* strategy() { return m_strategy; }
 

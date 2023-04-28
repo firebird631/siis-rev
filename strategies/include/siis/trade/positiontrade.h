@@ -1,30 +1,30 @@
 /**
- * @brief SiiS strategy margin trade model specialization.
- * @copyright Copyright (C) 2019 SiiS
+ * @brief SiiS strategy position trade model specialization.
+ * @copyright Copyright (C) 2023 SiiS
  * @author Frederic SCHERMA (frederic.scherma@gmail.com)
- * @date 2019-03-17
+ * @date 2023-04-28
  */
 
-#ifndef SIIS_MARGINTRADE_H
-#define SIIS_MARGINTRADE_H
+#ifndef SIIS_POSITIONTRADE_H
+#define SIIS_POSITIONTRADE_H
 
 #include "trade.h"
 
 namespace siis {
 
 /**
- * @brief Strategy margin trade model specialization.
+ * @brief Strategy position trade model specialization.
  * @author Frederic Scherma
- * @date 2019-03-17
+ * @date 2023-04-28
  */
-class SIIS_API MarginTrade : public Trade
+class SIIS_API PositionTrade : public Trade
 {
 public:
 
-    MarginTrade();
-    MarginTrade(o3d::Double timeframe);
+    PositionTrade();
+    PositionTrade(o3d::Double timeframe);
 
-    virtual ~MarginTrade() override;
+    virtual ~PositionTrade() override;
 
     //
     // processing
@@ -95,4 +95,4 @@ private:
 
 } // namespace siis
 
-#endif // SIIS_MARGINTRADE_H
+#endif // SIIS_POSITIONTRADE_H

@@ -23,6 +23,7 @@ namespace siis {
  * @brief Strategy market model.
  * @author Frederic Scherma
  * @date 2019-03-07
+ * @todo add sessions
  */
 class SIIS_API Market
 {
@@ -32,7 +33,8 @@ public:
     {
         MODE_BUY_SELL = 0,    //!< Asset buy/sell market.
         MODE_MARGIN = 1,      //!< Multiple position possible per market (hedging is another detail).
-        MODE_IND_MARGIN = 2   //!< Indivisible margin position.
+        MODE_IND_MARGIN = 2,  //!< Indivisible margin position.
+        MODE_POSITION = 3     //!< Individual position.
     };
 
     enum OrderCapacity
@@ -50,7 +52,7 @@ public:
     {
         CONTRACT_SPOT = 0,
         CONTRACT_CFD = 1,
-        CONTRACT_FUTUR = 2,
+        CONTRACT_FUTURE = 2,
         CONTRACT_OPTION = 3,
         CONTRACT_WARRANT = 4,
         CONTRACT_TURBO = 5
@@ -128,9 +130,9 @@ public:
     o3d::Double marginFactor() const { return m_marginFactor; }
 
     o3d::Double bid() const { return m_bid; }
-    o3d::Double ofr() const { return m_ofr; }
-    o3d::Double mid() const { return (m_bid + m_ofr) * 0.5; }
-    o3d::Double spread() const { return m_ofr - m_bid; }
+    o3d::Double ofr() const { return m_ask; }
+    o3d::Double mid() const { return (m_bid + m_ask) * 0.5; }
+    o3d::Double spread() const { return m_ask - m_bid; }
 
     o3d::Bool hedging() const { return m_hedging; }
 
@@ -181,7 +183,7 @@ public:
     void setTakerFee(o3d::Double rate, o3d::Double commission, const o3d::Double limits[2]);
 
     void setState(o3d::Double baseExchangeRate, o3d::Bool tradeable);
-    void setPrice(o3d::Double bid, o3d::Double ofr, o3d::Double timestamp);
+    void setPrice(o3d::Double bid, o3d::Double ask, o3d::Double timestamp);
 
     void setPriceFilter(const o3d::Double filter[3]);  //!< min,max,step
     void setQtyFilter(const o3d::Double filter[3]);  //!< min,max,step
@@ -195,14 +197,14 @@ public:
      * @brief openExecPrice Return the execution price if an order open a position.
      * @param direction
      * @return Execution price if an order open a position.
-     * It depend of the direction of the order and the market bid/ofr prices.
-     * If position is long, then returns the market ofr price.
+     * It depend of the direction of the order and the market bid/ask prices.
+     * If position is long, then returns the market ask price.
      * If position is short, then returns the market bid price.
      */
     o3d::Double openExecPrice(o3d::Int32 direction) const
     {
         if (direction > 0) {
-            return m_ofr;
+            return m_ask;
         } else if (direction < 0) {
             return m_bid;
         } else {
@@ -214,16 +216,16 @@ public:
      * @brief closeExecPrice Return the execution price if an order/position is closing.
      * @param direction
      * @return Execution price if an order/position is closing.
-     * It depend of the direction of the order and the market bid/ofr prices.
+     * It depend of the direction of the order and the market bid/ask prices.
      * If position is long, then returns the market bid price.
-     * If position is short, then returns the market ofr price.
+     * If position is short, then returns the market ask price.
      */
     o3d::Double closeExecPrice(o3d::Int32 direction) const
     {
         if (direction > 0) {
             return m_bid;
         } else if (direction < 0) {
-            return m_ofr;
+            return m_ask;
         } else {
             return 0.0;
         }
@@ -267,8 +269,8 @@ public:
     const TickArray& lastTicks() { return m_ticks; }
 
     /**
-     * @brief lastOhlc Return the last received array of OHLC for a specified type (mid, bid or ofr) for reads.
-     * @param ohlcType Mid, bid or ofr.
+     * @brief lastOhlc Return the last received array of OHLC for a specified type (mid, bid or ask) for reads.
+     * @param ohlcType Mid, bid or ask.
      */
     const OhlcArray& lastOhlc(Ohlc::Type ohlcType) { return m_ohlcs[ohlcType]; }
 
@@ -279,7 +281,7 @@ public:
 
     /**
      * @brief swapOhlc Get the OHLC buffer fro writting from the handler/connector or any other original source.
-     * @param ohlcType Mid, bid or ofr.
+     * @param ohlcType Mid, bid or ask.
      */
     OhlcArray& getOhlcBuffer(Ohlc::Type ohlcType) { return m_ohlcs[ohlcType]; }
 
@@ -310,7 +312,7 @@ private:
     o3d::Double m_marginFactor;
 
     o3d::Double m_bid;
-    o3d::Double m_ofr;
+    o3d::Double m_ask;
 
     o3d::Bool m_hedging;
 

@@ -80,8 +80,6 @@ o3d::Bool StdAnalyser::process(o3d::Double timestamp, o3d::Double lastTimestamp)
         return false;
     }
 
-    if (lastTimestamp)
-
     m_price.compute(m_ohlc);
     m_volume.compute(m_ohlc);
 
@@ -90,6 +88,7 @@ o3d::Bool StdAnalyser::process(o3d::Double timestamp, o3d::Double lastTimestamp)
 
     TradeSignal tradeSignal = compute(timestamp, lastInputTimestamp);
 
+    // @todo this doesnt work because each time a candle is closed a new one is opened
     if (m_price.consolidated()) {
         // last OHLC is consolidated then the next timestamp is incremented by timeframe.
         processCompleted(lastInputTimestamp + timeframe());
@@ -125,4 +124,9 @@ o3d::Bool StdAnalyser::process(o3d::Double timestamp, o3d::Double lastTimestamp)
         // no new signal
         return false;
     }
+}
+
+o3d::Double StdAnalyser::lastPrice() const
+{
+    return m_price.close().getSize() ? m_price.close().getLast() : 0.0;
 }

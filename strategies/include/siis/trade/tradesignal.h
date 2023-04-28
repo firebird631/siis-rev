@@ -36,6 +36,8 @@ public:
         m_timestamp(timestamp),
         m_direction(0),
         m_price(0),
+        m_limitPrice(0),
+        m_stopPrice(0),
         m_stopLossPrice(0),
         m_takeProfitPrice(0)
     {
@@ -47,6 +49,8 @@ public:
         m_timestamp(dup.m_timestamp),
         m_direction(dup.m_direction),
         m_price(dup.m_price),
+        m_limitPrice(dup.m_limitPrice),
+        m_stopPrice(dup.m_stopPrice),
         m_stopLossPrice(dup.m_stopLossPrice),
         m_takeProfitPrice(dup.m_takeProfitPrice)
     {
@@ -59,6 +63,8 @@ public:
         m_timestamp = dup.m_timestamp;
         m_direction = dup.m_direction;
         m_price = dup.m_price;
+        m_limitPrice = dup.m_limitPrice;
+        m_stopPrice = dup.m_stopPrice;
         m_stopLossPrice = dup.m_stopLossPrice;
         m_takeProfitPrice = dup.m_takeProfitPrice;
 
@@ -90,9 +96,19 @@ public:
     void setShort() { m_direction = SHORT; }
     void setSell() { m_direction = SHORT; }
 
+    o3d::Double signalPrice() const { return m_price; }
     o3d::Double price() const { return m_price; }
     o3d::Double p() const { return m_price; }
     void setPrice(o3d::Double p) { m_price = p; }
+    void setEntryPrice(o3d::Double p) { m_price = p; }
+
+    o3d::Double limitPrice() const { return m_limitPrice; }
+    o3d::Double lp() const { return m_limitPrice; }
+    void setLimitPrice(o3d::Double p) { m_limitPrice = p; }
+
+    o3d::Double stopPrice() const { return m_stopPrice; }
+    o3d::Double sp() const { return m_stopPrice; }
+    void setStopPrice(o3d::Double p) { m_stopPrice = p; }
 
     o3d::Double stopLossPrice() const { return m_stopLossPrice; }
     o3d::Double stopLoss() const { return m_stopLossPrice; }
@@ -124,9 +140,11 @@ private:
 
     o3d::Int32 m_direction;
 
-    o3d::Double m_price;
-    o3d::Double m_stopLossPrice;
-    o3d::Double m_takeProfitPrice;
+    o3d::Double m_price;            //<! price at the moment of the signal
+    o3d::Double m_limitPrice;       //!< if limit entry this price must be precised
+    o3d::Double m_stopPrice;        //!< if stop entry or stop-limit entry
+    o3d::Double m_stopLossPrice;    //!< to set up an initial stop-loss price
+    o3d::Double m_takeProfitPrice;  //!< to set up an initial take-profit price
 
     // std::list<Condition*> m_conditions;
 };

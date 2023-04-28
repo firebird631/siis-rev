@@ -75,11 +75,32 @@ public:
     {
     }
 
+    void reset()
+    {
+        timestamp = TIMESTAMP_UNDEFINED;
+        id = -1;
+        orderType = ORDER_UNDEFINED;
+        direction = UNDEFINED;
+        orderQuantity = QUANTITY_UNDEFINED;
+        orderPrice = PRICE_UNDEFINED;
+        stopLossPrice = PRICE_UNDEFINED;
+        limitPrice = PRICE_UNDEFINED;
+        timeInForce = TIME_IN_FORCE_UNDEFINED;
+        priceType = PRICE_TYPE_UNDEFINED;
+        postOnly = FLAG_UNDEFINED;
+        closeOnly = FLAG_UNDEFINED;
+        execPrice = PRICE_UNDEFINED;
+        avgPrice = PRICE_UNDEFINED;
+        filled = QUANTITY_UNDEFINED;
+        cumulativeFilled = QUANTITY_UNDEFINED;
+        commissionAmount = QUANTITY_UNDEFINED;
+    }
+
     o3d::Double timestamp;   //!< timestamp of the operation
 
     o3d::Int32 id;           //!< internal integer unique id
 
-    o3d::String orderId;     //!< must always be valid
+    o3d::String orderId;     //!< to retrieve it from the distant exchange
     o3d::String orderRefId;  //!< id of the order that as referenced this one
 
     o3d::String marketId;    //!< empty means not defined

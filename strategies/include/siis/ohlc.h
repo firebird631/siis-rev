@@ -1,5 +1,5 @@
 /**
- * @brief SiiS strategy bid or mid or ofr OHLC model and array.
+ * @brief SiiS strategy bid or mid or ask OHLC model and array.
  * @copyright Copyright (C) 2019 SiiS
  * @author Frederic SCHERMA (frederic.scherma@gmail.com)
  * @date 2019-03-05
@@ -19,7 +19,7 @@ using o3d::MemoryManager;
 namespace siis {
 
 /**
- * @brief SiiS strategy bid or mid or ofr OHLC model and array.
+ * @brief SiiS strategy bid or mid or ask OHLC model and array.
  * @author Frederic Scherma
  * @date 2019-03-07
  * It contain 8 double values arranged : timestamp, timeframe, open, high, low, close, volume, ended.

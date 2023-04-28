@@ -18,7 +18,6 @@ namespace siis {
 static const char* MaAdxParameters = R"JSON(
 {
     "reversal": true,
-    "pyramided": 0,
     "hedging": false,
     "max-trades": 3,
     "trade-delay": 30,

@@ -18,17 +18,16 @@ namespace siis {
 static const char* IndiceAlphaParameters = R"JSON(
 {
     "reversal": true,
-    "pyramided": 0,
     "hedging": false,
     "max-trades": 3,
     "trade-delay": 30,
-    "minTimeframe": 0,
+    "min-timeframe": 0,
     "need-update": false,
     "baseTimeframe": "t",
-    "minTradedTimeframe': "1m",
-    "maxTradedTimeframe': "1m",
-    "minVol24h": 0,
-    "minPrice": 0,
+    "min-traded-timeframe': "1m",
+    "max-traded-timeframe': "1m",
+    "min-vol-24h": 0,
+    "min-price": 0,
     "timeframes": {
         "weekly": {
             "enabled": true,

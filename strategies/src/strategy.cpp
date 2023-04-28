@@ -136,15 +136,15 @@ void Strategy::addBidOhlcDataSource(o3d::Double timeframe)
     m_dataSources.push_back(DataSource(DataSource::OHLC_BID, timeframe));
 }
 
-void Strategy::addOfrOhlcDataSource(o3d::Double timeframe)
+void Strategy::addAskOhlcDataSource(o3d::Double timeframe)
 {
     for (DataSource ds : m_dataSources) {
-        if (ds.type == DataSource::OHLC_OFR) {
+        if (ds.type == DataSource::OHLC_ASK) {
             return;
         }
     }
 
-    m_dataSources.push_back(DataSource(DataSource::OHLC_OFR, timeframe));
+    m_dataSources.push_back(DataSource(DataSource::OHLC_ASK, timeframe));
 }
 
 void Strategy::addOrderBookDataSource(o3d::Int32 depth)

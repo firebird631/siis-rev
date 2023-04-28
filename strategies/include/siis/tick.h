@@ -1,5 +1,5 @@
 /**
- * @brief SiiS strategy bid/ofr tick model and array.
+ * @brief SiiS strategy bid/ask tick model and array.
  * @copyright Copyright (C) 2019 SiiS
  * @author Frederic SCHERMA (frederic.scherma@gmail.com)
  * @date 2019-03-07
@@ -20,10 +20,10 @@ using o3d::MemoryManager;
 namespace siis {
 
 /**
- * @brief SiiS strategy price bid/ofr model and array
+ * @brief SiiS strategy price bid/ask model and array
  * @author Frederic Scherma
  * @date 2019-03-07
- * It contain 6 double values arranged : timestamp, bid, ofr, last, volume, buy/sell.
+ * It contain 6 double values arranged : timestamp, bid, ask, last, volume, buy/sell.
  * Plus 2 ignored double for align.
  */
 class SIIS_API Tick
@@ -72,11 +72,11 @@ public:
         memcpy(D, d, 6*sizeof(o3d::Double));
     }
 
-    inline void set(o3d::Double ts, o3d::Double bid, o3d::Double ofr, o3d::Double last, o3d::Double vol, o3d::Int8 bos)
+    inline void set(o3d::Double ts, o3d::Double bid, o3d::Double ask, o3d::Double last, o3d::Double vol, o3d::Int8 bos)
     {
         D[0] = ts;
         D[1] = bid;
-        D[2] = ofr;
+        D[2] = ask;
         D[3] = last;
         D[4] = vol;
         D[5] = static_cast<o3d::Double>(bos);

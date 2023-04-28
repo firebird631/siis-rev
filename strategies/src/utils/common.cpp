@@ -72,7 +72,7 @@ o3d::String siis::marketContractToStr(o3d::Int32 marketContract)
     switch (marketContract) {
         case Market::CONTRACT_SPOT: return "spot";
         case Market::CONTRACT_CFD: return "cfd";
-        case Market::CONTRACT_FUTUR: return "futur";
+        case Market::CONTRACT_FUTURE: return "futur";
         case Market::CONTRACT_OPTION: return "option";
         case Market::CONTRACT_WARRANT: return "warrant";
         case Market::CONTRACT_TURBO: return "turbo";

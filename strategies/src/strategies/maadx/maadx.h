@@ -60,7 +60,6 @@ public:
 private:
 
     o3d::Bool m_reversal;
-    o3d::Bool m_pyramided;
     o3d::Bool m_hedging;
     o3d::Int32 m_maxTrades;
     o3d::Double m_tradeDelay;
@@ -75,12 +74,14 @@ private:
     MaAdxSigAnalyser *m_sigAnalyser;
     MaAdxConfAnalyser *m_confAnalyser;
 
+    TradeSignal m_lastSignal;
+
     void orderEntry(o3d::Double timestamp,
                     o3d::Double timeframe,
                     o3d::Int32 direction,
                     o3d::Double price,
-                    o3d::Double limitPrice,
-                    o3d::Double stopPrice);
+                    o3d::Double takeProfitPrice,
+                    o3d::Double stopLossPrice);
 
     void orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price);
 

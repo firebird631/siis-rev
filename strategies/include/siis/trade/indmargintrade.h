@@ -32,16 +32,14 @@ public:
     // processing
     //
 
-    virtual void open(
-            TraderProxy *trader,
+    virtual void open(TraderProxy *trader,
             Market *market,
             o3d::Int32 direction,
             OrderType orderType,
             o3d::Double orderPrice,
             o3d::Double quantity,
-            o3d::Double stopLossPrice,
             o3d::Double takeProfitPrice,
-            o3d::Double leverage = 1.0) override;
+            o3d::Double stopLossPrice) override;
 
     virtual void remove(TraderProxy *trader) override;
     virtual void cancelOpen(TraderProxy *trader) override;

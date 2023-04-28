@@ -1,0 +1,8 @@
+- gestion des trades en local (paper trader ultra rapide)
+- écritures des stats et performances
+    - priorité pour le backtest/learning
+- gestion du cycle de vie (fin de vie des trades par le tradeManager/traderProxy/local
+- réécrire le fichier de learning en fin de processus avec les stats et revision datetime
+- handler()->traderProxy()->freeTrade(trade); quand un trade est supprimé totalement (donc après que le localtrader ou distanttrader)
+
+- fixer les size sur connectormessagereceivetickaggreged.cpp

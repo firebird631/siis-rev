@@ -7,6 +7,8 @@
 
 #include "siis/trade/assettrade.h"
 #include "siis/utils/common.h"
+#include "siis/connector/traderproxy.h"
+#include "siis/market.h"
 
 using namespace siis;
 
@@ -33,18 +35,22 @@ AssetTrade::~AssetTrade()
 
 }
 
-void AssetTrade::open(
-        TraderProxy *trader,
+void AssetTrade::open(TraderProxy *trader,
         Market *market,
         o3d::Int32 direction,
         Trade::OrderType orderType,
         o3d::Double orderPrice,
         o3d::Double quantity,
-        o3d::Double stopLossPrice,
         o3d::Double takeProfitPrice,
-        o3d::Double leverage)
+        o3d::Double stopLossPrice)
 {
+    // @todo
+    m_direction = direction;
+    m_orderQuantity = quantity;
+    m_takeProfitPrice = takeProfitPrice;
+    m_stopLossPrice = stopLossPrice;
 
+    // m_openTimeStamp = trader->createOrder()
 }
 
 void AssetTrade::remove(TraderProxy *trader)
@@ -74,7 +80,8 @@ void AssetTrade::modifyStopLoss(TraderProxy *trader, Market *market, o3d::Double
 
 void AssetTrade::close(TraderProxy *trader, Market *market)
 {
-
+    // @todo
+    m_filledExitQuantity = m_orderQuantity;
 }
 
 o3d::Bool AssetTrade::canDelete() const

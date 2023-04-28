@@ -106,7 +106,7 @@ public:
         qtyFilter{QUANTITY_UNDEFINED, QUANTITY_UNDEFINED, QUANTITY_UNDEFINED},
         notionalFilter{PRICE_UNDEFINED, PRICE_UNDEFINED, PRICE_UNDEFINED},
         bid(PRICE_UNDEFINED),
-        ofr(PRICE_UNDEFINED)
+        ask(PRICE_UNDEFINED)
     {
     }
 
@@ -174,7 +174,7 @@ public:
     o3d::Double notionalFilter[3];  //!< min/max/step for notional filter
 
     o3d::Double bid;
-    o3d::Double ofr;
+    o3d::Double ask;
 
     Fee fees[2];  //!< maker is index 0, taker is 1
 };

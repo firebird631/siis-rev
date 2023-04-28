@@ -18,6 +18,7 @@
 #include "siis/market.h"
 #include "siis/config/config.h"
 #include "siis/datasource.h"
+#include "siis/statistics/statistics.h"
 
 namespace siis {
 
@@ -134,7 +135,7 @@ public:
      * @brief onTicksUpdate Update from the market data at each new Ohlc data.
      * @param timestamp Current timestamp.
      * @param timeframe Timeframe of the Ohlc.
-     * @param ohlcType Ohlc type (mid, bid, ofr).
+     * @param ohlcType Ohlc type (mid, bid, ask).
      * Do here the iteration data preparation (OHLC, ticks array, and other any data sources)
      * that need to be ready for the process method.
      */
@@ -240,7 +241,7 @@ protected:
     void addTickDataSource();
     void addMidOhlcDataSource(o3d::Double timeframe);
     void addBidOhlcDataSource(o3d::Double timeframe);
-    void addOfrOhlcDataSource(o3d::Double timeframe);
+    void addAskOhlcDataSource(o3d::Double timeframe);
     void addOrderBookDataSource(o3d::Int32 depth);
 
     //
@@ -266,6 +267,8 @@ private:
 
     State m_curState;
     State m_nextState;
+
+    Statistics m_stats;
 
     o3d::StringMap<o3d::String> m_properties;
     std::list<DataSource> m_dataSources;

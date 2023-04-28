@@ -93,7 +93,7 @@ private:
         class TickStream *tickStream;
         class Strategy *strategy;
         class Optimizer *optimizer;
-        // class OhlcStream *ohlcStream;
+        class OhlcStream *ohlcStream;
     };
 
     o3d::StringMap<OptimizerElt> m_optimizers;

@@ -102,6 +102,8 @@ void Backtest::init(
         strategy->prepareMarketData(m_connector, m_database);
         strategy->finalizeMarketData(m_connector, m_database);
 
+        market->setModeAndOrders(static_cast<Market::Mode>(mc->marketMode), Market::ORDER_ALL);
+
         for (DataSource ds : strategy->getDataSources()) {
             // create the stream (for now only tick stream, but could offer OHLC too, but no possibility for order-book history)
             if (ds.type == DataSource::TICK) {
@@ -114,7 +116,7 @@ void Backtest::init(
                 // @todo fetch and stream ...
             } else if (ds.type == DataSource::OHLC_BID) {
                 // @todo ...
-            } else if (ds.type == DataSource::OHLC_OFR) {
+            } else if (ds.type == DataSource::OHLC_ASK) {
                 // @todo ...
             } else if (ds.type == DataSource::ORDER_BOOK) {
                 // not possible for now
@@ -285,7 +287,10 @@ void Backtest::log(o3d::Double timeframe, const o3d::String &marketId, const o3d
 {
     // @todo throught the monitor send a log message
     // m_monitor.log(timestamp(), timeframe, marketId, channel, msg);
-    m_displayer->display(channel, o3d::String("[{0}] (tf={1}) (on={2}) : {3}").arg(timestamp())
+    o3d::DateTime dt;
+    dt.fromTime(timestamp(), true);
+
+    m_displayer->display(channel, o3d::String("[{0}] (tf={1}) (on={2}) : {3}").arg(dt.buildString("%Y-%m-%d %H:%M:%S"))
                          .arg(siis::timeframeToStr(timeframe)).arg(marketId).arg(msg));
 }
 
