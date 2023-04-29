@@ -230,6 +230,11 @@ public:
      */
     o3d::Double lastTimestamp() const { return m_lastTimestamp; }
 
+    /**
+     * @brief statistics per strategy statistics.
+     */
+    const Statistics& statistics() const { return m_stats; }
+
 protected:
 
     void setProperty(const o3d::String propertyName, const o3d::String value);

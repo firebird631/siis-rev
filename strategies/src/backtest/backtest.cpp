@@ -140,17 +140,30 @@ void Backtest::init(
     m_cache = cache;
 }
 
-void Backtest::terminate()
+void Backtest::terminate(Config *config)
 {
+    GlobalStatistics globalStats;
+    AccountStatistics accountStats;  // @todo from paper trader
+
     // delete strategies and markets
     for (auto pair : m_strategies) {
-        pair.second.strategy->terminate(m_connector, m_database);
+        Strategy *strategy = pair.second.strategy;
+
+        strategy->terminate(m_connector, m_database);
+
+        // compute final statistics
+        globalStats.add(strategy->statistics());
 
         o3d::deletePtr(pair.second.strategy);
         o3d::deletePtr(pair.second.market);
         o3d::deletePtr(pair.second.tickStream);
     }
     m_strategies.clear();
+
+    // if learning write final
+    if (config->getLearningFilename().isValid()) {
+        config->overwriteLearningFile(globalStats, accountStats);
+    }
 
     // delete before primary connector
     if (m_traderProxy) {

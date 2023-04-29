@@ -190,7 +190,7 @@ o3d::Bool StrategyConfig::parseOverrides(const Config *config)
         parseProfileOverrides(config->getProfilesPath(), config->getProfileFilename());
     }
     if (config->getLearningFilename().isValid()) {
-        parseLearningOverrides(config->getStrategiesPath(), config->getLearningFilename());
+        parseLearningOverrides(config->getLearningPath(), config->getLearningFilename());
     }
 
     return true;

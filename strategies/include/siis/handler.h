@@ -44,7 +44,7 @@ public:
             Database *database,
             Cache *cache) = 0;
 
-    virtual void terminate() = 0;
+    virtual void terminate(Config *config) = 0;
 
     /**
      * @brief start Start execution thread(s), do the sync in sync method.

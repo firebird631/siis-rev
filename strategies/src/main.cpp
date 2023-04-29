@@ -324,7 +324,7 @@ public:
         }
 
         if (m_handler) {
-            m_handler->terminate();
+            m_handler->terminate(m_config);
             o3d::deletePtr(m_handler);
         }
 

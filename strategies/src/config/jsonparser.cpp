@@ -72,11 +72,15 @@ o3d::Bool JsonParser::parse(const o3d::Dir &basePath, const o3d::String &filenam
 
 o3d::String JsonParser::dumps(o3d::Bool humanize)
 {
-    o3d::String content;
+    Json::StreamWriterBuilder builder;
+    builder["indentation"] = "    ";
+    Json::StreamWriter *writer = builder.newStreamWriter();
+    std::stringstream s;
+    writer->write(*m_root, &s);
 
-    // @todo
+    o3d::deletePtr(writer);
 
-    return content;
+    return s.str().data();
 }
 
 void JsonParser::save(const o3d::Dir &basePath, const o3d::String &filename)

@@ -41,7 +41,7 @@ public:
             Database *database,
             Cache *cache) override;
 
-    virtual void terminate() override;
+    virtual void terminate(Config *config) override;
 
     virtual void start() override;
     virtual void stop() override;

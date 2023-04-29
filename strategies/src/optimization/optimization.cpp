@@ -141,7 +141,7 @@ void Optimization::init(
     m_cache = cache;
 }
 
-void Optimization::terminate()
+void Optimization::terminate(Config *config)
 {
     // delete strategies and markets
     for (auto pair : m_optimizers) {

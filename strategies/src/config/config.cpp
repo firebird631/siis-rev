@@ -108,7 +108,7 @@ void Config::initPaths(const o3d::Dir &basePath)
     }
     m_reportsPath.cd("reports");
 
-    m_learningPath = m_configPath;
+    m_learningPath = basePath;
     if (m_learningPath.check("learning") != 0) {
         m_learningPath.makeDir("learning");
     }
@@ -643,15 +643,16 @@ void Config::overwriteLearningFile(const GlobalStatistics &global, const Account
                 samples.append(s);
             }
 
-            root["performance"] = global.performance;
-            root["max-draw-down"] = global.maxDrawDown;
-            // root["initial-equity"] = account.initialEquity;
-            root["final-equity"] = account.finalEquity;
+            // @todo format equity and pnl according to account currency precision
+            root["performance"] = o3d::String::print("%.2f%%", global.performance * 100).toAscii().getData();
+            root["max-draw-down"] = o3d::String::print("%.2f%%", global.maxDrawDown * 100).toAscii().getData();
+            // root["initial-equity"] = o3d::String::print("%.2f", account.initialEquity).toAscii().getData();
+            root["final-equity"] = o3d::String::print("%.2f", account.finalEquity).toAscii().getData();
             root["stats-samples"] = samples;
-            root["profit-loss"] = account.profitLoss;
+            root["profit-loss"] = o3d::String::print("%.2f", account.profitLoss).toAscii().getData();
 
-            root["best"] = global.best;
-            root["worst"] = global.worst;
+            root["best"] = o3d::String::print("%.2f%%", global.best * 100).toAscii().getData();
+            root["worst"] = o3d::String::print("%.2f%%", global.worst * 100).toAscii().getData();
             root["succeed-trades"] = global.succeedTrades;
             root["failed-trades"] = global.failedTrades;
             root["roe-trades"] = global.roeTrades;

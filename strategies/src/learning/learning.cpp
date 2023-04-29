@@ -137,7 +137,7 @@ void Learning::init(Displayer *displayer, Config *config, StrategyCollection *co
     m_cache = cache;
 }
 
-void Learning::terminate()
+void Learning::terminate(Config *config)
 {
     // delete strategies and markets
     for (auto pair : m_learnings) {

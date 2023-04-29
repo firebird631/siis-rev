@@ -79,7 +79,7 @@ void Live::init(
     m_database = database;
 }
 
-void Live::terminate()
+void Live::terminate(Config *config)
 {
     // delete strategies and markets
     for (auto pair : m_strategies) {
