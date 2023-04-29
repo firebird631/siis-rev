@@ -217,6 +217,9 @@ void StdTradeManager::closeAllByDirection(o3d::Int32 dir, o3d::Double timestamp,
             continue;
         }
 
+//        o3d::String msg = o3d::String("#{0}").arg(trade->id());
+//        m_strategy->log(trade->tf(), "trade-exit", msg);
+
         if (trade->isActive()) {
             // found : apply
             trade->close(m_strategy->handler()->traderProxy(), m_strategy->market());

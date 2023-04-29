@@ -301,7 +301,7 @@ TradeSignal MaAdx::compteSignal(o3d::Double timestamp) const
 
     if (m_trendAnalyser->trend() > 0) {
         if (m_sigAnalyser->adx() > 25) {
-            if (m_sigAnalyser->sig() > 0) {
+            if (m_sigAnalyser->sig() > 0 && m_sigAnalyser->sig() <= ADX_MAX) {
                 if (m_confAnalyser->confirmation() > 0) {
                     // keep only one signal per timeframe
                     if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
@@ -316,7 +316,7 @@ TradeSignal MaAdx::compteSignal(o3d::Double timestamp) const
         }
     } else if (m_trendAnalyser->trend() < 0) {
         if (m_sigAnalyser->adx() > 25) {
-            if (m_sigAnalyser->sig() < 0) {
+            if (m_sigAnalyser->sig() < 0 && m_sigAnalyser->sig() <= ADX_MAX) {
                 if (m_confAnalyser->confirmation() < 0) {
                     // keep only one signal per timeframe
                     if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {

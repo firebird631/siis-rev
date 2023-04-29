@@ -70,13 +70,9 @@ TradeSignal MaAdxSigAnalyser::compute(o3d::Double timestamp, o3d::Double lastTim
         // @todo need to take either the first cross signal either the last of the candle
         if (hc > 0) {
             m_trend = 1;
-            //    o3d::Int32 size = price().close().getSize();
-            //    printf("+++ %f %i %f %f - %f %f - %f %f\n", timestamp, size, price().close()[size-2], price().close()[size-1], m_fast_h_ma.hma()[size-2], m_fast_h_ma.hma()[size-1], price().timestamp()[size-2], price().timestamp()[size-1]);
             m_sig = 1;
         } else if (lc < 0) {
             m_trend = -1;
-            //    o3d::Int32 size = price().close().getSize();
-            //    printf("--- %f %i %f %f - %f %f - %f %f\n", timestamp, size, price().close()[size-2], price().close()[size-1], m_fast_h_ma.hma()[size-2], m_fast_h_ma.hma()[size-1], price().timestamp()[size-2], price().timestamp()[size-1]);
             m_sig = -1;
         } else {
             m_sig = 0;
@@ -88,7 +84,6 @@ TradeSignal MaAdxSigAnalyser::compute(o3d::Double timestamp, o3d::Double lastTim
 
 o3d::Double MaAdxSigAnalyser::takeProfit(o3d::Double profitScale) const
 {
-printf("%f %f - ", m_fast_h_ma.last(), m_fast_l_ma.last());
     if (m_trend > 0) {
         return price().close().last() + profitScale * (m_fast_h_ma.last() - m_fast_l_ma.last());
     } else if (m_trend < 0) {

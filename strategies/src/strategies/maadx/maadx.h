@@ -59,6 +59,8 @@ public:
 
 private:
 
+    static constexpr o3d::Double ADX_MAX = 75.0;
+
     std::vector<Analyser*> m_analysers;
     StdTradeManager *m_tradeManager;
 
