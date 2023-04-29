@@ -82,9 +82,6 @@ public:
     static constexpr o3d::Int32 MAX = 1;   //!< for price and notional filter
     static constexpr o3d::Int32 STEP = 2;  //!< for price and notional filter
 
-    static constexpr o3d::Int32 MAKER = 0;   //!< for fees
-    static constexpr o3d::Int32 TAKER = 1;   //!< for fees
-
     MarketSignal(Event _event) :
         BaseSignal(MARKET),
         event(_event),
@@ -109,13 +106,13 @@ public:
     {
     }
 
-    struct Part
+    struct Symbol
     {
         o3d::String symbol;    //!< symbol
         o3d::Int32 precision;  //!< precision of the decimal
         o3d::Double vol24h;    //!< UTC 24h volume change
 
-        Part() :
+        Symbol() :
             precision(VALUE_UNDEFINED),
             vol24h(QUANTITY_UNDEFINED)
         {
@@ -143,6 +140,9 @@ public:
     o3d::Int32 id;    //!< internal unique integer id
 
     o3d::String marketId;
+    o3d::String pair;
+    o3d::String alias;
+
     o3d::Int8 open;   //!< 1 if the market is tradable/open, 0 mean currently closed/delayed.
 
     MarketType marketType;
@@ -156,8 +156,9 @@ public:
 
     o3d::Double expiry;   //!< expiry UTC futur timestamp (0 for never, -1 if not defined)
 
-    Part base;   //!< details on the base symbol
-    Part quote;  //!< details on the quote symbol
+    Symbol base;        //!< details on the base symbol
+    Symbol quote;       //!< details on the quote symbol
+    Symbol settlement;  //!< details on the settlement symbol
 
     o3d::Double contractSize;
     o3d::Double lotSize;
@@ -175,7 +176,8 @@ public:
     o3d::Double bid;
     o3d::Double ask;
 
-    Fee fees[2];  //!< maker is index 0, taker is 1
+    Fee takerFees;
+    Fee makerFees;
 };
 
 } // namespace siis

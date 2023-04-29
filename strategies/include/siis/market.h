@@ -92,15 +92,31 @@ public:
         UNIT_SHARES = 2       //!< amount is in currency (quote)
     };
 
-    struct Part
+    struct Symbol
     {
         o3d::String symbol;    //!< symbol
         o3d::Int32 precision;  //!< precision of the decimal
         o3d::Double vol24h;    //!< UTC 24h volume change
 
-        Part() :
+        Symbol() :
             precision(8),
             vol24h(0.0)
+        {
+        }
+    };
+
+    struct Filter
+    {
+        o3d::Double min;
+        o3d::Double max;
+        o3d::Double step;
+        o3d::Int32 precision;
+
+        Filter() :
+            min(0.0),
+            max(0.0),
+            step(0.0),
+            precision(0)
         {
         }
     };
@@ -121,17 +137,19 @@ public:
     };
 
     Market(const o3d::String &marketId,
-           const o3d::String &symbol,
+           const o3d::String &pair,
            const o3d::String &baseSymbol,
            const o3d::String &quoteSymbol);
 
     ~Market();
 
     const o3d::String& marketId() const { return m_marketId; }
-    const o3d::String& symbol() const { return m_symbol; }
+    const o3d::String& pair() const { return m_pair; }
+    const o3d::String& alias() const { return m_alias; }
 
-    const Part& base() const { return m_base; }
-    const Part& quote() const { return m_quote; }
+    const Symbol& base() const { return m_base; }
+    const Symbol& quote() const { return m_quote; }
+    const Symbol& settlement() const { return m_settlement; }
 
     o3d::Bool tradeable() const { return m_tradeable; }
 
@@ -152,20 +170,23 @@ public:
 
     o3d::Bool hedging() const { return m_hedging; }
 
-    const Fee& makerFee() const { return m_fees[0]; }
-    const Fee& takerFee() const { return m_fees[1]; }
+    const Fee& makerFee() const { return m_makerFees; }
+    const Fee& takerFee() const { return m_takerFees; }
 
-    o3d::Double minQty() const { return m_qtyFilter[0]; }
-    o3d::Double maxQty() const { return m_qtyFilter[1]; }
-    o3d::Double stepQty() const { return m_qtyFilter[2]; }
+    o3d::Double minQty() const { return m_qtyFilter.min; }
+    o3d::Double maxQty() const { return m_qtyFilter.max; }
+    o3d::Double stepQty() const { return m_qtyFilter.step; }
+    o3d::Double precisionQty() const { return m_qtyFilter.precision; }
 
-    o3d::Double minPrice() const { return m_priceFilter[0]; }
-    o3d::Double maxPrice() const { return m_priceFilter[1]; }
-    o3d::Double stepPrice() const { return m_priceFilter[2]; }
+    o3d::Double minPrice() const { return m_priceFilter.min; }
+    o3d::Double maxPrice() const { return m_priceFilter.max; }
+    o3d::Double stepPrice() const { return m_priceFilter.step; }
+    o3d::Double precisionPrice() const { return m_priceFilter.precision; }
 
-    o3d::Double minNotional() const { return m_notionalFilter[0]; }
-    o3d::Double maxNotional() const { return m_notionalFilter[1]; }
-    o3d::Double stepNotional() const { return m_notionalFilter[2]; }
+    o3d::Double minNotional() const { return m_notionalFilter.min; }
+    o3d::Double maxNotional() const { return m_notionalFilter.max; }
+    o3d::Double stepNotional() const { return m_notionalFilter.step; }
+    o3d::Double precisionNotional() const { return m_notionalFilter.precision; }
 
     /**
      * @brief trade Trade capacities (spot, margin...)
@@ -209,12 +230,16 @@ public:
     void acquire() const { m_mutex.lock(); }
     void release() const { m_mutex.unlock(); }
 
+    void setPair(const o3d::String &pair);
+    void setAlias(const o3d::String &alias);
+
     void setCapacities(o3d::Int32 tradeCaps, o3d::Int32 orderCaps);
     void setTradeCapacities(o3d::Int32 tradeCaps);
     void setOrderCapacities(o3d::Int32 orderCaps);
 
     void setBaseInfo(const o3d::String &symbol, o3d::Int32 precision);
     void setQuoteInfo(const o3d::String &symbol, o3d::Int32 precision);
+    void setSettlementInfo(const o3d::String &symbol, o3d::Int32 precision);
 
     void setBaseVol24h(o3d::Double vol24h);
     void setQuoteVol24h(o3d::Double vol24h);
@@ -228,8 +253,8 @@ public:
     void setState(o3d::Double baseExchangeRate, o3d::Bool tradeable);
     void setPrice(o3d::Double bid, o3d::Double ask, o3d::Double timestamp);
 
-    void setPriceFilter(const o3d::Double filter[3]);  //!< min,max,step
-    void setQtyFilter(const o3d::Double filter[3]);  //!< min,max,step
+    void setPriceFilter(const o3d::Double filter[3]);     //!< min,max,step
+    void setQtyFilter(const o3d::Double filter[3]);       //!< min,max,step
     void setNotionalFilter(const o3d::Double filter[3]);  //!< min,max,step
 
     //
@@ -275,13 +300,54 @@ public:
     }
 
     /**
+     * @brief adjustPrice Adjust the price according to the precision.
+     * @param price
+     * @param displaySymbol Append the unit symbol.
+     * @return
+     */
+    o3d::Double adjustPrice(o3d::Double price) const;
+
+    /**
      * @brief formatPrice Format the price according to the precision.
+     * @param price
+     * @param displaySymbol Append the unit symbol.
+     * @return
+     */
+    o3d::String formatPrice(o3d::Double price, o3d::Bool displaySymbol=false) const;
+
+    /**
+     * @brief adjustQuotePrice Adjust the quote price according to the precision.
+     * @param price
+     * @param displaySymbol Append the unit symbol.
+     * @return
+     */
+    o3d::Double adjustQuotePrice(o3d::Double price) const;
+
+    /**
+     * @brief formatQuotePrice Format the quote price according to the precision.
+     * @param price
+     * @param displaySymbol Append the unit symbol.
+     * @return
+     */
+    o3d::String formatQuotePrice(o3d::Double price, o3d::Bool displaySymbol=false) const;
+
+    /**
+     * @brief adjustSettlementPrice Adjust the settlement price according to the precision.
      * @param price
      * @param useQuote True use quote display or quote, False base, None no symbol only price.
      * @param displaySymbol Append the unit symbol.
      * @return
      */
-    o3d::String formatPrice(o3d::Double price, o3d::Bool useQuote=true, o3d::Bool displaySymbol=false) const;
+    o3d::Double adjustSettlementPrice(o3d::Double price) const;
+
+    /**
+     * @brief formatSettlementPrice Format the settlement price according to the precision.
+     * @param price
+     * @param useQuote True use quote display or quote, False base, None no symbol only price.
+     * @param displaySymbol Append the unit symbol.
+     * @return
+     */
+    o3d::String formatSettlementPrice(o3d::Double price, o3d::Bool displaySymbol=false) const;
 
     /**
      * @brief adjustQty From quantity return the floor tradable quantity according to min, max and rounded to step size.
@@ -300,7 +366,13 @@ public:
     /**
      * @brief marginCost Compute and return the margin cost according to the given quantity and market details.
      */
-    o3d::Double marginCost(o3d::Double qty) const;
+    o3d::Double marginCost(o3d::Double qty, o3d::Double price) const;
+
+    /**
+     * @brief effectiveCost Compute and return the cost without the margin factor,
+     * according to the given quantity and market details.
+     */
+    o3d::Double effectiveCost(o3d::Double qty, o3d::Double price) const;
 
     //
     // processing
@@ -333,7 +405,8 @@ private:
     o3d::FastMutex m_mutex;
 
     o3d::String m_marketId;
-    o3d::String m_symbol;
+    o3d::String m_pair;
+    o3d::String m_alias;
 
     Type m_type;
     Contract m_contract;
@@ -359,14 +432,16 @@ private:
 
     o3d::Bool m_hedging;
 
-    Part m_base;
-    Part m_quote;
+    Symbol m_base;
+    Symbol m_quote;
+    Symbol m_settlement;
 
-    Fee m_fees[2];
+    Fee m_makerFees;
+    Fee m_takerFees;
 
-    o3d::Double m_priceFilter[3];     //!< min/max/step on base price
-    o3d::Double m_qtyFilter[3];       //!< min/max/step on base quantity
-    o3d::Double m_notionalFilter[3];  //!< min/max/step on notional price
+    Filter m_priceFilter;     //!< min/max/step on base price
+    Filter m_qtyFilter;       //!< min/max/step on base quantity
+    Filter m_notionalFilter;  //!< min/max/step on notional price
 
     TickArray m_ticks;
     OhlcArray m_ohlcs[Ohlc::NUM_TYPE];  //!< last ohlcs buffers (one per type but single source timeframe)

@@ -45,8 +45,8 @@ public:
 private:
 
     Hma m_slow_h_ma;
-    Hma m_slow_l_ma;
     Hma m_slow_m_ma;
+    Hma m_slow_l_ma;
 
     o3d::Int32 m_trend;
 };

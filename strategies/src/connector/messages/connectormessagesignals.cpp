@@ -84,9 +84,9 @@ void ConnectorMessageMarketSignal::initSizeReturn()
 	// timestamp, ...
     m_size_return += static_cast<o3d::Int32>(sizeof(o3d::Double)) * 19;
 	// string
-	m_size_return += static_cast<o3d::Int32>(sizeof(o3d::Int32));
-	// Part
-	m_size_return += static_cast<o3d::Int32>(sizeof(MarketSignal::Part)) * 2;
+    m_size_return += static_cast<o3d::Int32>(sizeof(o3d::Int32)) * 3;
+    // Symbols
+    m_size_return += static_cast<o3d::Int32>(sizeof(MarketSignal::Symbol)) * 3;
 	// Fee
 	m_size_return += static_cast<o3d::Int32>(sizeof(MarketSignal::Fee)) * 2;
 }
@@ -101,6 +101,8 @@ void ConnectorMessageMarketSignal::read(zmq::message_t *message)
 
 	m_signal->timestamp = readDouble();
 	m_signal->marketId = readString();
+    m_signal->pair = readString();
+    m_signal->alias = readString();
 	m_signal->open = readInt8();
 
 	m_signal->marketType = static_cast<MarketSignal::MarketType>(readInt8());
@@ -113,8 +115,9 @@ void ConnectorMessageMarketSignal::read(zmq::message_t *message)
 
 	m_signal->expiry = readDouble();
 
-    readPart(m_signal->base);
-    readPart(m_signal->quote);
+    readSymbol(m_signal->base);
+    readSymbol(m_signal->quote);
+    readSymbol(m_signal->settlement);
 
 	m_signal->contractSize = readDouble();
 	m_signal->lotSize = readDouble();
@@ -140,15 +143,15 @@ void ConnectorMessageMarketSignal::read(zmq::message_t *message)
 	m_signal->bid = readDouble();
 	m_signal->ask = readDouble();
 
-    readFee(m_signal->fees[0]);
-    readFee(m_signal->fees[1]);
+    readFee(m_signal->makerFees);
+    readFee(m_signal->takerFees);
 }
 
-void ConnectorMessageMarketSignal::readPart(MarketSignal::Part &part)
+void ConnectorMessageMarketSignal::readSymbol(MarketSignal::Symbol &symbol)
 {
-	part.symbol = readString();
-	part.precision = readInt32();
-	part.vol24h = readDouble();
+    symbol.symbol = readString();
+    symbol.precision = readInt32();
+    symbol.vol24h = readDouble();
 }
 
 void ConnectorMessageMarketSignal::readFee(MarketSignal::Fee &fee)

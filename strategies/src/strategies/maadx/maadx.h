@@ -68,6 +68,10 @@ private:
 
     TradeSignal m_lastSignal;
 
+    o3d::Double m_adxSig;
+    o3d::Double m_targetScale;
+    o3d::Double m_riskReward;
+
     void orderEntry(o3d::Double timestamp,
                     o3d::Double timeframe,
                     o3d::Int32 direction,

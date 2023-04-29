@@ -39,6 +39,9 @@ public:
         return *this;
     }
 
+    inline o3d::Double last() const { return m_size < 1 ? 0.0 : m_data[m_size-1]; }
+    inline o3d::Double prev() const { return m_size < 2 ? 0.0 : m_data[m_size-2]; }
+
     DataArray& operator*= (const DataArray &a);
     DataArray& operator*= (o3d::Double scale);
     DataArray& operator/= (const DataArray &a);

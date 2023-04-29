@@ -11,11 +11,11 @@
 using namespace siis;
 
 Market::Market(const o3d::String &marketId,
-               const o3d::String &symbol,
+               const o3d::String &pair,
                const o3d::String &baseSymbol,
                const o3d::String &quoteSymbol) :
     m_marketId(marketId),
-    m_symbol(symbol),
+    m_pair(pair),
     m_tradeCaps(TRADE_BUY_SELL),
     m_orderCaps(ORDER_ALL),
     m_lastTimestamp(0.0),
@@ -29,8 +29,9 @@ Market::Market(const o3d::String &marketId,
     m_bid(0.0),
     m_ask(0.0),
     m_hedging(false),
-    m_qtyFilter{0.0, 0.0, 0.0},
-    m_notionalFilter{0.0, 0.0, 0.0},
+    m_priceFilter(),
+    m_qtyFilter(),
+    m_notionalFilter(),
     m_ticks(512)
 {
     m_base.symbol = baseSymbol;
@@ -40,6 +41,16 @@ Market::Market(const o3d::String &marketId,
 Market::~Market()
 {
 
+}
+
+void Market::setPair(const o3d::String &pair)
+{
+    m_pair = pair;
+}
+
+void Market::setAlias(const o3d::String &alias)
+{
+    m_alias = alias;
 }
 
 void Market::setCapacities(o3d::Int32 tradeCaps, o3d::Int32 orderCaps)
@@ -68,6 +79,12 @@ void Market::setQuoteInfo(const o3d::String &symbol, o3d::Int32 precision)
 {
     m_quote.symbol = symbol.isValid() ? symbol : m_quote.symbol;
     m_quote.precision = precision;
+}
+
+void Market::setSettlementInfo(const o3d::String &symbol, o3d::Int32 precision)
+{
+    m_settlement.symbol = symbol.isValid() ? symbol : m_settlement.symbol;
+    m_settlement.precision = precision;
 }
 
 void Market::setBaseVol24h(o3d::Double vol24h)
@@ -103,23 +120,23 @@ void Market::setDetails(
 
 void Market::setMakerFee(o3d::Double rate, o3d::Double commission, const o3d::Double limits[])
 {
-    m_fees[0].rate = rate;
-    m_fees[0].commission = commission;
-    m_fees[0].limits[0] = limits[0];
-    m_fees[0].limits[1] = limits[1];
+    m_makerFees.rate = rate;
+    m_makerFees.commission = commission;
+    m_makerFees.limits[0] = limits[0];
+    m_makerFees.limits[1] = limits[1];
 }
 
 void Market::setTakerFee(o3d::Double rate, o3d::Double commission, const o3d::Double limits[])
 {
-    m_fees[1].rate = rate;
-    m_fees[1].commission = commission;
-    m_fees[1].limits[0] = limits[0];
-    m_fees[1].limits[1] = limits[1];
+    m_takerFees.rate = rate;
+    m_takerFees.commission = commission;
+    m_takerFees.limits[0] = limits[0];
+    m_takerFees.limits[1] = limits[1];
 }
 
 void Market::setState(o3d::Double baseExchangeRate, o3d::Bool tradeable)
 {
-    m_baseExchangeRate = baseExchangeRate >= 0.0 ? baseExchangeRate : m_baseExchangeRate;
+    m_baseExchangeRate = baseExchangeRate > 0.0 ? baseExchangeRate : m_baseExchangeRate;
     m_tradeable = tradeable;
 }
 
@@ -132,45 +149,73 @@ void Market::setPrice(o3d::Double bid, o3d::Double ask, o3d::Double timestamp)
 
 void Market::setPriceFilter(const o3d::Double filter[])
 {
-    m_priceFilter[0] = filter[0] >= 0.0 ? filter[0] : m_priceFilter[0];
-    m_priceFilter[1] = filter[1] >= 0.0 ? filter[1] : m_priceFilter[1];
-    m_priceFilter[2] = filter[2] >= 0.0 ? filter[2]: m_priceFilter[2];
+    m_priceFilter.min = filter[0] >= 0.0 ? filter[0] : m_priceFilter.min;
+    m_priceFilter.max = filter[1] >= 0.0 ? filter[1] : m_priceFilter.max;
+    m_priceFilter.step = filter[2] >= 0.0 ? filter[2]: m_priceFilter.step;
+    m_priceFilter.precision = m_priceFilter.step > 0 ? o3d::max(0, decimalPlace(m_priceFilter.step)) : 0;
 }
 
 void Market::setQtyFilter(const o3d::Double filter[])
 {
-    m_qtyFilter[0] = filter[0] >= 0.0 ? filter[0] : m_qtyFilter[0];
-    m_qtyFilter[1] = filter[1] >= 0.0 ? filter[1] : m_qtyFilter[1];
-    m_qtyFilter[2] = filter[2] >= 0.0 ? filter[2]: m_qtyFilter[2];
+    m_qtyFilter.min = filter[0] >= 0.0 ? filter[0] : m_qtyFilter.min;
+    m_qtyFilter.max = filter[1] >= 0.0 ? filter[1] : m_qtyFilter.max;
+    m_qtyFilter.step = filter[2] >= 0.0 ? filter[2]: m_qtyFilter.step;
+    m_qtyFilter.precision = m_qtyFilter.step > 0 ? o3d::max(0, decimalPlace(m_qtyFilter.step)) : 0;
 }
 
 void Market::setNotionalFilter(const o3d::Double filter[])
 {
-    m_notionalFilter[0] = filter[0] >= 0.0 ? filter[0] : m_notionalFilter[0];
-    m_notionalFilter[1] = filter[1] >= 0.0 ? filter[1] : m_notionalFilter[1];
-    m_notionalFilter[2] = filter[2] >= 0.0 ? filter[2] : m_notionalFilter[2];
+    m_notionalFilter.min = filter[0] >= 0.0 ? filter[0] : m_notionalFilter.min;
+    m_notionalFilter.max = filter[1] >= 0.0 ? filter[1] : m_notionalFilter.max;
+    m_notionalFilter.step = filter[2] >= 0.0 ? filter[2] : m_notionalFilter.step;
+    m_notionalFilter.precision = m_notionalFilter.step > 0 ? o3d::max(0, decimalPlace(m_notionalFilter.step)) : 0;
 }
 
-o3d::String Market::formatPrice(o3d::Double price, o3d::Bool useQuote, o3d::Bool displaySymbol) const
+o3d::Double Market::adjustPrice(o3d::Double price) const
 {
-    o3d::Int32 precision = 0;
-
-    if (useQuote) {
-        precision = m_quote.precision;
-    } else {
-        precision = m_base.precision;
+    if (std::isnan(price)) {
+        price = 0.0;
     }
 
-    if (!precision) {
-        precision = -static_cast<o3d::Int32>(log10(m_onePipMean));
-
-        if (!precision) {
+    o3d::Int32 precision = m_priceFilter.precision;
+    if (m_priceFilter.step <= 0.0) {
+        if (m_onePipMean != 0.0) {
+            precision = -static_cast<o3d::Int32>(log10(m_onePipMean));
+        } else {
             precision = 8;
         }
     }
 
+    o3d::Double tickSize = m_priceFilter.step;
+    if (tickSize <= 0.0) {
+        tickSize = 0.00000001;
+    }
+
+    return truncate(::round(price / tickSize) * tickSize, precision);
+}
+
+o3d::String Market::formatPrice(o3d::Double price, o3d::Bool displaySymbol) const
+{
+    if (std::isnan(price)) {
+        price = 0.0;
+    }
+
+    o3d::Int32 precision = m_priceFilter.precision;
+    if (m_priceFilter.step <= 0.0) {
+        if (m_onePipMean != 0.0) {
+            precision = -static_cast<o3d::Int32>(log10(m_onePipMean));
+        } else {
+            precision = 8;
+        }
+    }
+
+    o3d::Double tickSize = m_priceFilter.step;
+    if (tickSize <= 0.0) {
+        tickSize = 0.00000001;
+    }
+
     o3d::String formattedPrice;
-    formattedPrice.concat(truncate(price, precision), precision);
+    formattedPrice.concat(truncate(::round(price / tickSize) * tickSize, precision), precision);
 
     if (formattedPrice.find('.') >= 0) {
         formattedPrice.trimRight('0', true);
@@ -181,30 +226,115 @@ o3d::String Market::formatPrice(o3d::Double price, o3d::Bool useQuote, o3d::Bool
         return formattedPrice;
     }
 
-    if (useQuote) {
-        return formattedPrice + m_quote.symbol;
-    } else {
-        return formattedPrice + m_base.symbol;
+    return formattedPrice + m_base.symbol;
+}
+
+o3d::Double Market::adjustQuotePrice(o3d::Double price) const
+{
+    if (std::isnan(price)) {
+        price = 0.0;
     }
+
+    o3d::Int32 precision = m_notionalFilter.precision;
+    if (m_notionalFilter.step <= 0.0) {
+        precision = 2;
+    }
+
+    o3d::Double tickSize = m_notionalFilter.step;
+    if (tickSize <= 0.0) {
+        tickSize = 0.01;
+    }
+
+    return truncate(::round(price / tickSize) * tickSize, precision);
+}
+
+o3d::String Market::formatQuotePrice(o3d::Double price, o3d::Bool displaySymbol) const
+{
+    if (std::isnan(price)) {
+        price = 0.0;
+    }
+
+    o3d::Int32 precision = m_notionalFilter.precision;
+    if (m_notionalFilter.step <= 0.0) {
+        precision = 2;
+    }
+
+    o3d::Double tickSize = m_notionalFilter.step;
+    if (tickSize <= 0.0) {
+        tickSize = 0.01;
+    }
+
+    o3d::String formattedPrice;
+    formattedPrice.concat(truncate(::round(price / tickSize) * tickSize, precision), precision);
+
+    if (formattedPrice.find('.') >= 0) {
+        formattedPrice.trimRight('0', true);
+        formattedPrice.trimRight('.');
+    }
+
+    if (!displaySymbol) {
+        return formattedPrice;
+    }
+
+    return formattedPrice + m_quote.symbol;
+}
+
+o3d::Double Market::adjustSettlementPrice(o3d::Double price) const
+{
+    if (std::isnan(price)) {
+        price = 0.0;
+    }
+
+    o3d::Int32 precision = m_settlement.precision;
+    o3d::Double tickSize = pow(10, -precision);
+
+    return truncate(::round(price / tickSize) * tickSize, precision);
+}
+
+o3d::String Market::formatSettlementPrice(o3d::Double price, o3d::Bool displaySymbol) const
+{
+    if (std::isnan(price)) {
+        price = 0.0;
+    }
+
+    o3d::Int32 precision = m_settlement.precision;
+    o3d::Double tickSize = pow(10, -precision);
+
+    o3d::String formattedPrice;
+    formattedPrice.concat(truncate(::round(price / tickSize) * tickSize, precision), precision);
+
+    if (formattedPrice.find('.') >= 0) {
+        formattedPrice.trimRight('0', true);
+        formattedPrice.trimRight('.');
+    }
+
+    if (!displaySymbol) {
+        return formattedPrice;
+    }
+
+    return formattedPrice + m_settlement.symbol;
 }
 
 o3d::Double Market::adjustQty(o3d::Double qty, o3d::Bool minIsZero) const
 {
-    if (m_qtyFilter[0] > 0.0 && qty < m_qtyFilter[0]) {
+    if (std::isnan(qty)) {
+        qty = 0.0;
+    }
+
+    if (m_qtyFilter.min > 0.0 && qty < m_qtyFilter.min) {
         if (minIsZero) {
             return 0.0;
         }
 
-        return m_qtyFilter[0];
+        return m_qtyFilter.min;
     }
 
-    if (m_qtyFilter[1] > 0.0 && qty > m_qtyFilter[1]) {
-        return m_qtyFilter[1];
+    if (m_qtyFilter.max > 0.0 && qty > m_qtyFilter.max) {
+        return m_qtyFilter.max;
     }
 
-    if (m_qtyFilter[2] > 0.0) {
-        o3d::Int32 precision = -static_cast<o3d::Int32>(log10(m_qtyFilter[2]));
-        return o3d::max(round(m_qtyFilter[2] * ::round(qty / m_qtyFilter[2]), precision), m_qtyFilter[0]);
+    if (m_qtyFilter.step > 0.0) {
+        return o3d::max(round(::round(qty / m_qtyFilter.step) * m_qtyFilter.step, m_qtyFilter.precision), m_qtyFilter.min);
     }
 
     return qty;
@@ -212,9 +342,18 @@ o3d::Double Market::adjustQty(o3d::Double qty, o3d::Bool minIsZero) const
 
 o3d::String Market::formatQty(o3d::Double qty) const
 {
-    o3d::Int32 precision = -static_cast<o3d::Int32>(log10(m_qtyFilter[2]));
+    o3d::Int32 precision = m_qtyFilter.precision;
+    if (m_qtyFilter.step <= 0.0) {
+        precision = 2;
+    }
+
+    o3d::Double step = m_qtyFilter.step;
+    if (step <= 0.0) {
+        step = 0.01;
+    }
+
     o3d::String formattedQty;
-    formattedQty.concat(truncate(qty, precision), precision);
+    formattedQty.concat(truncate(::round(qty / step) * step, precision), precision);
 
     if (formattedQty.find('.') >= 0) {
         formattedQty.trimRight('0', true);
@@ -224,10 +363,39 @@ o3d::String Market::formatQty(o3d::Double qty) const
     return formattedQty;
 }
 
-o3d::Double Market::marginCost(o3d::Double qty) const
+o3d::Double Market::marginCost(o3d::Double qty, o3d::Double price) const
 {
-    o3d::Double realizedPositionCost = qty * (m_lotSize * m_contractSize);  // in base currency
-    o3d::Double marginCost = realizedPositionCost * m_marginFactor / m_baseExchangeRate;
+    o3d::Double realizedPositionCost = 0.0;
 
-    return marginCost;
+    if (m_unit == UNIT_AMOUNT) {
+        // in quote currency
+        realizedPositionCost = qty * (m_lotSize * m_contractSize) * price;
+    } else if (m_unit == UNIT_CONTRACTS) {
+        realizedPositionCost = qty * (m_lotSize * m_contractSize / m_valuePerPip * price);
+    } else if (m_unit == UNIT_SHARES) {
+        // in quote currency
+        realizedPositionCost = qty * price;
+    } else {
+        // in quote currency
+        realizedPositionCost = qty * (m_lotSize * m_contractSize) * price;
+    }
+
+    // in account currency
+    return realizedPositionCost * m_marginFactor / m_baseExchangeRate;
+}
+
+o3d::Double Market::effectiveCost(o3d::Double qty, o3d::Double price) const
+{
+    if (m_unit == UNIT_AMOUNT) {
+        // in quote currency
+        return qty * (m_lotSize * m_contractSize) * price;
+    } else if (m_unit == UNIT_CONTRACTS) {
+        return qty * (m_lotSize * m_contractSize / m_valuePerPip * price);
+    } else if (m_unit == UNIT_SHARES) {
+        // in quote currency
+        return qty * price;
+    } else {
+        // in quote currency
+        return qty * (m_lotSize * m_contractSize) * price;
+    }
 }

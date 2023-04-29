@@ -302,6 +302,14 @@ void TraderProxy::onMarketSignal(const MarketSignal &signal)
             market->setState(signal.baseExchangeRate, false);
         }
 
+        if (signal.pair.isValid()) {
+            market->setPair(signal.pair);
+        }
+
+        if (signal.alias.isValid()) {
+            market->setAlias(signal.alias);
+        }
+
         if (signal.contractSize > 0.0) {
             market->setDetails(signal.contractSize, signal.lotSize, signal.valuePerPip, signal.onePipMeans, signal.hedging);
         }
@@ -310,16 +318,18 @@ void TraderProxy::onMarketSignal(const MarketSignal &signal)
             market->setPrice(signal.bid, signal.ask, signal.timestamp);
         }
 
-        if (signal.fees[MarketSignal::MAKER].commission >= 0.0) {
-            market->setMakerFee(signal.fees[MarketSignal::MAKER].rate, signal.fees[MarketSignal::MAKER].commission, signal.fees[MarketSignal::MAKER].limits);
+        if (signal.makerFees.commission >= 0.0) {
+            market->setMakerFee(signal.makerFees.rate, signal.makerFees.commission, signal.makerFees.limits);
         }
 
-        if (signal.fees[MarketSignal::TAKER].commission >= 0.0) {
-            market->setMakerFee(signal.fees[MarketSignal::TAKER].rate, signal.fees[MarketSignal::TAKER].commission, signal.fees[MarketSignal::TAKER].limits);
+        if (signal.takerFees.commission >= 0.0) {
+            market->setMakerFee(signal.takerFees.rate, signal.takerFees.commission, signal.takerFees.limits);
         }
 
         if (signal.marketType != MarketSignal::TYPE_UNDEFINED) {
-            market->setType(static_cast<Market::Type>(signal.marketType), static_cast<Market::Contract>(signal.marketContract), static_cast<Market::Unit>(signal.marketUnit));
+            market->setType(static_cast<Market::Type>(signal.marketType),
+                            static_cast<Market::Contract>(signal.marketContract),
+                            static_cast<Market::Unit>(signal.marketUnit));
         }
 
         if (signal.priceFilter[0] >= 0.0) {
@@ -348,6 +358,10 @@ void TraderProxy::onMarketSignal(const MarketSignal &signal)
 
         if (signal.quote.symbol.isValid()) {
             market->setQuoteInfo(signal.quote.symbol, signal.quote.precision);
+        }
+
+        if (signal.settlement.symbol.isValid()) {
+            market->setSettlementInfo(signal.settlement.symbol, signal.settlement.precision);
         }
 
         if (signal.base.vol24h >= 0.0) {

@@ -51,8 +51,8 @@ public:
 
 protected:
 
-    inline const Price& price() { return m_price; }
-    inline const Volume& volume() { return m_volume; }
+    inline const Price& price() const { return m_price; }
+    inline const Volume& volume() const { return m_volume; }
 
 private:
 

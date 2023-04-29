@@ -28,6 +28,12 @@ inline T round(T number, o3d::Int32 decimals)
     return floor((number*pow(10.0, decimals))+0.5) / pow(10.0, decimals);
 }
 
+template<class T>
+inline o3d::Int32 decimalPlace(T value)
+{
+    return -o3d::Int32(floor(log10(value)));
+}
+
 } // namespace siis
 
 #endif // SIIS_MATH_H

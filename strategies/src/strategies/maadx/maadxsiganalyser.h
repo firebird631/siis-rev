@@ -45,6 +45,9 @@ public:
     inline o3d::Int32 trend() const { return m_trend; }
     inline o3d::Int32 sig() const { return m_sig; }
 
+    o3d::Double takeProfit(o3d::Double profitScale) const;
+    o3d::Double stopLoss(o3d::Double lossScale, o3d::Double riskReward) const;
+
 private:
 
     Hma m_fast_h_ma;

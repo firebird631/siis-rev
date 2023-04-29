@@ -58,9 +58,9 @@ TradeSignal MaAdxSigAnalyser::compute(o3d::Double timestamp, o3d::Double lastTim
 
     if (price().consolidated()) {
         // compute only at close
-        m_fast_h_ma.compute(lastTimestamp, price().price());
+        m_fast_h_ma.compute(lastTimestamp, price().high());
         m_fast_m_ma.compute(lastTimestamp, price().price());
-        m_fast_l_ma.compute(lastTimestamp, price().price());
+        m_fast_l_ma.compute(lastTimestamp, price().low());
 
         m_adx.compute(lastTimestamp, price().high(), price().low(), price().close());
 
@@ -82,5 +82,29 @@ TradeSignal MaAdxSigAnalyser::compute(o3d::Double timestamp, o3d::Double lastTim
             m_sig = 0;
         }
     }
+
     return signal;
+}
+
+o3d::Double MaAdxSigAnalyser::takeProfit(o3d::Double profitScale) const
+{
+printf("%f %f - ", m_fast_h_ma.last(), m_fast_l_ma.last());
+    if (m_trend > 0) {
+        return price().close().last() + profitScale * (m_fast_h_ma.last() - m_fast_l_ma.last());
+    } else if (m_trend < 0) {
+        return price().close().last() - profitScale * (m_fast_h_ma.last() - m_fast_l_ma.last());
+    }
+
+    return 0.0;
+}
+
+o3d::Double MaAdxSigAnalyser::stopLoss(o3d::Double lossScale, o3d::Double riskReward) const
+{
+    if (m_trend > 0) {
+        return price().close().last() - riskReward * lossScale * (m_fast_h_ma.last() - m_fast_l_ma.last());
+    } else if (m_trend < 0) {
+        return price().close().last() + riskReward * lossScale * (m_fast_h_ma.last() - m_fast_l_ma.last());
+    }
+
+    return 0.0;
 }

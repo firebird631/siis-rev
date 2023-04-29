@@ -40,7 +40,10 @@ MaAdx::MaAdx(Handler *handler, const o3d::String &identifier) :
     m_trendAnalyser(nullptr),
     m_sigAnalyser(nullptr),
     m_confAnalyser(nullptr),
-    m_lastSignal(0, 0)
+    m_lastSignal(0, 0),
+    m_adxSig(40),
+    m_targetScale(1.0),
+    m_riskReward(1.0)
 {
 
 }
@@ -112,13 +115,37 @@ void MaAdx::init(Config *config)
     }
 
     if (conf.root().isMember("contexts")) {
-        // @todo
+        Json::Value contexts = conf.root().get("contexts", Json::Value());
+        for (auto it = contexts.begin(); it != contexts.end(); ++it) {
+            Json::Value context = *it;
+
+            // @todo
+
+            // trend
+
+            // sig
+            m_adxSig = 40;
+            m_targetScale = 20.0;
+            m_riskReward = 0.5;
+
+            // conf
+
+            // entry
+
+            // stop-loss
+
+            // take-profit
+
+            // breakeven
+
+            // dynamic-stop-loss
+
+            // dynamic-take-profit
+        }
     }
 
     setInitialized();
 }
-    static int l = 0;
-    static int s = 0;
 
 void MaAdx::terminate(Connector *connector, Database *db)
 {
@@ -139,8 +166,6 @@ void MaAdx::terminate(Connector *connector, Database *db)
     }
 
     setTerminated();
-
-    printf("*** %i %i\n", l, s);
 }
 
 void MaAdx::prepareMarketData(Connector *connector, Database *db)
@@ -245,7 +270,10 @@ void MaAdx::orderEntry(
         trade->open(handler()->traderProxy(), market(), direction, Trade::ORDER_CREATE, price, quantity,
                     takeProfitPrice, stopLossPrice);
 
-        o3d::String msg = o3d::String("#{0} {1} at {2}").arg(trade->id()).arg(direction > 0 ? "long" : "short").arg(price);
+        o3d::String msg = o3d::String("#{0} {1} at {2} sl={3} tp={4} q={5}").arg(trade->id())
+                          .arg(direction > 0 ? "long" : "short").arg(formatPrice(price))
+                          .arg(formatPrice(stopLossPrice)).arg(formatPrice(takeProfitPrice))
+                          .arg(quantity);
         log(timeframe, "trade-entry", msg);
     }
 }
@@ -277,11 +305,11 @@ TradeSignal MaAdx::compteSignal(o3d::Double timestamp) const
                 if (m_confAnalyser->confirmation() > 0) {
                     // keep only one signal per timeframe
                     if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
-                        l++;
-
                         signal.setEntry();
                         signal.setLong();
                         signal.setPrice(m_confAnalyser->lastPrice());
+                        signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_targetScale));
+                        signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_targetScale, m_riskReward));
                     }
                 }
             }
@@ -292,11 +320,11 @@ TradeSignal MaAdx::compteSignal(o3d::Double timestamp) const
                 if (m_confAnalyser->confirmation() < 0) {
                     // keep only one signal per timeframe
                     if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
-                        s++;
-
                         signal.setEntry();
                         signal.setShort();
                         signal.setPrice(m_confAnalyser->lastPrice());
+                        signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_targetScale));
+                        signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_targetScale, m_riskReward));
                     }
                 }
             }

@@ -66,7 +66,7 @@ public:
 protected:
     void initSizeReturn();
 private:
-    void readPart(MarketSignal::Part &part);
+    void readSymbol(MarketSignal::Symbol &symbol);
     void readFee(MarketSignal::Fee &fee);
 };
 

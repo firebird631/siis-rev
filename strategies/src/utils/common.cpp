@@ -6,6 +6,7 @@
  */
 
 #include "siis/utils/common.h"
+#include "siis/utils/math.h"
 #include "siis/market.h"
 
 #include <o3d/core/datetime.h>
@@ -247,4 +248,19 @@ MAType siis::maTypeFromStr(const o3d::String maType)
     } else {
         return MA_SMA;
     }
+}
+
+o3d::String siis::formatPrice(o3d::Double price, o3d::Int32 precision, o3d::Double step)
+{
+    o3d::Double adjustedPrice = truncate<o3d::Double>(::round(price / step) * step, precision);
+    o3d::String formattedPrice;
+    formattedPrice.concat(adjustedPrice, precision);
+
+    // remove trailing 0s and dot
+    if (formattedPrice.find('.') > 0) {
+        formattedPrice.trimRight('0', true);
+        formattedPrice.trimRight('.');
+    }
+
+    return formattedPrice;
 }
