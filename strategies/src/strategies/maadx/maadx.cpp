@@ -37,11 +37,6 @@ SIIS_PLUGIN_API siis::Strategy* siisStrategy(Handler *handler, const o3d::String
 
 MaAdx::MaAdx(Handler *handler, const o3d::String &identifier) :
     Strategy(handler, identifier),
-    m_reversal(false),
-    m_hedging(false),
-    m_maxTrades(1),
-    m_tradeDelay(0.0),
-    m_needUpdate(false),
     m_trendAnalyser(nullptr),
     m_sigAnalyser(nullptr),
     m_confAnalyser(nullptr),
@@ -72,20 +67,7 @@ void MaAdx::init(Config *config)
     conf.parseDefaults(MaAdxParameters);
     conf.parseOverrides(config);
 
-    m_reversal = conf.root().get("reversal", true).asBool();
-    m_hedging = conf.root().get("hedging", false).asBool();
-    m_maxTrades = conf.root().get("max-trades", 1).asInt();
-    m_tradeDelay = conf.root().get("trade-delay", 30).asDouble();
-    m_needUpdate = conf.root().get("need-update", false).asBool();
-
-    m_baseTimeframe = conf.baseTimeframe();
-
-    // stream data sources
-    if (m_baseTimeframe <= 0.0) {
-        addTickDataSource();
-    } else {
-        addMidOhlcDataSource(m_baseTimeframe);
-    }
+    initBasicsParameters(conf);
 
     if (conf.root().isMember("timeframes")) {
         Json::Value timeframes = conf.root().get("timeframes", Json::Value());
@@ -175,7 +157,7 @@ void MaAdx::finalizeMarketData(Connector *connector, Database *db)
 
 void MaAdx::onTickUpdate(o3d::Double timestamp, const TickArray &ticks)
 {
-    if (m_baseTimeframe == TF_TICK) {
+    if (baseTimeframe() == TF_TICK) {
         for (Analyser *analyser : m_analysers) {
             analyser->onTickUpdate(timestamp, ticks);
         }
@@ -184,7 +166,7 @@ void MaAdx::onTickUpdate(o3d::Double timestamp, const TickArray &ticks)
 
 void MaAdx::onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe, Ohlc::Type ohlcType, const OhlcArray &ohlc)
 {
-    if (m_baseTimeframe == timeframe) {
+    if (baseTimeframe() == timeframe) {
         for (Analyser *analyser : m_analysers) {
             analyser->onOhlcUpdate(timestamp, ohlcType, ohlc);
         }
@@ -249,11 +231,11 @@ void MaAdx::orderEntry(
         o3d::Double takeProfitPrice,
         o3d::Double stopLossPrice)
 {
-    if (m_reversal && m_tradeManager->hasTradesByDirection(-direction)) {
+    if (reversal() && m_tradeManager->hasTradesByDirection(-direction)) {
         m_tradeManager->closeAllByDirection(-direction, timestamp, price);
     }
 
-    Trade* trade = handler()->traderProxy()->createTrade(market(), timeframe);
+    Trade* trade = handler()->traderProxy()->createTrade(market(), tradeType(), timeframe);
     if (trade) {
         m_tradeManager->addTrade(trade);
 

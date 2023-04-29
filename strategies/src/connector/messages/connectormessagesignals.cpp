@@ -105,11 +105,11 @@ void ConnectorMessageMarketSignal::read(zmq::message_t *message)
 
 	m_signal->marketType = static_cast<MarketSignal::MarketType>(readInt8());
 	m_signal->marketUnit = static_cast<MarketSignal::MarketUnit>(readInt8());
-	m_signal->mode = static_cast<MarketSignal::MarketMode>(readInt8());
+    m_signal->tradeCaps = static_cast<o3d::Int32>(readInt8());
 
 	m_signal->hedging = readInt8();
 
-	m_signal->orderCaps = static_cast<MarketSignal::OrderCapacity>(readInt8());
+    m_signal->orderCaps = static_cast<o3d::Int32>(readInt8());
 
 	m_signal->expiry = readDouble();
 

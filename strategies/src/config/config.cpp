@@ -232,18 +232,18 @@ void Config::loadCommon()
     }
 }
 
-o3d::Int32 marketModeFromStr(const o3d::String &mode)
+o3d::Int32 marketTradeTypeFromStr(const o3d::String &type)
 {
-    if (mode == "spot" || mode == "asset" || mode == "buysell") {
-        return Market::MODE_BUY_SELL;
-    } else if (mode == "margin") {
-        return Market::MODE_MARGIN;
-    } else if (mode == "ind-margin") {
-        return Market::MODE_IND_MARGIN;
-    } else if (mode == "position") {
-        return Market::MODE_POSITION;
+    if (type == "spot" || type == "asset" || type == "buysell") {
+        return Market::TRADE_BUY_SELL;
+    } else if (type == "margin") {
+        return Market::TRADE_MARGIN;
+    } else if (type == "ind-margin") {
+        return Market::TRADE_IND_MARGIN;
+    } else if (type == "position") {
+        return Market::TRADE_POSITION;
     } else {
-        O3D_ERROR(o3d::E_InvalidParameter(o3d::String("{0} is not a valide mode").arg(mode)));
+        O3D_ERROR(o3d::E_InvalidParameter(o3d::String("{0} is not a valide mode").arg(type)));
     }
 }
 
@@ -389,9 +389,9 @@ void Config::loadStrategySpec(const o3d::String filename)
                 }
 
                 // initial market detail but will be overrided if found in DB
-                if (market.isMember("market-mode")) {
-                    o3d::String marketMode = market.get("market-mode", "").asString().c_str();
-                    mc->marketMode = marketModeFromStr(marketMode);
+                if (market.isMember("trade-type")) {
+                    o3d::String tradeType = market.get("trade-type", "").asString().c_str();
+                    mc->marketTradeType = marketTradeTypeFromStr(tradeType);
                 }
 
                 // ...
@@ -517,9 +517,9 @@ void Config::loadProfileSpec(const o3d::String filename)
                     mc->tradeMode = MarketConfig::TRADE_FIXED_QUANTITY;
 
                     // initial market detail but will be overrided if found in DB
-                    if (instrument.isMember("market-mode")) {
-                        o3d::String marketMode = instrument.get("market-", "").asString().c_str();
-                        mc->marketMode = marketModeFromStr(marketMode);
+                    if (instrument.isMember("trade-type")) {
+                        o3d::String tradeType = instrument.get("trade-type", "").asString().c_str();
+                        mc->marketTradeType = marketTradeTypeFromStr(tradeType);
                     }
 
                     // ...
@@ -669,5 +669,17 @@ void Config::overwriteLearningFile(const GlobalStatistics &global, const Account
     }
     catch (Json::LogicError &e) {
         O3D_ERROR(o3d::E_InvalidParameter("Invalid JSON format for learning " + m_learningFilename));
+    }
+}
+
+void Config::deleteLearningFile(const o3d::String &filename)
+{
+    if (filename.isEmpty()) {
+        return;
+    }
+
+    o3d::File lfile(m_learningPath.getFullPathName(), filename);
+    if (lfile.exists()) {
+        m_learningPath.removeFile(filename);
     }
 }

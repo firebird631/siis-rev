@@ -19,6 +19,7 @@
 #include "siis/config/config.h"
 #include "siis/datasource.h"
 #include "siis/statistics/statistics.h"
+#include "siis/trade/trade.h"
 
 namespace siis {
 
@@ -225,6 +226,18 @@ public:
      */
     Market* market() { return m_market; }
 
+    o3d::Bool reversal() const { return m_reversal; }
+    o3d::Bool hedging() const { return m_hedging; }
+    o3d::Bool maxTrades() const { return m_maxTrades; }
+    o3d::Bool tradeDelay() const { return m_tradeDelay; }
+    o3d::Bool needUpdate() const { return m_needUpdate; }
+    o3d::Bool baseTimeframe() const { return m_baseTimeframe; }
+
+    /**
+     * @brief tradeType Strategy trade type to instanciate.
+     */
+    Trade::Type tradeType() { return m_tradeType; }
+
     /**
      * @brief lastTimestamp Last performed timestamp.
      */
@@ -261,6 +274,8 @@ protected:
     void setRunning();
     void setTerminated();
 
+    void initBasicsParameters(StrategyConfig &conf);
+
 private:
 
     Handler *m_handler;
@@ -282,6 +297,16 @@ private:
 
     o3d::Double m_lastTimestamp;
     o3d::Bool m_processing;
+
+    o3d::Bool m_reversal;
+    o3d::Bool m_hedging;
+    o3d::Int32 m_maxTrades;
+    o3d::Double m_tradeDelay;
+    o3d::Bool m_needUpdate;
+
+    o3d::Double m_baseTimeframe;
+
+    Trade::Type m_tradeType;
 };
 
 } // namespace siis

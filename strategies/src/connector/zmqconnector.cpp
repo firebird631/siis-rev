@@ -206,6 +206,7 @@ o3d::Int32 ZmqConnector::run(void *)
 					msg.read(&message);
 					m_handler->onTick(msg.marketId(), msg.tick());
                 } break;
+
 				// REVEIVE_OHLC
                 case ConnectorMessageCore::FUNC_ID::RECEIVE_OHLC: {
                     ConnectorMessageReceiveOhlc msg;
@@ -213,7 +214,7 @@ o3d::Int32 ZmqConnector::run(void *)
                     Ohlc::Type ohlcType = Ohlc::TYPE_MID;  // @todo need type on the message or 3 messages
                     m_handler->onOhlc(msg.marketId(), ohlcType, msg.ohlc());
                 } break;
-				
+
                 // RECEIVE_TICK_ARRAY
                 case ConnectorMessageCore::FUNC_ID::RECEIVE_TICK_ARRAY: {
                     ConnectorMessageReceiveTickArray msg;
@@ -292,7 +293,6 @@ o3d::Int32 ZmqConnector::run(void *)
                 default:
                     break;
 			}
-
         }
 
         // @todo on disconnect m_connected = false, loss all subscriptions... have to reinitiate ??

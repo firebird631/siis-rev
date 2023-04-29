@@ -91,6 +91,22 @@ static void mergeWithDotFormat(Json::Value &root, const Json::Value &b)
     }
 }
 
+
+Trade::Type tradeTypeFromStr(const o3d::String &type)
+{
+    if (type == "spot" || type == "asset" || type == "buysell") {
+        return Trade::TYPE_BUY_SELL;
+    } else if (type == "margin") {
+        return Trade::TYPE_MARGIN;
+    } else if (type == "ind-margin") {
+        return Trade::TYPE_IND_MARGIN;
+    } else if (type == "position") {
+        return Trade::TYPE_POSITION;
+    } else {
+        O3D_ERROR(o3d::E_InvalidParameter(o3d::String("{0} is not a valid trade-type").arg(type)));
+    }
+}
+
 StrategyConfig::StrategyConfig() :
     m_root(nullptr)
 {
@@ -227,6 +243,16 @@ o3d::Double StrategyConfig::maxTradedTimeframe() const
     } else {
         return 0.0;
     }
+}
+
+Trade::Type StrategyConfig::tradeType() const
+{
+    if (m_root->isMember("trade-type")) {
+        o3d::String tradeType = m_root->get("trade-mode", "").asString().c_str();
+        return tradeTypeFromStr(tradeType);
+    }
+
+    return Trade::TYPE_ASSET;
 }
 
 o3d::Double StrategyConfig::timeframeAsDouble(Json::Value &parent, const o3d::String &key) const

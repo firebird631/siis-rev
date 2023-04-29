@@ -29,24 +29,37 @@ class SIIS_API Market
 {
 public:
 
-    enum Mode
+    enum MonthCode
     {
-        MODE_BUY_SELL = 0,    //!< Asset buy/sell market.
-        MODE_MARGIN = 1,      //!< Multiple position possible per market (hedging is another detail).
-        MODE_IND_MARGIN = 2,  //!< Indivisible margin position.
-        MODE_POSITION = 3     //!< Individual position.
+        MC_F = 1,  //!< january...
+        MC_G = 2,
+        MC_H = 3,
+        MC_J = 4,
+        MC_K = 5,
+        MC_M = 6,
+        MC_N = 7,
+        MC_Q = 8,
+        MC_U = 9,
+        MC_V = 10,
+        MC_X = 11,
+        MC_Z = 12
     };
 
-    enum OrderCapacity
-    {
-        ORDER_MARKET = 0,
-        ORDER_LIMIT = 1,
-        ORDER_STOP_MARKET = 2,
-        ORDER_STOP_LIMIT = 4,
-        ORDER_TAKE_PROFIT_MARKET = 8,
-        ORDER_TAKE_PROFIT_LIMIT = 16,
-        ORDER_ALL = 32-1
-    };
+    static const o3d::Int32 TRADE_BUY_SELL = 1;     //!< no margin no short, only buy (hold) and sell
+    static const o3d::Int32 TRADE_ASSET = 1;        //!< synonym for buy-sell/spot
+    static const o3d::Int32 TRADE_SPOT = 1;         //!< synonym for buy-sell/spot
+    static const o3d::Int32 TRADE_MARGIN = 2;       //!< margin, long and short
+    static const o3d::Int32 TRADE_IND_MARGIN = 4;   //!< indivisible position, margin, long and short
+    static const o3d::Int32 TRADE_FIFO = 8;         //!< position are closed in FIFO order
+    static const o3d::Int32 TRADE_POSITION = 16;    //!< individual position on the broker side
+
+    static const o3d::Int32 ORDER_MARKET = 0;
+    static const o3d::Int32 ORDER_LIMIT = 1;
+    static const o3d::Int32 ORDER_STOP_MARKET = 2;
+    static const o3d::Int32 ORDER_STOP_LIMIT = 4;
+    static const o3d::Int32 ORDER_TAKE_PROFIT_MARKET = 8;
+    static const o3d::Int32 ORDER_TAKE_PROFIT_LIMIT = 16;
+    static const o3d::Int32 ORDER_ALL = 32-1;
 
     enum Contract
     {
@@ -60,20 +73,23 @@ public:
 
     enum Type
     {
+        TYPE_UNDEFINED = -1,
         TYPE_UNKNOWN = 0,
         TYPE_CURRENCY = 1,   //!< FOREX
-        TYPE_CRYPTO = 2,
-        TYPE_STOCK = 3,
-        TYPE_COMMODITY = 4,
-        TYPE_INDICE = 5
+        TYPE_COMMODITY = 2,
+        TYPE_INDICE = 3,
+        TYPE_STOCK = 4,
+        TYPE_RATE = 5,
+        TYPE_SECTOR = 6,
+        TYPE_CRYPTO = 7
     };
 
     enum Unit
     {
-        UNIT_UNKNOWN = 0,
-        UNIT_CONTRACT = 1,    //!< amount is in contract size
-        UNIT_CURRENCY = 2,    //!< amount is in currency (quote)
-        UNIT_LOT = 3,         //!< unit of one lot, with 1 lot = 100000 of related currency
+        UNIT_UNDEFINED = -1,
+        UNIT_AMOUNT = 0,      //!< amount is in number of token
+        UNIT_CONTRACTS = 1,   //!< amount is in contract size
+        UNIT_SHARES = 2       //!< amount is in currency (quote)
     };
 
     struct Part
@@ -152,9 +168,34 @@ public:
     o3d::Double stepNotional() const { return m_notionalFilter[2]; }
 
     /**
-     * @brief mode Buy/sell or margin market.
+     * @brief trade Trade capacities (spot, margin...)
      */
-    Mode mode() const { return m_mode; }
+    o3d::Int32 tradeCaps() const { return m_tradeCaps; }
+
+    /**
+     * @brief hasSpot Has spot market capacity.
+     */
+    o3d::Bool hasSpot() const { return m_tradeCaps & TRADE_BUY_SELL; }
+
+    /**
+     * @brief hasMargin Has margin market capacity.
+     */
+    o3d::Bool hasMargin() const { return m_tradeCaps & TRADE_MARGIN; }
+
+    /**
+     * @brief hasSpot Has spot market capacity.
+     */
+    o3d::Bool indivisiblePosition() const { return m_tradeCaps & TRADE_IND_MARGIN; }
+
+    /**
+     * @brief hasSpot Has spot market capacity.
+     */
+    o3d::Bool fifoPosition() const { return m_tradeCaps & TRADE_FIFO; }
+
+    /**
+     * @brief hasSpot Has spot market capacity.
+     */
+    o3d::Bool hasPosition() const { return m_tradeCaps & TRADE_POSITION; }
 
     /**
      * @brief orderCaps Order capacities (or'ed values).
@@ -168,7 +209,9 @@ public:
     void acquire() const { m_mutex.lock(); }
     void release() const { m_mutex.unlock(); }
 
-    void setModeAndOrders(Mode mode, o3d::Int32 orders);
+    void setCapacities(o3d::Int32 tradeCaps, o3d::Int32 orderCaps);
+    void setTradeCapacities(o3d::Int32 tradeCaps);
+    void setOrderCapacities(o3d::Int32 orderCaps);
 
     void setBaseInfo(const o3d::String &symbol, o3d::Int32 precision);
     void setQuoteInfo(const o3d::String &symbol, o3d::Int32 precision);
@@ -296,7 +339,7 @@ private:
     Contract m_contract;
     Unit m_unit;
 
-    Mode m_mode;
+    o3d::Int32 m_tradeCaps;
     o3d::Int32 m_orderCaps;
 
     o3d::Double m_lastTimestamp;

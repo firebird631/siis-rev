@@ -65,24 +65,13 @@ void IndiceAlpha::init(Config *config)
     conf.parseDefaults(IndiceAlphaParameters);
     conf.parseStrategyOverrides(config->getStrategiesPath(), config->getStrategyFilename());
 
-    m_reversal = conf.root().get("reversal", true).asBool();
-    m_hedging = conf.root().get("hedging", false).asBool();
-    m_maxTrades = conf.root().get("max-trades", 1).asInt();
-    m_tradeDelay = conf.root().get("trade-delay", 30).asDouble();
-    m_needUpdate = conf.root().get("need-update", false).asBool();
+    initBasicsParameters(conf);
+
     m_minVol24h = conf.root().get("min-vol-24h", 0).asDouble();
     m_minPrice = conf.root().get("min-price", 0).asDouble();
 
-    m_baseTimeframe = conf.baseTimeframe();
     m_minTradedTimeframe = conf.minTradedTimeframe();
     m_maxTradedTimeframe = conf.maxTradedTimeframe();
-
-    // stream data sources
-    if (m_baseTimeframe <= 0.0) {
-        addTickDataSource();
-    } else {
-        addMidOhlcDataSource(m_baseTimeframe);
-    }
 
     if (conf.root().isMember("timeframes")) {
         Json::Value timeframes = conf.root().get("timeframes", Json::Value());
@@ -161,7 +150,7 @@ void IndiceAlpha::finalizeMarketData(Connector *connector, Database *db)
 
 void IndiceAlpha::onTickUpdate(o3d::Double timestamp, const TickArray &ticks)
 {
-    if (m_baseTimeframe == TF_TICK) {
+    if (baseTimeframe() == TF_TICK) {
         for (Analyser *analyser : m_analysers) {
             analyser->onTickUpdate(timestamp, ticks);
         }
@@ -170,7 +159,7 @@ void IndiceAlpha::onTickUpdate(o3d::Double timestamp, const TickArray &ticks)
 
 void IndiceAlpha::onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe, Ohlc::Type ohlcType, const OhlcArray &ohlc)
 {
-    if (m_baseTimeframe == timeframe) {
+    if (baseTimeframe() == timeframe) {
         for (Analyser *analyser : m_analysers) {
             analyser->onOhlcUpdate(timestamp, ohlcType, ohlc);
         }
@@ -260,7 +249,7 @@ void IndiceAlpha::orderEntry(
         o3d::Double limitPrice,
         o3d::Double stopPrice)
 {
-    Trade* trade = handler()->traderProxy()->createTrade(market(), timeframe);
+    Trade* trade = handler()->traderProxy()->createTrade(market(), tradeType(), timeframe);
     if (trade) {
         m_tradeManager->addTrade(trade);
 

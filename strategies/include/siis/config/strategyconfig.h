@@ -9,6 +9,7 @@
 #define SIIS_STRATEGYCONFIG_H
 
 #include "jsonparser.h"
+#include "../trade/trade.h"
 
 namespace siis {
 
@@ -296,6 +297,11 @@ public:
      * Base timeframe refer to the highest traded timeframe.
      */
     o3d::Double maxTradedTimeframe() const;
+
+    /**
+     * @brief tradeType Trade type to instanciate if compatible with the market capacities.
+     */
+    Trade::Type tradeType() const;
 
     //
     // helpers

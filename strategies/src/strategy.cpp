@@ -7,6 +7,7 @@
 
 #include "siis/strategy.h"
 #include "siis/handler.h"
+#include "siis/config/strategyconfig.h"
 
 #include "siis/trade/stdtrademanager.h"
 
@@ -26,7 +27,13 @@ Strategy::Strategy(Handler *handler, const o3d::String &identifier) :
     m_nextState(STATE_INITIALIZED),
     m_market(nullptr),
     m_lastTimestamp(0),
-    m_processing(false)
+    m_processing(false),
+    m_reversal(false),
+    m_hedging(false),
+    m_maxTrades(1),
+    m_tradeDelay(0.0),
+    m_needUpdate(false),
+    m_tradeType(Trade::TYPE_ASSET)
 {
     m_properties["name"] = "undefined";
     m_properties["author"] = "undefined";
@@ -55,10 +62,29 @@ void Strategy::init(Config *config)
     // needed data source
     // addDataSource(...)
 
-    // default strategie related parameters (for purpose only)
+    // default strategie parameters
     // ...
 
     m_brokerId = config->getBrokerId();
+}
+
+void Strategy::initBasicsParameters(StrategyConfig &conf)
+{
+    m_reversal = conf.root().get("reversal", true).asBool();
+    m_hedging = conf.root().get("hedging", false).asBool();
+    m_maxTrades = conf.root().get("max-trades", 1).asInt();
+    m_tradeDelay = conf.root().get("trade-delay", 30).asDouble();
+    m_needUpdate = conf.root().get("need-update", false).asBool();
+    m_tradeType = conf.tradeType();
+
+    m_baseTimeframe = conf.baseTimeframe();
+
+    // stream data sources
+    if (m_baseTimeframe <= 0.0) {
+        addTickDataSource();
+    } else {
+        addMidOhlcDataSource(m_baseTimeframe);
+    }
 }
 
 const std::list<DataSource> Strategy::getDataSources() const

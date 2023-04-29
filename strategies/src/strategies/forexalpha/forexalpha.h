@@ -55,15 +55,9 @@ public:
 
 private:
 
-    o3d::Bool m_reversal;
-    o3d::Bool m_hedging;
-    o3d::Int32 m_maxTrades;
-    o3d::Double m_tradeDelay;
-    o3d::Bool m_needUpdate;
     o3d::Double m_minVol24h;
     o3d::Double m_minPrice;
 
-    o3d::Double m_baseTimeframe;
     o3d::Double m_minTradedTimeframe;
     o3d::Double m_maxTradedTimeframe;
 

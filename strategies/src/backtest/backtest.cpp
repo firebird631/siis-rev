@@ -102,7 +102,9 @@ void Backtest::init(
         strategy->prepareMarketData(m_connector, m_database);
         strategy->finalizeMarketData(m_connector, m_database);
 
-        market->setModeAndOrders(static_cast<Market::Mode>(mc->marketMode), Market::ORDER_ALL);
+        if (mc->marketTradeType > -1) {
+            market->setTradeCapacities(mc->marketTradeType);
+        }
 
         for (DataSource ds : strategy->getDataSources()) {
             // create the stream (for now only tick stream, but could offer OHLC too, but no possibility for order-book history)

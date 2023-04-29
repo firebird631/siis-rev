@@ -89,12 +89,12 @@ o3d::Bool TraderProxy::alive() const
     return m_alive;
 }
 
-Trade* TraderProxy::createTrade(Market *market, o3d::Double timeframe)
+Trade* TraderProxy::createTrade(Market *market, Trade::Type tradeType, o3d::Double timeframe)
 {
     Trade *trade = nullptr;
 
     if (market) {
-        if (market->mode() == Market::MODE_BUY_SELL) {
+        if (tradeType == Trade::TYPE_BUY_SELL && market->hasSpot()) {
             if (m_freeTrades[Trade::TYPE_BUY_SELL].getSize() == 0) {
                 // empty allocator, make some news
                 for (o3d::Int32 i = 0; i < BUCKET_SIZE; ++i) {
@@ -108,7 +108,7 @@ Trade* TraderProxy::createTrade(Market *market, o3d::Double timeframe)
 
             trade->init(timeframe);
 
-        } else if (market->mode() == Market::MODE_MARGIN) {
+        } else if (tradeType == Trade::TYPE_MARGIN && market->hasMargin()) {
             if (m_freeTrades[Trade::TYPE_MARGIN].getSize() == 0) {
                 // empty allocator, make some news
                 for (o3d::Int32 i = 0; i < BUCKET_SIZE; ++i) {
@@ -122,7 +122,7 @@ Trade* TraderProxy::createTrade(Market *market, o3d::Double timeframe)
 
             trade->init(timeframe);
 
-        } else if (market->mode() == Market::MODE_IND_MARGIN) {
+        } else if (tradeType == Trade::TYPE_IND_MARGIN && market->hasMargin() && market->indivisiblePosition()) {
             if (m_freeTrades[Trade::TYPE_IND_MARGIN].getSize() == 0) {
                 // empty allocator, make some news
                 for (o3d::Int32 i = 0; i < BUCKET_SIZE; ++i) {
@@ -135,7 +135,7 @@ Trade* TraderProxy::createTrade(Market *market, o3d::Double timeframe)
             m_freeTrades[Trade::TYPE_IND_MARGIN].pop();
 
             trade->init(timeframe);
-        } else if (market->mode() == Market::MODE_POSITION) {
+        } else if (tradeType == Trade::TYPE_POSITION && market->hasPosition()) {
             if (m_freeTrades[Trade::TYPE_POSITION].getSize() == 0) {
                 // empty allocator, make some news
                 for (o3d::Int32 i = 0; i < BUCKET_SIZE; ++i) {
@@ -160,10 +160,10 @@ Trade* TraderProxy::createTrade(Market *market, o3d::Double timeframe)
     return trade;
 }
 
-Trade* TraderProxy::createTrade(const o3d::String &marketId, o3d::Double timeframe)
+Trade* TraderProxy::createTrade(const o3d::String &marketId, Trade::Type tradeType, o3d::Double timeframe)
 {
     Market *market = m_connector->handler()->market(marketId);
-    return createTrade(market, timeframe);
+    return createTrade(market, tradeType, timeframe);
 }
 
 void TraderProxy::freeTrade(Trade *trade)
@@ -334,8 +334,12 @@ void TraderProxy::onMarketSignal(const MarketSignal &signal)
             market->setNotionalFilter(signal.notionalFilter);
         }
 
-        if (signal.mode != MarketSignal::MODE_UNDEFINED) {
-            market->setModeAndOrders(static_cast<Market::Mode>(signal.mode), static_cast<Market::OrderCapacity>(signal.orderCaps));
+        if (signal.tradeCaps != MarketSignal::TRADE_UNDEFINED) {
+            market->setTradeCapacities(static_cast<o3d::Int32>(signal.tradeCaps));
+        }
+
+        if (signal.orderCaps != MarketSignal::ORDER_UNDEFINED) {
+            market->setOrderCapacities(static_cast<o3d::Int32>(signal.orderCaps));
         }
 
         if (signal.base.symbol.isValid()) {

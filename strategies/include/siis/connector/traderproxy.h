@@ -61,12 +61,12 @@ public:
     /**
      * @brief createTrade Create a new trade object according to the type of the market.
      */
-    Trade* createTrade(Market *market, o3d::Double timeframe);
+    Trade* createTrade(Market *market, Trade::Type tradeType, o3d::Double timeframe);
 
     /**
      * @brief createTrade Not the prefered way because it have to lookup for the market trought the handler.
      */
-    Trade* createTrade(const o3d::String &marketId, o3d::Double timeframe);
+    Trade* createTrade(const o3d::String &marketId, Trade::Type tradeType, o3d::Double timeframe);
 
     /**
      * @brief freeTrade Once a trade is processed, closed release with this method.

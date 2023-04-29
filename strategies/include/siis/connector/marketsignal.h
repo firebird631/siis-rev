@@ -45,7 +45,7 @@ public:
         CONTRACT_UNDEFINED = -1,
         CONTRACT_SPOT = 0,
         CONTRACT_CFD = 1,
-        CONTRACT_FUTUR = 2,
+        CONTRACT_FUTURE = 2,
         CONTRACT_OPTION = 3,
         CONTRACT_WARRANT = 4,
         CONTRACT_TURBO = 5
@@ -58,24 +58,23 @@ public:
         UNIT_SHARES = 2
     };
 
-    enum MarketMode {
-        MODE_UNDEFINED = -1,
-        MODE_BUY_SELL = 0,   //!< no marginn no short, only buy (hold) and sell
-        MODE_MARGIN = 1,     //!< margin, long and short (individual positions, hedging or not)
-        MODE_IND_MARGIN = 2  //!< indivisble margin, long and short (unique position/direction, no heding possible)
-    };
+    static const o3d::Int32 TRADE_UNDEFINED = -1;
+    static const o3d::Int32 TRADE_BUY_SELL = 1;     //!< no margin no short, only buy (hold) and sell
+    static const o3d::Int32 TRADE_ASSET = 1;        //!< synonym for buy-sell/spot
+    static const o3d::Int32 TRADE_SPOT = 1;         //!< synonym for buy-sell/spot
+    static const o3d::Int32 TRADE_MARGIN = 2;       //!< margin, long and short
+    static const o3d::Int32 TRADE_IND_MARGIN = 4;   //!< indivisible position, margin, long and short
+    static const o3d::Int32 TRADE_FIFO = 8;         //!< position are closed in FIFO order
+    static const o3d::Int32 TRADE_POSITION = 16;    //!< individual position on the broker side
 
-    enum OrderCapacity {
-        // or could have a OrderPolicy because not everywhere same concepts
-        ORDER_UNDEFINED = -1,
-        ORDER_MARKET = 0,
-        ORDER_LIMIT = 1,
-        ORDER_STOP_MARKET = 2,
-        ORDER_STOP_LIMIT = 4,
-        ORDER_TAKE_PROFIT_MARKET = 8,
-        ORDER_TAKE_PROFIT_LIMIT = 16,
-        ORDER_ALL = 32-1
-    };
+    static const o3d::Int32 ORDER_UNDEFINED = -1;
+    static const o3d::Int32 ORDER_MARKET = 0;
+    static const o3d::Int32 ORDER_LIMIT = 1;
+    static const o3d::Int32 ORDER_STOP_MARKET = 2;
+    static const o3d::Int32 ORDER_STOP_LIMIT = 4;
+    static const o3d::Int32 ORDER_TAKE_PROFIT_MARKET = 8;
+    static const o3d::Int32 ORDER_TAKE_PROFIT_LIMIT = 16;
+    static const o3d::Int32 ORDER_ALL = 32-1;
 
     static constexpr o3d::Double EXPIRY_NEVER = 0.0;
 
@@ -93,7 +92,7 @@ public:
         open(FLAG_UNDEFINED),
         marketType(TYPE_UNDEFINED),
         marketUnit(UNIT_UNDEFINED),
-        mode(MODE_UNDEFINED),
+        tradeCaps(TRADE_UNDEFINED),
         hedging(FLAG_UNDEFINED),
         expiry(EXPIRY_NEVER),
         contractSize(QUANTITY_UNDEFINED),
@@ -150,10 +149,10 @@ public:
     MarketUnit marketUnit;
     MarketContract marketContract;
 
-    MarketMode mode;
+    o3d::Int32 tradeCaps;
     o3d::Int8 hedging;
 
-    OrderCapacity orderCaps;
+    o3d::Int32 orderCaps;
 
     o3d::Double expiry;   //!< expiry UTC futur timestamp (0 for never, -1 if not defined)
 

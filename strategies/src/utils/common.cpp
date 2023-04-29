@@ -72,7 +72,7 @@ o3d::String siis::marketContractToStr(o3d::Int32 marketContract)
     switch (marketContract) {
         case Market::CONTRACT_SPOT: return "spot";
         case Market::CONTRACT_CFD: return "cfd";
-        case Market::CONTRACT_FUTURE: return "futur";
+        case Market::CONTRACT_FUTURE: return "future";
         case Market::CONTRACT_OPTION: return "option";
         case Market::CONTRACT_WARRANT: return "warrant";
         case Market::CONTRACT_TURBO: return "turbo";
@@ -84,10 +84,9 @@ o3d::String siis::marketContractToStr(o3d::Int32 marketContract)
 o3d::String siis::marketUnitToStr(o3d::Int32 marketUnit)
 {
     switch (marketUnit) {
-        case Market::UNIT_UNKNOWN: return "undefined";
-        case Market::UNIT_LOT: return "lot";
-        case Market::UNIT_CONTRACT: return "contract";
-        case Market::UNIT_CURRENCY: return "currency";
+        case Market::UNIT_AMOUNT: return "amount";
+        case Market::UNIT_CONTRACTS: return "contracts";
+        case Market::UNIT_SHARES: return "shares";
     }
 
     return "undefined";
@@ -96,7 +95,6 @@ o3d::String siis::marketUnitToStr(o3d::Int32 marketUnit)
 o3d::String siis::marketTypeToStr(o3d::Int32 marketType)
 {
     switch (marketType) {
-        case Market::TYPE_UNKNOWN: return "undefined";
         case Market::TYPE_STOCK: return "stock";
         case Market::TYPE_CRYPTO: return "crypto";
         case Market::TYPE_INDICE: return "indice";

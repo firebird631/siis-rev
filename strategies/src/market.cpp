@@ -16,7 +16,7 @@ Market::Market(const o3d::String &marketId,
                const o3d::String &quoteSymbol) :
     m_marketId(marketId),
     m_symbol(symbol),
-    m_mode(MODE_BUY_SELL),
+    m_tradeCaps(TRADE_BUY_SELL),
     m_orderCaps(ORDER_ALL),
     m_lastTimestamp(0.0),
     m_tradeable(true),
@@ -42,10 +42,20 @@ Market::~Market()
 
 }
 
-void Market::setModeAndOrders(Market::Mode mode, o3d::Int32 orders)
+void Market::setCapacities(o3d::Int32 tradeCaps, o3d::Int32 orderCaps)
 {
-    m_mode = mode;
-    m_orderCaps = orders;
+    m_tradeCaps = tradeCaps;
+    m_orderCaps = orderCaps;
+}
+
+void Market::setTradeCapacities(o3d::Int32 tradeCaps)
+{
+    m_tradeCaps = tradeCaps;
+}
+
+void Market::setOrderCapacities(o3d::Int32 orderCaps)
+{
+    m_orderCaps = orderCaps;
 }
 
 void Market::setBaseInfo(const o3d::String &symbol, o3d::Int32 precision)
