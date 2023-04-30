@@ -24,7 +24,7 @@ void ConnectorMessageReceiveTickArray::read(zmq::message_t *message)
 	ConnectorMessageCore::read(message);
 
 	// read the marketId
-	m_marketId = readString();
+    m_marketId = readCString();
 
 	// read the number of tick
     o3d::Int32 numTicks = readInt32();

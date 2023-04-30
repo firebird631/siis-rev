@@ -90,13 +90,13 @@ public:
      * @brief onTick On tick received.
      * @param tick Reference on a valid tick.
      */
-    virtual void onTick(const o3d::String &marketId, const Tick &tick) = 0;
+    virtual void onTick(const o3d::CString &marketId, const Tick &tick) = 0;
 
     /**
      * @brief onOhlc On ohlc received.
      * @param ohlc Reference on a valid ohlc.
      */
-    virtual void onOhlc(const o3d::String &marketId, Ohlc::Type ohlcType, const Ohlc &ohlc) = 0;
+    virtual void onOhlc(const o3d::CString &marketId, Ohlc::Type ohlcType, const Ohlc &ohlc) = 0;
 
     /**
      * @brief onOrderBook On order book update received.
@@ -107,22 +107,22 @@ public:
     /**
      * @brief market Get a market by its id, or null if not exists.
      */
-    virtual Market* market(const o3d::String &marketId) = 0;
+    virtual Market* market(const o3d::CString &marketId) = 0;
 
     /**
      * @brief market Get a market by its id, or null if not exists (read-only).
      */
-    virtual const Market* market(const o3d::String &marketId) const = 0;
+    virtual const Market* market(const o3d::CString &marketId) const = 0;
 
     /**
      * @brief strategy Get a strategy instance from its associated market-id.
      */
-    virtual Strategy* strategy(const o3d::String &marketId) = 0;
+    virtual Strategy* strategy(const o3d::CString &marketId) = 0;
 
     /**
      * @brief strategy Get a strategy instance from its associated market-id (read-only).
      */
-    virtual const Strategy* strategy(const o3d::String &marketId) const = 0;
+    virtual const Strategy* strategy(const o3d::CString &marketId) const = 0;
 
     /**
      * @brief database
@@ -141,7 +141,10 @@ public:
      * @param channel Mapped name of the channel or empty if general.
      * @param msg Message content.
      */
-    virtual void log(o3d::Double timeframe, const o3d::String &marketId, const o3d::String &channel, const o3d::String &msg) = 0;
+    virtual void log(o3d::Double timeframe,
+                     const o3d::String &marketId,
+                     const o3d::String &channel,
+                     const o3d::String &msg) = 0;
 };
 
 } // namespace siis

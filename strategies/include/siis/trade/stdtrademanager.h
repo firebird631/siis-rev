@@ -32,6 +32,9 @@ public:
 
     ~StdTradeManager();
 
+    Strategy* strategy() { return m_strategy; }
+    const Strategy* strategy() const { return m_strategy; }
+
     void acquire() const;
     void release() const;
 

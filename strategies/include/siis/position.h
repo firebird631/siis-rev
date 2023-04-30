@@ -14,6 +14,9 @@
 
 namespace siis {
 
+class TraderProxy;
+class Strategy;
+
 /**
  * @brief Strategy position model.
  * @author Frederic Scherma
@@ -31,6 +34,8 @@ public:
     static constexpr o3d::Int8 VALUE_UNDEFINED = -1;
 
     Position() :
+        traderProxy(nullptr),
+        strategy(nullptr),
         created(TIMESTAMP_UNDEFINED),
         updated(TIMESTAMP_UNDEFINED),
         id(-1),
@@ -47,6 +52,28 @@ public:
         commission(RATE_UNDEFINED)
     {
     }
+
+    void reset()
+    {
+        strategy = nullptr;
+        created = TIMESTAMP_UNDEFINED;
+        updated = TIMESTAMP_UNDEFINED;
+        id = -1;
+        direction = UNDEFINED;
+        quantity = QUANTITY_UNDEFINED;
+        avgPrice = PRICE_UNDEFINED;
+        execPrice = PRICE_UNDEFINED;
+        stopLossPrice = PRICE_UNDEFINED;
+        limitPrice = PRICE_UNDEFINED;
+        profitLoss = RATE_UNDEFINED;
+        filled = QUANTITY_UNDEFINED;
+        cumulativeFilled = QUANTITY_UNDEFINED;
+        liquidationPrice = PRICE_UNDEFINED;
+        commission = RATE_UNDEFINED;
+    }
+
+    TraderProxy *traderProxy;
+    Strategy *strategy;
 
     o3d::Double created;   //!< creation timestamp
     o3d::Double updated;   //!< last operation timestamp

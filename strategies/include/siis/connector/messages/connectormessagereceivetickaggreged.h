@@ -28,7 +28,7 @@ public:
 	void read(zmq::message_t *message); // read the message
 
     TickArray& tickArray() { return m_tickArray; }
-    std::vector<o3d::String>& listMarketId() { return m_listMarketId; }
+    std::vector<o3d::CString>& listMarketId() { return m_listMarketId; }
 
 protected:
 
@@ -37,7 +37,7 @@ protected:
 
 protected:
 
-    std::vector<o3d::String> m_listMarketId;
+    std::vector<o3d::CString> m_listMarketId;
     TickArray m_tickArray;
 };
 

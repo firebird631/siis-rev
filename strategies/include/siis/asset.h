@@ -34,7 +34,7 @@ public:
     {
     }
 
-    Asset(const o3d::String &symbol) :
+    Asset(const o3d::CString &symbol) :
         m_symbol(symbol),
         m_lastTimestamp(0.0),
         m_freeQuantity(0.0),
@@ -42,7 +42,7 @@ public:
     {
     }
 
-    const o3d::String& symbol() const { return m_symbol; }
+    const o3d::CString& symbol() const { return m_symbol; }
 
     o3d::Double freeQuantity() const { return m_freeQuantity; }
     o3d::Double lockedQuantity() const { return m_lockedQuantity; }
@@ -56,7 +56,7 @@ public:
 
 private:
 
-    o3d::String m_symbol;
+    o3d::CString m_symbol;
     o3d::Double m_lastTimestamp;
 
     o3d::Double m_freeQuantity;

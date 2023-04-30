@@ -66,7 +66,7 @@ void siis::MySql::terminate()
 o3d::Int32 siis::MySql::run(void *)
 {
     while (m_running) {
-        o3d::System::waitMs(0);
+        o3d::System::waitMs(1);
     }
 
     return 0;

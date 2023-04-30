@@ -23,7 +23,7 @@ void ConnectorMessageReceiveOhlc::read(zmq::message_t *message)
     ConnectorMessageCore::read(message);
 
 	// read the marketId
-	m_marketId = readString();
+    m_marketId = readCString();
 
 	// read the ohlc
 	m_ohlc = new Ohlc();

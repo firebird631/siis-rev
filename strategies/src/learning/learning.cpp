@@ -218,39 +218,37 @@ void Learning::setPaperMode(o3d::Bool)
     // not available in backtest
 }
 
-void Learning::onTick(const o3d::String &, const Tick &)
+void Learning::onTick(const o3d::CString &, const Tick &)
 {
     // nothing in backtesting
 }
 
-void Learning::onOhlc(const o3d::String &, Ohlc::Type, const Ohlc &)
+void Learning::onOhlc(const o3d::CString &, Ohlc::Type, const Ohlc &)
 {
     // nothing in backtesting
 }
 
-Market *Learning::market(const o3d::String &marketId)
+Market *Learning::market(const o3d::CString &marketId)
 {
-    for (auto pair : m_learnings) {
-        if (pair.second.market && pair.second.market->marketId() == marketId) {
-            return pair.second.market;
-        }
+    auto it = m_learnings.find(marketId);
+    if (it != m_learnings.end()) {
+        return it->second.supervisor->market();
     }
 
     return nullptr;
 }
 
-const Market *Learning::market(const o3d::String &marketId) const
+const Market *Learning::market(const o3d::CString &marketId) const
 {
-    for (auto pair : m_learnings) {
-        if (pair.second.market && pair.second.market->marketId() == marketId) {
-            return pair.second.market;
-        }
+    auto cit = m_learnings.find(marketId);
+    if (cit != m_learnings.cend()) {
+        return cit->second.supervisor->market();
     }
 
     return nullptr;
 }
 
-Strategy *Learning::strategy(const o3d::String &marketId)
+Strategy *Learning::strategy(const o3d::CString &marketId)
 {
     auto it = m_learnings.find(marketId);
     if (it != m_learnings.end()) {
@@ -260,7 +258,7 @@ Strategy *Learning::strategy(const o3d::String &marketId)
     return nullptr;
 }
 
-const Strategy *Learning::strategy(const o3d::String &marketId) const
+const Strategy *Learning::strategy(const o3d::CString &marketId) const
 {
     auto cit = m_learnings.find(marketId);
     if (cit != m_learnings.cend()) {
@@ -320,6 +318,7 @@ o3d::Int32 Learning::run(void *)
 //                supervisor->onTickUpdate(m_curTs, market->getTickBuffer());
 
                 // consume them
+                market->setLastTick(market->getTickBuffer().last());
                 market->getTickBuffer().forceSize(0);
                 // ticks.destroy();
 
@@ -368,6 +367,7 @@ o3d::Int32 Learning::run(void *)
                 // supervisor->onTickUpdate(m_curTs, market->getTickBuffer());
 
                 // consume them
+                market->setLastTick(market->getTickBuffer().last());
                 market->getTickBuffer().forceSize(0);
                 // ticks.destroy();
 

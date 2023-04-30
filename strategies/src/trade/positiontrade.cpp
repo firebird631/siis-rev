@@ -12,17 +12,8 @@
 
 using namespace siis;
 
-PositionTrade::PositionTrade() :
-    Trade(Trade::TYPE_POSITION, -1.0),
-    m_entryState(STATE_UNDEFINED),
-    m_stopState(STATE_UNDEFINED),
-    m_limitState(STATE_UNDEFINED)
-{
-
-}
-
-PositionTrade::PositionTrade(o3d::Double timeframe) :
-    Trade(Trade::TYPE_POSITION, timeframe),
+PositionTrade::PositionTrade(TraderProxy *proxy) :
+    Trade(proxy, Trade::TYPE_POSITION, -1.0),
     m_entryState(STATE_UNDEFINED),
     m_stopState(STATE_UNDEFINED),
     m_limitState(STATE_UNDEFINED)
@@ -35,15 +26,16 @@ PositionTrade::~PositionTrade()
 
 }
 
-void PositionTrade::open(TraderProxy *trader,
-        Market *market,
+void PositionTrade::open(
+        Strategy *strategy,
         o3d::Int32 direction,
-        Trade::OrderType orderType,
         o3d::Double orderPrice,
         o3d::Double quantity,
         o3d::Double takeProfitPrice,
         o3d::Double stopLossPrice)
 {
+    m_strategy = strategy;
+
     // @todo
     m_direction = direction;
     m_orderQuantity = quantity;
@@ -51,41 +43,40 @@ void PositionTrade::open(TraderProxy *trader,
     m_stopLossPrice = stopLossPrice;
 }
 
-void PositionTrade::remove(TraderProxy *trader)
+void PositionTrade::remove()
 {
 
 }
 
-void PositionTrade::cancelOpen(TraderProxy *trader)
+void PositionTrade::cancelOpen()
 {
 
 }
 
-void PositionTrade::cancelClose(TraderProxy *trader)
+void PositionTrade::cancelClose()
 {
 
 }
 
-void PositionTrade::modifyTakeProfit(TraderProxy *trader, Market *market, o3d::Double price, o3d::Bool asOrder)
+void PositionTrade::modifyTakeProfit(o3d::Double price, o3d::Bool asOrder)
 {
 
 }
 
-void PositionTrade::modifyStopLoss(TraderProxy *trader, Market *market, o3d::Double price, o3d::Bool asOrder)
+void PositionTrade::modifyStopLoss(o3d::Double price, o3d::Bool asOrder)
 {
 
 }
 
-void PositionTrade::close(TraderProxy *trader, Market *market)
+void PositionTrade::close()
 {
     // @todo
     m_filledExitQuantity = m_orderQuantity;
 }
 
-o3d::Bool PositionTrade::canDelete() const
+void PositionTrade::process(o3d::Double timestamp)
 {
-    // @todo
-    return m_filledExitQuantity >= m_filledEntryQuantity;
+
 }
 
 o3d::Bool PositionTrade::isActive() const
@@ -130,21 +121,6 @@ o3d::Bool PositionTrade::isClosing() const
 }
 
 o3d::Bool PositionTrade::isClosed() const
-{
-    return false;
-}
-
-o3d::Bool PositionTrade::isEntryTimeout(o3d::Double timestamp, o3d::Double timeout) const
-{
-    return false;
-}
-
-o3d::Bool PositionTrade::isExitTimeout(o3d::Double timestamp, o3d::Double timeout) const
-{
-    return false;
-}
-
-o3d::Bool PositionTrade::isValid() const
 {
     return false;
 }

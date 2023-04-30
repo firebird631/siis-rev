@@ -170,7 +170,7 @@ void Live::setPaperMode(o3d::Bool active)
     m_paperMode = active;
 }
 
-void Live::onTick(const o3d::String &marketId, const Tick &tick)
+void Live::onTick(const o3d::CString &marketId, const Tick &tick)
 {
     m_mutex.lock();
 
@@ -183,7 +183,7 @@ void Live::onTick(const o3d::String &marketId, const Tick &tick)
     m_mutex.unlock();
 }
 
-void Live::onOhlc(const o3d::String &marketId, Ohlc::Type ohlcType, const Ohlc &ohlc)
+void Live::onOhlc(const o3d::CString &marketId, Ohlc::Type ohlcType, const Ohlc &ohlc)
 {
     m_mutex.lock();
 
@@ -196,7 +196,7 @@ void Live::onOhlc(const o3d::String &marketId, Ohlc::Type ohlcType, const Ohlc &
     m_mutex.unlock();
 }
 
-Market *Live::market(const o3d::String &marketId)
+Market *Live::market(const o3d::CString &marketId)
 {
     auto it = m_markets.find(marketId);
     if (it != m_markets.end()) {
@@ -206,7 +206,7 @@ Market *Live::market(const o3d::String &marketId)
     return nullptr;
 }
 
-const Market *Live::market(const o3d::String &marketId) const
+const Market *Live::market(const o3d::CString &marketId) const
 {
     auto cit = m_markets.find(marketId);
     if (cit != m_markets.end()) {
@@ -216,7 +216,7 @@ const Market *Live::market(const o3d::String &marketId) const
     return nullptr;
 }
 
-Strategy *Live::strategy(const o3d::String &marketId)
+Strategy *Live::strategy(const o3d::CString &marketId)
 {
     auto it = m_strategies.find(marketId);
     if (it != m_strategies.end()) {
@@ -226,7 +226,7 @@ Strategy *Live::strategy(const o3d::String &marketId)
     return nullptr;
 }
 
-const Strategy *Live::strategy(const o3d::String &marketId) const
+const Strategy *Live::strategy(const o3d::CString &marketId) const
 {
     auto cit = m_strategies.find(marketId);
     if (cit != m_strategies.cend()) {

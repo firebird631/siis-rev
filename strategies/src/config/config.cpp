@@ -527,7 +527,7 @@ void Config::loadProfileSpec(const o3d::String filename)
                 MarketConfig *mc = new MarketConfig;
                 mc->marketId = it->asString().c_str();
 
-                Json::Value instrument = instruments.get(mc->marketId.toAscii().getData(), Json::Value());
+                Json::Value instrument = instruments.get(mc->marketId.getData(), Json::Value());
                 if (!instrument.empty()) {
                     o3d::String marketId = instrument.get("market-id", "").asString().c_str();
                     mc->tradeQuantity[0] = mc->tradeQuantity[1] = instrument.get("size", 0.0).asDouble();

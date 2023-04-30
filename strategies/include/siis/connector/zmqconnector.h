@@ -85,23 +85,23 @@ public:
     //
 
     virtual void fetchAnyOrders() override;
-    virtual void fetchOrder(const o3d::String& marketId) override;
+    virtual void fetchOrder(const o3d::CString& marketId) override;
 
     virtual o3d::Int32 createOrder(Order *order) override;
 
-    virtual o3d::Int32 cancelOrder(const o3d::String &orderId) override;
+    virtual o3d::Int32 cancelOrder(const o3d::CString &orderId) override;
 
     //
     // position
     //
 
     virtual void fetchAnyPositions() override;
-    virtual void fetchPositions(const o3d::String& marketId) override;
+    virtual void fetchPositions(const o3d::CString &marketId) override;
 
-    virtual o3d::Int32 closePosition(const o3d::String &positionId) override;
+    virtual o3d::Int32 closePosition(const o3d::CString &positionId) override;
 
     virtual o3d::Int32 modifyPosition(
-            const o3d::String &positionId,
+            const o3d::CString &positionId,
             o3d::Double stopLossPrice,
             o3d::Double takeProfitPrice) override;
 
@@ -117,7 +117,7 @@ public:
 
     virtual void fetchAnyAssets() override;
 
-    virtual void fetchAssets(const o3d::String& assetId) override;
+    virtual void fetchAssets(const o3d::CString& assetId) override;
 
     //
     // processing

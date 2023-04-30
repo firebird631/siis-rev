@@ -267,8 +267,7 @@ void MaAdx::orderEntry(
         o3d::Double quantity = 1.0;  // @todo
 
         // query open
-        trade->open(handler()->traderProxy(), market(), direction, Trade::ORDER_CREATE, price, quantity,
-                    takeProfitPrice, stopLossPrice);
+        trade->open(this, direction, price, quantity, takeProfitPrice, stopLossPrice);
 
         o3d::String msg = o3d::String("#{0} {1} at {2} sl={3} tp={4} q={5}").arg(trade->id())
                           .arg(direction > 0 ? "long" : "short").arg(formatPrice(price))
@@ -284,7 +283,7 @@ void MaAdx::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price)
         if (price > 0.0) {
             // if price defined, limit/stop close else market close
         } else {
-            trade->close(handler()->traderProxy(), market());
+            trade->close();
 
             // free trade once completed @todo done by tradeManager
             handler()->traderProxy()->freeTrade(trade);

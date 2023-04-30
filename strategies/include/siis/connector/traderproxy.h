@@ -66,7 +66,7 @@ public:
     /**
      * @brief createTrade Not the prefered way because it have to lookup for the market trought the handler.
      */
-    Trade* createTrade(const o3d::String &marketId, Trade::Type tradeType, o3d::Double timeframe);
+    Trade* createTrade(const o3d::CString &marketId, Trade::Type tradeType, o3d::Double timeframe);
 
     /**
      * @brief freeTrade Once a trade is processed, closed release with this method.
@@ -90,7 +90,7 @@ public:
      * @param orderId Valid order unique identifier.
      * @return Return code from the synchronous part of the request.
      */
-    o3d::Int32 cancelOrder(const o3d::String &orderId);
+    o3d::Int32 cancelOrder(const o3d::CString &orderId);
 
     /**
      * @brief newOrder Returns a new free order to be used with createOrder.
@@ -106,16 +106,15 @@ public:
     /**
      * @brief findOrder Return the local version of an order previously fetched/updated
      */
-    Order* getOrder(const o3d::String &orderId);
+    Order* getOrder(const o3d::CString &orderId);
 
     //
     // position
     //
 
-    o3d::Int32 closePosition(const o3d::String &positionId);
+    o3d::Int32 closePosition(const o3d::CString &positionId);
 
-    o3d::Int32 modifyPosition(
-            const o3d::String &positionId,
+    o3d::Int32 modifyPosition(const o3d::CString &positionId,
             o3d::Double stopLossPrice,
             o3d::Double takeProfitPrice);
 
@@ -140,12 +139,12 @@ public:
     /**
      * @brief freeAssetQuantity Get asset free quantity.
      */
-    o3d::Double freeAssetQuantity(const o3d::String &assetId) const;
+    o3d::Double freeAssetQuantity(const o3d::CString &assetId) const;
 
     /**
      * @brief freeAssetQuantity Get asset locked quantity.
      */
-    o3d::Double lockedAssetQuantity(const o3d::String &assetId) const;
+    o3d::Double lockedAssetQuantity(const o3d::CString &assetId) const;
 
     //
     // signals
@@ -172,7 +171,7 @@ protected:
     o3d::Double m_reservedMargin;
     o3d::Double m_marginFactor;
 
-    o3d::StringMap<Asset> m_assets;
+    o3d::CStringMap<Asset> m_assets;
 
     o3d::TemplateArray<Trade*> m_freeTrades[Trade::NUM_TYPES];
     o3d::TemplateArray<Order*> m_freeOrders;

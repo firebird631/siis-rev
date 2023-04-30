@@ -38,7 +38,7 @@ void ConnectorMessageReceiveTickAggreged::read(zmq::message_t *message)
     o3d::Int8 d;
     m_tickArray.resize(numTicks);
     for (o3d::Int32 i = 0; i < numTicks; i++) {
-        m_listMarketId[static_cast<size_t>(i)] = readString();
+        m_listMarketId[static_cast<size_t>(i)] = readCString();
 
         bid = readDouble();
         ask = readDouble();

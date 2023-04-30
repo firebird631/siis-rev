@@ -43,7 +43,7 @@ public:
     Event event;
     o3d::Double timestamp;
 
-    o3d::String symbol;
+    o3d::CString symbol;
     o3d::Double freeQuantity;
     o3d::Double lockedQuantity;
 };

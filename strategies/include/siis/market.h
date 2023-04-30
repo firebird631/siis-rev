@@ -94,9 +94,9 @@ public:
 
     struct Symbol
     {
-        o3d::String symbol;    //!< symbol
-        o3d::Int32 precision;  //!< precision of the decimal
-        o3d::Double vol24h;    //!< UTC 24h volume change
+        o3d::CString symbol;    //!< symbol
+        o3d::Int32 precision;   //!< precision of the decimal
+        o3d::Double vol24h;     //!< UTC 24h volume change
 
         Symbol() :
             precision(8),
@@ -136,16 +136,16 @@ public:
         }
     };
 
-    Market(const o3d::String &marketId,
-           const o3d::String &pair,
-           const o3d::String &baseSymbol,
-           const o3d::String &quoteSymbol);
+    Market(const o3d::CString &marketId,
+           const o3d::CString &pair,
+           const o3d::CString &baseSymbol,
+           const o3d::CString &quoteSymbol);
 
     ~Market();
 
-    const o3d::String& marketId() const { return m_marketId; }
-    const o3d::String& pair() const { return m_pair; }
-    const o3d::String& alias() const { return m_alias; }
+    const o3d::CString& marketId() const { return m_marketId; }
+    const o3d::CString& pair() const { return m_pair; }
+    const o3d::CString& alias() const { return m_alias; }
 
     const Symbol& base() const { return m_base; }
     const Symbol& quote() const { return m_quote; }
@@ -167,6 +167,11 @@ public:
     o3d::Double ofr() const { return m_ask; }
     o3d::Double mid() const { return (m_bid + m_ask) * 0.5; }
     o3d::Double spread() const { return m_ask - m_bid; }
+
+    /**
+     * @brief last Last traded price.
+     */
+    o3d::Double last() const { return m_last; }
 
     o3d::Bool hedging() const { return m_hedging; }
 
@@ -230,16 +235,16 @@ public:
     void acquire() const { m_mutex.lock(); }
     void release() const { m_mutex.unlock(); }
 
-    void setPair(const o3d::String &pair);
-    void setAlias(const o3d::String &alias);
+    void setPair(const o3d::CString &pair);
+    void setAlias(const o3d::CString &alias);
 
     void setCapacities(o3d::Int32 tradeCaps, o3d::Int32 orderCaps);
     void setTradeCapacities(o3d::Int32 tradeCaps);
     void setOrderCapacities(o3d::Int32 orderCaps);
 
-    void setBaseInfo(const o3d::String &symbol, o3d::Int32 precision);
-    void setQuoteInfo(const o3d::String &symbol, o3d::Int32 precision);
-    void setSettlementInfo(const o3d::String &symbol, o3d::Int32 precision);
+    void setBaseInfo(const o3d::CString &symbol, o3d::Int32 precision);
+    void setQuoteInfo(const o3d::CString &symbol, o3d::Int32 precision);
+    void setSettlementInfo(const o3d::CString &symbol, o3d::Int32 precision);
 
     void setBaseVol24h(o3d::Double vol24h);
     void setQuoteVol24h(o3d::Double vol24h);
@@ -252,6 +257,8 @@ public:
 
     void setState(o3d::Double baseExchangeRate, o3d::Bool tradeable);
     void setPrice(o3d::Double bid, o3d::Double ask, o3d::Double timestamp);
+    void setLast(o3d::Double last);
+    void setLastTick(const Tick &tick);
 
     void setPriceFilter(const o3d::Double filter[3]);     //!< min,max,step
     void setQtyFilter(const o3d::Double filter[3]);       //!< min,max,step
@@ -404,9 +411,9 @@ private:
 
     o3d::FastMutex m_mutex;
 
-    o3d::String m_marketId;
-    o3d::String m_pair;
-    o3d::String m_alias;
+    o3d::CString m_marketId;
+    o3d::CString m_pair;
+    o3d::CString m_alias;
 
     Type m_type;
     Contract m_contract;
@@ -429,6 +436,7 @@ private:
 
     o3d::Double m_bid;
     o3d::Double m_ask;
+    o3d::Double m_last;
 
     o3d::Bool m_hedging;
 

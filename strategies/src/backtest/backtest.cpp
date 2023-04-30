@@ -237,39 +237,49 @@ void Backtest::setPaperMode(o3d::Bool)
     // not available in backtest
 }
 
-void Backtest::onTick(const o3d::String &, const Tick &)
+void Backtest::onTick(const o3d::CString &, const Tick &)
 {
     // nothing in backtesting
 }
 
-void Backtest::onOhlc(const o3d::String &, Ohlc::Type, const Ohlc &)
+void Backtest::onOhlc(const o3d::CString &, Ohlc::Type, const Ohlc &)
 {
     // nothing in backtesting
 }
 
-Market *Backtest::market(const o3d::String &marketId)
+Market *Backtest::market(const o3d::CString &marketId)
 {
-    for (auto pair : m_strategies) {
-        if (pair.second.market && pair.second.market->marketId() == marketId) {
-            return pair.second.market;
-        }
+//    for (auto pair : m_strategies) {
+//        if (pair.second.market && pair.second.market->marketId() == marketId) {
+//            return pair.second.market;
+//        }
+//    }
+
+    auto it = m_strategies.find(marketId);
+    if (it != m_strategies.end()) {
+        return it->second.strategy->market();
     }
 
     return nullptr;
 }
 
-const Market *Backtest::market(const o3d::String &marketId) const
+const Market *Backtest::market(const o3d::CString &marketId) const
 {
-    for (auto pair : m_strategies) {
-        if (pair.second.market && pair.second.market->marketId() == marketId) {
-            return pair.second.market;
-        }
+//    for (auto pair : m_strategies) {
+//        if (pair.second.market && pair.second.market->marketId() == marketId) {
+//            return pair.second.market;
+//        }
+//    }
+
+    auto cit = m_strategies.find(marketId);
+    if (cit != m_strategies.cend()) {
+        return cit->second.strategy->market();
     }
 
     return nullptr;
 }
 
-Strategy* Backtest::strategy(const o3d::String &marketId)
+Strategy* Backtest::strategy(const o3d::CString &marketId)
 {
     auto it = m_strategies.find(marketId);
     if (it != m_strategies.end()) {
@@ -279,7 +289,7 @@ Strategy* Backtest::strategy(const o3d::String &marketId)
     return nullptr;
 }
 
-const Strategy *Backtest::strategy(const o3d::String &marketId) const
+const Strategy *Backtest::strategy(const o3d::CString &marketId) const
 {
     auto cit = m_strategies.find(marketId);
     if (cit != m_strategies.cend()) {
@@ -351,11 +361,15 @@ o3d::Int32 Backtest::run(void *)
                 strategy->onTickUpdate(m_curTs, market->getTickBuffer());
 
                 // consume them
+                market->setLastTick(market->getTickBuffer().last());
                 market->getTickBuffer().forceSize(0);
                 // ticks.destroy();
 
                 // process one strategy iteration
                 strategy->process(m_curTs);
+
+                // update the local connector to manage orders, positions and virtual account details
+                m_connector->update();
             }
 
             m_curTs += m_timestep;
@@ -398,11 +412,15 @@ o3d::Int32 Backtest::run(void *)
                 strategy->onTickUpdate(m_curTs, market->getTickBuffer());
 
                 // consume them
+                market->setLastTick(market->getTickBuffer().last());
                 market->getTickBuffer().forceSize(0);
                 // ticks.destroy();
 
                 // process one strategy iteration
                 m_poolWorker->addJob(strategy, m_curTs, &countDown);
+
+                // update the local connector to manage orders, positions and virtual account details
+                m_connector->update();
             }
 
             // sync before continue

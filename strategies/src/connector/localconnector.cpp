@@ -9,9 +9,11 @@
 #include "siis/connector/traderproxy.h"
 
 #include "siis/handler.h"
+#include "siis/strategy.h"
 #include "siis/config/config.h"
 
 #include <o3d/core/debug.h>
+#include <o3d/core/uuid.h>
 
 using namespace siis;
 using o3d::Logger;
@@ -47,18 +49,42 @@ void LocalConnector::stop()
 
 void LocalConnector::update()
 {
-    // @todo update positions
-    for (Position *position : m_virtualPositions) {
+    // @todo execute orders (stop, limit)
+    for (auto it = m_virtualOrders.begin(); it != m_virtualOrders.end(); ++it) {
+        // check and execute order...
+        Order *order = it->second;
+        const Market *market = order->strategy->market();
 
+        if (order->orderType == Order::ORDER_LIMIT) {
+            // @todo
+        }
+        else if (order->orderType == Order::ORDER_STOP) {
+            // @todo
+        }
+        else if (order->orderType == Order::ORDER_STOP_LIMIT) {
+            // @todo
+        }
+        else if (order->orderType == Order::ORDER_TAKE_PROFIT) {
+            // @todo
+        }
+        else if (order->orderType == Order::ORDER_TAKE_PROFIT_LIMIT) {
+            // @todo
+        }
     }
 
-    // @todo execute orders (stop, limit)
-    for (Order *order : m_virtualOrders) {
+    // @todo update positions
+    for (auto it = m_virtualPositions.begin(); it != m_virtualPositions.end(); ++it) {
+        Position *position = it->second;
+        const Market *market = position->strategy->market();
 
+        if (position->quantity > 0.0) {
+            // update position state, profit and loss...
+        }
     }
 
     // update virtual account
-    // @todo
+    m_virtualAccount.updateBalance();
+    m_virtualAccount.updateDrawDown();
 }
 
 void LocalConnector::connect()
@@ -147,7 +173,7 @@ void LocalConnector::fetchAnyOrders()
     // nothing
 }
 
-void LocalConnector::fetchOrder(const o3d::String &marketId)
+void LocalConnector::fetchOrder(const o3d::CString &marketId)
 {
     // nothing
 }
@@ -157,7 +183,7 @@ void LocalConnector::fetchAnyPositions()
     // nothing
 }
 
-void LocalConnector::fetchPositions(const o3d::String &marketId)
+void LocalConnector::fetchPositions(const o3d::CString &marketId)
 {
     // nothing
 }
@@ -167,12 +193,29 @@ o3d::Int32 LocalConnector::createOrder(Order *order)
     if (m_traderProxy) {
         if (order->orderType == Order::ORDER_MARKET) {
             // direct execution and return
-            // @todo execution
+            const Strategy *strategy = order->strategy;
+            const Market* market = strategy->market();
+
+            order->orderId = o3d::Uuid::uuid5("siis").toCString();
+            order->created = strategy->handler()->timestamp();
+
+            order->executed = strategy->handler()->timestamp();
+            order->execPrice = market->openExecPrice(order->direction);
+            order->avgPrice = market->openExecPrice(order->direction);
+            order->cumulativeFilled = order->orderQuantity;
+
+            order->filled = true;
+
+            // @todo order signal to trade manager
+            // strategy->onOrderSignal(orderSignal);
+
             return Order::RET_OK;
         } else {
             // check and insert for later execution
             // @todo check
-            m_virtualOrders.push_back(order);
+            order->orderId = o3d::Uuid::uuid5("siis").toCString();
+
+            m_virtualOrders[order->orderId] = order;
         }
         return Order::RET_OK;
     } else {
@@ -180,19 +223,22 @@ o3d::Int32 LocalConnector::createOrder(Order *order)
     }
 }
 
-o3d::Int32 LocalConnector::cancelOrder(const o3d::String &orderId)
+o3d::Int32 LocalConnector::cancelOrder(const o3d::CString &orderId)
 {
     if (m_traderProxy) {
-        return 0;
+        // @todo find order and remove it, then must be delete on trade manager and free by proxy
+        // if (orderId )
+
+        return Order::RET_OK;
     } else {
         return Order::RET_UNREACHABLE_SERVICE;
     }
 }
 
-o3d::Int32 LocalConnector::closePosition(const o3d::String &positionId)
+o3d::Int32 LocalConnector::closePosition(const o3d::CString &positionId)
 {
     if (m_traderProxy) {
-        return 0;
+        return Order::RET_OK;
     } else {
         return Order::RET_UNREACHABLE_SERVICE;
     }
@@ -212,19 +258,20 @@ void LocalConnector::fetchAnyAssets()
     }
 }
 
-void LocalConnector::fetchAssets(const o3d::String &assetId)
+void LocalConnector::fetchAssets(const o3d::CString &assetId)
 {
     if (m_traderProxy) {
         // @todo could set initial asset quantity from configuration
     }
 }
 
-o3d::Int32 LocalConnector::modifyPosition(
-        const o3d::String &positionId,
+o3d::Int32 LocalConnector::modifyPosition(const o3d::CString &positionId,
         o3d::Double stopLossPrice,
         o3d::Double takeProfitPrice)
 {
     if (m_traderProxy) {
+        // retrieve position
+        // @todo
         return Order::RET_OK;
     } else {
         return Order::RET_UNREACHABLE_SERVICE;

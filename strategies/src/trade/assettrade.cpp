@@ -12,17 +12,8 @@
 
 using namespace siis;
 
-AssetTrade::AssetTrade() :
-    Trade(Trade::TYPE_BUY_SELL, -1.0),
-    m_buyState(STATE_UNDEFINED),
-    m_stopState(STATE_UNDEFINED),
-    m_limitState(STATE_UNDEFINED)
-{
-
-}
-
-AssetTrade::AssetTrade(o3d::Double timeframe) :
-    Trade(Trade::TYPE_BUY_SELL, timeframe),
+AssetTrade::AssetTrade(TraderProxy *proxy) :
+    Trade(proxy, Trade::TYPE_BUY_SELL, -1.0),
     m_buyState(STATE_UNDEFINED),
     m_stopState(STATE_UNDEFINED),
     m_limitState(STATE_UNDEFINED)
@@ -35,15 +26,16 @@ AssetTrade::~AssetTrade()
 
 }
 
-void AssetTrade::open(TraderProxy *trader,
-        Market *market,
+void AssetTrade::open(
+        Strategy *strategy,
         o3d::Int32 direction,
-        Trade::OrderType orderType,
         o3d::Double orderPrice,
         o3d::Double quantity,
         o3d::Double takeProfitPrice,
         o3d::Double stopLossPrice)
 {
+    m_strategy = strategy;
+
     // @todo
     m_direction = direction;
     m_orderQuantity = quantity;
@@ -53,40 +45,40 @@ void AssetTrade::open(TraderProxy *trader,
     // m_openTimeStamp = trader->createOrder()
 }
 
-void AssetTrade::remove(TraderProxy *trader)
+void AssetTrade::remove()
 {
 
 }
 
-void AssetTrade::cancelOpen(TraderProxy *trader)
+void AssetTrade::cancelOpen()
 {
 
 }
 
-void AssetTrade::cancelClose(TraderProxy *trader)
+void AssetTrade::cancelClose()
 {
 
 }
 
-void AssetTrade::modifyTakeProfit(TraderProxy *trader, Market *market, o3d::Double price, o3d::Bool asOrder)
+void AssetTrade::modifyTakeProfit(o3d::Double price, o3d::Bool asOrder)
 {
 
 }
 
-void AssetTrade::modifyStopLoss(TraderProxy *trader, Market *market, o3d::Double price, o3d::Bool asOrder)
+void AssetTrade::modifyStopLoss(o3d::Double price, o3d::Bool asOrder)
 {
 
 }
 
-void AssetTrade::close(TraderProxy *trader, Market *market)
+void AssetTrade::close()
 {
     // @todo
     m_filledExitQuantity = m_orderQuantity;
 }
 
-o3d::Bool AssetTrade::canDelete() const
+void AssetTrade::process(o3d::Double timestamp)
 {
-    return false;
+
 }
 
 o3d::Bool AssetTrade::isActive() const
@@ -131,21 +123,6 @@ o3d::Bool AssetTrade::isClosing() const
 }
 
 o3d::Bool AssetTrade::isClosed() const
-{
-    return false;
-}
-
-o3d::Bool AssetTrade::isEntryTimeout(o3d::Double timestamp, o3d::Double timeout) const
-{
-    return false;
-}
-
-o3d::Bool AssetTrade::isExitTimeout(o3d::Double timestamp, o3d::Double timeout) const
-{
-    return false;
-}
-
-o3d::Bool AssetTrade::isValid() const
 {
     return false;
 }

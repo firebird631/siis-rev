@@ -27,7 +27,7 @@ public:
 	void read(zmq::message_t *message); // read the message
 
     Tick& tick() { return m_tick; }
-	o3d::String marketId() { return m_marketId; }
+    o3d::CString marketId() { return m_marketId; }
 
 protected:
 
@@ -36,7 +36,7 @@ protected:
 
 protected:
 
-	o3d::String m_marketId;
+    o3d::CString m_marketId;
     Tick m_tick;
 };
 

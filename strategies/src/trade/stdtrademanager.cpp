@@ -55,10 +55,15 @@ void StdTradeManager::process(o3d::Double timestamp)
     m_mutex.lock();
 
     for (Trade *trade : m_trades) {
-        // process dynamic update of the trade, like managed stop-loss, take-profit in taker when defined,
-        // statistics update, and cleanup remaining trade
+        // process exit conditions of the trade (breakeven, dynamic stop/tp, market close condition)
 
-        // @todo more or less as in python trademanager
+        // statistics update
+        trade->updateStats(m_strategy->market()->last(), timestamp);
+
+        // purge closed or canceled trades
+        if (trade->canDelete()) {
+            removed_trades.push_back(trade);
+        }
     }
 
     for (Trade *trade : removed_trades) {
@@ -199,9 +204,9 @@ void StdTradeManager::closeAll()
     for (Trade *trade : m_trades) {
         if (trade->isActive()) {
             // found : apply
-            trade->close(m_strategy->handler()->traderProxy(), m_strategy->market());
+            trade->close();
         } else if (!trade->isActive()) {
-            trade->cancelOpen(m_strategy->handler()->traderProxy());
+            trade->cancelOpen();
         }
     }
 
@@ -222,9 +227,9 @@ void StdTradeManager::closeAllByDirection(o3d::Int32 dir)
 
         if (trade->isActive()) {
             // found : apply
-            trade->close(m_strategy->handler()->traderProxy(), m_strategy->market());
+            trade->close();
         } else if (!trade->isActive()) {
-            trade->cancelOpen(m_strategy->handler()->traderProxy());
+            trade->cancelOpen();
         }
     }
 

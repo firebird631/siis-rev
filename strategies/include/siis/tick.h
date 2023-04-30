@@ -187,6 +187,15 @@ public:
 
         *get(t) = tick;
     }
+
+    inline Tick last() const
+    {
+        if (getSize() > 0) {
+            return *get(getSize()-1);
+        }
+
+        return Tick();
+    }
 };
 
 } // namespace siis

@@ -250,7 +250,7 @@ o3d::Int32 ZmqConnector::run(void *)
                 case ConnectorMessageCore::FUNC_ID::RECEIVE_TICK_AGGREGED: {
                     ConnectorMessageReceiveTickAggreged msg;
 					msg.read(&message);
-					std::vector<o3d::String> &listMarketId = msg.listMarketId();
+                    std::vector<o3d::CString> &listMarketId = msg.listMarketId();
 					TickArray &tickArray = msg.tickArray();
                     for (o3d::Int32 i = 0; i < tickArray.getSize(); ++i) {
                         m_handler->onTick(listMarketId[static_cast<size_t>(i)], tickArray[i]);
@@ -389,7 +389,7 @@ void ZmqConnector::fetchAnyOrders()
     //    return list;
 }
 
-void ZmqConnector::fetchOrder(const o3d::String &marketId)
+void ZmqConnector::fetchOrder(const o3d::CString &marketId)
 {
     if (m_connected && m_traderProxy) {
 
@@ -413,7 +413,7 @@ void ZmqConnector::fetchAnyPositions()
     //    return list;
 }
 
-void ZmqConnector::fetchPositions(const o3d::String &marketId)
+void ZmqConnector::fetchPositions(const o3d::CString &marketId)
 {
     if (m_connected && m_traderProxy) {
 
@@ -438,7 +438,7 @@ o3d::Int32 ZmqConnector::createOrder(Order *order)
     }
 }
 
-o3d::Int32 ZmqConnector::cancelOrder(const o3d::String &orderId)
+o3d::Int32 ZmqConnector::cancelOrder(const o3d::CString &orderId)
 {
     if (m_connected && m_traderProxy) {
         // @todo replace by message static serializer
@@ -456,7 +456,7 @@ o3d::Int32 ZmqConnector::cancelOrder(const o3d::String &orderId)
     }
 }
 
-o3d::Int32 ZmqConnector::closePosition(const o3d::String &positionId)
+o3d::Int32 ZmqConnector::closePosition(const o3d::CString &positionId)
 {
     if (m_connected && m_traderProxy) {
         // @todo replace by message static serializer
@@ -488,15 +488,14 @@ void ZmqConnector::fetchAnyAssets()
     }
 }
 
-void ZmqConnector::fetchAssets(const o3d::String &assetId)
+void ZmqConnector::fetchAssets(const o3d::CString &assetId)
 {
     if (m_connected && m_traderProxy) {
 
     }
 }
 
-o3d::Int32 ZmqConnector::modifyPosition(
-        const o3d::String &positionId,
+o3d::Int32 ZmqConnector::modifyPosition(const o3d::CString &positionId,
         o3d::Double stopLossPrice,
         o3d::Double takeProfitPrice)
 {

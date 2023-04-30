@@ -23,7 +23,7 @@ void ConnectorMessageReceivetick::read(zmq::message_t *message)
 	ConnectorMessageCore::read(message);
 
 	// read the marketId
-	m_marketId = readString();
+    m_marketId = readCString();
 	// read the tick
 	m_tick.copy(reinterpret_cast<o3d::Double*>(m_ptr_msgReturn));
 }

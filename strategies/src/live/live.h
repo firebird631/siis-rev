@@ -60,19 +60,22 @@ public:
 
     virtual void setPaperMode(o3d::Bool active) override;
 
-    virtual void onTick(const o3d::String &marketId, const Tick &tick) override;
-    virtual void onOhlc(const o3d::String &marketId, Ohlc::Type ohlcType, const Ohlc &ohlc) override;
+    virtual void onTick(const o3d::CString &marketId, const Tick &tick) override;
+    virtual void onOhlc(const o3d::CString &marketId, Ohlc::Type ohlcType, const Ohlc &ohlc) override;
 
-    virtual Market* market(const o3d::String &marketId) override;
-    virtual const Market* market(const o3d::String &marketId) const override;
+    virtual Market* market(const o3d::CString &marketId) override;
+    virtual const Market* market(const o3d::CString &marketId) const override;
 
-    virtual Strategy* strategy(const o3d::String &marketId) override;
-    virtual const Strategy* strategy(const o3d::String &marketId) const override;
+    virtual Strategy* strategy(const o3d::CString &marketId) override;
+    virtual const Strategy* strategy(const o3d::CString &marketId) const override;
 
     virtual Database* database() override;
     virtual Cache* cache() override;
 
-    virtual void log(o3d::Double timeframe, const o3d::String &marketId, const o3d::String &channel, const o3d::String &msg) override;
+    virtual void log(o3d::Double timeframe,
+                     const o3d::String &marketId,
+                     const o3d::String &channel,
+                     const o3d::String &msg) override;
 
 private:
 
@@ -83,8 +86,8 @@ private:
     o3d::Bool m_running;
     o3d::Bool m_paperMode;
 
-    o3d::StringMap<Strategy*> m_strategies;
-    o3d::StringMap<Market*> m_markets;
+    o3d::CStringMap<Strategy*> m_strategies;
+    o3d::CStringMap<Market*> m_markets;
 
     Displayer *m_displayer;
     Monitor *m_monitor;

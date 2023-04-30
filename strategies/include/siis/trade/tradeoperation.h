@@ -24,7 +24,7 @@ class SIIS_API TradeOperation
 {
 public:
 
-    // @todo @see v1
+    // @todo step stop-loss
 };
 
 } // namespace siis

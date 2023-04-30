@@ -210,39 +210,37 @@ void Optimization::setPaperMode(o3d::Bool)
     // not available in backtest
 }
 
-void Optimization::onTick(const o3d::String &, const Tick &)
+void Optimization::onTick(const o3d::CString &, const Tick &)
 {
     // nothing in backtesting
 }
 
-void Optimization::onOhlc(const o3d::String &, Ohlc::Type, const Ohlc &)
+void Optimization::onOhlc(const o3d::CString &, Ohlc::Type, const Ohlc &)
 {
     // nothing in backtesting
 }
 
-Market *Optimization::market(const o3d::String &marketId)
+Market *Optimization::market(const o3d::CString &marketId)
 {
-    for (auto pair : m_optimizers) {
-        if (pair.second.market && pair.second.market->marketId() == marketId) {
-            return pair.second.market;
-        }
+    auto it = m_optimizers.find(marketId);
+    if (it != m_optimizers.end()) {
+        return it->second.strategy->market();
     }
 
     return nullptr;
 }
 
-const Market *Optimization::market(const o3d::String &marketId) const
+const Market *Optimization::market(const o3d::CString &marketId) const
 {
-    for (auto pair : m_optimizers) {
-        if (pair.second.market && pair.second.market->marketId() == marketId) {
-            return pair.second.market;
-        }
+    auto cit = m_optimizers.find(marketId);
+    if (cit != m_optimizers.cend()) {
+        return cit->second.strategy->market();
     }
 
     return nullptr;
 }
 
-Strategy *Optimization::strategy(const o3d::String &marketId)
+Strategy *Optimization::strategy(const o3d::CString &marketId)
 {
     auto it = m_optimizers.find(marketId);
     if (it != m_optimizers.end()) {
@@ -252,7 +250,7 @@ Strategy *Optimization::strategy(const o3d::String &marketId)
     return nullptr;
 }
 
-const Strategy *Optimization::strategy(const o3d::String &marketId) const
+const Strategy *Optimization::strategy(const o3d::CString &marketId) const
 {
     auto cit = m_optimizers.find(marketId);
     if (cit != m_optimizers.cend()) {
@@ -314,6 +312,7 @@ o3d::Int32 Optimization::run(void *)
                 strategy->onTickUpdate(m_curTs, market->getTickBuffer());
 
                 // consume them
+                market->setLastTick(market->getTickBuffer().last());
                 market->getTickBuffer().forceSize(0);
                 // ticks.destroy();
 
@@ -363,6 +362,7 @@ o3d::Int32 Optimization::run(void *)
                 strategy->onTickUpdate(m_curTs, market->getTickBuffer());
 
                 // consume them
+                market->setLastTick(market->getTickBuffer().last());
                 market->getTickBuffer().forceSize(0);
                 // ticks.destroy();
 

@@ -44,22 +44,23 @@ TraderProxy::TraderProxy(Connector *connector) :
 {
     for (o3d::Int32 i = 0; i < BUCKET_SIZE; ++i) {
         m_freeOrders[i] = new Order();
+        m_freeOrders[i]->proxy = this;
     }
 
     for (o3d::Int32 i = 0; i < BUCKET_SIZE; ++i) {
-        m_freeTrades[Trade::TYPE_BUY_SELL][i] = new AssetTrade();
+        m_freeTrades[Trade::TYPE_BUY_SELL][i] = new AssetTrade(this);
     }
 
     for (o3d::Int32 i = 0; i < BUCKET_SIZE; ++i) {
-        m_freeTrades[Trade::TYPE_MARGIN][i] = new MarginTrade();
+        m_freeTrades[Trade::TYPE_MARGIN][i] = new MarginTrade(this);
     }
 
     for (o3d::Int32 i = 0; i < BUCKET_SIZE; ++i) {
-        m_freeTrades[Trade::TYPE_IND_MARGIN][i] = new IndMarginTrade();
+        m_freeTrades[Trade::TYPE_IND_MARGIN][i] = new IndMarginTrade(this);
     }
 
     for (o3d::Int32 i = 0; i < BUCKET_SIZE; ++i) {
-        m_freeTrades[Trade::TYPE_POSITION][i] = new PositionTrade();
+        m_freeTrades[Trade::TYPE_POSITION][i] = new PositionTrade(this);
     }
 }
 
@@ -100,7 +101,7 @@ Trade* TraderProxy::createTrade(Market *market, Trade::Type tradeType, o3d::Doub
             if (m_freeTrades[Trade::TYPE_BUY_SELL].getSize() == 0) {
                 // empty allocator, make some news
                 for (o3d::Int32 i = 0; i < BUCKET_SIZE; ++i) {
-                    m_freeTrades[Trade::TYPE_BUY_SELL][i] = new AssetTrade();
+                    m_freeTrades[Trade::TYPE_BUY_SELL][i] = new AssetTrade(this);
                 }
             }
 
@@ -114,7 +115,7 @@ Trade* TraderProxy::createTrade(Market *market, Trade::Type tradeType, o3d::Doub
             if (m_freeTrades[Trade::TYPE_MARGIN].getSize() == 0) {
                 // empty allocator, make some news
                 for (o3d::Int32 i = 0; i < BUCKET_SIZE; ++i) {
-                    m_freeTrades[Trade::TYPE_MARGIN][i] = new MarginTrade();
+                    m_freeTrades[Trade::TYPE_MARGIN][i] = new MarginTrade(this);
                 }
             }
 
@@ -128,7 +129,7 @@ Trade* TraderProxy::createTrade(Market *market, Trade::Type tradeType, o3d::Doub
             if (m_freeTrades[Trade::TYPE_IND_MARGIN].getSize() == 0) {
                 // empty allocator, make some news
                 for (o3d::Int32 i = 0; i < BUCKET_SIZE; ++i) {
-                    m_freeTrades[Trade::TYPE_IND_MARGIN][i] = new IndMarginTrade();
+                    m_freeTrades[Trade::TYPE_IND_MARGIN][i] = new IndMarginTrade(this);
                 }
             }
 
@@ -141,7 +142,7 @@ Trade* TraderProxy::createTrade(Market *market, Trade::Type tradeType, o3d::Doub
             if (m_freeTrades[Trade::TYPE_POSITION].getSize() == 0) {
                 // empty allocator, make some news
                 for (o3d::Int32 i = 0; i < BUCKET_SIZE; ++i) {
-                    m_freeTrades[Trade::TYPE_POSITION][i] = new IndMarginTrade();
+                    m_freeTrades[Trade::TYPE_POSITION][i] = new PositionTrade(this);
                 }
             }
 
@@ -162,7 +163,7 @@ Trade* TraderProxy::createTrade(Market *market, Trade::Type tradeType, o3d::Doub
     return trade;
 }
 
-Trade* TraderProxy::createTrade(const o3d::String &marketId, Trade::Type tradeType, o3d::Double timeframe)
+Trade* TraderProxy::createTrade(const o3d::CString &marketId, Trade::Type tradeType, o3d::Double timeframe)
 {
     Market *market = m_connector->handler()->market(marketId);
     return createTrade(market, tradeType, timeframe);
@@ -193,16 +194,16 @@ o3d::Int32 TraderProxy::createOrder(Order *order)
         return m_connector->createOrder(order);
     }
 
-    return -1;
+    return Order::RET_UNREACHABLE_SERVICE;
 }
 
-o3d::Int32 TraderProxy::cancelOrder(const o3d::String &orderId)
+o3d::Int32 TraderProxy::cancelOrder(const o3d::CString &orderId)
 {
     if (m_connector) {
         return m_connector->cancelOrder(orderId);
     }
 
-    return -1;
+    return Order::RET_UNREACHABLE_SERVICE;
 }
 
 Order *TraderProxy::newOrder()
@@ -213,6 +214,7 @@ Order *TraderProxy::newOrder()
         // empty allocator, make some news
         for (o3d::Int32 i = 0; i < BUCKET_SIZE; ++i) {
             m_freeOrders[i] = new Order();
+            m_freeOrders[i]->proxy = this;
         }
 
         // get the last free and pop it
@@ -236,22 +238,24 @@ void TraderProxy::freeOrder(Order *order)
     }
 }
 
-o3d::Int32 TraderProxy::closePosition(const o3d::String &positionId)
+o3d::Int32 TraderProxy::closePosition(const o3d::CString &positionId)
 {
     if (m_connector) {
         return m_connector->closePosition(positionId);
     }
 
-    return -1;
+    return Order::RET_UNREACHABLE_SERVICE;
 }
 
-o3d::Int32 TraderProxy::modifyPosition(const o3d::String &positionId, o3d::Double stopLossPrice, o3d::Double takeProfitPrice)
+o3d::Int32 TraderProxy::modifyPosition(const o3d::CString &positionId,
+                                       o3d::Double stopLossPrice,
+                                       o3d::Double takeProfitPrice)
 {
     if (m_connector) {
         return m_connector->modifyPosition(positionId, stopLossPrice, takeProfitPrice);
     }
 
-    return -1;
+    return Order::RET_UNREACHABLE_SERVICE;
 }
 
 o3d::Double TraderProxy::freeMargin() const
@@ -259,7 +263,7 @@ o3d::Double TraderProxy::freeMargin() const
     return m_freeMargin;
 }
 
-o3d::Double TraderProxy::freeAssetQuantity(const o3d::String &assetId) const
+o3d::Double TraderProxy::freeAssetQuantity(const o3d::CString &assetId) const
 {
     auto cit = m_assets.find(assetId);
     if (cit != m_assets.cend()) {
@@ -269,7 +273,7 @@ o3d::Double TraderProxy::freeAssetQuantity(const o3d::String &assetId) const
     return 0.0;
 }
 
-o3d::Double TraderProxy::lockedAssetQuantity(const o3d::String &assetId) const
+o3d::Double TraderProxy::lockedAssetQuantity(const o3d::CString &assetId) const
 {
     auto cit = m_assets.find(assetId);
     if (cit != m_assets.cend()) {

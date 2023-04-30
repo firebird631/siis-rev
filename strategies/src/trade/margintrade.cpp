@@ -12,17 +12,8 @@
 
 using namespace siis;
 
-MarginTrade::MarginTrade() :
-    Trade(Trade::TYPE_MARGIN, -1.0),
-    m_entryState(STATE_UNDEFINED),
-    m_stopState(STATE_UNDEFINED),
-    m_limitState(STATE_UNDEFINED)
-{
-
-}
-
-MarginTrade::MarginTrade(o3d::Double timeframe) :
-    Trade(Trade::TYPE_MARGIN, timeframe),
+MarginTrade::MarginTrade(TraderProxy *proxy) :
+    Trade(proxy, Trade::TYPE_MARGIN, -1.0),
     m_entryState(STATE_UNDEFINED),
     m_stopState(STATE_UNDEFINED),
     m_limitState(STATE_UNDEFINED)
@@ -35,10 +26,9 @@ MarginTrade::~MarginTrade()
 
 }
 
-void MarginTrade::open(TraderProxy *trader,
-        Market *market,
+void MarginTrade::open(
+        Strategy *strategy,
         o3d::Int32 direction,
-        Trade::OrderType orderType,
         o3d::Double orderPrice,
         o3d::Double quantity,
         o3d::Double takeProfitPrice,
@@ -51,39 +41,39 @@ void MarginTrade::open(TraderProxy *trader,
     m_stopLossPrice = stopLossPrice;
 }
 
-void MarginTrade::remove(TraderProxy *trader)
+void MarginTrade::remove()
 {
 
 }
 
-void MarginTrade::cancelOpen(TraderProxy *trader)
+void MarginTrade::cancelOpen()
 {
 
 }
 
-void MarginTrade::cancelClose(TraderProxy *trader)
+void MarginTrade::cancelClose()
 {
 
 }
 
-void MarginTrade::modifyTakeProfit(TraderProxy *trader, Market *market, o3d::Double price, o3d::Bool asOrder)
+void MarginTrade::modifyTakeProfit(o3d::Double price, o3d::Bool asOrder)
 {
 
 }
 
-void MarginTrade::modifyStopLoss(TraderProxy *trader, Market *market, o3d::Double price, o3d::Bool asOrder)
+void MarginTrade::modifyStopLoss(o3d::Double price, o3d::Bool asOrder)
 {
 
 }
 
-void MarginTrade::close(TraderProxy *trader, Market *market)
+void MarginTrade::close()
 {
 
 }
 
-o3d::Bool MarginTrade::canDelete() const
+void MarginTrade::process(o3d::Double timestamp)
 {
-    return false;
+
 }
 
 o3d::Bool MarginTrade::isActive() const
@@ -128,21 +118,6 @@ o3d::Bool MarginTrade::isClosing() const
 }
 
 o3d::Bool MarginTrade::isClosed() const
-{
-    return false;
-}
-
-o3d::Bool MarginTrade::isEntryTimeout(o3d::Double timestamp, o3d::Double timeout) const
-{
-    return false;
-}
-
-o3d::Bool MarginTrade::isExitTimeout(o3d::Double timestamp, o3d::Double timeout) const
-{
-    return false;
-}
-
-o3d::Bool MarginTrade::isValid() const
 {
     return false;
 }

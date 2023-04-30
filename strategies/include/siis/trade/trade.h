@@ -212,7 +212,7 @@ public:
         NOTHING_TO_DO = 2
     };
 
-    Trade(Type type, o3d::Double timeframe);
+    Trade(TraderProxy *proxy, Type type, o3d::Double timeframe);
     virtual ~Trade();
 
     /**
@@ -228,6 +228,9 @@ public:
     //
     // getters
     //
+
+    TraderProxy* traderProxy() { return m_proxy; }
+    const TraderProxy* traderProxy() const { return m_proxy; }
 
     void setId(o3d::Int32 id) { m_id = id; }
 
@@ -281,20 +284,16 @@ public:
 
     /**
      * @brief open Initial creation of the entry order using the trader proxy and market.
-     * @param trader Valid trader proxy related to the primary connector.
-     * @param market Valid market related to the strategy.
+     * @param strategy Valid related strategy.
      * @param direction -1 for short, 1 for long.
-     * @param orderType @see OrderType
      * @param orderPrice If <= 0 then market order, else limit order.
      * @param quantity
      * @param takeProfitPrice If > 0 then defines the take-profit (limit) price of the position or a SL order.
      * @param stopLossPrice If > 0 then defines the stop-loss (stop) price of the position or a TP order.
      */
     virtual void open(
-            TraderProxy *trader,
-            Market *market,
+            Strategy *strategy,
             o3d::Int32 direction,
-            OrderType orderType,
             o3d::Double orderPrice,
             o3d::Double quantity,
             o3d::Double takeProfitPrice,
@@ -303,37 +302,37 @@ public:
     /**
      * @brief remove Remove the trade and related existings orders.
      */
-    virtual void remove(TraderProxy *trader) = 0;
+    virtual void remove() = 0;
 
     /**
      * @brief cancelOpen Cancel the entire or remaining open order.
      */
-    virtual void cancelOpen(TraderProxy *trader) = 0;
+    virtual void cancelOpen() = 0;
 
     /**
      * @brief Cancel the entire or remaining close order.
      */
-    virtual void cancelClose(TraderProxy *trader) = 0;
+    virtual void cancelClose() = 0;
 
     /**
      * @brief modifyTakeProfit Create/modify the take-order limit order or position limit.
      * @param asOrder If true create/modify a limit order. If false only modify the takeProfit price member.
      * If false and previous order exists it is canceled.
      */
-    virtual void modifyTakeProfit(TraderProxy *trader, Market *market, o3d::Double price, o3d::Bool asOrder) = 0;
+    virtual void modifyTakeProfit(o3d::Double price, o3d::Bool asOrder) = 0;
 
     /**
      * @brief modifyStopLoss Create/modify the stop-loss taker order or position stop-loss.
      * @param asOrder If true create/modify a stop-loss order. If false only modify the stopLoss price member.
      * If false and previous order exists it is canceled.
      */
-    virtual void modifyStopLoss(TraderProxy *trader, Market *market, o3d::Double price, o3d::Bool asOrder) = 0;
+    virtual void modifyStopLoss(o3d::Double price, o3d::Bool asOrder) = 0;
 
     /**
      * @brief close Close the position or sell the entire asset.
      * Any others related orders are canceled.
      */
-    virtual void close(TraderProxy *trader, Market *market) = 0;
+    virtual void close() = 0;
 
     //
     // processing states
@@ -344,7 +343,7 @@ public:
      * Either the trade is completed, or rejected, or in a state meaning the trade manager of the strategy can
      * delete it.
      */
-    virtual o3d::Bool canDelete() const = 0;
+    o3d::Bool canDelete() const;
 
     /**
      * @brief isActive Is the entry trade accepted, and partially filled, or fully filled or exit state is defined,
@@ -381,25 +380,26 @@ public:
     /**
      * @brief isEntryTimeout Return true if the trade entry timeout.
      * @param timestamp Current timestamp.
-     * @param timeout Timeout delay.
+     * @param timeout Timeout delay if not specified or zero use m_entryTimeout.
      */
-    virtual o3d::Bool isEntryTimeout(o3d::Double timestamp, o3d::Double timeout) const = 0;
+    o3d::Bool isEntryTimeout(o3d::Double timestamp, o3d::Double timeout = 0.0) const;
 
     /**
-     * @brief isExitTimeout Return true if the trade exit timeout.
+     * @brief isTradeTimeout Return true if the trade has expired after a partial or complete entry.
      * @param timestamp Current timestamp.
-     * @param timeout Timeout delay.
+     * @param timeout Timeout delay. If not specified or zero use m_expiry.
      */
-    virtual o3d::Bool isExitTimeout(o3d::Double timestamp, o3d::Double timeout) const = 0;
-
-    /**
-     * @brief isValid Return true if the trade is not expired (signal still acceptable) and entry quantity not fully filled.
-     */
-    virtual o3d::Bool isValid() const = 0;
+    o3d::Bool isTradeTimeout(o3d::Double timestamp, o3d::Double timeout = 0.0) const;
 
     //
     // signals update
     //
+
+    /**
+     * @brief process Process operation like local take-profit or stop-loss.
+     * @param timestamp
+     */
+    virtual void process(o3d::Double timestamp) = 0;
 
     /**
      * @brief orderSignal Update the trade information according to the received order signal.
@@ -462,7 +462,6 @@ public:
      */
     virtual void loads(const o3d::Variadic &trade) = 0;
 
-
     //
     // statistics
     //
@@ -502,6 +501,9 @@ public:
 
 protected:
 
+    TraderProxy *m_proxy;   //!< must be valid
+    Strategy *m_strategy;   //!< must be valid at open at least
+
     o3d::Int32 m_id;
     Type m_type;
     Mode m_mode;                  //!< real trade or on the paper trader
@@ -510,6 +512,9 @@ protected:
     o3d::Double m_timestamp;      //!< trade entry order creation timestamp
 
     o3d::Int32 m_direction;
+
+    o3d::Double m_expiry;          //!< max life duration of the trade
+    o3d::Double m_entryTimeout;    //!< max life duration of the entry order to be filled or partially
 
     o3d::Double m_openTimeStamp;   //!< first open trade timestamp
     o3d::Double m_exitTimeStamp;   //!< last exit trade timestamp

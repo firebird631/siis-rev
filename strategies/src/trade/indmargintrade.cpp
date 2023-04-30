@@ -12,17 +12,8 @@
 
 using namespace siis;
 
-IndMarginTrade::IndMarginTrade() :
-    Trade(Trade::TYPE_IND_MARGIN, -1.0),
-    m_entry(),
-    m_stop(),
-    m_limit()
-{
-
-}
-
-IndMarginTrade::IndMarginTrade(o3d::Double timeframe) :
-    Trade(Trade::TYPE_IND_MARGIN, timeframe),
+IndMarginTrade::IndMarginTrade(TraderProxy *proxy) :
+    Trade(proxy, Trade::TYPE_IND_MARGIN, -1.0),
     m_entry(),
     m_stop(),
     m_limit()
@@ -35,69 +26,82 @@ IndMarginTrade::~IndMarginTrade()
 
 }
 
-void IndMarginTrade::open(TraderProxy *trader,
-        Market *market,
+void IndMarginTrade::open(
+        Strategy *strategy,
         o3d::Int32 direction,
-        Trade::OrderType orderType,
         o3d::Double orderPrice,
         o3d::Double quantity,
         o3d::Double takeProfitPrice,
         o3d::Double stopLossPrice)
 {
+    m_strategy = strategy;
+
     // @todo
     m_direction = direction;
     m_orderQuantity = quantity;
     m_takeProfitPrice = takeProfitPrice;
     m_stopLossPrice = stopLossPrice;
 
-    Order *entryOrder = trader->newOrder();
+    Order *entryOrder = traderProxy()->newOrder();
     entryOrder->direction = direction;
 
 }
 
-void IndMarginTrade::remove(TraderProxy *trader)
+void IndMarginTrade::remove()
 {
 
 }
 
-void IndMarginTrade::cancelOpen(TraderProxy *trader)
+void IndMarginTrade::cancelOpen()
 {
 
 }
 
-void IndMarginTrade::cancelClose(TraderProxy *trader)
+void IndMarginTrade::cancelClose()
 {
 
 }
 
-void IndMarginTrade::modifyTakeProfit(TraderProxy *trader, Market *market, o3d::Double price, o3d::Bool asOrder)
+void IndMarginTrade::modifyTakeProfit(o3d::Double price, o3d::Bool asOrder)
 {
 
 }
 
-void IndMarginTrade::modifyStopLoss(TraderProxy *trader, Market *market, o3d::Double price, o3d::Bool asOrder)
+void IndMarginTrade::modifyStopLoss(o3d::Double price, o3d::Bool asOrder)
 {
 
 }
 
-void IndMarginTrade::close(TraderProxy *trader, Market *market)
+void IndMarginTrade::close()
 {
 
 }
 
-o3d::Bool IndMarginTrade::canDelete() const
+void IndMarginTrade::process(o3d::Double timestamp)
 {
-    return false;
+    if (m_filledEntryQuantity)
+
+    if (m_stopLossPrice > 0.0 && !m_stop.orderId.isValid()) {
+        // if (m_filledExitQuantity < m_filledEntryQuantity)
+    }
+
+    if (m_takeProfitPrice > 0.0 && !m_limit.orderId.isValid()) {
+
+    }
 }
 
 o3d::Bool IndMarginTrade::isActive() const
 {
-    return false;
+    if (m_stop.state == STATE_FILLED || m_limit.state == STATE_FILLED) {
+        return false;
+    }
+
+    return m_entry.state == STATE_PARTIALLY_FILLED || m_entry.state == STATE_FILLED;
 }
 
 o3d::Bool IndMarginTrade::isOpened() const
 {
-    return false;
+    return m_entry.state == STATE_OPENED;
 }
 
 o3d::Bool IndMarginTrade::isCanceled() const
@@ -106,15 +110,7 @@ o3d::Bool IndMarginTrade::isCanceled() const
         return true;
     }
 
-    if (m_entry.state == STATE_CANCELED && m_filledEntryQuantity <= 0) {
-        return true;
-    }
-
-    if (m_stop.state == STATE_CANCELED && m_filledExitQuantity <= 0) {
-        return true;
-    }
-
-    if (m_limit.state == STATE_CANCELED && m_filledExitQuantity <= 0) {
+    if ((m_entry.state == STATE_CANCELED || m_entry.state == STATE_DELETED) && m_filledEntryQuantity <= 0.0) {
         return true;
     }
 
@@ -128,27 +124,12 @@ o3d::Bool IndMarginTrade::isOpening() const
 
 o3d::Bool IndMarginTrade::isClosing() const
 {
-    return false;
+    return m_limit.state == STATE_PARTIALLY_FILLED || m_stop.state == STATE_PARTIALLY_FILLED || m_stop.closing;
 }
 
 o3d::Bool IndMarginTrade::isClosed() const
 {
-    return false;
-}
-
-o3d::Bool IndMarginTrade::isEntryTimeout(o3d::Double timestamp, o3d::Double timeout) const
-{
-    return false;
-}
-
-o3d::Bool IndMarginTrade::isExitTimeout(o3d::Double timestamp, o3d::Double timeout) const
-{
-    return false;
-}
-
-o3d::Bool IndMarginTrade::isValid() const
-{
-    return false;
+    return m_limit.state == STATE_FILLED || m_stop.state == STATE_FILLED;
 }
 
 void IndMarginTrade::orderSignal(const OrderSignal &signal)

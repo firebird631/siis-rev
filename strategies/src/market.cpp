@@ -10,10 +10,10 @@
 
 using namespace siis;
 
-Market::Market(const o3d::String &marketId,
-               const o3d::String &pair,
-               const o3d::String &baseSymbol,
-               const o3d::String &quoteSymbol) :
+Market::Market(const o3d::CString &marketId,
+               const o3d::CString &pair,
+               const o3d::CString &baseSymbol,
+               const o3d::CString &quoteSymbol) :
     m_marketId(marketId),
     m_pair(pair),
     m_tradeCaps(TRADE_BUY_SELL),
@@ -28,6 +28,7 @@ Market::Market(const o3d::String &marketId,
     m_marginFactor(1.0),
     m_bid(0.0),
     m_ask(0.0),
+    m_last(0.0),
     m_hedging(false),
     m_priceFilter(),
     m_qtyFilter(),
@@ -43,12 +44,12 @@ Market::~Market()
 
 }
 
-void Market::setPair(const o3d::String &pair)
+void Market::setPair(const o3d::CString &pair)
 {
     m_pair = pair;
 }
 
-void Market::setAlias(const o3d::String &alias)
+void Market::setAlias(const o3d::CString &alias)
 {
     m_alias = alias;
 }
@@ -69,19 +70,19 @@ void Market::setOrderCapacities(o3d::Int32 orderCaps)
     m_orderCaps = orderCaps;
 }
 
-void Market::setBaseInfo(const o3d::String &symbol, o3d::Int32 precision)
+void Market::setBaseInfo(const o3d::CString &symbol, o3d::Int32 precision)
 {
     m_base.symbol = symbol.isValid() ? symbol : m_base.symbol;
     m_base.precision = precision;
 }
 
-void Market::setQuoteInfo(const o3d::String &symbol, o3d::Int32 precision)
+void Market::setQuoteInfo(const o3d::CString &symbol, o3d::Int32 precision)
 {
     m_quote.symbol = symbol.isValid() ? symbol : m_quote.symbol;
     m_quote.precision = precision;
 }
 
-void Market::setSettlementInfo(const o3d::String &symbol, o3d::Int32 precision)
+void Market::setSettlementInfo(const o3d::CString &symbol, o3d::Int32 precision)
 {
     m_settlement.symbol = symbol.isValid() ? symbol : m_settlement.symbol;
     m_settlement.precision = precision;
@@ -142,9 +143,43 @@ void Market::setState(o3d::Double baseExchangeRate, o3d::Bool tradeable)
 
 void Market::setPrice(o3d::Double bid, o3d::Double ask, o3d::Double timestamp)
 {
-    m_bid = bid >= 0.0 ? bid : m_bid;
-    m_ask = ask >= 0.0 ? ask : m_ask;
-    m_lastTimestamp = timestamp >= 0.0 ? timestamp : m_lastTimestamp;
+    if (bid > 0.0) {
+        m_bid = bid;
+    }
+
+    if (ask > 0.0) {
+        m_ask = ask;
+    }
+
+    if (timestamp > 0.0) {
+        m_lastTimestamp = timestamp;
+    }
+}
+
+void Market::setLast(o3d::Double last)
+{
+    if (last > 0.0) {
+        m_last = last;
+    }
+}
+
+void Market::setLastTick(const Tick &tick)
+{
+    if (tick.bid() > 0.0) {
+        m_bid = tick.bid();
+    }
+
+    if (tick.ask() > 0.0) {
+        m_ask = tick.ask();
+    }
+
+    if (tick.last() > 0.0) {
+        m_last = tick.last();
+    }
+
+    if (tick.timestamp() > 0.0) {
+        m_lastTimestamp = tick.timestamp();
+    }
 }
 
 void Market::setPriceFilter(const o3d::Double filter[])

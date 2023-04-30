@@ -25,6 +25,14 @@ Prioritaire
 - ind margin trade
   - open, close, remove, modify tp, modify sl, order events, position events
 
+- signaux :
+  - order create, canceled, deleted, traded (partially, completed), error
+  - position create, updated, modified, closed, deleted
+  - account asset balance, balance
+
+- stdtrademanager : pourrait avoir deux hashmap orderId et orderRefId pour retrouver plus rapidement le trade associé
+  - mais demande un insert/remove et de garder les hashmap à jour
+
 - strategy contexts
   - builder
   - init

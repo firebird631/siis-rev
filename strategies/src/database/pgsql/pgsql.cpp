@@ -158,7 +158,7 @@ void siis::PgSql::terminate()
 o3d::Int32 PgSql::run(void *)
 {
     while (m_running) {
-        o3d::System::waitMs(0);
+        o3d::System::waitMs(1);
     }
 
     return 0;

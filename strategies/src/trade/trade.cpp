@@ -7,21 +7,27 @@
 
 #include "siis/trade/trade.h"
 #include "siis/utils/common.h"
+#include "siis/strategy.h"
+#include "siis/handler.h"
 
 using namespace siis;
 
-Trade::Trade(Type type, o3d::Double timeframe) :
+Trade::Trade(TraderProxy *proxy, Type type, o3d::Double timeframe) :
+    m_proxy(proxy),
+    m_strategy(nullptr),
     m_id(-1),
     m_type(type),
     m_timeframe(timeframe),
-    m_timestamp(0),
+    m_timestamp(0.0),
     m_direction(0),
-    m_openTimeStamp(0),
-    m_exitTimeStamp(0),
-    m_orderQuantity(0),
-    m_filledEntryQuantity(0),
-    m_filledExitQuantity(0),
-    m_profitLossRate(0)
+    m_expiry(0.0),
+    m_entryTimeout(0.0),
+    m_openTimeStamp(0.0),
+    m_exitTimeStamp(0.0),
+    m_orderQuantity(0.0),
+    m_filledEntryQuantity(0.0),
+    m_filledExitQuantity(0.0),
+    m_profitLossRate(0.0)
 {
 
 }
@@ -35,21 +41,62 @@ void Trade::init(o3d::Double timeframe)
 {
     m_id = -1;
     m_timeframe = timeframe;
-    m_timestamp = 0;
+    m_timestamp = 0.0;
     m_direction = 0;
-    m_openTimeStamp = 0;
-    m_exitTimeStamp = 0;
-    m_orderQuantity = 0;
-    m_filledEntryQuantity = 0;
-    m_filledExitQuantity = 0;
-    m_profitLossRate = 0;
+    m_expiry = 0.0;
+    m_entryTimeout = 0.0;
+    m_openTimeStamp = 0.0;
+    m_exitTimeStamp = 0.0;
+    m_orderQuantity = 0.0;
+    m_filledEntryQuantity = 0.0;
+    m_filledExitQuantity = 0.0;
+    m_profitLossRate = 0.0;
 
     m_stats.init();
+}
+
+o3d::Bool Trade::canDelete() const
+{
+    if (isClosed()) {
+        return true;
+    }
+
+    if (isCanceled()) {
+        return true;
+    }
+
+    return false;
 }
 
 o3d::Bool Trade::isActive() const
 {
     return m_filledEntryQuantity > 0.0 && m_filledExitQuantity < m_filledEntryQuantity;
+}
+
+o3d::Bool Trade::isEntryTimeout(o3d::Double timestamp, o3d::Double timeout) const
+{
+    if (timeout <= 0.0) {
+        timeout = m_entryTimeout;
+    }
+
+    if (timestamp > 0.0 && timeout > 0.0) {
+        return isOpened() && m_openTimeStamp > 0.0  && timestamp - m_openTimeStamp > timeout;
+    }
+
+    return false;
+}
+
+o3d::Bool Trade::isTradeTimeout(o3d::Double timestamp, o3d::Double timeout) const
+{
+    if (timeout <= 0.0) {
+        timeout = m_expiry;
+    }
+
+    if (timestamp > 0.0 && timeout > 0.0) {
+        return isActive() && m_openTimeStamp > 0.0 && timestamp - m_openTimeStamp > timeout;
+    }
+
+    return false;
 }
 
 void Trade::addCondition(const o3d::String &name, o3d::Double v1, o3d::Double v2, o3d::Double v3, o3d::Double v4)
@@ -69,7 +116,7 @@ void Trade::removeOperation(o3d::Int32 id)
 
 void Trade::updateStats(o3d::Double lastPrice, o3d::Double timestamp)
 {
-    if (isActive()) {
+    if (isActive() && lastPrice > 0.0 && timestamp > 0.0) {
         if (m_direction > 0) {
             if (lastPrice > m_stats.bestPrice) {
                 m_stats.bestPrice = lastPrice;

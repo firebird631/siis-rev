@@ -14,6 +14,9 @@
 
 namespace siis {
 
+class TraderProxy;
+class Strategy;
+
 /**
  * @brief Strategy order.
  * @author Frederic Scherma
@@ -72,6 +75,8 @@ public:
     };
 
     Order() :
+        proxy(nullptr),
+        strategy(nullptr),
         created(TIMESTAMP_UNDEFINED),
         executed(TIMESTAMP_UNDEFINED),
         id(-1),
@@ -95,6 +100,7 @@ public:
 
     void reset()
     {
+        strategy = nullptr;
         created = TIMESTAMP_UNDEFINED;
         executed = TIMESTAMP_UNDEFINED;
         id = -1;
@@ -114,6 +120,9 @@ public:
         cumulativeFilled = QUANTITY_UNDEFINED;
         commissionAmount = QUANTITY_UNDEFINED;
     }
+
+    TraderProxy *proxy;      //!< must be valid
+    Strategy *strategy;      //!< must be valid
 
     o3d::Double created;     //!< timestamp of the creation
     o3d::Double executed;    //!< timestamp of the last execution

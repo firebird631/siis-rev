@@ -31,6 +31,9 @@ public:
     // global
     //
 
+    Strategy* strategy() { return T::strategy(); }
+    const Strategy* strategy() const { return T::strategy(); }
+
     /**
      * @brief acquire Acquire a lock on the manager and all its trades.
      */

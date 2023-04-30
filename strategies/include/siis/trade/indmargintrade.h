@@ -23,8 +23,7 @@ class SIIS_API IndMarginTrade : public Trade
 {
 public:
 
-    IndMarginTrade();
-    IndMarginTrade(o3d::Double timeframe);
+    IndMarginTrade(TraderProxy *proxy);
 
     virtual ~IndMarginTrade() override;
 
@@ -32,36 +31,32 @@ public:
     // processing
     //
 
-    virtual void open(TraderProxy *trader,
-            Market *market,
+    virtual void open(Strategy *strategy,
             o3d::Int32 direction,
-            OrderType orderType,
             o3d::Double orderPrice,
             o3d::Double quantity,
             o3d::Double takeProfitPrice,
             o3d::Double stopLossPrice) override;
 
-    virtual void remove(TraderProxy *trader) override;
-    virtual void cancelOpen(TraderProxy *trader) override;
-    virtual void cancelClose(TraderProxy *trader) override;
-    virtual void modifyTakeProfit(TraderProxy *trader, Market *market, o3d::Double price, o3d::Bool asOrder) override;
-    virtual void modifyStopLoss(TraderProxy *trader, Market *market, o3d::Double price, o3d::Bool asOrder) override;
-    virtual void close(TraderProxy *trader, Market *market) override;
+    virtual void remove() override;
+    virtual void cancelOpen() override;
+    virtual void cancelClose() override;
+    virtual void modifyTakeProfit(o3d::Double price, o3d::Bool asOrder) override;
+    virtual void modifyStopLoss(o3d::Double price, o3d::Bool asOrder) override;
+    virtual void close() override;
 
     //
     // processing states
     //
 
-    virtual o3d::Bool canDelete() const override;
+    virtual void process(o3d::Double timestamp) override;
+
     virtual o3d::Bool isActive() const override;
     virtual o3d::Bool isOpened() const override;
     virtual o3d::Bool isCanceled() const override;
     virtual o3d::Bool isOpening() const override;
     virtual o3d::Bool isClosing() const override;
     virtual o3d::Bool isClosed() const override;
-    virtual o3d::Bool isEntryTimeout(o3d::Double timestamp, o3d::Double timeout) const override;
-    virtual o3d::Bool isExitTimeout(o3d::Double timestamp, o3d::Double timeout) const override;
-    virtual o3d::Bool isValid() const override;
 
     //
     // signals update
@@ -99,13 +94,22 @@ private:
         o3d::Double executed = 0.0;
     };
 
+    /**
+     * @brief For market or limit entry order.
+     */
     struct Entry : EntryExit {};
 
+    /**
+     * @brief For stop (loss or in profit) and for market close order.
+     */
     struct Stop : EntryExit
     {
-
+        o3d::Bool closing = false;
     };
 
+    /**
+     * @brief For limit (loss or in profit) order.
+     */
     struct Limit : EntryExit
     {
 

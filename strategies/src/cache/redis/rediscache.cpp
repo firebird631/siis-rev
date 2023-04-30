@@ -82,7 +82,7 @@ o3d::Int32 RedisCache::run(void *)
             m_trade->execute();
         }
 
-        o3d::System::waitMs(0);
+        o3d::System::waitMs(1);
     }
 
     return 0;

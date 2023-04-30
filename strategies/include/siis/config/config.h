@@ -36,10 +36,10 @@ public:
         TRADE_MIN_MAX_ACCOUNT_PERCENT = 3
     };
 
-    o3d::String marketId;
+    o3d::CString marketId;
 
-    o3d::String mappedBrokerId;
-    o3d::String mappedMarketId;
+    o3d::CString mappedBrokerId;
+    o3d::CString mappedMarketId;
 
     o3d::T_StringList multipleMarketsId;
 

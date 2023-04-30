@@ -65,23 +65,23 @@ public:
     //
 
     virtual void fetchAnyOrders() override;
-    virtual void fetchOrder(const o3d::String& marketId) override;
+    virtual void fetchOrder(const o3d::CString& marketId) override;
 
     virtual o3d::Int32 createOrder(Order *order) override;
 
-    virtual o3d::Int32 cancelOrder(const o3d::String &orderId) override;
+    virtual o3d::Int32 cancelOrder(const o3d::CString &orderId) override;
 
     //
     // position
     //
 
     virtual void fetchAnyPositions() override;
-    virtual void fetchPositions(const o3d::String& marketId) override;
+    virtual void fetchPositions(const o3d::CString& marketId) override;
 
-    virtual o3d::Int32 closePosition(const o3d::String &positionId) override;
+    virtual o3d::Int32 closePosition(const o3d::CString &positionId) override;
 
     virtual o3d::Int32 modifyPosition(
-            const o3d::String &positionId,
+            const o3d::CString &positionId,
             o3d::Double stopLossPrice,
             o3d::Double takeProfitPrice) override;
 
@@ -97,7 +97,7 @@ public:
 
     virtual void fetchAnyAssets() override;
 
-    virtual void fetchAssets(const o3d::String& assetId) override;
+    virtual void fetchAssets(const o3d::CString& assetId) override;
 
 protected:
 
@@ -129,7 +129,7 @@ protected:
         o3d::Int32 precision = 2;
 
         std::vector<AccountSample> samples;  //! per day sample of the state of the account
-        o3d::StringMap<VirtualAsset> assets;
+        o3d::CStringMap<VirtualAsset> assets;
 
         o3d::Double updateBalance() const;
         void updateDrawDown();
@@ -137,8 +137,8 @@ protected:
 
     VirtualAccountData m_virtualAccount;
 
-    std::list<Order*> m_virtualOrders;
-    std::list<Position*> m_virtualPositions;
+    o3d::StringMap<Order*> m_virtualOrders;
+    o3d::StringMap<Position*> m_virtualPositions;
 };
 
 } // namespace siis

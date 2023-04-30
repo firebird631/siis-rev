@@ -75,23 +75,23 @@ public:
     //
 
     virtual void fetchAnyOrders() = 0;
-    virtual void fetchOrder(const o3d::String& marketId) = 0;
+    virtual void fetchOrder(const o3d::CString& marketId) = 0;
 
     virtual o3d::Int32 createOrder(Order *order) = 0;
 
-    virtual o3d::Int32 cancelOrder(const o3d::String &orderId) = 0;
+    virtual o3d::Int32 cancelOrder(const o3d::CString &orderId) = 0;
 
     //
     // position
     //
 
     virtual void fetchAnyPositions() = 0;
-    virtual void fetchPositions(const o3d::String& marketId) = 0;
+    virtual void fetchPositions(const o3d::CString& marketId) = 0;
 
-    virtual o3d::Int32 closePosition(const o3d::String &positionId) = 0;
+    virtual o3d::Int32 closePosition(const o3d::CString &positionId) = 0;
 
     virtual o3d::Int32 modifyPosition(
-            const o3d::String &positionId,
+            const o3d::CString &positionId,
             o3d::Double stopLossPrice,
             o3d::Double takeProfitPrice) = 0;
 
@@ -107,7 +107,7 @@ public:
 
     virtual void fetchAnyAssets() = 0;
 
-    virtual void fetchAssets(const o3d::String& assetId) = 0;
+    virtual void fetchAssets(const o3d::CString& assetId) = 0;
 };
 
 } // namespace siis

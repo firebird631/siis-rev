@@ -66,7 +66,7 @@ void ConnectorMessageAssetSignal::read(zmq::message_t *message)
 	AssetSignal::Event event = static_cast<AssetSignal::Event>(readInt8());
 	m_signal = new AssetSignal(event);
 	m_signal->timestamp = readDouble();
-	m_signal->symbol = readString();
+    m_signal->symbol = readCString();
 	m_signal->freeQuantity = readDouble();
 	m_signal->lockedQuantity = readDouble();
 }
