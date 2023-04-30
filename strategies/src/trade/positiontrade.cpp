@@ -14,18 +14,18 @@ using namespace siis;
 
 PositionTrade::PositionTrade() :
     Trade(Trade::TYPE_POSITION, -1.0),
-    m_entryState(STATE_NONE),
-    m_stopState(STATE_NONE),
-    m_limitState(STATE_NONE)
+    m_entryState(STATE_UNDEFINED),
+    m_stopState(STATE_UNDEFINED),
+    m_limitState(STATE_UNDEFINED)
 {
 
 }
 
 PositionTrade::PositionTrade(o3d::Double timeframe) :
     Trade(Trade::TYPE_POSITION, timeframe),
-    m_entryState(STATE_NONE),
-    m_stopState(STATE_NONE),
-    m_limitState(STATE_NONE)
+    m_entryState(STATE_UNDEFINED),
+    m_stopState(STATE_UNDEFINED),
+    m_limitState(STATE_UNDEFINED)
 {
 
 }

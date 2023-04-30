@@ -56,8 +56,12 @@ public:
 
     virtual ~ZmqConnector() override;
 
+    virtual void init(Config *config) override;
+
     virtual void start() override;
     virtual void stop() override;
+
+    virtual void update() override;
 
     virtual void connect() override;
     virtual void disconnect() override;

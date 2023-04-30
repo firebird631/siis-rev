@@ -108,7 +108,7 @@ public:
 
     struct Symbol
     {
-        o3d::String symbol;    //!< symbol
+        o3d::CString symbol;    //!< symbol
         o3d::Int32 precision;  //!< precision of the decimal
         o3d::Double vol24h;    //!< UTC 24h volume change
 
@@ -139,9 +139,9 @@ public:
 
     o3d::Int32 id;    //!< internal unique integer id
 
-    o3d::String marketId;
-    o3d::String pair;
-    o3d::String alias;
+    o3d::CString marketId;
+    o3d::CString pair;
+    o3d::CString alias;
 
     o3d::Int8 open;   //!< 1 if the market is tradable/open, 0 mean currently closed/delayed.
 

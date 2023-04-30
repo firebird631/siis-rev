@@ -52,8 +52,8 @@ public:
     Trade* findTrade(o3d::Double timeframe);
     const Trade* findTrade(o3d::Double timeframe) const;
 
-    void closeAll(o3d::Double timestamp, o3d::Double price);
-    void closeAllByDirection(o3d::Int32 dir, o3d::Double timestamp, o3d::Double price);
+    void closeAll();
+    void closeAllByDirection(o3d::Int32 dir);
 
     void onOrderSignal(const OrderSignal &orderSignal);
     void onPositionSignal(const PositionSignal &positionSignal);

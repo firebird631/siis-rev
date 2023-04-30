@@ -70,8 +70,8 @@ public:
     virtual void orderSignal(const OrderSignal &signal) override;
     virtual void positionSignal(const PositionSignal &signal) override;
 
-    virtual o3d::Bool isTargetOrder(const o3d::String &orderId, const o3d::String &orderRefId) const override;
-    virtual o3d::Bool isTargetPosition(const o3d::String &positionId, const o3d::String &orderRefId) const override;
+    virtual o3d::Bool isTargetOrder(const o3d::String &orderId, const o3d::String &refId) const override;
+    virtual o3d::Bool isTargetPosition(const o3d::String &positionId, const o3d::String &refId) const override;
 
     //
     // helpers
@@ -89,9 +89,34 @@ public:
 
 private:
 
-    State m_entryState;
-    State m_stopState;
-    State m_limitState;
+    struct EntryExit
+    {
+        State state = STATE_UNDEFINED;
+
+        o3d::CString orderId;
+        o3d::CString refId;
+
+        o3d::Double executed = 0.0;
+    };
+
+    struct Entry : EntryExit {};
+
+    struct Stop : EntryExit
+    {
+
+    };
+
+    struct Limit : EntryExit
+    {
+
+    };
+
+    o3d::CString m_positionId;   //!< Mostly similar to market id
+
+    Entry m_entry;
+    Stop m_stop;
+    Limit m_limit;
+
 };
 
 } // namespace siis

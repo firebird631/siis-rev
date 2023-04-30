@@ -31,7 +31,8 @@ public:
     static constexpr o3d::Int8 VALUE_UNDEFINED = -1;
 
     Position() :
-        timestamp(TIMESTAMP_UNDEFINED),
+        created(TIMESTAMP_UNDEFINED),
+        updated(TIMESTAMP_UNDEFINED),
         id(-1),
         direction(UNDEFINED),
         quantity(QUANTITY_UNDEFINED),
@@ -47,14 +48,15 @@ public:
     {
     }
 
-    o3d::Double timestamp;   //!< operation timestamp
+    o3d::Double created;   //!< creation timestamp
+    o3d::Double updated;   //!< last operation timestamp
 
     o3d::Int32 id;           //!< internal integer unique id
 
-    o3d::String positionId;  //!< must always be valid
-    o3d::String orderRefId;  //!< id of the order that as initied this position
+    o3d::CString positionId;  //!< must always be valid
+    o3d::CString orderRefId;  //!< id of the order that as initied this position
 
-    o3d::String marketId;    //!< empty means not defined
+    o3d::CString marketId;    //!< empty means not defined
 
     o3d::Int32 direction;    //!< -1 or 1, 0 means not defined
     o3d::Double quantity;    //!< always positive or 0
@@ -65,14 +67,14 @@ public:
     o3d::Double stopLossPrice;   //! -1 if not defined
     o3d::Double limitPrice;      //! -1 if not defined
 
-    o3d::String profitCurrency;  //!< currency symbol
-    o3d::Double profitLoss;      //!< unrealized profit/loss in profit currency
+    o3d::CString profitCurrency;  //!< currency symbol
+    o3d::Double profitLoss;       //!< unrealized profit/loss in profit currency
 
-    o3d::Double filled;      //!< filled qty or neg if not defined
+    o3d::Double filled;             //!< filled qty or neg if not defined
     o3d::Double cumulativeFilled;   //!< cumulative filled qty or neg if not defined
 
     o3d::Double liquidationPrice;   //!< liquidation price, neg if not defined
-    o3d::Double commission;  //!< commission rate realized on the position
+    o3d::Double commission;         //!< commission rate realized on the position
 };
 
 } // namespace siis

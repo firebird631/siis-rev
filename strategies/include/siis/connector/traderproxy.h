@@ -78,9 +78,19 @@ public:
     // order
     //
 
+    /**
+     * @brief createOrder Send an order to the connector. It can be a local connector.
+     * @param order Valid order instance.
+     * @return Return code from the synchronous part of the request.
+     */
     o3d::Int32 createOrder(Order *order);
 
-    void cancelOrder(const o3d::String &orderId);
+    /**
+     * @brief cancelOrder Send a cancel order to the connector. It can be a local connector.
+     * @param orderId Valid order unique identifier.
+     * @return Return code from the synchronous part of the request.
+     */
+    o3d::Int32 cancelOrder(const o3d::String &orderId);
 
     /**
      * @brief newOrder Returns a new free order to be used with createOrder.

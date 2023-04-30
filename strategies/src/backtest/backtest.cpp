@@ -130,6 +130,7 @@ void Backtest::init(
 
     // create and start a primary local connector in this thread
     m_connector = new LocalConnector(this);
+    m_connector->init(config);
 
     // and a trader proxy based on this connector
     m_traderProxy = new TraderProxy(m_connector);

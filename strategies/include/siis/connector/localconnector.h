@@ -9,8 +9,10 @@
 #define SIIS_LOCALCONNECTOR_H
 
 #include "connector.h"
+#include "../statistics/statistics.h"
 
 #include <o3d/core/hashmap.h>
+#include <o3d/core/stringmap.h>
 #include <o3d/core/thread.h>
 #include <o3d/core/mutex.h>
 
@@ -19,6 +21,7 @@
 namespace siis {
 
 class Handler;
+class Config;
 
 /**
  * @brief SiiS strategy local connector implementation.
@@ -35,8 +38,12 @@ public:
 
     virtual ~LocalConnector() override;
 
+    virtual void init(Config *config) override;
+
     virtual void start() override;
     virtual void stop() override;
+
+    virtual void update() override;
 
     virtual void connect() override;
     virtual void disconnect() override;
@@ -99,6 +106,39 @@ protected:
     o3d::Bool m_running;
 
     TraderProxy *m_traderProxy;
+
+    struct VirtualAsset
+    {
+        o3d::CString symbol;
+        o3d::Double free;
+        o3d::Double locked;
+
+        inline o3d::Double total() const { return free + locked; }
+    };
+
+    struct VirtualAccountData
+    {
+        o3d::Double balance = 1000.0;
+        o3d::Double usedBalance = 0.0;
+        o3d::Double profitLoss = 0.0;
+        o3d::Double assetProfitLoss = 0.0;
+        o3d::Double drawDown = 0.0;
+        o3d::Double maxDrawDown = 0.0;
+
+        o3d::CString currency = "USD";
+        o3d::Int32 precision = 2;
+
+        std::vector<AccountSample> samples;  //! per day sample of the state of the account
+        o3d::StringMap<VirtualAsset> assets;
+
+        o3d::Double updateBalance() const;
+        void updateDrawDown();
+    };
+
+    VirtualAccountData m_virtualAccount;
+
+    std::list<Order*> m_virtualOrders;
+    std::list<Position*> m_virtualPositions;
 };
 
 } // namespace siis

@@ -1,8 +1,103 @@
-- gestion des trades en local (paper trader ultra rapide)
-- écritures des stats et performances
-    - priorité pour le backtest/learning
-- gestion du cycle de vie (fin de vie des trades par le tradeManager/traderProxy/local
-- réécrire le fichier de learning en fin de processus avec les stats et revision datetime
-- handler()->traderProxy()->freeTrade(trade); quand un trade est supprimé totalement (donc après que le localtrader ou distanttrader)
+Prioritaire
+===========
 
+- gestion des trades en local (paper trader ultra rapide)
+- gestion des statistiques par strategies
+- gestion des statistiques par account (paper trader local)
+- gestion du cycle de vie (fin de vie des trades par le tradeManager/traderProxy/local
+- handler()->traderProxy()->freeTrade(trade); quand un trade est supprimé totalement (donc après que le localtrader ou distanttrader)
 - fixer les size sur connectormessagereceivetickaggreged.cpp
+
+- events to REDIS
+  - trades entry, update, exit
+  - strategy results update
+  - account details (balance...) initial, update
+- events from REDIS
+  - ...
+
+- connector postgresql à terminer
+  - postgresql load market info data
+  - postgresql load market ohlc + initial fetching
+  - postgresql load market liquidation
+  - postgresql load/save user trader state <=> strategy data ?
+  - postgresql load/save user active/pending trades data
+
+- ind margin trade
+  - open, close, remove, modify tp, modify sl, order events, position events
+
+- strategy contexts
+  - builder
+  - init
+  - trade life-cycle components :
+    - entry
+    - exit
+    - stop-loss
+    - take-profit
+    - breakeven
+    - dynamic-stop-loss
+    - dynamic-take-profit
+
+
+Secondaire
+==========
+
+- monitoring
+  - est-ce que le monitor communique avec un socket (zMQ, o3d::net) ou au travers de REDIS ?
+  - cli simple monitor one command at time
+  - cli advanced monitor ncursuse
+  - web monitor (voir version python)
+
+- events to REDIS
+  - strategy data
+    - analysers data
+       - ohlc(s)
+       - indicators
+       - states
+       - others
+    - contexts data
+      - trade components
+
+- connectors
+  - implementer coté strategie
+    - order create, update, delete
+    - position update, close
+    - binance spot, kraken spot, bitmex futures, ig CFD
+
+- position trade
+  - open, close, remove, modify tp, modify sl, order events, position events
+
+- live handler
+
+
+Tertaire
+========
+
+- spot trade
+  - open, close, remove, modify tp, modify sl, order events, position events
+
+- indicators :
+  - volume profile
+  - composite volume profile
+
+- tick-bar based strategy (non timeframe based)
+
+- connector postgresql à terminer
+  - postgresql load market liquidation
+  - postgresql save market liquidation data
+  - postgresql save market info data
+  - postgresql save OHLCs data
+
+- replication mode
+  - mode live mais connexion à une source de donnée en WebSocket ou REST et simples signaux buy/sell/update
+    - update peut être cancel, modifier un sl/tp/breakeven, partial exit
+
+
+Pas important
+=============
+
+- connector mysql pas important
+
+- margin trade
+  - open, close, remove, modify tp, modify sl, order events, position events
+
+- learning / trainer / optimizer

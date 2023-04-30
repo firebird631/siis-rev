@@ -20,6 +20,7 @@ class TraderProxy;
 class Handler;
 class Order;
 class Position;
+class Config;
 
 /**
  * @brief SiiS strategy connector interface.
@@ -34,11 +35,15 @@ public:
 
     virtual ~Connector() = 0;
 
+    virtual void init(Config *config) = 0;
+
     virtual void start() = 0;
     virtual void stop() = 0;
 
     virtual void connect() = 0;
     virtual void disconnect() = 0;
+
+    virtual void update() = 0;
 
     /**
      * @brief subscribe Subscribe to a market data (tick, ohlc, order book).

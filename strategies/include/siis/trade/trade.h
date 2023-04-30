@@ -55,6 +55,8 @@ public:
     }
 };
 
+class Trade;
+
 /**
  * @brief Strategy trade statistics model.
  * @author Frederic Scherma
@@ -64,19 +66,62 @@ class SIIS_API TradeStats
 {
 public:
 
+    enum ExitReason {
+        REASON_NONE = 0,
+        REASON_TAKE_PROFIT_MARKET = 1,   //!< take-profit market hit
+        REASON_TAKE_PROFIT_LIMIT = 2,    //!< take-profit limit hit
+        REASON_STOP_LOSS_MARKET = 3,     //!< stop-loss market hit
+        REASON_STOP_LOSS_LIMIT = 4,      //!< stop-loss limit hit
+        REASON_CLOSE_MARKET = 5,         //!< exit signal at market
+        REASON_CANCELED_TIMEOUT = 6,     //!< canceled after a timeout expiration delay
+        REASON_CANCELED_TARGETED = 7,    //!< canceled before entering because take-profit price reached before entry price
+        REASON_MARKET_TIMEOUT = 8        //!< closed (in profit or in loss) after a timeout
+    };
+
     o3d::Double bestPrice;
     o3d::Double bestPriceTimestamp;
 
     o3d::Double worstPrice;
     o3d::Double worstPriceTimestamp;
 
+    Order::OrderType entryOrderType;
+    Order::OrderType takeProfitOrderType;
+    Order::OrderType stopOrderType;
+
+    o3d::Double firstRealizedEntryTimestamp;
+    o3d::Double lastRealizedEntryTimestamp;
+
+    o3d::Double firstRealizedExitTimestamp;
+    o3d::Double lastRealizedExitTimestamp;
+
+    o3d::Double unrealizedProfitLoss;
+
+    o3d::CString profitLossCurrency;
+
+    o3d::Double entryFees;
+    o3d::Double exitFees;
+
+    ExitReason exitReason;
     std::list<TradeCondition> conditions;
 
     TradeStats() :
         bestPrice(0.0),
         bestPriceTimestamp(0.0),
         worstPrice(0.0),
-        worstPriceTimestamp(0.0)
+        worstPriceTimestamp(0.0),
+        entryOrderType(Order::ORDER_UNDEFINED),
+        takeProfitOrderType(Order::ORDER_UNDEFINED),
+        stopOrderType(Order::ORDER_UNDEFINED),
+        firstRealizedEntryTimestamp(0.0),
+        lastRealizedEntryTimestamp(0.0),
+        firstRealizedExitTimestamp(0.0),
+        lastRealizedExitTimestamp(0.0),
+        unrealizedProfitLoss(0.0),
+        profitLossCurrency(),
+        entryFees(0.0),
+        exitFees(0.0),
+        exitReason(REASON_NONE),
+        conditions()
     {
     }
 
@@ -86,11 +131,26 @@ public:
         bestPriceTimestamp = 0.0;
         worstPrice = 0.0;
         worstPriceTimestamp = 0.0;
+        entryOrderType = Order::ORDER_UNDEFINED;
+        takeProfitOrderType = Order::ORDER_UNDEFINED;
+        stopOrderType = Order::ORDER_UNDEFINED;
+        firstRealizedEntryTimestamp = 0.0;
+        lastRealizedEntryTimestamp = 0.0;
+        firstRealizedExitTimestamp = 0.0;
+        lastRealizedExitTimestamp = 0.0;
+        unrealizedProfitLoss = 0.0;
+        profitLossCurrency = "";
+        entryFees = 0.0;
+        exitFees = 0.0;
+        exitReason = REASON_NONE;
 
         if (!conditions.empty()) {
             conditions.clear();
         }
     }
+
+    void loads();
+    void dumps() const;
 };
 
 /**
@@ -125,15 +185,31 @@ public:
         ORDER_SL = 2
     };
 
+    /**
+     * @brief The State of an entry or exit.
+     */
     enum State {
-        STATE_NONE = 0,
-        STATE_NEW = 1,
-        STATE_REJECTED = 2,
-        STATE_DELETED = 3,
-        STATE_CANCELED = 4,
-        STATE_OPENED = 5,
-        STATE_PARTIALLY_FILLED = 6,
-        STATE_FILLED = 7
+        STATE_UNDEFINED = -1,
+        STATE_NEW = 0,
+        STATE_REJECTED = 1,
+        STATE_DELETED = 2,
+        STATE_CANCELED = 3,
+        STATE_OPENED = 4,
+        STATE_PARTIALLY_FILLED = 5,
+        STATE_FILLED = 6,
+        STATE_ERROR = 7
+    };
+
+    /**
+     * @brief Partially compatible with order return codes.
+     */
+    enum ReturnCode {
+        INSUFFICIENT_MARGIN = -3,
+        INSUFFICIENT_FUNDS = -2,
+        ERROR = -1,
+        REJECTED = 0,
+        ACCEPTED = 1,
+        NOTHING_TO_DO = 2
     };
 
     Trade(Type type, o3d::Double timeframe);
@@ -356,7 +432,7 @@ public:
     //
 
     /**
-     * @brief toString Format to a human readable string principals trade information.
+     * @brief toString Format to a human readable string principals trade informations.
      */
     virtual o3d::String formatToStr() const = 0;
 

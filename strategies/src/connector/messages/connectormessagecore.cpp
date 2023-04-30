@@ -123,7 +123,7 @@ void ConnectorMessageCore::writeDouble(o3d::Double value)
 
 void ConnectorMessageCore::writeString(const o3d::String &str)
 {
-    o3d::CString str_2 = str.toAscii(); // to have string with char type
+    o3d::CString str_2 = str.toUtf8(); // to have string with char type
 
     if (m_ptr_msg != nullptr && (m_size_check + static_cast<o3d::Int32>(sizeof(o3d::Int32)) + str_2.length()) <= m_size) {
 
@@ -138,7 +138,23 @@ void ConnectorMessageCore::writeString(const o3d::String &str)
     } else {
 		m_overflow = true;
     }
+}
 
+void ConnectorMessageCore::writeCString(const o3d::CString &str)
+{
+    if (m_ptr_msg != nullptr && (m_size_check + static_cast<o3d::Int32>(sizeof(o3d::Int32)) + str.length()) <= m_size) {
+
+        *reinterpret_cast<o3d::Int32*>(m_ptr_msg) = str.length();
+        m_ptr_msg = reinterpret_cast<o3d::Int32*>(m_ptr_msg) + 1;
+
+        memcpy(m_ptr_msg, str.getData(), static_cast<size_t>(str.length()));
+
+        m_ptr_msg = reinterpret_cast<o3d::Char*>(m_ptr_msg) + str.length();
+
+        m_size_check += static_cast<o3d::Int32>(sizeof(o3d::Int32)) + str.length();
+    } else {
+        m_overflow = true;
+    }
 }
 
 void ConnectorMessageCore::write()
@@ -254,6 +270,29 @@ o3d::String ConnectorMessageCore::readString()
     return str;
 }
 
+o3d::CString ConnectorMessageCore::readCString()
+{
+//#ifdef SIIS_NBCARSTRINGFORMESSAGE
+
+    if (m_ptr_msgReturn != nullptr && (m_size_check_return + static_cast<o3d::Int32>(sizeof(o3d::Int32))) < m_size_return) {
+        o3d::Int32 size = *reinterpret_cast<o3d::Int32*>(m_ptr_msgReturn);
+        m_ptr_msgReturn = reinterpret_cast<o3d::Int32 *>(m_ptr_msgReturn) + 1;
+
+        o3d::Char *str_c = new o3d::Char[static_cast<size_t>(size)+1];
+        memcpy(str_c, m_ptr_msgReturn, static_cast<size_t>(size));
+        str_c[size] = 0;
+
+        m_ptr_msgReturn = reinterpret_cast<o3d::Char*>(m_ptr_msgReturn) + size + static_cast<o3d::Int32>(sizeof(o3d::Int8));
+        m_size_return += size;
+        m_size_check_return += static_cast<o3d::Int32>(sizeof(o3d::Int32)) + size + static_cast<o3d::Int32>(sizeof(o3d::Int8));
+
+        return o3d::CString(str_c, size, true);
+    } else {
+        m_overflow = true;
+    }
+
+    return o3d::CString();
+}
 void ConnectorMessageCore::read(zmq::message_t *message)
 {
 	m_ptr_msgReturn = message;

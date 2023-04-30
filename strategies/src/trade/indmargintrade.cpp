@@ -14,18 +14,18 @@ using namespace siis;
 
 IndMarginTrade::IndMarginTrade() :
     Trade(Trade::TYPE_IND_MARGIN, -1.0),
-    m_entryState(STATE_NONE),
-    m_stopState(STATE_NONE),
-    m_limitState(STATE_NONE)
+    m_entry(),
+    m_stop(),
+    m_limit()
 {
 
 }
 
 IndMarginTrade::IndMarginTrade(o3d::Double timeframe) :
     Trade(Trade::TYPE_IND_MARGIN, timeframe),
-    m_entryState(STATE_NONE),
-    m_stopState(STATE_NONE),
-    m_limitState(STATE_NONE)
+    m_entry(),
+    m_stop(),
+    m_limit()
 {
 
 }
@@ -49,6 +49,10 @@ void IndMarginTrade::open(TraderProxy *trader,
     m_orderQuantity = quantity;
     m_takeProfitPrice = takeProfitPrice;
     m_stopLossPrice = stopLossPrice;
+
+    Order *entryOrder = trader->newOrder();
+    entryOrder->direction = direction;
+
 }
 
 void IndMarginTrade::remove(TraderProxy *trader)
@@ -98,19 +102,19 @@ o3d::Bool IndMarginTrade::isOpened() const
 
 o3d::Bool IndMarginTrade::isCanceled() const
 {
-    if (m_entryState == STATE_REJECTED) {
+    if (m_entry.state == STATE_REJECTED) {
         return true;
     }
 
-    if (m_entryState == STATE_CANCELED && m_filledEntryQuantity <= 0) {
+    if (m_entry.state == STATE_CANCELED && m_filledEntryQuantity <= 0) {
         return true;
     }
 
-    if (m_stopState == STATE_CANCELED && m_filledExitQuantity <= 0) {
+    if (m_stop.state == STATE_CANCELED && m_filledExitQuantity <= 0) {
         return true;
     }
 
-    if (m_limitState == STATE_CANCELED && m_filledExitQuantity <= 0) {
+    if (m_limit.state == STATE_CANCELED && m_filledExitQuantity <= 0) {
         return true;
     }
 
@@ -119,7 +123,7 @@ o3d::Bool IndMarginTrade::isCanceled() const
 
 o3d::Bool IndMarginTrade::isOpening() const
 {
-    return m_entryState == STATE_OPENED || m_entryState == STATE_PARTIALLY_FILLED;
+    return m_entry.state == STATE_OPENED || m_entry.state == STATE_PARTIALLY_FILLED;
 }
 
 o3d::Bool IndMarginTrade::isClosing() const
@@ -157,13 +161,29 @@ void IndMarginTrade::positionSignal(const PositionSignal &signal)
 
 }
 
-o3d::Bool IndMarginTrade::isTargetOrder(const o3d::String &orderId, const o3d::String &orderRefId) const
+o3d::Bool IndMarginTrade::isTargetOrder(const o3d::String &orderId, const o3d::String &refId) const
 {
+    if ((orderId.isValid() && orderId == m_entry.orderId) || (refId.isValid() && refId == m_entry.refId)) {
+        return true;
+    }
+
+    if ((orderId.isValid() && orderId == m_limit.orderId) || (refId.isValid() && refId == m_limit.refId)) {
+        return true;
+    }
+
+    if ((orderId.isValid() && orderId == m_stop.orderId) || (refId.isValid() && refId == m_stop.refId)) {
+        return true;
+    }
+
     return false;
 }
 
-o3d::Bool IndMarginTrade::isTargetPosition(const o3d::String &positionId, const o3d::String &orderRefId) const
+o3d::Bool IndMarginTrade::isTargetPosition(const o3d::String &positionId, const o3d::String &refId) const
 {
+    if (positionId.isValid() && positionId == m_positionId) {
+        return true;
+    }
+
     return false;
 }
 
@@ -178,17 +198,17 @@ o3d::String IndMarginTrade::formatToStr() const
 
 o3d::String IndMarginTrade::stateToStr() const
 {
-    if (m_entryState == STATE_NEW) {
+    if (m_entry.state == STATE_NEW) {
         return "new";
-    } else if (m_entryState == STATE_OPENED) {
+    } else if (m_entry.state == STATE_OPENED) {
         return "opened";
-    } else if (m_entryState == STATE_REJECTED) {
+    } else if (m_entry.state == STATE_REJECTED) {
         return "rejected";
-    } else if (m_entryState == STATE_REJECTED && m_filledEntryQuantity > m_filledExitQuantity) {
+    } else if (m_entry.state == STATE_REJECTED && m_filledEntryQuantity > m_filledExitQuantity) {
         return "problem";
-    } else if (m_filledEntryQuantity < m_filledExitQuantity && (m_entryState == STATE_PARTIALLY_FILLED || m_entryState == STATE_OPENED)) {
+    } else if (m_filledEntryQuantity < m_filledExitQuantity && (m_entry.state == STATE_PARTIALLY_FILLED || m_entry.state == STATE_OPENED)) {
         return "filling";
-    } else if (m_filledEntryQuantity > 0.0 && m_filledExitQuantity < m_filledEntryQuantity && m_stopState != STATE_FILLED && m_limitState != STATE_FILLED) {
+    } else if (m_filledEntryQuantity > 0.0 && m_filledExitQuantity < m_filledEntryQuantity && m_stop.state != STATE_FILLED && m_limit.state != STATE_FILLED) {
         return "closing";
     } else if (m_filledEntryQuantity > 0.0 && m_filledExitQuantity >= m_filledEntryQuantity) {
         return "closed";

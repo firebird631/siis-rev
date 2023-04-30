@@ -192,6 +192,13 @@ public:
     const o3d::Int32 getRevision() const { return m_revision; }
 
     //
+    // local trader configuration
+    //
+
+    const o3d::CString& getInitialCurrency() const { return m_initialCurrency; }
+    o3d::Double getInitialBalance() const { return m_initialBalance; }
+
+    //
     // supervisor for machine learning
     //
 
@@ -303,6 +310,9 @@ private:
     o3d::DateTime m_created;
     o3d::DateTime m_modified;
     o3d::Int32 m_revision;
+
+    o3d::Double m_initialBalance;
+    o3d::CString m_initialCurrency;
 };
 
 } // namespace siis

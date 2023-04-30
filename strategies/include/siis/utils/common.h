@@ -37,6 +37,10 @@ SIIS_API o3d::String taErrorToStr(o3d::Int32 error);
 
 SIIS_API o3d::String formatPrice(o3d::Double price, o3d::Int32 precision=2, o3d::Double step=0.01);
 
+SIIS_API o3d::String orderTypeToStr(o3d::Int32 orderType);
+
+SIIS_API o3d::String orderReturnCodeToStr(o3d::Int32 returnCode);
+
 /**
  * @brief cmpTimeframe Compare 2 timeframe.
  * @return -1 if a is lesser, 0 if equal, 1 if a is greater.

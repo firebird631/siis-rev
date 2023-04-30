@@ -54,8 +54,26 @@ public:
     static constexpr o3d::Int8 FLAG_UNDEFINED = -1;
     static constexpr o3d::Int8 VALUE_UNDEFINED = -1;
 
+    enum ReturnCode {
+        RET_OK = 1,                     //!< Order successfully open
+        RET_UNDEFINED = 0,              //!< Undefined
+        RET_INSUFFICIENT_FUNDS = -1,    //!< Insufficient asset quantity to open order (permanent)
+        RET_INSUFFICIENT_MARGIN = -2,   //!< Insufficient margin to open order (permanent)
+        RET_ERROR = -3,                 //!< General error or unspecified (permanent)
+        RET_INVALID_ARGS = -4,          //!< Invalid order arguments (permanent)
+        RET_DENIED = -5,                //!< User or API key or sign not allowed (permanent)
+        RET_UNREACHABLE_SERVICE = -32,  //!< Service is currently or permanently unreachable (temporary)
+        RET_RATE_LIMIT = -33,           //!< API rate limit exceeded (temporary)
+        RET_ORDER_LIMIT = -34,          //!< Number of order limit exceeded (temporary)
+        RET_POSITION_LIMIT = -35,       //!< Number of position limit exceeded (temporary)
+        RET_INVALID_NONCE = -36,        //!< Wrong nonce value (temporary)
+        RET_CANCEL_ONLY = -37,          //!< Cancel only mode (temporary)
+        RET_POST_ONLY = -38             //!< Post-only mode (temporary)
+    };
+
     Order() :
-        timestamp(TIMESTAMP_UNDEFINED),
+        created(TIMESTAMP_UNDEFINED),
+        executed(TIMESTAMP_UNDEFINED),
         id(-1),
         orderType(ORDER_UNDEFINED),
         direction(UNDEFINED),
@@ -77,7 +95,8 @@ public:
 
     void reset()
     {
-        timestamp = TIMESTAMP_UNDEFINED;
+        created = TIMESTAMP_UNDEFINED;
+        executed = TIMESTAMP_UNDEFINED;
         id = -1;
         orderType = ORDER_UNDEFINED;
         direction = UNDEFINED;
@@ -96,14 +115,15 @@ public:
         commissionAmount = QUANTITY_UNDEFINED;
     }
 
-    o3d::Double timestamp;   //!< timestamp of the operation
+    o3d::Double created;     //!< timestamp of the creation
+    o3d::Double executed;    //!< timestamp of the last execution
 
     o3d::Int32 id;           //!< internal integer unique id
 
-    o3d::String orderId;     //!< to retrieve it from the distant exchange
-    o3d::String orderRefId;  //!< id of the order that as referenced this one
+    o3d::CString orderId;    //!< to retrieve it from the distant exchange
+    o3d::CString refId;      //!< id of the order that as referenced this one
 
-    o3d::String marketId;    //!< empty means not defined
+    o3d::CString marketId;   //!< empty means not defined
 
     OrderType orderType;
     o3d::Int32 direction;
@@ -120,7 +140,7 @@ public:
     o3d::Int8 postOnly;    //!< means maker fee only, else invalidate the trade
     o3d::Int8 closeOnly;   //!< mean only reduce an existing position, cannot increase or create
 
-    o3d::String tradeId;
+    o3d::CString tradeId;
 
     o3d::Double execPrice;
     o3d::Double avgPrice;
@@ -130,7 +150,7 @@ public:
     o3d::Double quoteTransacted;
 
     o3d::Double commissionAmount;
-    o3d::String commissionAsset;
+    o3d::CString commissionAsset;
 };
 
 } // namespace siis

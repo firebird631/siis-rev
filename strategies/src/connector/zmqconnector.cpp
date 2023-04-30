@@ -57,6 +57,11 @@ ZmqConnector::~ZmqConnector()
     stop();
 }
 
+void ZmqConnector::init(Config *config)
+{
+    // nothing to do
+}
+
 void ZmqConnector::start()
 {
     if (!m_running) {
@@ -76,6 +81,11 @@ void ZmqConnector::stop()
 
         o3d::deletePtr(m_context);
     }
+}
+
+void ZmqConnector::update()
+{
+    // nothing to do
 }
 
 void ZmqConnector::connect()

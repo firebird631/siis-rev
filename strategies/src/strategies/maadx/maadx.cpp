@@ -257,7 +257,7 @@ void MaAdx::orderEntry(
         o3d::Double stopLossPrice)
 {
     if (reversal() && m_tradeManager->hasTradesByDirection(-direction)) {
-        m_tradeManager->closeAllByDirection(-direction, timestamp, price);
+        m_tradeManager->closeAllByDirection(-direction);
     }
 
     Trade* trade = handler()->traderProxy()->createTrade(market(), tradeType(), timeframe);

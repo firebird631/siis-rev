@@ -14,18 +14,18 @@ using namespace siis;
 
 AssetTrade::AssetTrade() :
     Trade(Trade::TYPE_BUY_SELL, -1.0),
-    m_buyState(STATE_NONE),
-    m_stopState(STATE_NONE),
-    m_limitState(STATE_NONE)
+    m_buyState(STATE_UNDEFINED),
+    m_stopState(STATE_UNDEFINED),
+    m_limitState(STATE_UNDEFINED)
 {
 
 }
 
 AssetTrade::AssetTrade(o3d::Double timeframe) :
     Trade(Trade::TYPE_BUY_SELL, timeframe),
-    m_buyState(STATE_NONE),
-    m_stopState(STATE_NONE),
-    m_limitState(STATE_NONE)
+    m_buyState(STATE_UNDEFINED),
+    m_stopState(STATE_UNDEFINED),
+    m_limitState(STATE_UNDEFINED)
 {
 
 }

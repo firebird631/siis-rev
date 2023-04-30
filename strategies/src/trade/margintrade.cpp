@@ -14,18 +14,18 @@ using namespace siis;
 
 MarginTrade::MarginTrade() :
     Trade(Trade::TYPE_MARGIN, -1.0),
-    m_entryState(STATE_NONE),
-    m_stopState(STATE_NONE),
-    m_limitState(STATE_NONE)
+    m_entryState(STATE_UNDEFINED),
+    m_stopState(STATE_UNDEFINED),
+    m_limitState(STATE_UNDEFINED)
 {
 
 }
 
 MarginTrade::MarginTrade(o3d::Double timeframe) :
     Trade(Trade::TYPE_MARGIN, timeframe),
-    m_entryState(STATE_NONE),
-    m_stopState(STATE_NONE),
-    m_limitState(STATE_NONE)
+    m_entryState(STATE_UNDEFINED),
+    m_stopState(STATE_UNDEFINED),
+    m_limitState(STATE_UNDEFINED)
 {
 
 }

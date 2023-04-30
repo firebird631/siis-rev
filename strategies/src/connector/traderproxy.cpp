@@ -26,6 +26,8 @@
 #include "siis/connector/marketsignal.h"
 #include "siis/connector/positionsignal.h"
 
+#include <o3d/core/uuid.h>
+
 using namespace siis;
 
 TraderProxy::TraderProxy(Connector *connector) :
@@ -194,11 +196,13 @@ o3d::Int32 TraderProxy::createOrder(Order *order)
     return -1;
 }
 
-void TraderProxy::cancelOrder(const o3d::String &orderId)
+o3d::Int32 TraderProxy::cancelOrder(const o3d::String &orderId)
 {
     if (m_connector) {
-        m_connector->cancelOrder(orderId);
+        return m_connector->cancelOrder(orderId);
     }
+
+    return -1;
 }
 
 Order *TraderProxy::newOrder()
@@ -214,6 +218,11 @@ Order *TraderProxy::newOrder()
         // get the last free and pop it
         order = m_freeOrders.getLast();
         m_freeOrders.pop();
+    }
+
+    // set a unique id for reference
+    if (order) {
+        order->refId = o3d::Uuid::uuid5("siis").toCString();
     }
 
     return order;

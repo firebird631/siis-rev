@@ -100,9 +100,9 @@ void ConnectorMessageMarketSignal::read(zmq::message_t *message)
 	m_signal = new MarketSignal(event);
 
 	m_signal->timestamp = readDouble();
-	m_signal->marketId = readString();
-    m_signal->pair = readString();
-    m_signal->alias = readString();
+    m_signal->marketId = readCString();
+    m_signal->pair = readCString();
+    m_signal->alias = readCString();
 	m_signal->open = readInt8();
 
 	m_signal->marketType = static_cast<MarketSignal::MarketType>(readInt8());
@@ -149,7 +149,7 @@ void ConnectorMessageMarketSignal::read(zmq::message_t *message)
 
 void ConnectorMessageMarketSignal::readSymbol(MarketSignal::Symbol &symbol)
 {
-    symbol.symbol = readString();
+    symbol.symbol = readCString();
     symbol.precision = readInt32();
     symbol.vol24h = readDouble();
 }
@@ -174,7 +174,7 @@ void ConnectorMessageOrderSignal::initSizeReturn()
 	// event, ...
 	m_size_return += static_cast<o3d::Int32>(sizeof(o3d::Int8)) * 6;
 	// timestamp, ..
-	m_size_return += static_cast<o3d::Int32>(sizeof(o3d::Double)) * 11;
+    m_size_return += static_cast<o3d::Int32>(sizeof(o3d::Double)) * 12;
 	// string, ...
 	m_size_return += static_cast<o3d::Int32>(sizeof(o3d::Int32)) * 6;
 }
@@ -187,12 +187,13 @@ void ConnectorMessageOrderSignal::read(zmq::message_t *message)
 	OrderSignal::Event event = static_cast<OrderSignal::Event>(readInt8());
 	m_signal = new OrderSignal(event);
 
-	m_signal->timestamp = readDouble();
+    m_signal->created = readDouble();
+    m_signal->executed = readDouble();
 
-	m_signal->orderId = readString();
-	m_signal->orderRefId = readString();
+    m_signal->orderId = readCString();
+    m_signal->refId = readCString();
 
-	m_signal->marketId = readString();
+    m_signal->marketId = readCString();
 
     m_signal->orderType = static_cast<OrderSignal::OrderType>(readInt8());
 	m_signal->direction = readInt32();
@@ -209,7 +210,7 @@ void ConnectorMessageOrderSignal::read(zmq::message_t *message)
 	m_signal->postOnly = readInt8();
 	m_signal->closeOnly = readInt8();
 
-	m_signal->tradeId = readString();
+    m_signal->tradeId = readCString();
 
 	m_signal->execPrice = readDouble();
 	m_signal->avgPrice = readDouble();
@@ -219,7 +220,7 @@ void ConnectorMessageOrderSignal::read(zmq::message_t *message)
 	m_signal->quoteTransacted = readDouble();
 
 	m_signal->commissionAmount = readDouble();
-	m_signal->commissionAsset = readString();
+    m_signal->commissionAsset = readCString();
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -245,10 +246,10 @@ void ConnectorMessagePositionSignal::read(zmq::message_t *message)
 //	o3d::deletePtr(m_signal);
 	PositionSignal::Event event = static_cast<PositionSignal::Event>(readInt8());
 	m_signal = new PositionSignal(event);
-	m_signal->timestamp = readDouble();
+    m_signal->created = readDouble();
 
-	m_signal->positionId = readString();
-	m_signal->marketId = readString();
+    m_signal->positionId = readCString();
+    m_signal->marketId = readCString();
 
 	m_signal->direction = readInt32();
 	m_signal->quantity = readDouble();
@@ -259,7 +260,7 @@ void ConnectorMessagePositionSignal::read(zmq::message_t *message)
 	m_signal->stopLossPrice = readDouble();
 	m_signal->limitPrice = readDouble();
 
-	m_signal->profitCurrency = readString();
+    m_signal->profitCurrency = readCString();
 	m_signal->profitLoss = readDouble();
 
 	m_signal->filled = readDouble();

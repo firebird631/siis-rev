@@ -77,12 +77,14 @@ protected:
 	void writeInt32(o3d::Int32 value);
 	void writeDouble(o3d::Double value);
 	void writeString(const o3d::String &str);
+    void writeCString(const o3d::CString &str);
 
 	// read type
     o3d::Int8 readInt8();
     o3d::Int32 readInt32();
     o3d::Double readDouble();
     o3d::String readString();
+    o3d::CString readCString();
 
 protected:
 	

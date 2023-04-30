@@ -93,3 +93,29 @@ void Trade::updateStats(o3d::Double lastPrice, o3d::Double timestamp)
         }
     }
 }
+
+void TradeStats::loads()
+{
+    // @todo
+}
+
+void TradeStats::dumps() const
+{
+//            'best-price': 0.0,
+//            'best-timestamp': 0.0,
+//            'worst-price': 0.0,
+//            'worst-timestamp': 0.0,
+//            'entry-order-type': Order.ORDER_LIMIT,
+//            'take-profit-order-type': Order.ORDER_LIMIT,
+//            'stop-order-type': Order.ORDER_MARKET,
+//            'first-realized-entry-timestamp': 0.0,
+//            'first-realized-exit-timestamp': 0.0,
+//            'last-realized-entry-timestamp': 0.0,
+//            'last-realized-exit-timestamp': 0.0,
+//            'unrealized-profit-loss': 0.0,
+//            'profit-loss-currency': "",
+//            'exit-reason': StrategyTrade.REASON_NONE,
+//            'entry-fees': 0.0,
+//            'exit-fees': 0.0,
+//            'conditions': {}
+}

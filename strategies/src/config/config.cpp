@@ -49,7 +49,9 @@ Config::Config() :
     m_author(""),
     m_created(),
     m_modified(),
-    m_revision(1)
+    m_revision(1),
+    m_initialBalance(0.0),
+    m_initialCurrency("USD")
 {
 
 }
@@ -263,6 +265,10 @@ void Config::loadStrategySpec(const o3d::String filename)
             // global
             Json::Value global = parser.root().get("global", Json::Value());
 
+            // virtual account settings
+            m_initialCurrency = global.get("initial-currency", "USD").asCString();
+            m_initialBalance = global.get("initial-balance", 1000.0).asDouble();
+
             // overrides
             m_numWorkers = global.get("workers", m_numWorkers).asInt();
 
@@ -436,6 +442,27 @@ void Config::loadProfileSpec(const o3d::String filename)
 
             // trader/connector
             Json::Value trader = parser.root().get("trader", Json::Value());
+
+            // virtual account settings
+            if (trader.isMember("paper-mode")) {
+                Json::Value paperMode = trader.get("paper-mode", Json::Value());
+
+                o3d::String type = paperMode.get("type", "margin").asCString();
+                if (type == "asset" && paperMode.isMember("asset")) {
+                    Json::Value assets = paperMode.get("assets", Json::Value());
+
+                    for (auto it = assets.begin(); it!= assets.end(); ++it) {
+                        m_initialCurrency = it->get("base", "USDT").asCString();
+                        m_initialBalance = it->get("base", 1000.0).asDouble();
+
+                        // only keep the first one
+                        break;
+                    }
+                } else if (type == "margin") {
+                    m_initialCurrency = paperMode.get("currency", "USD").asCString();
+                    m_initialBalance = paperMode.get("initial", 1000.0).asDouble();
+                }
+            }
 
             m_brokerId = trader.get("name", "").asString().c_str();
             // m_connectorHost = connector.get("host", "127.0.0.1").asString().c_str();

@@ -8,6 +8,7 @@
 #include "siis/utils/common.h"
 #include "siis/utils/math.h"
 #include "siis/market.h"
+#include "siis/order.h"
 
 #include <o3d/core/datetime.h>
 #include <ta-lib/ta_defs.h>
@@ -263,4 +264,41 @@ o3d::String siis::formatPrice(o3d::Double price, o3d::Int32 precision, o3d::Doub
     }
 
     return formattedPrice;
+}
+
+o3d::String orderTypeToStr(o3d::Int32 orderType)
+{
+    switch (orderType) {
+        case Order::ORDER_UNDEFINED: return "undefined";
+        case Order::ORDER_MARKET: return "market";
+        case Order::ORDER_LIMIT: return "limit";
+        case Order::ORDER_STOP: return "stop";
+        case Order::ORDER_STOP_LIMIT: return "stop-limit";
+        case Order::ORDER_TAKE_PROFIT: return "take-profit";
+        case Order::ORDER_TAKE_PROFIT_LIMIT: return "take-profit-limit";
+    }
+
+    return "undefined";
+}
+
+o3d::String orderReturnCodeToStr(o3d::Int32 returnCode)
+{
+    switch (returnCode) {
+        case Order::RET_OK: return "success";
+        case Order::RET_UNDEFINED: return "undefined";
+        case Order::RET_INSUFFICIENT_FUNDS: return "insufficient-funds";
+        case Order::RET_INSUFFICIENT_MARGIN: return "insufficient-margin";
+        case Order::RET_ERROR: return "error";
+        case Order::RET_INVALID_ARGS: return "invalid-arguments";
+        case Order::RET_DENIED: return "denied";
+        case Order::RET_UNREACHABLE_SERVICE: return "unreachable";
+        case Order::RET_RATE_LIMIT: return "rate-limit";
+        case Order::RET_ORDER_LIMIT: return "order-limit";
+        case Order::RET_POSITION_LIMIT: return "position-limit";
+        case Order::RET_INVALID_NONCE: return "invalid-nonce";
+        case Order::RET_CANCEL_ONLY: return "cancel-only";
+        case Order::RET_POST_ONLY: return "post-only";
+    }
+
+    return "undefined";
 }

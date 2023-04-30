@@ -192,7 +192,7 @@ const Trade *StdTradeManager::findTrade(o3d::Double timeframe) const
     return result;
 }
 
-void StdTradeManager::closeAll(o3d::Double timestamp, o3d::Double price)
+void StdTradeManager::closeAll()
 {
     m_mutex.lock();
 
@@ -208,7 +208,7 @@ void StdTradeManager::closeAll(o3d::Double timestamp, o3d::Double price)
     m_mutex.unlock();
 }
 
-void StdTradeManager::closeAllByDirection(o3d::Int32 dir, o3d::Double timestamp, o3d::Double price)
+void StdTradeManager::closeAllByDirection(o3d::Int32 dir)
 {
     m_mutex.lock();
 
@@ -236,7 +236,7 @@ void StdTradeManager::onOrderSignal(const OrderSignal &orderSignal)
     m_mutex.lock();
 
     for (Trade *trade : m_trades) {
-        if (trade->isTargetOrder(orderSignal.orderId, orderSignal.orderRefId)) {
+        if (trade->isTargetOrder(orderSignal.orderId, orderSignal.refId)) {
             // found : apply
             trade->orderSignal(orderSignal);
             break;
