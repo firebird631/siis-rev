@@ -256,7 +256,8 @@ public:
         if (!strategiesDir.exists()) {
             strategiesDir = o3d::Dir(o3d::FileManager::instance()->getWorkingDirectory() + "/strategies");
             if (!strategiesDir.exists()) {
-                strategiesDir = o3d::Dir(o3d::FileManager::instance()->getWorkingDirectory());
+            o3d::System::print(strategiesDir.getFullPathName(), "");
+                strategiesDir = o3d::Dir(o3d::Application::getAppPath() + "../strategies/");
             }
         }
 

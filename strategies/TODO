@@ -48,7 +48,8 @@ Prioritaire
     - dynamic-take-profit
 
 - avoir un filtragep pour le stop-loss, le faire qu'après une cloture de bougie ou un autre filtrage genre MA...
-
+  - par exemple sl/tp à close 1min car en matchant avec un step de 60 ça offre une bonne perf et donc il faudrait
+    qu'en live ça soit aussi une cloture en m1 par contre ça peut géner pour mettre un limit order
 
 Secondaire
 ==========

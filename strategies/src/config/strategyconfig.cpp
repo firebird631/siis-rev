@@ -42,31 +42,38 @@ static void update(Json::Value& a, const Json::Value& b)
 }
 
 // Find a member according to a dot formatted path and if found replace its value.
-static void modifyDict(Json::Value &dict, o3d::StringTokenizer &keysOrIndexes, Json::Value newValue)
+static void modifyDict(Json::Value *root, o3d::StringTokenizer &keysOrIndexes, Json::Value newValue)
 {
-    Json::Value value = dict;
+    Json::Value *value = root;
 
     while (keysOrIndexes.hasMoreTokens()) {
         o3d::String part = keysOrIndexes.nextElement();
-
-        if (value.type() == Json::objectValue) {
-            if (value.isMember(part.toAscii().getData())) {
-                if (!keysOrIndexes.countTokens()) {
+        if (value->isArray()) {
+            if (!keysOrIndexes.countTokens()) {
+                // check
+                o3d::Int32 idx = part.toInt32();
+                if (idx >= 0 && idx < value->size()) {
                     // set
-                    value[part.toAscii().getData()] = newValue;
+                    (*value)[idx].copy(newValue);
                 } else {
-                    value = value[part.toAscii().getData()];
+                    return;
                 }
             } else {
-                return;
+                // check
+                o3d::Int32 idx = part.toInt32();
+                if (idx >= 0 && idx < value->size()) {
+                    value = &value[part.toInt32()];
+                } else {
+                    return;
+                }
             }
-        } else if (value.type() == Json::arrayValue) {
-            if (value.isMember(part.toAscii().getData())) {
+        } else if (value->isObject()) {
+            if (value->isMember(part.toAscii().getData())) {
                 if (!keysOrIndexes.countTokens()) {
                     // set
-                    value[part.toInt32()] = newValue;
+                    (*value)[part.toAscii().getData()].copy(newValue);
                 } else {
-                    value = value[part.toInt32()];
+                    value = &(*value)[part.toAscii().getData()];
                 }
             } else {
                 return;
@@ -75,11 +82,9 @@ static void modifyDict(Json::Value &dict, o3d::StringTokenizer &keysOrIndexes, J
     }
 }
 
-static void mergeWithDotFormat(Json::Value &root, const Json::Value &b)
+static void mergeWithDotFormat(Json::Value *root, const Json::Value &b)
 {
-    if (!root.isObject() || !b.isObject()) return;
-
-    Json::Value dst = root.get("parameters", Json::Value());
+    if (!root->isObject() || !b.isObject()) return;
 
     for (const auto& key : b.getMemberNames()) {
         if(b[key].type() == Json::objectValue || b[key].type() == Json::arrayValue) {
@@ -87,7 +92,7 @@ static void mergeWithDotFormat(Json::Value &root, const Json::Value &b)
         }
 
         o3d::StringTokenizer parts(o3d::String(key.c_str()), ".");
-        modifyDict(dst, parts, b[key]);
+        modifyDict(root, parts, b[key]);
     }
 }
 
@@ -179,11 +184,12 @@ o3d::Bool StrategyConfig::parseLearningOverrides(const o3d::Dir &basePath, const
         Json::Value strategy = parser.root().get("strategy", Json::Value());
         Json::Value parameters = parser.root().get("parameters", Json::Value());
         if (!strategy.empty()) {
-            // compatibility format
+             // compatibility format
             Json::Value lparameters = strategy.get("parameters", Json::Value());
-            mergeWithDotFormat(*m_root, lparameters);
+            mergeWithDotFormat(m_root, lparameters);
+            printf("%f\n", m_root->get("timeframes", Json::Value()).get("4hour", Json::Value()).get("indicators", Json::Value()).get("slow_m_ma", Json::Value()).get(1, Json::Value()).asDouble());
         } else if (!parameters.empty()) {
-            mergeWithDotFormat(*m_root, parameters);
+            mergeWithDotFormat(m_root, parameters);
         }
 
         return true;
