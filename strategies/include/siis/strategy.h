@@ -228,10 +228,10 @@ public:
 
     o3d::Bool reversal() const { return m_reversal; }
     o3d::Bool hedging() const { return m_hedging; }
-    o3d::Bool maxTrades() const { return m_maxTrades; }
-    o3d::Bool tradeDelay() const { return m_tradeDelay; }
+    o3d::Int32 maxTrades() const { return m_maxTrades; }
+    o3d::Double tradeDelay() const { return m_tradeDelay; }
     o3d::Bool needUpdate() const { return m_needUpdate; }
-    o3d::Bool baseTimeframe() const { return m_baseTimeframe; }
+    o3d::Double baseTimeframe() const { return m_baseTimeframe; }
 
     /**
      * @brief tradeType Strategy trade type to instanciate.

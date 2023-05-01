@@ -137,6 +137,15 @@ o3d::Bool StdTradeManager::hasTradeById(o3d::Int32 id) const
     return result;
 }
 
+o3d::Int32 StdTradeManager::numTrades() const
+{
+    m_mutex.lock();
+    o3d::Int32 n = static_cast<o3d::Int32>(m_trades.size());
+    m_mutex.unlock();
+
+    return n;
+}
+
 Trade *StdTradeManager::getTrade(o3d::Int32 id)
 {
     Trade *result = nullptr;

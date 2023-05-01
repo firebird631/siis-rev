@@ -234,6 +234,10 @@ void MaAdx::compute(o3d::Double timestamp)
         // second level : entry invalidation
         // @todo
 
+        if (m_tradeManager->numTrades() >= maxTrades()) {
+            doOrder = false;
+        }
+
         if (doOrder) {
             orderEntry(timestamp, signal.tf(), signal.d(), signal.price(), signal.tp(), signal.sl());
         }

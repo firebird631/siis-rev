@@ -47,6 +47,8 @@ public:
     o3d::Bool hasTradesByDirection(o3d::Int32 dir) const;
     o3d::Bool hasTradeById(o3d::Int32 id) const;
 
+    o3d::Int32 numTrades() const;
+
     Trade* getTrade(o3d::Int32 id);
     const Trade* getTrade(o3d::Int32 id) const;
 

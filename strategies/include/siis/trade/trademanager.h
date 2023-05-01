@@ -65,6 +65,8 @@ public:
      */
     void process(o3d::Double timestamp) { T::process(timestamp); }
 
+    o3d::Int32 numTrades() const { return T::numTrades(); }
+
     o3d::Bool hasTrades() const { return T::hasTrades(); }
 
     o3d::Bool hasTradesByDirection(o3d::Int32 dir) const { return T::hasTradesByDirection(dir); }
