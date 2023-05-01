@@ -28,6 +28,7 @@ static const char* IndiceAlphaParameters = R"JSON(
     "max-traded-timeframe': "1m",
     "min-vol-24h": 0,
     "min-price": 0,
+    "trade-type": "position",
     "timeframes": {
         "weekly": {
             "enabled": true,

@@ -87,6 +87,18 @@ void Strategy::initBasicsParameters(StrategyConfig &conf)
     }
 }
 
+void Strategy::setActiveStats(o3d::Double performance, o3d::Double drawDown, o3d::Int32 pending, o3d::Int32 actives)
+{
+    m_stats.activeTrades = actives;
+    m_stats.openTrades = pending;
+
+    m_stats.unrealizedPerformance = performance;
+
+    if (drawDown > m_stats.maxDrawDown) {
+        m_stats.maxDrawDown = drawDown;
+    }
+}
+
 const std::list<DataSource> Strategy::getDataSources() const
 {
     return m_dataSources;
@@ -122,6 +134,41 @@ void Strategy::process(o3d::Double timestamp)
 void Strategy::log(o3d::Double timeframe, const o3d::String &channel, const o3d::String &msg)
 {
     m_handler->log(timeframe, m_market->marketId(), channel, msg);
+}
+
+void Strategy::addClosedTrade(Trade *trade)
+{
+    if (trade) {
+        if (trade->isCanceled()) {
+            m_stats.canceledTrades += 1;
+
+        } else if (trade->isClosed()) {
+            m_stats.performance += trade->profitLossRate();
+
+            if (trade->profitLossRate() < 0.0) {
+                m_stats.failedTrades += 1;
+            } else if (trade->profitLossRate() > 0.0) {
+                m_stats.succeedTrades += 1;
+            } else {
+                // @todo
+                m_stats.roeTrades += 1;
+            }
+
+            m_stats.totalTrades += 1;
+
+            // @todo
+//            m_stats.maxAdjacentLoss
+//            m_stats.maxAdjacentWin
+
+//            m_stats.stopLossInGain
+//            m_stats.stopLossInLoss
+//            m_stats.takeProfitInGain
+//            m_stats.takeProfitInLoss
+
+            m_stats.best = o3d::max(m_stats.best, trade->profitLossRate());
+            m_stats.worst = o3d::min(m_stats.worst, trade->profitLossRate());
+        }
+    }
 }
 
 void Strategy::setProperty(const o3d::String propertyName, const o3d::String value)

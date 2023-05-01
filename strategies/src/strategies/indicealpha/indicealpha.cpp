@@ -241,6 +241,11 @@ void IndiceAlpha::finalize(o3d::Double timestamp)
     // cleanup
 }
 
+void IndiceAlpha::updateStats()
+{
+
+}
+
 void IndiceAlpha::orderEntry(
         o3d::Double timestamp,
         o3d::Double timeframe,

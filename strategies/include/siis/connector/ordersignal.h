@@ -36,11 +36,14 @@ public:
 
     OrderSignal(Event _event) :
         BaseSignal(ORDER),
-        event(_event)
+        event(_event),
+        completed(false)
     {
     }
 
     Event event;             //!< type of the event.
+
+    o3d::Bool completed;     //!< true if fully filled (or treated as it)
 };
 
 } // namespace siis

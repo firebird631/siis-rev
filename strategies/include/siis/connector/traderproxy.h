@@ -95,7 +95,7 @@ public:
     /**
      * @brief newOrder Returns a new free order to be used with createOrder.
      */
-    Order* newOrder();
+    Order* newOrder(Strategy *strategy);
 
     /**
      * @brief freeOrder Once an order message is process release the order with this method.

@@ -16,6 +16,8 @@ namespace siis {
  * @brief Strategy base signal proxy.
  * @author Frederic Scherma
  * @date 2019-03-21
+ * @todo could add liquidation signal
+ * @todo could add buy/sell/update signal
  */
 template<class T>
 class SIIS_API BaseSignal : public T

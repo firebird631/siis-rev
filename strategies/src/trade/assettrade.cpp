@@ -26,6 +26,11 @@ AssetTrade::~AssetTrade()
 
 }
 
+void AssetTrade::init(o3d::Double timeframe)
+{
+    Trade::init(timeframe);
+}
+
 void AssetTrade::open(
         Strategy *strategy,
         o3d::Int32 direction,

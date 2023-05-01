@@ -56,18 +56,27 @@ void Market::setAlias(const o3d::CString &alias)
 
 void Market::setCapacities(o3d::Int32 tradeCaps, o3d::Int32 orderCaps)
 {
-    m_tradeCaps = tradeCaps;
-    m_orderCaps = orderCaps;
+    if (tradeCaps > -1) {
+        m_tradeCaps = tradeCaps;
+    }
+
+    if (orderCaps > -1) {
+        m_orderCaps = orderCaps;
+    }
 }
 
 void Market::setTradeCapacities(o3d::Int32 tradeCaps)
 {
-    m_tradeCaps = tradeCaps;
+    if (tradeCaps > -1) {
+        m_tradeCaps = tradeCaps;
+    }
 }
 
 void Market::setOrderCapacities(o3d::Int32 orderCaps)
 {
-    m_orderCaps = orderCaps;
+    if (orderCaps > -1) {
+        m_orderCaps = orderCaps;
+    }
 }
 
 void Market::setBaseInfo(const o3d::CString &symbol, o3d::Int32 precision)

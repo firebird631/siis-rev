@@ -29,6 +29,8 @@
 #include <o3d/core/uuid.h>
 
 using namespace siis;
+using o3d::Debug;
+using o3d::Logger;
 
 TraderProxy::TraderProxy(Connector *connector) :
     m_connector(connector),
@@ -206,9 +208,13 @@ o3d::Int32 TraderProxy::cancelOrder(const o3d::CString &orderId)
     return Order::RET_UNREACHABLE_SERVICE;
 }
 
-Order *TraderProxy::newOrder()
+Order *TraderProxy::newOrder(Strategy *strategy)
 {
     Order* order = nullptr;
+
+    if (!strategy) {
+        O3D_ERROR(o3d::E_NullPointer("Strategy must be a valid pointer"));
+    }
 
     if (m_freeOrders.getSize() == 0) {
         // empty allocator, make some news
@@ -216,15 +222,16 @@ Order *TraderProxy::newOrder()
             m_freeOrders[i] = new Order();
             m_freeOrders[i]->proxy = this;
         }
-
-        // get the last free and pop it
-        order = m_freeOrders.getLast();
-        m_freeOrders.pop();
     }
+
+    // get the last free and pop it
+    order = m_freeOrders.getLast();
+    m_freeOrders.pop();
 
     // set a unique id for reference
     if (order) {
         order->refId = o3d::Uuid::uuid5("siis").toCString();
+        order->strategy = strategy;
     }
 
     return order;

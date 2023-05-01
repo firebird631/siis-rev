@@ -99,6 +99,7 @@ public:
         printf("  -h --help This help message\n");
         printf("  -v --version SiiS strategy version number\n");
         printf("  -n --nointeractive To disable ncurse interactive mode\n");
+        printf("  -c --cpu Force the number of workers to uses (from 1 to max CPUs)\n");
         printf("\n");
         printf("  -p --profile <filename.json> To define the profile configuration\n");
         printf("  -s --strategy <filename.json> To define the strategy configuration\n");
@@ -149,6 +150,7 @@ public:
         cmd->addSwitch('n', "nointerative");
         cmd->addSwitch('L', "learn");
         cmd->addSwitch('o', "optimize");
+        cmd->addOptionalOption('c', "cpu", "0");
 
         if (!cmd->parse()) {
             throw E_InvalidParameter("Invalid parameters");
@@ -197,6 +199,8 @@ public:
         String profileConfigFileName = cmd->getOptionValue('p');
         String learningConfigFileName = cmd->getOptionValue('x');
         String supervisorConfigFileName = cmd->getOptionValue('S');
+        o3d::Int32 cmdNumCPU = cmd->getOptionValue('c').toInt32();
+        o3d::Int32 numWorkers = -1;
 
         // config
         m_config = new Config();
@@ -220,7 +224,16 @@ public:
         }
 
         if (m_config->getNumWorkers() > 0) {
-            numCPU = m_config->getNumWorkers();
+            numWorkers = m_config->getNumWorkers();
+        }
+
+        // cmd line parameter override configuration
+        if (cmdNumCPU > 0 && cmdNumCPU < numCPU) {
+            numWorkers = cmdNumCPU;
+        }
+
+        if (numWorkers <= 0) {
+            numWorkers = numCPU;
         }
 
         m_database = Database::builder(m_config->getDBType(),
@@ -235,7 +248,7 @@ public:
 
         m_cache->init();
 
-        m_poolWorker = new PoolWorker(numCPU);
+        m_poolWorker = new PoolWorker(numWorkers);
         m_poolWorker->init();
 
         // strategies

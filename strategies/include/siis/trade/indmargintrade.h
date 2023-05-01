@@ -27,6 +27,8 @@ public:
 
     virtual ~IndMarginTrade() override;
 
+    virtual void init(o3d::Double timeframe) override;
+
     //
     // processing
     //
@@ -75,6 +77,8 @@ public:
     virtual o3d::String formatToStr() const override;
     virtual o3d::String stateToStr() const override;
 
+    virtual void updateStats(o3d::Double lastPrice, o3d::Double timestamp) override;
+
     //
     // persistance
     //
@@ -92,6 +96,17 @@ private:
         o3d::CString refId;
 
         o3d::Double executed = 0.0;
+
+        void reset() {
+            state = STATE_UNDEFINED;
+            orderId = "";
+            refId = "";
+            executed = 0.0;
+        }
+
+        inline o3d::Bool hasOrder() const {
+            return orderId.isValid() || refId.isValid();
+        }
     };
 
     /**
@@ -104,6 +119,13 @@ private:
      */
     struct Stop : EntryExit
     {
+        void reset() {
+            EntryExit::reset();
+
+            closing = false;
+        }
+
+
         o3d::Bool closing = false;
     };
 
@@ -121,6 +143,7 @@ private:
     Stop m_stop;
     Limit m_limit;
 
+    void updateRealizedPnl();
 };
 
 } // namespace siis

@@ -11,6 +11,7 @@
 #include "siis/handler.h"
 #include "siis/strategy.h"
 #include "siis/config/config.h"
+#include "siis/connector/ordersignal.h"
 
 #include <o3d/core/debug.h>
 #include <o3d/core/uuid.h>
@@ -56,19 +57,39 @@ void LocalConnector::update()
         const Market *market = order->strategy->market();
 
         if (order->orderType == Order::ORDER_LIMIT) {
-            // @todo
+            if (order->direction > 0) {
+                // @todo
+            } else if (order->direction < 0) {
+
+            }
         }
         else if (order->orderType == Order::ORDER_STOP) {
-            // @todo
+            if (order->direction > 0) {
+                // @todo
+            } else if (order->direction < 0) {
+
+            }
         }
         else if (order->orderType == Order::ORDER_STOP_LIMIT) {
-            // @todo
+            if (order->direction > 0) {
+                // @todo
+            } else if (order->direction < 0) {
+
+            }
         }
         else if (order->orderType == Order::ORDER_TAKE_PROFIT) {
-            // @todo
+            if (order->direction > 0) {
+                // @todo
+            } else if (order->direction < 0) {
+
+            }
         }
         else if (order->orderType == Order::ORDER_TAKE_PROFIT_LIMIT) {
-            // @todo
+            if (order->direction > 0) {
+                // @todo
+            } else if (order->direction < 0) {
+
+            }
         }
     }
 
@@ -79,6 +100,7 @@ void LocalConnector::update()
 
         if (position->quantity > 0.0) {
             // update position state, profit and loss...
+            // position->profitLoss =
         }
     }
 
@@ -191,23 +213,69 @@ void LocalConnector::fetchPositions(const o3d::CString &marketId)
 o3d::Int32 LocalConnector::createOrder(Order *order)
 {
     if (m_traderProxy) {
+        if (!order) {
+            return Order::RET_INVALID_ARGS;
+        }
+
         if (order->orderType == Order::ORDER_MARKET) {
             // direct execution and return
-            const Strategy *strategy = order->strategy;
+            Strategy *strategy = order->strategy;
             const Market* market = strategy->market();
 
-            order->orderId = o3d::Uuid::uuid5("siis").toCString();
-            order->created = strategy->handler()->timestamp();
+            o3d::Double execPrice = market->openExecPrice(order->direction);
 
-            order->executed = strategy->handler()->timestamp();
-            order->execPrice = market->openExecPrice(order->direction);
-            order->avgPrice = market->openExecPrice(order->direction);
+            order->orderId = o3d::Uuid::uuid5("siis").toCString();
+            order->created = handler()->timestamp();
+
+            order->executed = handler()->timestamp();
+            order->execPrice = execPrice;
+            order->avgPrice = execPrice;
+            order->filled = order->orderQuantity;
             order->cumulativeFilled = order->orderQuantity;
 
-            order->filled = true;
+            // direct order signal to strategy
+            OrderSignal openOrderSignal(OrderSignal::OPENED);
+            openOrderSignal.direction = order->direction;
+            openOrderSignal.marketId = order->marketId;
+            openOrderSignal.created = handler()->timestamp();
+            openOrderSignal.orderId = order->orderId;
+            openOrderSignal.refId = order->refId;
+            openOrderSignal.orderType = order->orderType;
 
-            // @todo order signal to trade manager
-            // strategy->onOrderSignal(orderSignal);
+            strategy->onOrderSignal(openOrderSignal);
+
+            OrderSignal tradedOrderSignal(OrderSignal::TRADED);
+            tradedOrderSignal.direction = order->direction;
+            tradedOrderSignal.marketId = order->marketId;
+            tradedOrderSignal.executed = handler()->timestamp();
+            tradedOrderSignal.orderId = order->orderId;
+            tradedOrderSignal.refId = order->refId;
+            tradedOrderSignal.orderType = order->orderType;
+
+            tradedOrderSignal.avgPrice = execPrice;
+            tradedOrderSignal.execPrice = execPrice;
+            tradedOrderSignal.marketId = order->marketId;
+            tradedOrderSignal.direction = order->direction;
+            tradedOrderSignal.filled = order->orderQuantity;
+            tradedOrderSignal.cumulativeFilled = order->orderQuantity;
+            tradedOrderSignal.completed = true;
+
+            // @todo compute quote transacted
+            // tradedOrderSignal.quoteTransacted =
+            // @todo commission fees and its currency
+
+            strategy->onOrderSignal(tradedOrderSignal);
+
+            OrderSignal deletedOrderSignal(OrderSignal::DELETED);
+            deletedOrderSignal.direction = order->direction;
+            deletedOrderSignal.marketId = order->marketId;
+            deletedOrderSignal.executed = handler()->timestamp();
+            deletedOrderSignal.orderId = order->orderId;
+            deletedOrderSignal.refId = order->refId;
+            deletedOrderSignal.orderType = order->orderType;
+            // @todo do we set cumulative, avg and completed here ?
+
+            strategy->onOrderSignal(deletedOrderSignal);
 
             return Order::RET_OK;
         } else {
@@ -216,6 +284,19 @@ o3d::Int32 LocalConnector::createOrder(Order *order)
             order->orderId = o3d::Uuid::uuid5("siis").toCString();
 
             m_virtualOrders[order->orderId] = order;
+
+            // direct order signal to strategy
+            Strategy *strategy = order->strategy;
+
+            OrderSignal openOrderSignal(OrderSignal::OPENED);
+            openOrderSignal.direction = order->direction;
+            openOrderSignal.marketId = order->marketId;
+            openOrderSignal.created = handler()->timestamp();
+            openOrderSignal.orderId = order->orderId;
+            openOrderSignal.refId = order->refId;
+            openOrderSignal.orderType = order->orderType;
+
+            strategy->onOrderSignal(openOrderSignal);
         }
         return Order::RET_OK;
     } else {
@@ -226,10 +307,25 @@ o3d::Int32 LocalConnector::createOrder(Order *order)
 o3d::Int32 LocalConnector::cancelOrder(const o3d::CString &orderId)
 {
     if (m_traderProxy) {
-        // @todo find order and remove it, then must be delete on trade manager and free by proxy
-        // if (orderId )
+        if (orderId.isValid()) {
+            auto it = m_virtualOrders.find(orderId);
+            if (it != m_virtualOrders.end()) {
+                Order *order = it->second;
+                Strategy *strategy = order->strategy;
 
-        return Order::RET_OK;
+                OrderSignal cancelOrderSignal(OrderSignal::CANCELED);
+                cancelOrderSignal.executed = handler()->timestamp();
+                cancelOrderSignal.orderId = orderId;
+                cancelOrderSignal.refId = order->refId;
+                cancelOrderSignal.orderType = order->orderType;
+
+                strategy->onOrderSignal(cancelOrderSignal);
+
+                return Order::RET_OK;
+            }
+        }
+
+        return Order::RET_INVALID_ARGS;
     } else {
         return Order::RET_UNREACHABLE_SERVICE;
     }
@@ -238,7 +334,16 @@ o3d::Int32 LocalConnector::cancelOrder(const o3d::CString &orderId)
 o3d::Int32 LocalConnector::closePosition(const o3d::CString &positionId)
 {
     if (m_traderProxy) {
-        return Order::RET_OK;
+        if (positionId.isValid()) {
+            auto it = m_virtualPositions.find(positionId);
+            if (it != m_virtualPositions.end()) {
+                // @todo
+
+                return Order::RET_OK;
+            }
+        }
+
+        return Order::RET_INVALID_ARGS;
     } else {
         return Order::RET_UNREACHABLE_SERVICE;
     }

@@ -57,6 +57,8 @@ public:
     virtual void compute(o3d::Double timestamp) override;
     virtual void finalize(o3d::Double timestamp) override;
 
+    virtual void updateStats() override;
+
 private:
 
     static constexpr o3d::Double ADX_MAX = 75.0;

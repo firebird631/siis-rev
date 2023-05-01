@@ -79,6 +79,13 @@ public:
     Trade* findTrade(o3d::Double timeframe) { return T::findTrade(timeframe); }
     const Trade* findTrade(o3d::Double timeframe) const { return T::findTrade(timeframe); }
 
+    void computePerformance(o3d::Double &performance,
+                            o3d::Double &drawDown,
+                            o3d::Int32 &pending,
+                            o3d::Int32 &actives) const {
+        return T::computePerformance(performance, drawDown, pending, actives);
+    }
+
     /**
      * @brief closeAll Close all trades at market.
      * @param timestamp Last timestamp

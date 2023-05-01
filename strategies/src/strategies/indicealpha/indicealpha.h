@@ -53,6 +53,8 @@ public:
     virtual void compute(o3d::Double timestamp) override;
     virtual void finalize(o3d::Double timestamp) override;
 
+    virtual void updateStats() override;
+
 private:
 
     o3d::Double m_minVol24h;

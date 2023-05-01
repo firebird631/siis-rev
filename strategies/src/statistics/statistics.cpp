@@ -12,6 +12,7 @@ using namespace siis;
 
 void GlobalStatistics::reset()
 {
+    unrealizedPerformance = 0.0;
     performance = 0.0;
 
     maxAdjacentWin = 0;
@@ -26,6 +27,7 @@ void GlobalStatistics::reset()
     failedTrades = 0;
     roeTrades = 0;
     totalTrades = 0;
+    canceledTrades = 0;
     openTrades = 0;
     activeTrades = 0;
     stopLossInLoss = 0;
@@ -36,6 +38,7 @@ void GlobalStatistics::reset()
 
 void GlobalStatistics::add(const Statistics &stats)
 {
+    unrealizedPerformance += stats.unrealizedPerformance;
     performance += stats.performance;
 
     maxAdjacentWin = o3d::max(stats.maxAdjacentWin, maxAdjacentWin);
@@ -50,6 +53,7 @@ void GlobalStatistics::add(const Statistics &stats)
     failedTrades += stats.failedTrades;
     roeTrades += stats.roeTrades;
     totalTrades += stats.totalTrades;
+    canceledTrades += stats.canceledTrades;
     openTrades += stats.openTrades;
     activeTrades += stats.activeTrades;
     stopLossInLoss += stats.stopLossInLoss;

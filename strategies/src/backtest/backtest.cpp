@@ -106,6 +106,16 @@ void Backtest::init(
             market->setTradeCapacities(mc->marketTradeType);
         }
 
+        // @todo need DB data
+        market->setDetails(1, 1, 1, 1, false);
+        market->setBaseInfo("XBT", 8);
+        market->setQuoteInfo("USD", 2);
+        market->setSettlementInfo("XBT", 8);
+        market->setType(Market::TYPE_CRYPTO, Market::CONTRACT_FUTURE, Market::UNIT_AMOUNT);
+        market->setCapacities(Market::TRADE_IND_MARGIN | Market::TRADE_MARGIN, Market::ORDER_ALL);
+        market->setPair("XBTUSD");
+        market->setState(1.0, true);
+
         for (DataSource ds : strategy->getDataSources()) {
             // create the stream (for now only tick stream, but could offer OHLC too, but no possibility for order-book history)
             if (ds.type == DataSource::TICK) {

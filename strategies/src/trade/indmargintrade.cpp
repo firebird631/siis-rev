@@ -8,6 +8,7 @@
 #include "siis/trade/indmargintrade.h"
 #include "siis/utils/common.h"
 #include "siis/connector/traderproxy.h"
+#include "siis/strategy.h"
 #include "siis/market.h"
 
 using namespace siis;
@@ -26,6 +27,17 @@ IndMarginTrade::~IndMarginTrade()
 
 }
 
+void IndMarginTrade::init(o3d::Double timeframe)
+{
+    Trade::init(timeframe);
+
+    m_entry.reset();
+    m_stop.reset();
+    m_limit.reset();
+
+    m_positionId = "";
+}
+
 void IndMarginTrade::open(
         Strategy *strategy,
         o3d::Int32 direction,
@@ -36,57 +48,295 @@ void IndMarginTrade::open(
 {
     m_strategy = strategy;
 
-    // @todo
     m_direction = direction;
     m_orderQuantity = quantity;
+    m_orderPrice = orderPrice;
     m_takeProfitPrice = takeProfitPrice;
     m_stopLossPrice = stopLossPrice;
 
-    Order *entryOrder = traderProxy()->newOrder();
+    Order *entryOrder = traderProxy()->newOrder(m_strategy);
     entryOrder->direction = direction;
+    entryOrder->orderQuantity = quantity;
 
+    if (orderPrice <= 0.0) {
+        entryOrder->orderType = Order::ORDER_MARKET;
+    } else {
+        entryOrder->orderType = Order::ORDER_LIMIT;
+        entryOrder->orderPrice = orderPrice;
+    }
+
+    m_entry.refId = entryOrder->refId;
+
+    o3d::Int32 ret = traderProxy()->createOrder(entryOrder);
+    if (ret == Order::RET_OK) {
+    } else {
+        m_entry.state = STATE_REJECTED;
+    }
 }
 
 void IndMarginTrade::remove()
 {
+    if (m_stop.closing) {
+        return;
+    }
 
+    if (m_entry.hasOrder()) {
+        o3d::Int32 ret = traderProxy()->cancelOrder(m_entry.orderId);
+        if (ret == Order::RET_OK) {
+            m_entry.orderId = "";
+            m_entry.refId = "";
+
+            m_entry.state = STATE_CANCELED;
+        } else {
+
+        }
+    }
+
+    if (m_stop.hasOrder()) {
+        o3d::Int32 ret = traderProxy()->cancelOrder(m_stop.orderId);
+        if (ret == Order::RET_OK) {
+            m_stop.orderId = "";
+            m_stop.refId = "";
+
+            m_stop.state = STATE_CANCELED;
+        } else {
+
+        }
+    }
+
+    if (m_limit.hasOrder()) {
+        o3d::Int32 ret = traderProxy()->cancelOrder(m_limit.orderId);
+        if (ret == Order::RET_OK) {
+            m_limit.orderId = "";
+            m_limit.refId = "";
+
+            m_limit.state = STATE_CANCELED;
+        } else {
+
+        }
+    }
 }
 
 void IndMarginTrade::cancelOpen()
 {
+    if (isOpened()) {
+        if (m_entry.hasOrder()) {
+            o3d::Int32 ret = traderProxy()->cancelOrder(m_entry.orderId);
+            if (ret == Order::RET_OK) {
+                m_entry.orderId = "";
+                m_entry.refId = "";
 
+                m_entry.state = STATE_CANCELED;
+            } else {
+
+            }
+        }
+    }
 }
 
 void IndMarginTrade::cancelClose()
 {
+    if (m_stop.closing) {
+        return;
+    }
 
+    if (!isActive()) {
+        return;
+    }
+
+    if (m_stop.hasOrder()) {
+        o3d::Int32 ret = traderProxy()->cancelOrder(m_stop.orderId);
+        if (ret == Order::RET_OK) {
+            m_stop.orderId = "";
+            m_stop.refId = "";
+
+            m_stop.state = STATE_CANCELED;
+        } else {
+
+        }
+    }
+
+    if (m_limit.hasOrder()) {
+        o3d::Int32 ret = traderProxy()->cancelOrder(m_limit.orderId);
+        if (ret == Order::RET_OK) {
+            m_limit.orderId = "";
+            m_limit.refId = "";
+
+            m_limit.state = STATE_CANCELED;
+        } else {
+
+        }
+    }
 }
 
 void IndMarginTrade::modifyTakeProfit(o3d::Double price, o3d::Bool asOrder)
 {
+    if (m_stop.closing) {
+        return;
+    }
 
+    if (m_limit.hasOrder()) {
+        o3d::Int32 ret = traderProxy()->cancelOrder(m_limit.orderId);
+        if (ret == Order::RET_OK) {
+            m_limit.orderId = "";
+            m_limit.refId = "";
+
+            m_limit.state = STATE_CANCELED;
+        } else {
+
+        }
+    }
+
+    if (asOrder) {
+        if (price > 0.0) {
+            o3d::Double remaining_qty =  m_filledEntryQuantity - m_filledExitQuantity;
+
+            Order *limitOrder = traderProxy()->newOrder(m_strategy);
+            limitOrder->direction = -m_direction;
+            limitOrder->orderQuantity = remaining_qty;
+
+            limitOrder->orderType = Order::ORDER_LIMIT;
+            limitOrder->orderPrice = price;
+
+            m_limit.refId = limitOrder->refId;
+
+            o3d::Int32 ret = traderProxy()->createOrder(limitOrder);
+            if (ret == Order::RET_OK) {
+            } else {
+
+            }
+        }
+    }
+
+    m_takeProfitPrice = price;
 }
 
 void IndMarginTrade::modifyStopLoss(o3d::Double price, o3d::Bool asOrder)
 {
+    if (m_stop.closing) {
+        return;
+    }
 
+    if (m_stop.hasOrder()) {
+        o3d::Int32 ret = traderProxy()->cancelOrder(m_stop.orderId);
+        if (ret == Order::RET_OK) {
+            m_stop.orderId = "";
+            m_stop.refId = "";
+
+            m_stop.state = STATE_CANCELED;
+        } else {
+
+        }
+    }
+
+    if (asOrder) {
+        if (price > 0.0) {
+            o3d::Double remaining_qty =  m_filledEntryQuantity - m_filledExitQuantity;
+
+            Order *stopOrder = traderProxy()->newOrder(m_strategy);
+            stopOrder->direction = -m_direction;
+            stopOrder->orderQuantity = remaining_qty;
+
+            stopOrder->orderType = Order::ORDER_MARKET;
+            stopOrder->orderPrice = price;
+
+            m_stop.refId = stopOrder->refId;
+
+            o3d::Int32 ret = traderProxy()->createOrder(stopOrder);
+            if (ret == Order::RET_OK) {
+            } else {
+
+            }
+        }
+    }
+
+    m_stopLossPrice = price;
 }
 
 void IndMarginTrade::close()
 {
+    if (m_stop.closing) {
+        return;
+    }
 
+    o3d::Double remaining_qty = m_filledEntryQuantity - m_filledExitQuantity;
+    if (remaining_qty <= 0.0) {
+        return;
+    }
+
+    if (m_stop.hasOrder()) {
+        o3d::Int32 ret = traderProxy()->cancelOrder(m_stop.orderId);
+        if (ret == Order::RET_OK) {
+            m_stop.orderId = "";
+            m_stop.refId = "";
+
+            m_stop.state = STATE_CANCELED;
+        } else {
+
+        }
+    }
+
+    if (m_limit.hasOrder()) {
+        o3d::Int32 ret = traderProxy()->cancelOrder(m_limit.orderId);
+        if (ret == Order::RET_OK) {
+            m_limit.orderId = "";
+            m_limit.refId = "";
+
+            m_limit.state = STATE_CANCELED;
+        } else {
+
+        }
+    }
+
+    Order *stopOrder = traderProxy()->newOrder(m_strategy);
+    stopOrder->direction = -m_direction;
+    stopOrder->orderQuantity = remaining_qty;
+    stopOrder->orderType = Order::ORDER_MARKET;
+
+    m_stop.refId = stopOrder->refId;
+    m_stop.closing = true;
+
+    o3d::Int32 ret = traderProxy()->createOrder(stopOrder);
+    if (ret == Order::RET_OK) {
+    } else {
+        m_stop.closing = false;
+    }
 }
 
 void IndMarginTrade::process(o3d::Double timestamp)
 {
-    if (m_filledEntryQuantity)
+    if (isActive()) {
+        if (m_stopLossPrice > 0.0 && !m_stop.orderId.isValid()) {
+            o3d::Double closeExecPrice = m_strategy->market()->closeExecPrice(m_direction);
 
-    if (m_stopLossPrice > 0.0 && !m_stop.orderId.isValid()) {
-        // if (m_filledExitQuantity < m_filledEntryQuantity)
-    }
+            if (m_direction > 0) {
+                if (closeExecPrice <= m_stopLossPrice) {
+                    close();
+                    return;
+                }
+            } else if (m_direction < 0) {
+                if (closeExecPrice >= m_stopLossPrice) {
+                    close();
+                    return;
+                }
+            }
+        }
 
-    if (m_takeProfitPrice > 0.0 && !m_limit.orderId.isValid()) {
+        if (m_takeProfitPrice > 0.0 && !m_limit.orderId.isValid()) {
+            o3d::Double closeExecPrice = m_strategy->market()->closeExecPrice(m_direction);
 
+            if (m_direction > 0) {
+                if (closeExecPrice >= m_takeProfitPrice) {
+                    close();
+                    return;
+                }
+            } else if (m_direction < 0) {
+                if (closeExecPrice <= m_takeProfitPrice) {
+                    close();
+                    return;
+                }
+            }
+        }
     }
 }
 
@@ -134,12 +384,192 @@ o3d::Bool IndMarginTrade::isClosed() const
 
 void IndMarginTrade::orderSignal(const OrderSignal &signal)
 {
+    if ((signal.orderId.isValid() && signal.orderId == m_entry.orderId) ||
+        (signal.refId.isValid() && signal.refId == m_entry.refId)) {
 
+        if (m_entry.orderId.isEmpty()) {
+            m_entry.orderId = signal.orderId;
+        }
+
+        if (signal.event == signal.OPENED) {
+            m_openTimeStamp = signal.executed;
+
+            m_entry.state = STATE_OPENED;
+        } else if (signal.event == signal.REJECTED) {
+            m_entry.orderId = "";
+            m_entry.refId = "";
+
+            m_entry.state = STATE_REJECTED;
+        } else if (signal.event == signal.DELETED) {
+            m_entry.orderId = "";
+            m_entry.refId = "";
+
+        } else if (signal.event == signal.CANCELED) {
+            m_entry.orderId = "";
+            m_entry.refId = "";
+
+            m_entry.state = STATE_CANCELED;
+        } else if (signal.event == signal.UPDATED) {
+            // no supported
+        } else if (signal.event == signal.TRADED) {
+            if (signal.cumulativeFilled > 0.0) {
+                m_filledEntryQuantity = signal.cumulativeFilled;
+            } else if (signal.filled > 0.0) {
+                m_filledEntryQuantity += signal.filled;
+            }
+
+            if (signal.avgPrice > 0.0) {
+                m_entryPrice = signal.avgPrice;
+            } else if (signal.execPrice > 0.0) {
+                // @todo avg
+                m_entryPrice = signal.execPrice;
+            }
+
+            if (m_stats.firstRealizedEntryTimestamp <= 0.0) {
+                m_stats.firstRealizedEntryTimestamp = signal.executed;
+            }
+            m_stats.lastRealizedEntryTimestamp = signal.executed;
+
+            if (m_filledEntryQuantity >= m_orderQuantity || signal.completed) {
+                m_entry.state = STATE_FILLED;
+            } else {
+                m_entry.state = STATE_PARTIALLY_FILLED;
+            }
+        }
+    } else if ((signal.orderId.isValid() && signal.orderId == m_limit.orderId) ||
+        (signal.refId.isValid() && signal.refId == m_limit.refId)) {
+
+        if (m_limit.orderId.isEmpty()) {
+            m_limit.orderId = signal.orderId;
+        }
+
+        if (signal.event == signal.OPENED) {
+            if (m_limit.state == STATE_NEW) {
+                m_limit.state = STATE_OPENED;
+                if (!m_exitTimeStamp) {
+                    m_exitTimeStamp = signal.executed;
+                }
+            }
+        } else if (signal.event == signal.REJECTED) {
+            m_limit.orderId = "";
+            m_limit.refId = "";
+
+            m_limit.state = STATE_REJECTED;
+        } else if (signal.event == signal.DELETED) {
+            m_limit.orderId = "";
+            m_limit.refId = "";
+
+            // @todo qty, avg entry price, timestamp...
+            // m_limit.state = STATE_DELETED;
+        } else if (signal.event == signal.CANCELED) {
+            m_limit.orderId = "";
+            m_limit.refId = "";
+
+            m_limit.state = STATE_CANCELED;
+        } else if (signal.event == signal.UPDATED) {
+            // no supported
+        } else if (signal.event == signal.TRADED) {
+            if (signal.cumulativeFilled > 0.0) {
+                m_filledExitQuantity = signal.cumulativeFilled;
+            } else if (signal.filled > 0.0) {
+                m_filledExitQuantity += signal.filled;
+            }
+
+            if (signal.avgPrice > 0.0) {
+                m_exitPrice = signal.avgPrice;
+            } else if (signal.execPrice > 0.0) {
+                // @todo avg
+                m_exitPrice = signal.execPrice;
+            }
+
+            if (m_stats.firstRealizedExitTimestamp <= 0.0) {
+                m_stats.firstRealizedExitTimestamp = signal.executed;
+            }
+            m_stats.lastRealizedExitTimestamp = signal.executed;
+
+            // realized pnl
+            updateRealizedPnl();
+
+            if (m_filledEntryQuantity >= m_orderQuantity || signal.completed) {
+                m_limit.state = STATE_FILLED;
+            } else {
+                m_limit.state = STATE_PARTIALLY_FILLED;
+            }
+        }
+    } else if ((signal.orderId.isValid() && signal.orderId == m_stop.orderId) ||
+        (signal.refId.isValid() && signal.refId == m_stop.refId)) {
+
+        if (m_stop.orderId.isEmpty()) {
+            m_stop.orderId = signal.orderId;
+        }
+
+        if (signal.event == signal.OPENED) {
+            if (m_stop.state == STATE_NEW) {
+                m_stop.state = STATE_OPENED;
+                if (!m_exitTimeStamp) {
+                    m_exitTimeStamp = signal.executed;
+                }
+            }
+        } else if (signal.event == signal.REJECTED) {
+            m_stop.orderId = "";
+            m_stop.refId = "";
+
+            m_stop.state = STATE_REJECTED;
+        } else if (signal.event == signal.DELETED) {
+            m_stop.orderId = "";
+            m_stop.refId = "";
+
+            // @todo qty, avg entry price, timestamp...
+            // m_stop.state = STATE_DELETED;
+        } else if (signal.event == signal.CANCELED) {
+            m_stop.orderId = "";
+            m_stop.refId = "";
+
+            m_stop.state = STATE_CANCELED;
+        } else if (signal.event == signal.UPDATED) {
+            // no supported
+        } else if (signal.event == signal.TRADED) {
+            if (signal.cumulativeFilled > 0.0) {
+                m_filledExitQuantity = signal.cumulativeFilled;
+            } else if (signal.filled > 0.0) {
+                m_filledExitQuantity += signal.filled;
+            }
+
+            if (signal.avgPrice > 0.0) {
+                m_exitPrice = signal.avgPrice;
+            } else if (signal.execPrice > 0.0) {
+                // @todo avg
+                m_exitPrice = signal.execPrice;
+            }
+
+            if (m_stats.firstRealizedExitTimestamp <= 0.0) {
+                m_stats.firstRealizedExitTimestamp = signal.executed;
+            }
+            m_stats.lastRealizedExitTimestamp = signal.executed;
+
+            // realized pnl
+            updateRealizedPnl();
+
+            if (m_filledEntryQuantity >= m_orderQuantity || signal.completed) {
+                m_stop.state = STATE_FILLED;
+            } else {
+                m_stop.state = STATE_PARTIALLY_FILLED;
+            }
+        }
+    }
 }
 
 void IndMarginTrade::positionSignal(const PositionSignal &signal)
 {
+    if (signal.positionId.isValid() && signal.positionId == m_positionId) {
+        if (signal.event == signal.OPENED) {
 
+        } else if (signal.event == signal.UPDATED) {
+
+        } else if (signal.event == signal.DELETED) {
+
+        }
+    }
 }
 
 o3d::Bool IndMarginTrade::isTargetOrder(const o3d::String &orderId, const o3d::String &refId) const
@@ -200,6 +630,34 @@ o3d::String IndMarginTrade::stateToStr() const
     }
 }
 
+void IndMarginTrade::updateStats(o3d::Double lastPrice, o3d::Double timestamp)
+{
+    Trade::updateStats(lastPrice, timestamp);
+
+    if (isActive()) {
+//                last_price = instrument.close_exec_price(self.direction)
+//            if last_price <= 0:
+//                return
+
+//            upnl = 0.0  # unrealized PNL
+//            rpnl = 0.0  # realized PNL
+
+//            # non realized quantity
+//            nrq = self.e - self.x
+
+//            if self.dir > 0:
+//                upnl = (last_price - self.aep) * nrq * instrument.contract_size
+//                rpnl = (self.axp - self.aep) * self.x * instrument.contract_size
+//            elif self.dir < 0:
+//                upnl = (self.aep - last_price) * nrq * instrument.contract_size
+//                rpnl = (self.aep - self.axp) * self.x * instrument.contract_size
+
+//            # including fees and realized profit and loss
+//            self._stats['unrealized-profit-loss'] = instrument.adjust_quote(
+//                upnl + rpnl - self._stats['entry-fees'] - self._stats['exit-fees'])
+    }
+}
+
 void IndMarginTrade::dumps(o3d::Variadic &trades, Market *market) const
 {
     // @todo
@@ -208,4 +666,10 @@ void IndMarginTrade::dumps(o3d::Variadic &trades, Market *market) const
 void IndMarginTrade::loads(const o3d::Variadic &trade)
 {
     // @todo
+}
+
+void IndMarginTrade::updateRealizedPnl()
+{
+    m_profitLossRate = m_direction * ((m_exitPrice * m_filledExitQuantity) - (m_entryPrice * m_filledExitQuantity)) /
+                       (m_entryPrice * m_filledExitQuantity);
 }

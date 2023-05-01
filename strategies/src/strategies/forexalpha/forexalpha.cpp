@@ -238,6 +238,11 @@ void ForexAlpha::finalize(o3d::Double timestamp)
     // cleanup
 }
 
+void ForexAlpha::updateStats()
+{
+
+}
+
 void ForexAlpha::orderEntry(
         o3d::Double timestamp,
         o3d::Double timeframe,

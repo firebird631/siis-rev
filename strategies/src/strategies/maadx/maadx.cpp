@@ -248,6 +248,18 @@ void MaAdx::finalize(o3d::Double timestamp)
     // cleanup
 }
 
+void MaAdx::updateStats()
+{
+    o3d::Double performance = 0.0;
+    o3d::Double drawDown = 0.0;
+    o3d::Int32 pending = 0;
+    o3d::Int32 actives = 0;
+
+    m_tradeManager->computePerformance(performance, drawDown, pending, actives);
+
+    setActiveStats(performance, drawDown, pending, actives);
+}
+
 void MaAdx::orderEntry(
         o3d::Double timestamp,
         o3d::Double timeframe,
@@ -267,7 +279,7 @@ void MaAdx::orderEntry(
         o3d::Double quantity = 1.0;  // @todo
 
         // query open
-        trade->open(this, direction, price, quantity, takeProfitPrice, stopLossPrice);
+        trade->open(this, direction, 0.0, quantity, takeProfitPrice, stopLossPrice);
 
         o3d::String msg = o3d::String("#{0} {1} at {2} sl={3} tp={4} q={5}").arg(trade->id())
                           .arg(direction > 0 ? "long" : "short").arg(formatPrice(price))

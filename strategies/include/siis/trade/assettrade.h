@@ -25,7 +25,7 @@ public:
 
     virtual ~AssetTrade() override;
 
-    void init(o3d::Double timeframe);
+    virtual void init(o3d::Double timeframe) override;
 
     //
     // processing

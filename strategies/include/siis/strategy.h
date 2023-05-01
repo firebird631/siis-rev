@@ -248,6 +248,16 @@ public:
      */
     const Statistics& statistics() const { return m_stats; }
 
+    /**
+     * @brief updateStats Update max drawn down and some others stuffs.
+     */
+    virtual void updateStats() = 0;
+
+    /**
+     * @brief addClosedTrade Add a terminated trade (close or canceled) to statistics.
+     */
+    void addClosedTrade(Trade *trade);
+
 protected:
 
     void setProperty(const o3d::String propertyName, const o3d::String value);
@@ -275,6 +285,8 @@ protected:
     void setTerminated();
 
     void initBasicsParameters(StrategyConfig &conf);
+
+    void setActiveStats(o3d::Double performance,  o3d::Double drawDown, o3d::Int32 pending, o3d::Int32 actives);
 
 private:
 

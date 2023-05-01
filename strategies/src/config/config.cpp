@@ -241,9 +241,9 @@ o3d::Int32 marketTradeTypeFromStr(const o3d::String &type)
     } else if (type == "margin") {
         return Market::TRADE_MARGIN;
     } else if (type == "ind-margin") {
-        return Market::TRADE_IND_MARGIN;
+        return Market::TRADE_IND_MARGIN | Market::TRADE_MARGIN;
     } else if (type == "position") {
-        return Market::TRADE_POSITION;
+        return Market::TRADE_POSITION | Market::TRADE_MARGIN;
     } else {
         O3D_ERROR(o3d::E_InvalidParameter(o3d::String("{0} is not a valide mode").arg(type)));
     }
@@ -398,6 +398,11 @@ void Config::loadStrategySpec(const o3d::String filename)
                 if (market.isMember("trade-type")) {
                     o3d::String tradeType = market.get("trade-type", "").asString().c_str();
                     mc->marketTradeType = marketTradeTypeFromStr(tradeType);
+
+                    mc->marketOrderCapacity = -1;  //!< -1 if not specified (compatible with Market::OrderCapacity)
+                    mc->marketContract = -1;  //!< -1 if not specified (compatible with Market::Contract)
+                    mc->marketType = -1;      //!< -1 if not specified (compatible with Market::Type)
+                    mc->marketUnit = - 1;     //!< -1 if not specified (compatible with Market::Unit)
                 }
 
                 // ...
@@ -545,7 +550,7 @@ void Config::loadProfileSpec(const o3d::String filename)
 
                     // initial market detail but will be overrided if found in DB
                     if (instrument.isMember("trade-type")) {
-                        o3d::String tradeType = instrument.get("trade-type", "").asString().c_str();
+                        o3d::String tradeType = instrument.get("trade-type", "asset").asString().c_str();
                         mc->marketTradeType = marketTradeTypeFromStr(tradeType);
                     }
 
@@ -684,6 +689,7 @@ void Config::overwriteLearningFile(const GlobalStatistics &global, const Account
             root["failed-trades"] = global.failedTrades;
             root["roe-trades"] = global.roeTrades;
             root["total-trades"] = global.totalTrades;
+            root["canceled-trades"] = global.canceledTrades;
             root["open-trades"] = global.openTrades;
             root["active-trades"] = global.activeTrades;
             root["stop-loss-in-loss"] = global.stopLossInLoss;

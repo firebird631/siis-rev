@@ -94,6 +94,7 @@ public:
         avgPrice(PRICE_UNDEFINED),
         filled(QUANTITY_UNDEFINED),
         cumulativeFilled(QUANTITY_UNDEFINED),
+        quoteTransacted(QUANTITY_UNDEFINED),
         commissionAmount(QUANTITY_UNDEFINED)
     {
     }
@@ -104,6 +105,9 @@ public:
         created = TIMESTAMP_UNDEFINED;
         executed = TIMESTAMP_UNDEFINED;
         id = -1;
+        orderId = "";
+        refId = "";
+        marketId = "";
         orderType = ORDER_UNDEFINED;
         direction = UNDEFINED;
         orderQuantity = QUANTITY_UNDEFINED;
@@ -114,11 +118,14 @@ public:
         priceType = PRICE_TYPE_UNDEFINED;
         postOnly = FLAG_UNDEFINED;
         closeOnly = FLAG_UNDEFINED;
+        tradeId = "";
         execPrice = PRICE_UNDEFINED;
         avgPrice = PRICE_UNDEFINED;
         filled = QUANTITY_UNDEFINED;
         cumulativeFilled = QUANTITY_UNDEFINED;
+        quoteTransacted = QUANTITY_UNDEFINED;
         commissionAmount = QUANTITY_UNDEFINED;
+        commissionAsset = "";
     }
 
     TraderProxy *proxy;      //!< must be valid

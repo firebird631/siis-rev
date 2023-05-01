@@ -25,6 +25,8 @@ public:
 
     virtual ~PositionTrade() override;
 
+    virtual void init(o3d::Double timeframe) override;
+
     //
     // processing
     //

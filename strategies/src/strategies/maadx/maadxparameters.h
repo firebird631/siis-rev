@@ -22,6 +22,7 @@ static const char* MaAdxParameters = R"JSON(
     "max-trades": 3,
     "trade-delay": 30,
     "need-update": false,
+    "trade-type": "ind-margin",
     "contexts": {
         "ma-adx-5m-1m": {
         }

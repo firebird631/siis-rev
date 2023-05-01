@@ -44,7 +44,12 @@ void StdTradeManager::addTrade(Trade *trade)
 void StdTradeManager::removeTrade(Trade *trade)
 {
     if (trade) {
+        m_mutex.lock();
         m_trades.remove(trade);
+        m_mutex.unlock();
+
+        // free trade
+        strategy()->handler()->traderProxy()->freeTrade(trade);
     }
 }
 
@@ -55,7 +60,10 @@ void StdTradeManager::process(o3d::Double timestamp)
     m_mutex.lock();
 
     for (Trade *trade : m_trades) {
+        m_mutex.unlock();
+
         // process exit conditions of the trade (breakeven, dynamic stop/tp, market close condition)
+        trade->process(timestamp);
 
         // statistics update
         trade->updateStats(m_strategy->market()->last(), timestamp);
@@ -64,11 +72,23 @@ void StdTradeManager::process(o3d::Double timestamp)
         if (trade->canDelete()) {
             removed_trades.push_back(trade);
         }
+
+        m_mutex.lock();
     }
 
     for (Trade *trade : removed_trades) {
         // @todo as in python trademanager
+        o3d::String msg = o3d::String("#{0} {1} exit at p={2} pl={3}%").arg(trade->id())
+                          .arg(trade->direction() > 0 ? "long" : "short").arg(formatPrice(trade->exitPrice())).arg(trade->profitLossRate()*100.0);
+        m_strategy->log(trade->tf(), "trade-exit", msg);
+
         m_trades.remove(trade);
+
+        // for statistics
+        strategy()->addClosedTrade(trade);
+
+        // free trade
+        strategy()->handler()->traderProxy()->freeTrade(trade);
     }
 
     m_mutex.unlock();
@@ -197,6 +217,36 @@ const Trade *StdTradeManager::findTrade(o3d::Double timeframe) const
     return result;
 }
 
+void StdTradeManager::computePerformance(
+        o3d::Double &performance,
+        o3d::Double &drawDown,
+        o3d::Int32 &pending,
+        o3d::Int32 &actives) const
+{
+    performance = 0.0;
+    drawDown = 0.0;
+    pending = 0;
+    actives = 0;
+
+    m_mutex.lock();
+
+    for (Trade *trade : m_trades) {
+        if (trade->isActive()) {
+            ++actives;
+
+            if (trade->stats().unrealizedProfitLoss < 0.0) {
+                drawDown += -trade->stats().unrealizedProfitLoss;
+            }
+
+            performance += trade->stats().unrealizedProfitLoss;
+        } else {
+            ++pending;
+        }
+    }
+
+    m_mutex.unlock();
+}
+
 void StdTradeManager::closeAll()
 {
     m_mutex.lock();
@@ -204,9 +254,13 @@ void StdTradeManager::closeAll()
     for (Trade *trade : m_trades) {
         if (trade->isActive()) {
             // found : apply
+            m_mutex.lock();
             trade->close();
+            m_mutex.unlock();
         } else if (!trade->isActive()) {
+            m_mutex.lock();
             trade->cancelOpen();
+            m_mutex.unlock();
         }
     }
 
@@ -222,14 +276,16 @@ void StdTradeManager::closeAllByDirection(o3d::Int32 dir)
             continue;
         }
 
-//        o3d::String msg = o3d::String("#{0}").arg(trade->id());
-//        m_strategy->log(trade->tf(), "trade-exit", msg);
-
         if (trade->isActive()) {
-            // found : apply
+            // found : close
+            m_mutex.unlock();
             trade->close();
+            m_mutex.lock();
         } else if (!trade->isActive()) {
+            // found : cancel
+            m_mutex.unlock();
             trade->cancelOpen();
+            m_mutex.lock();
         }
     }
 
@@ -243,8 +299,9 @@ void StdTradeManager::onOrderSignal(const OrderSignal &orderSignal)
     for (Trade *trade : m_trades) {
         if (trade->isTargetOrder(orderSignal.orderId, orderSignal.refId)) {
             // found : apply
+            m_mutex.unlock();
             trade->orderSignal(orderSignal);
-            break;
+            return;
         }
     }
 
@@ -258,8 +315,9 @@ void StdTradeManager::onPositionSignal(const PositionSignal &positionSignal)
     for (Trade *trade : m_trades) {
         if (trade->isTargetPosition(positionSignal.positionId, positionSignal.orderRefId)) {
             // found : apply
+            m_mutex.unlock();
             trade->positionSignal(positionSignal);
-            break;
+            return;
         }
     }
 

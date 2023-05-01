@@ -248,7 +248,7 @@ o3d::Double StrategyConfig::maxTradedTimeframe() const
 Trade::Type StrategyConfig::tradeType() const
 {
     if (m_root->isMember("trade-type")) {
-        o3d::String tradeType = m_root->get("trade-mode", "").asString().c_str();
+        o3d::String tradeType = m_root->get("trade-type", "asset").asString().c_str();
         return tradeTypeFromStr(tradeType);
     }
 

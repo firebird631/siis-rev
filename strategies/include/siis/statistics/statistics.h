@@ -26,7 +26,8 @@ class SIIS_API Statistics
 {
 public:
 
-    o3d::Double performance = 0.0;  //! in percentiles
+    o3d::Double unrealizedPerformance = 0.0;  //! in percentiles
+    o3d::Double performance = 0.0;  //! realized cumulated performance in percentiles
 
     o3d::Int32 maxAdjacentWin = 0;
     o3d::Int32 maxAdjacentLoss = 0;
@@ -34,12 +35,13 @@ public:
     o3d::Double worst = 0.0;  //! in percentiles
     o3d::Double best = 0.0;   //! in percentiles
 
-    o3d::Double maxDrawDown;  //! in percentile
+    o3d::Double maxDrawDown = 0.0;  //! in percentile
 
     o3d::Int32 succeedTrades = 0;
     o3d::Int32 failedTrades = 0;
     o3d::Int32 roeTrades = 0;
     o3d::Int32 totalTrades = 0;
+    o3d::Int32 canceledTrades = 0;
     o3d::Int32 openTrades = 0;
     o3d::Int32 activeTrades = 0;
     o3d::Int32 stopLossInLoss = 0;
@@ -58,6 +60,7 @@ class SIIS_API GlobalStatistics
 {
 public:
 
+    o3d::Double unrealizedPerformance = 0.0;  //! in percentiles
     o3d::Double performance = 0.0;  //! in percentiles
 
     o3d::Int32 maxAdjacentWin = 0;
@@ -72,6 +75,7 @@ public:
     o3d::Int32 failedTrades = 0;
     o3d::Int32 roeTrades = 0;
     o3d::Int32 totalTrades = 0;
+    o3d::Int32 canceledTrades = 0;
     o3d::Int32 openTrades = 0;
     o3d::Int32 activeTrades = 0;
     o3d::Int32 stopLossInLoss = 0;

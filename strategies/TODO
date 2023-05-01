@@ -8,6 +8,8 @@ Prioritaire
 - handler()->traderProxy()->freeTrade(trade); quand un trade est supprimé totalement (donc après que le localtrader ou distanttrader)
 - fixer les size sur connectormessagereceivetickaggreged.cpp
 
+- completer les stats void Strategy::addClosedTrade(Trade *trade)
+
 - events to REDIS
   - trades entry, update, exit
   - strategy results update
@@ -44,6 +46,8 @@ Prioritaire
     - breakeven
     - dynamic-stop-loss
     - dynamic-take-profit
+
+- avoir un filtragep pour le stop-loss, le faire qu'après une cloture de bougie ou un autre filtrage genre MA...
 
 
 Secondaire
@@ -98,6 +102,8 @@ Tertaire
 - replication mode
   - mode live mais connexion à une source de donnée en WebSocket ou REST et simples signaux buy/sell/update
     - update peut être cancel, modifier un sl/tp/breakeven, partial exit
+
+- trade check and repair
 
 
 Pas important

@@ -26,6 +26,11 @@ PositionTrade::~PositionTrade()
 
 }
 
+void PositionTrade::init(o3d::Double timeframe)
+{
+    Trade::init(timeframe);
+}
+
 void PositionTrade::open(
         Strategy *strategy,
         o3d::Int32 direction,

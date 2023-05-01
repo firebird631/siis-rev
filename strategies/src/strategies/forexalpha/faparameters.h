@@ -25,6 +25,7 @@ static const char* ForexAlphaParameters = R"JSON(
     "need-update": false,
     "min-vol-24h": 0,
     "min-price": 0,
+    "trade-type": "position",
     "timeframes": {
         "weekly": {
             "enabled": true,

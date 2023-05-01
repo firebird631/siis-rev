@@ -95,7 +95,6 @@ public:
     o3d::Double lastRealizedExitTimestamp;
 
     o3d::Double unrealizedProfitLoss;
-
     o3d::CString profitLossCurrency;
 
     o3d::Double entryFees;
@@ -218,7 +217,7 @@ public:
     /**
      * @brief init Init the members.
      */
-    void init(o3d::Double timeframe);
+    virtual void init(o3d::Double timeframe);
 
     /**
      * @brief zero Zero the members.
@@ -249,6 +248,12 @@ public:
     o3d::Int32 dir() const { return m_direction; }
     o3d::Int32 d() const { return m_direction; }
 
+    o3d::Double orderPrice() const { return m_orderPrice; }
+    o3d::Double op() const { return m_orderPrice; }
+
+    o3d::Double orderQuantity() const { return m_orderQuantity; }
+    o3d::Double oq() const { return m_orderQuantity; }
+
     o3d::Double openTimestamp() const { return m_openTimeStamp; }
     o3d::Double openTs() const { return m_openTimeStamp; }
 
@@ -258,6 +263,9 @@ public:
     o3d::Double entryPrice() const { return m_entryPrice; }
     o3d::Double ep() const { return m_entryPrice; }
 
+    o3d::Double exitPrice() const { return m_exitPrice; }
+    o3d::Double xp() const { return m_exitPrice; }
+
     o3d::Double stopLossPrice() const { return m_stopLossPrice; }
     o3d::Double stopLoss() const { return m_stopLossPrice; }
     o3d::Double sl() const { return m_stopLossPrice; }
@@ -265,9 +273,6 @@ public:
     o3d::Double takeProfitPrice() const { return m_takeProfitPrice; }
     o3d::Double takeProfit() const { return m_takeProfitPrice; }
     o3d::Double tp() const { return m_takeProfitPrice; }
-
-    o3d::Double orderQuantity() const { return m_orderQuantity; }
-    o3d::Double oq() const { return m_orderQuantity; }
 
     o3d::Double filledEntryQuantity() const { return m_filledEntryQuantity; }
     o3d::Double eq() const { return m_filledEntryQuantity; }
@@ -466,7 +471,7 @@ public:
     // statistics
     //
 
-    void updateStats(o3d::Double lastPrice, o3d::Double timestamp);
+    virtual void updateStats(o3d::Double lastPrice, o3d::Double timestamp);
 
     const TradeStats& stats() const { return m_stats; }
 
@@ -519,11 +524,15 @@ protected:
     o3d::Double m_openTimeStamp;   //!< first open trade timestamp
     o3d::Double m_exitTimeStamp;   //!< last exit trade timestamp
 
-    o3d::Double m_entryPrice;
+    o3d::Double m_entryPrice;      //!< average realized entry price
+    o3d::Double m_exitPrice;       //!< average realized exit price
+
     o3d::Double m_takeProfitPrice;
     o3d::Double m_stopLossPrice;
 
+    o3d::Double m_orderPrice;
     o3d::Double m_orderQuantity;
+
     o3d::Double m_filledEntryQuantity;
     o3d::Double m_filledExitQuantity;
 
