@@ -385,7 +385,7 @@ o3d::Int32 LocalConnector::modifyPosition(const o3d::CString &positionId,
 
 o3d::Double LocalConnector::VirtualAccountData::updateBalance() const
 {
-
+    return 0.0;
 }
 
 void LocalConnector::VirtualAccountData::updateDrawDown()

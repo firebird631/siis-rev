@@ -38,6 +38,8 @@ public:
     void acquire() const;
     void release() const;
 
+    void terminate();
+
     void addTrade(Trade *trade);
     void removeTrade(Trade *trade);
 

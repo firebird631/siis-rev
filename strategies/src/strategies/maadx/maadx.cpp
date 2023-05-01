@@ -162,6 +162,7 @@ void MaAdx::terminate(Connector *connector, Database *db)
 
     if (m_tradeManager) {
         // m_tradeManager->saveTrades(tradeDb);
+        m_tradeManager->terminate();
         o3d::deletePtr(m_tradeManager);
     }
 

@@ -44,6 +44,11 @@ public:
      */
     void release() const { T::release(); }
 
+    /**
+     * @brief terminate Properly cleanup resources.
+     */
+    void terminate() { T::terminate(); }
+
     //
     // management
     //

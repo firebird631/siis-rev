@@ -34,6 +34,18 @@ void StdTradeManager::release() const
     m_mutex.unlock();
 }
 
+void StdTradeManager::terminate()
+{
+    m_mutex.lock();
+
+    for (Trade *trade : m_trades) {
+        // free trade
+        strategy()->handler()->traderProxy()->freeTrade(trade);
+    }
+
+    m_mutex.unlock();
+}
+
 void StdTradeManager::addTrade(Trade *trade)
 {
     if (trade) {
