@@ -71,3 +71,8 @@ o3d::Int32 siis::MySql::run(void *)
 
     return 0;
 }
+
+o3d::Database *MySql::db()
+{
+    return m_db;
+}

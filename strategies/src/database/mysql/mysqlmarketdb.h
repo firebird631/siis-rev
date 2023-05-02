@@ -30,7 +30,7 @@ public:
     virtual Database* db();
     virtual const Database* db() const;
 
-    virtual o3d::Bool fetchMarket(const o3d::String &brokerId, const o3d::String &marketId, Market &out);
+    virtual o3d::Bool fetchMarket(const o3d::String &brokerId, const o3d::String &marketId, Market *out);
     virtual std::list<Market*> fetchMarketList(const o3d::String &brokerId, const o3d::T_StringList &marketsId);
 
     // virtual void storeMarket(const o3d::String &brokerId, const Market &market);

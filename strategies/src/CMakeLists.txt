@@ -136,8 +136,8 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         rt
         pq  # ${PostgreSQL_LIBRARIES}
         o3dmysql${O3D_LIB_EXT}
+        o3dpgsql${O3D_LIB_EXT}
         hiredis
-        # o3dpgsql${O3D_LIB_EXT}
         ${OBJECTIVE3D_LIBRARY}
         ${TA_LIBRARIES})
 endif()

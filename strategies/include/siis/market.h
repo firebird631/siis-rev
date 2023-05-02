@@ -250,9 +250,15 @@ public:
     void setQuoteVol24h(o3d::Double vol24h);
 
     void setType(Type type, Contract contract, Unit unit);
-    void setDetails(o3d::Double contractSize, o3d::Double lotSize, o3d::Double valuePerPip, o3d::Double onePipMean, o3d::Bool hedging);
+    void setDetails(o3d::Double contractSize,
+                    o3d::Double lotSize,
+                    o3d::Double valuePerPip,
+                    o3d::Double onePipMean,
+                    o3d::Bool hedging);
 
+    void setMakerFee(o3d::Double rate, o3d::Double commission);
     void setMakerFee(o3d::Double rate, o3d::Double commission, const o3d::Double limits[2]);
+    void setTakerFee(o3d::Double rate, o3d::Double commission);
     void setTakerFee(o3d::Double rate, o3d::Double commission, const o3d::Double limits[2]);
 
     void setState(o3d::Double baseExchangeRate, o3d::Bool tradeable);
@@ -261,8 +267,15 @@ public:
     void setLastTick(const Tick &tick);
 
     void setPriceFilter(const o3d::Double filter[3]);     //!< min,max,step
+    void setPriceFilter(o3d::Double min, o3d::Double max, o3d::Double step);
+
     void setQtyFilter(const o3d::Double filter[3]);       //!< min,max,step
+    void setQtyFilter(o3d::Double min, o3d::Double max, o3d::Double step);
+
     void setNotionalFilter(const o3d::Double filter[3]);  //!< min,max,step
+    void setNotionalFilter(o3d::Double min, o3d::Double max, o3d::Double step);
+
+    void setMarginFactor(o3d::Double marginFactor);
 
     //
     // helpers

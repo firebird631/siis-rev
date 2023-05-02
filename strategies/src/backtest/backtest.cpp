@@ -106,6 +106,8 @@ void Backtest::init(
             market->setTradeCapacities(mc->marketTradeType);
         }
 
+        database->market()->fetchMarket("bitmex.com", mc->marketId, market);
+
         // @todo need DB data
         market->setDetails(1, 1, 1, 1, false);
         market->setBaseInfo("XBT", 8);

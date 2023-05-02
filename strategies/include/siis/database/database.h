@@ -12,6 +12,7 @@
 
 #include <o3d/core/string.h>
 #include <o3d/core/thread.h>
+#include <o3d/core/database.h>
 
 namespace siis {
 
@@ -49,6 +50,8 @@ public:
     OhlcDb* ohlc();
     MarketDb* market();
     TradeDb* trade();
+
+    virtual o3d::Database* db() = 0;
 
 protected:
 

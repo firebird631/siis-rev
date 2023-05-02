@@ -236,9 +236,9 @@ public:
             numWorkers = numCPU;
         }
 
-        m_database = Database::builder(m_config->getDBType(),
-                                       m_config->getDBHost(), m_config->getDBPort(), m_config->getDBName(),
-                                       m_config->getDBUser(), m_config->getDBPwd());
+        m_database = siis::Database::builder(m_config->getDBType(),
+                                            m_config->getDBHost(), m_config->getDBPort(), m_config->getDBName(),
+                                            m_config->getDBUser(), m_config->getDBPwd());
 
         m_database->init();
 
@@ -555,7 +555,7 @@ private:
     StrategyCollection *m_strategyCollection;
     SupervisorCollection *m_supervisorCollection;
 
-    Database *m_database;
+    siis::Database *m_database;
     Cache *m_cache;
     Handler *m_handler;
     Displayer *m_displayer;

@@ -41,10 +41,10 @@ void Hma::setConf(IndicatorConfig conf)
 {
     if (conf.data().isObject()) {
         m_len = conf.data().get("len", 9).asInt();
-        o3d::System::print(o3d::String("{} {0} {1}").arg(name()).arg(m_len), "");
+        // o3d::System::print(o3d::String("{} {0} {1}").arg(name()).arg(m_len), "");
     } else if (conf.data().isArray()) {
         m_len = conf.data().get((Json::ArrayIndex)1, 9).asInt();
-        o3d::System::print(o3d::String("[] {0} {1}").arg(name()).arg(m_len), "");
+        // o3d::System::print(o3d::String("[] {0} {1}").arg(name()).arg(m_len), "");
     }
 }
 

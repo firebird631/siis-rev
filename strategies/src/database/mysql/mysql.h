@@ -28,12 +28,14 @@ public:
             const o3d::String &user,
             const o3d::String &pwd);
 
-    virtual ~MySql();
+    virtual ~MySql() override;
 
-    virtual void init();
-    virtual void terminate();
+    virtual void init() override;
+    virtual void terminate() override;
 
-    virtual o3d::Int32 run(void *);
+    virtual o3d::Int32 run(void *) override;
+
+    virtual o3d::Database* db() override;
 
 private:
 

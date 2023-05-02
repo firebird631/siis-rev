@@ -119,18 +119,28 @@ void MaAdx::init(Config *config)
         for (auto it = contexts.begin(); it != contexts.end(); ++it) {
             Json::Value context = *it;
 
-            // @todo
-
             // trend
+            if (context.isMember("trend")) {
+                Json::Value trend = context.get("trend", Json::Value());
+            }
 
             // sig
-            m_adxSig = 40;
-            m_targetScale = 20.0;
-            m_riskReward = 0.5;
+            if (context.isMember("sig")) {
+                Json::Value sig = context.get("sig", Json::Value());
+
+                m_adxSig = sig.get("min-adx", Json::Value()).asDouble();
+            }
 
             // conf
+            if (context.isMember("confirm")) {
+                Json::Value confirm = context.get("confirm", Json::Value());
+
+                m_targetScale = confirm.get("target-scale", Json::Value()).asDouble();
+                m_riskReward = confirm.get("risk-reward", Json::Value()).asDouble();
+            }
 
             // entry
+            // @todo
 
             // stop-loss
 

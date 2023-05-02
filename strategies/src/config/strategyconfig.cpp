@@ -187,7 +187,6 @@ o3d::Bool StrategyConfig::parseLearningOverrides(const o3d::Dir &basePath, const
              // compatibility format
             Json::Value lparameters = strategy.get("parameters", Json::Value());
             mergeWithDotFormat(m_root, lparameters);
-            printf("%f\n", m_root->get("timeframes", Json::Value()).get("4hour", Json::Value()).get("indicators", Json::Value()).get("slow_m_ma", Json::Value()).get(1, Json::Value()).asDouble());
         } else if (!parameters.empty()) {
             mergeWithDotFormat(m_root, parameters);
         }

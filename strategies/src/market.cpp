@@ -128,12 +128,24 @@ void Market::setDetails(
     m_hedging = hedging;
 }
 
+void Market::setMakerFee(o3d::Double rate, o3d::Double commission)
+{
+    m_makerFees.rate = rate;
+    m_makerFees.commission = commission;
+}
+
 void Market::setMakerFee(o3d::Double rate, o3d::Double commission, const o3d::Double limits[])
 {
     m_makerFees.rate = rate;
     m_makerFees.commission = commission;
     m_makerFees.limits[0] = limits[0];
     m_makerFees.limits[1] = limits[1];
+}
+
+void Market::setTakerFee(o3d::Double rate, o3d::Double commission)
+{
+    m_takerFees.rate = rate;
+    m_takerFees.commission = commission;
 }
 
 void Market::setTakerFee(o3d::Double rate, o3d::Double commission, const o3d::Double limits[])
@@ -199,11 +211,27 @@ void Market::setPriceFilter(const o3d::Double filter[])
     m_priceFilter.precision = m_priceFilter.step > 0 ? o3d::max(0, decimalPlace(m_priceFilter.step)) : 0;
 }
 
+void Market::setPriceFilter(o3d::Double min, o3d::Double max, o3d::Double step)
+{
+    m_priceFilter.min = min >= 0.0 ? min : m_priceFilter.min;
+    m_priceFilter.max = max >= 0.0 ? max : m_priceFilter.max;
+    m_priceFilter.step = step >= 0.0 ? step: m_priceFilter.step;
+    m_priceFilter.precision = m_priceFilter.step > 0 ? o3d::max(0, decimalPlace(m_priceFilter.step)) : 0;
+}
+
 void Market::setQtyFilter(const o3d::Double filter[])
 {
     m_qtyFilter.min = filter[0] >= 0.0 ? filter[0] : m_qtyFilter.min;
     m_qtyFilter.max = filter[1] >= 0.0 ? filter[1] : m_qtyFilter.max;
     m_qtyFilter.step = filter[2] >= 0.0 ? filter[2]: m_qtyFilter.step;
+    m_qtyFilter.precision = m_qtyFilter.step > 0 ? o3d::max(0, decimalPlace(m_qtyFilter.step)) : 0;
+}
+
+void Market::setQtyFilter(o3d::Double min, o3d::Double max, o3d::Double step)
+{
+    m_qtyFilter.min = min >= 0.0 ? min : m_qtyFilter.min;
+    m_qtyFilter.max = max >= 0.0 ? max : m_qtyFilter.max;
+    m_qtyFilter.step = step >= 0.0 ? step: m_qtyFilter.step;
     m_qtyFilter.precision = m_qtyFilter.step > 0 ? o3d::max(0, decimalPlace(m_qtyFilter.step)) : 0;
 }
 
@@ -213,6 +241,21 @@ void Market::setNotionalFilter(const o3d::Double filter[])
     m_notionalFilter.max = filter[1] >= 0.0 ? filter[1] : m_notionalFilter.max;
     m_notionalFilter.step = filter[2] >= 0.0 ? filter[2] : m_notionalFilter.step;
     m_notionalFilter.precision = m_notionalFilter.step > 0 ? o3d::max(0, decimalPlace(m_notionalFilter.step)) : 0;
+}
+
+void Market::setNotionalFilter(o3d::Double min, o3d::Double max, o3d::Double step)
+{
+    m_notionalFilter.min = min >= 0.0 ? min : m_notionalFilter.min;
+    m_notionalFilter.max = max >= 0.0 ? max : m_notionalFilter.max;
+    m_notionalFilter.step = step >= 0.0 ? step : m_notionalFilter.step;
+    m_notionalFilter.precision = m_notionalFilter.step > 0 ? o3d::max(0, decimalPlace(m_notionalFilter.step)) : 0;
+}
+
+void Market::setMarginFactor(o3d::Double marginFactor)
+{
+    if (marginFactor > 0) {
+        m_marginFactor = marginFactor;
+    }
 }
 
 o3d::Double Market::adjustPrice(o3d::Double price) const

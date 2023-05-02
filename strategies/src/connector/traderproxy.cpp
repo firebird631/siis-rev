@@ -322,6 +322,10 @@ void TraderProxy::onMarketSignal(const MarketSignal &signal)
             market->setState(signal.baseExchangeRate, false);
         }
 
+        if (signal.marginFactor > 0.0) {
+            market->setMarginFactor(signal.marginFactor);
+        }
+
         if (signal.pair.isValid()) {
             market->setPair(signal.pair);
         }

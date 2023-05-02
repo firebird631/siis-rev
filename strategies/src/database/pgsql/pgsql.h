@@ -11,11 +11,6 @@
 #include "siis/database/database.h"
 #include <o3d/core/database.h>
 
-extern "C"
-{
-typedef struct pg_conn PGconn;
-}
-
 namespace siis {
 
 /**
@@ -33,17 +28,18 @@ public:
             const o3d::String &user,
             const o3d::String &pwd);
 
-    virtual ~PgSql();
+    virtual ~PgSql() override;
 
-    virtual void init();
-    virtual void terminate();
+    virtual void init() override;
+    virtual void terminate() override;
 
-    virtual o3d::Int32 run(void *);
+    virtual o3d::Int32 run(void *) override;
+
+    virtual o3d::Database *db() override;
 
 private:
 
     o3d::Database *m_db;
-    PGconn *m_conn;
 };
 
 } // namespace siis
