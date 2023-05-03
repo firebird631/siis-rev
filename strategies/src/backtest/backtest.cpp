@@ -48,6 +48,7 @@ Backtest::~Backtest()
 
 }
 
+#include "siis/database/ohlcdb.h"
 void Backtest::init(
         Displayer *displayer,
         Config *config,
@@ -106,17 +107,13 @@ void Backtest::init(
             market->setTradeCapacities(mc->marketTradeType);
         }
 
-        database->market()->fetchMarket("bitmex.com", mc->marketId, market);
+        // market data from database (synchronous)
+        if (!database->market()->fetchMarket(config->getBrokerId(), mc->marketId, market)) {
+            O3D_ERROR(o3d::E_InvalidPrecondition(o3d::String("Unable to find market info for ") + mc->marketId));
+        }
 
-        // @todo need DB data
-        market->setDetails(1, 1, 1, 1, false);
-        market->setBaseInfo("XBT", 8);
-        market->setQuoteInfo("USD", 2);
-        market->setSettlementInfo("XBT", 8);
-        market->setType(Market::TYPE_CRYPTO, Market::CONTRACT_FUTURE, Market::UNIT_AMOUNT);
-        market->setCapacities(Market::TRADE_IND_MARGIN | Market::TRADE_MARGIN, Market::ORDER_ALL);
-        market->setPair("XBTUSD");
-        market->setState(1.0, true);
+        // Ohlc ohlc = database->ohlc()->getLastOhlc(config->getBrokerId(), mc->marketId, 4*60*60);
+        // o3d::System::print(ohlc.toString(), "");
 
         for (DataSource ds : strategy->getDataSources()) {
             // create the stream (for now only tick stream, but could offer OHLC too, but no possibility for order-book history)

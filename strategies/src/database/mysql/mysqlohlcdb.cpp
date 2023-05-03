@@ -31,12 +31,26 @@ const siis::Database *MySqlOhlcDb::db() const
     return m_db;
 }
 
-o3d::Bool MySqlOhlcDb::fetchOhlc(const o3d::String &brokerId, const o3d::String &marketId, o3d::Float timeframe, o3d::Float timestamp, Ohlc &out)
+o3d::Bool MySqlOhlcDb::fetchOhlc(const o3d::String &brokerId,
+                                 const o3d::String &marketId,
+                                 o3d::Float timeframe,
+                                 o3d::Float timestamp,
+                                 Ohlc &out)
 {
     return false;
 }
 
-o3d::Int32 MySqlOhlcDb::fetchOhlcArray(const o3d::String &brokerId, const o3d::String &marketId, o3d::Float timeframe, o3d::Double from, o3d::Double to, OhlcArray &out)
+o3d::Int32 MySqlOhlcDb::fetchOhlcArray(const o3d::String &brokerId,
+                                       const o3d::String &marketId,
+                                       o3d::Float timeframe,
+                                       o3d::Double from,
+                                       o3d::Double to,
+                                       OhlcArray &out)
 {
     return 0;
+}
+
+Ohlc MySqlOhlcDb::getLastOhlc(const o3d::String &brokerId, const o3d::String &marketId, o3d::Float timeframe)
+{
+    return Ohlc();
 }

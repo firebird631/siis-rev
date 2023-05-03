@@ -25,23 +25,26 @@ public:
 
     PgSqlOhlcDb(siis::PgSql *db);
 
-    virtual ~PgSqlOhlcDb();
+    virtual ~PgSqlOhlcDb() override;
 
-    virtual Database* db();
-    virtual const Database* db() const;
+    virtual Database* db() override;
+    virtual const Database* db() const override;
 
     virtual o3d::Bool fetchOhlc(
             const o3d::String &brokerId, const o3d::String &marketId,
             o3d::Float timeframe, o3d::Float timestamp,
-            Ohlc &out);
+            Ohlc &out) override;
 
     virtual o3d::Int32 fetchOhlcArray(
             const o3d::String &brokerId, const o3d::String &marketId,
             o3d::Float timeframe,
             o3d::Double from, o3d::Double to,
-            OhlcArray &out);
+            OhlcArray &out) override;
 
-    // virtual void storeOhlc(const o3d::String &brokerId, const o3d::String &marketId, const Ohlc &ohlc);
+    virtual Ohlc getLastOhlc(const o3d::String &brokerId, const o3d::String &marketId,
+            o3d::Float timeframe) override;
+
+    // virtual void storeOhlc(const o3d::String &brokerId, const o3d::String &marketId, const Ohlc &ohlc) override;
 
 private:
 

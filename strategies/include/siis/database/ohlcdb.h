@@ -38,6 +38,9 @@ public:
             o3d::Double from, o3d::Double to,
             OhlcArray &out) = 0;
 
+    virtual Ohlc getLastOhlc(const o3d::String &brokerId, const o3d::String &marketId,
+            o3d::Float timeframe) = 0;
+
     // virtual void storeOhlc(const o3d::String &brokerId, const o3d::String &marketId, const Ohlc &ohlc) = 0;
 };
 

@@ -32,6 +32,7 @@ PgSqlMarketDb::PgSqlMarketDb(siis::PgSql *db) :
                                         maker_fee, taker_fee, maker_commission, taker_commission FROM market
                                     WHERE broker_id = $1 AND market_id = $2)SQL");
 
+    // @todo store market data
 }
 
 PgSqlMarketDb::~PgSqlMarketDb()
@@ -68,15 +69,15 @@ o3d::Bool PgSqlMarketDb::fetchMarket(const o3d::String &brokerId, const o3d::Str
         return false;
     }
 
-    out->setPair(query->getOut("symbol").asCString());
+    out->setPair(query->getOut("symbol").toCString());
     out->setType(static_cast<Market::Type>(query->getOut("market_type").toInt32()),
                  static_cast<Market::Contract>(query->getOut("contract_type").toInt32()),
                  static_cast<Market::Unit>(query->getOut("unit_type").toInt32()));
     out->setTradeCapacities(query->getOut("trade_type").toInt32());
     out->setOrderCapacities(query->getOut("orders").toInt32());
-    out->setBaseInfo(query->getOut("base").asCString(), query->getOut("base_precision").toInt32());
-    out->setQuoteInfo(query->getOut("quote").asCString(), query->getOut("quote_precision").toInt32());
-    out->setSettlementInfo(query->getOut("settlement").asCString(), query->getOut("settlement_precision").toInt32());
+    out->setBaseInfo(query->getOut("base").toCString(), query->getOut("base_precision").toInt32());
+    out->setQuoteInfo(query->getOut("quote").toCString(), query->getOut("quote_precision").toInt32());
+    out->setSettlementInfo(query->getOut("settlement").toCString(), query->getOut("settlement_precision").toInt32());
     // don't set base quote & settlement display symbol
     // no have hedging in DB
     // out->setExpiry(query->getOut("expiry").toCString());
@@ -88,7 +89,7 @@ o3d::Bool PgSqlMarketDb::fetchMarket(const o3d::String &brokerId, const o3d::Str
 
     out->setState(query->getOut("base_exchange_rate").toDouble(), true);
 
-    if (query->getOut("margin_factor").asCString() == "-") {
+    if (query->getOut("margin_factor").toCString() == "-") {
         out->setMarginFactor(1.0);
     } else {
         out->setMarginFactor(query->getOut("margin_factor").toDouble());
