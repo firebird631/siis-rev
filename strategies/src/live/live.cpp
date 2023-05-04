@@ -52,6 +52,7 @@ void Live::init(
     O3D_ASSERT(cache != nullptr);
 
     m_displayer = displayer;
+    m_database = database;
 
     for (MarketConfig *mc : config->getConfiguredMarkets()) {
         Market *market = new Market(mc->marketId, mc->marketId, "", "");  // @todo fetch market from DB if exists and query from connector

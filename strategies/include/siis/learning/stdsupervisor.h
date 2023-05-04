@@ -34,7 +34,7 @@ public:
     virtual void init(Config *config);
     virtual void terminate(Connector *connector, Database *db);
 
-    virtual void prepareMarketData(Connector *connector, Database *db);
+    virtual void prepareMarketData(Connector *connector, Database *db, o3d::Double fromTs, o3d::Double toTs);
     virtual void finalizeMarketData(Connector *connector, Database *db);
 
     virtual void onTickUpdate(o3d::Double timestamp, const TickArray &ticks);

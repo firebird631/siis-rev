@@ -48,7 +48,6 @@ Backtest::~Backtest()
 
 }
 
-#include "siis/database/ohlcdb.h"
 void Backtest::init(
         Displayer *displayer,
         Config *config,
@@ -65,6 +64,7 @@ void Backtest::init(
     O3D_ASSERT(cache != nullptr);
 
     m_displayer = displayer;
+    m_database = database;
 
     m_fromTs = config->getFromTs();
     m_toTs = config->getToTs();
@@ -100,7 +100,7 @@ void Backtest::init(
         elt.market = market;
 
         strategy->setMarket(market);
-        strategy->prepareMarketData(m_connector, m_database);
+        strategy->prepareMarketData(m_connector, m_database, m_fromTs, m_toTs);
         strategy->finalizeMarketData(m_connector, m_database);
 
         if (mc->marketTradeType > -1) {
@@ -110,20 +110,6 @@ void Backtest::init(
         // market data from database (synchronous)
         if (!database->market()->fetchMarket(config->getBrokerId(), mc->marketId, market)) {
             O3D_ERROR(o3d::E_InvalidPrecondition(o3d::String("Unable to find market info for ") + mc->marketId));
-        }
-
-//        Ohlc ohlc;
-//        if (database->ohlc()->getLastOhlc(config->getBrokerId(), mc->marketId, 4*60*60, ohlc)) {
-//            o3d::System::print(ohlc.toString(), "");
-//        }
-        o3d::DateTime dt(true);
-        dt.month -= 1;
-        o3d::Double fr = dt.toDoubleTimestamp(true);
-        OhlcArray ohlcs;
-        o3d::Int32 k = database->ohlc()->fetchOhlcArrayFrom(config->getBrokerId(), mc->marketId, 4*60*60, fr, ohlcs);
-
-        for (int i = 0; i < ohlcs.getSize(); ++i) {
-            o3d::System::print(ohlcs[i].toString(), o3d::String("{0}").arg(i));
         }
 
         for (DataSource ds : strategy->getDataSources()) {
@@ -159,7 +145,6 @@ void Backtest::init(
     m_connector->setTraderProxy(m_traderProxy);
 
     m_poolWorker = poolWorker;
-    m_database = database;
     m_cache = cache;
 }
 

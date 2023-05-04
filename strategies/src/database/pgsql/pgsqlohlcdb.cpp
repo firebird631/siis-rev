@@ -95,14 +95,14 @@ o3d::Bool PgSqlOhlcDb::fetchOhlc(const o3d::String &brokerId,
     return true;
 }
 
-o3d::Int32 PgSqlOhlcDb::fetchOhlcArray(const o3d::String &brokerId,
+o3d::Int32 PgSqlOhlcDb::fetchOhlcArrayFromTo(const o3d::String &brokerId,
                                        const o3d::String &marketId,
                                        o3d::Float timeframe,
                                        o3d::Double from,
                                        o3d::Double to,
                                        OhlcArray &out)
 {
-    o3d::DbQuery *query = m_db->db()->findQuery("get-array-ohlc");
+    o3d::DbQuery *query = m_db->db()->findQuery("get-array-from-to-ohlc");
     if (!query) {
         return 0;
     }
@@ -140,7 +140,6 @@ o3d::Int32 PgSqlOhlcDb::fetchOhlcArray(const o3d::String &brokerId,
         // if (ohlc.timestamp() < Instrument.basetime(timeframe, time.time()){
         // }
         ohlc.setConsolidated();
-
         out.push(ohlc);
 
         ++m;
@@ -150,7 +149,7 @@ o3d::Int32 PgSqlOhlcDb::fetchOhlcArray(const o3d::String &brokerId,
     return n;
 }
 
-o3d::Int32 PgSqlOhlcDb::fetchOhlcArray(const o3d::String &brokerId,
+o3d::Int32 PgSqlOhlcDb::fetchOhlcArrayLast(const o3d::String &brokerId,
                                        const o3d::String &marketId,
                                        o3d::Float timeframe,
                                        o3d::Int32 lastN,
@@ -210,7 +209,7 @@ o3d::Int32 PgSqlOhlcDb::fetchOhlcArray(const o3d::String &brokerId,
     return n;
 }
 
-o3d::Int32 PgSqlOhlcDb::fetchOhlcArray(const o3d::String &brokerId,
+o3d::Int32 PgSqlOhlcDb::fetchOhlcArrayLastTo(const o3d::String &brokerId,
                                        const o3d::String &marketId,
                                        o3d::Float timeframe,
                                        o3d::Int32 lastN,
@@ -225,8 +224,8 @@ o3d::Int32 PgSqlOhlcDb::fetchOhlcArray(const o3d::String &brokerId,
     query->setCString(0, brokerId.toUtf8());
     query->setCString(1, marketId.toUtf8());
     query->setDouble(2, timeframe);
-    query->setInt64(3, lastN);
-    query->setInt64(4, static_cast<o3d::Int64>(to * 1000.0));
+    query->setInt64(3, static_cast<o3d::Int64>(to * 1000.0));
+    query->setInt64(4, lastN);
 
     query->execute();
 

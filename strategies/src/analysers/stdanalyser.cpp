@@ -51,6 +51,11 @@ void StdAnalyser::onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe, con
 {
     if (timeframe == m_ohlcGen.fromTimeframe()) {
         m_ohlcGen.genFromOhlc(ohlc, m_ohlc);
+    } else if (timeframe == m_ohlcGen.toTimeframe()) {
+        // a bulk of finaly OHLC (generally initial)
+        for (o3d::Int32 i = 0; i < ohlc.getSize(); ++i) {
+            m_ohlc.writeElt()->copy(ohlc[i].data());
+        }
     }
 }
 

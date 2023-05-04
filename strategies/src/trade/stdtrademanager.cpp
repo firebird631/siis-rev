@@ -91,7 +91,7 @@ void StdTradeManager::process(o3d::Double timestamp)
     for (Trade *trade : removed_trades) {
         // @todo as in python trademanager
         o3d::String msg = o3d::String("#{0} {1} exit at p={2} pl={3}%").arg(trade->id())
-                          .arg(trade->direction() > 0 ? "long" : "short").arg(formatPrice(trade->exitPrice())).arg(trade->profitLossRate()*100.0);
+                          .arg(trade->direction() > 0 ? "long" : "short").arg(formatPrice(trade->exitPrice())).arg(trade->profitLossRate()*100.0, 2);
         m_strategy->log(trade->tf(), "trade-exit", msg);
 
         m_trades.remove(trade);

@@ -48,6 +48,8 @@ public:
     o3d::Int32 takeProfitInLoss = 0;
     o3d::Int32 stopLossInGain = 0;
     o3d::Int32 takeProfitInGain = 0;
+
+    o3d::Int32 prevDir = 0;
 };
 
 /**

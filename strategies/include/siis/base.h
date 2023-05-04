@@ -50,4 +50,11 @@
   #endif
 #endif
 
+// Helpers for print to stdout
+#define DBG(MSG,TITLE) o3d::System::print((TITLE),(MSG),o3d::System::MSG_DEBUG)
+#define INFO(MSG,TITLE) o3d::System::print((TITLE),(MSG),o3d::System::MSG_INFO)
+#define WARN(MSG,TITLE) o3d::System::print((TITLE),(MSG),o3d::System::MSG_WARNING)
+#define ERR(MSG,TITLE) o3d::System::print((TITLE),(MSG),o3d::System::MSG_ERROR)
+#define CRIT(MSG,TITLE) o3d::System::print((TITLE),(MSG),o3d::System::MSG_CRITICAL)
+
 #endif // SIIS_BASE_HPP

@@ -63,6 +63,7 @@ void Learning::init(Displayer *displayer, Config *config, StrategyCollection *co
     O3D_ASSERT(cache != nullptr);
 
     m_displayer = displayer;
+    m_database = database;
 
     m_fromTs = config->getFromTs();
     m_toTs = config->getToTs();
@@ -133,7 +134,6 @@ void Learning::init(Displayer *displayer, Config *config, StrategyCollection *co
     m_connector->setTraderProxy(m_traderProxy);
 
     m_poolWorker = poolWorker;
-    m_database = database;
     m_cache = cache;
 }
 

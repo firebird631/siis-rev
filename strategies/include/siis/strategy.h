@@ -96,7 +96,7 @@ public:
     /**
      * @brief prepareMarket Query market data before the strategy be in running state.
      */
-    virtual void prepareMarketData(Connector *connector, Database *db) = 0;
+    virtual void prepareMarketData(Connector *connector, Database *db, o3d::Double fromTs, o3d::Double toTs) = 0;
 
     /**
      * @brief finalizeMarketData Once market data are receive do the rest here, and set the ready state.

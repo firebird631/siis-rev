@@ -34,6 +34,8 @@ constexpr o3d::Double TF_2DAY = 60*60*24*2.0;
 constexpr o3d::Double TF_3DAY = 60*60*24*3.0;
 constexpr o3d::Double TF_WEEK = 60*60*24*7.0;
 constexpr o3d::Double TF_MONTH = 60*60*24*30.0;
+constexpr o3d::Double TF_QUARTER = 60*60*24*90.0;
+constexpr o3d::Double TF_YEAR = 60*60*24*365.0;
 
 constexpr o3d::Int32 UNDEFINED = 0;
 constexpr o3d::Int32 LONG = 1;

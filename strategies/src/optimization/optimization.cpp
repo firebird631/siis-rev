@@ -69,6 +69,7 @@ void Optimization::init(
     O3D_ASSERT(cache != nullptr);
 
     m_displayer = displayer;
+    m_database = database;
 
     m_fromTs = config->getFromTs();
     m_toTs = config->getToTs();
@@ -108,7 +109,7 @@ void Optimization::init(
         elt.market = market;
 
         strategy->setMarket(market);
-        strategy->prepareMarketData(m_connector, m_database);
+        strategy->prepareMarketData(m_connector, m_database, m_fromTs, m_toTs);
         strategy->finalizeMarketData(m_connector, m_database);
 
         for (DataSource ds : strategy->getDataSources()) {
@@ -137,7 +138,6 @@ void Optimization::init(
     m_traderProxy = new TraderProxy(m_connector);
 
     m_poolWorker = poolWorker;
-    m_database = database;
     m_cache = cache;
 }
 

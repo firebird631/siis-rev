@@ -133,7 +133,7 @@ void ForexAlpha::terminate(Connector *connector, Database *db)
     setTerminated();
 }
 
-void ForexAlpha::prepareMarketData(Connector *connector, Database *db)
+void ForexAlpha::prepareMarketData(Connector *connector, Database *db, o3d::Double fromTs, o3d::Double toTs)
 {
     setMarketDataPrepared();
 }

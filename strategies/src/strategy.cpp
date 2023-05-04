@@ -145,25 +145,51 @@ void Strategy::addClosedTrade(Trade *trade)
         } else if (trade->isClosed()) {
             m_stats.performance += trade->profitLossRate();
 
-            if (trade->profitLossRate() < 0.0) {
+            if (o3d::abs(trade->profitLossRate()) < market()->spread()) {
+                m_stats.roeTrades += 1;
+                m_stats.prevDir = 0;
+
+            } else if (trade->profitLossRate() < 0.0) {
                 m_stats.failedTrades += 1;
+
+                if (m_stats.prevDir <= 0) {
+                    --m_stats.prevDir;
+                } else {
+                    m_stats.prevDir = -1;
+                }
+
+                m_stats.maxAdjacentLoss = o3d::max(m_stats.maxAdjacentLoss, -m_stats.prevDir);
+
+                if (trade->stats().exitReason == TradeStats::REASON_STOP_LOSS_MARKET ||
+                    trade->stats().exitReason == TradeStats::REASON_STOP_LOSS_LIMIT) {
+                    m_stats.stopLossInLoss += 1;
+
+                } else if (trade->stats().exitReason == TradeStats::REASON_TAKE_PROFIT_LIMIT ||
+                           trade->stats().exitReason == TradeStats::REASON_TAKE_PROFIT_MARKET) {
+                    m_stats.takeProfitInLoss += 1;
+                }
             } else if (trade->profitLossRate() > 0.0) {
                 m_stats.succeedTrades += 1;
-            } else {
-                // @todo
-                m_stats.roeTrades += 1;
+
+                if (m_stats.prevDir >= 0) {
+                    ++m_stats.prevDir;
+                } else {
+                    m_stats.prevDir = 1;
+                }
+
+                m_stats.maxAdjacentWin = o3d::max(m_stats.maxAdjacentWin, m_stats.prevDir);
+
+                if (trade->stats().exitReason == TradeStats::REASON_STOP_LOSS_MARKET ||
+                    trade->stats().exitReason == TradeStats::REASON_STOP_LOSS_LIMIT) {
+                    m_stats.stopLossInGain += 1;
+
+                } else if (trade->stats().exitReason == TradeStats::REASON_TAKE_PROFIT_LIMIT ||
+                           trade->stats().exitReason == TradeStats::REASON_TAKE_PROFIT_MARKET) {
+                    m_stats.takeProfitInGain += 1;
+                }
             }
 
             m_stats.totalTrades += 1;
-
-            // @todo
-//            m_stats.maxAdjacentLoss
-//            m_stats.maxAdjacentWin
-
-//            m_stats.stopLossInGain
-//            m_stats.stopLossInLoss
-//            m_stats.takeProfitInGain
-//            m_stats.takeProfitInLoss
 
             m_stats.best = o3d::max(m_stats.best, trade->profitLossRate());
             m_stats.worst = o3d::min(m_stats.worst, trade->profitLossRate());

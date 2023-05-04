@@ -32,23 +32,22 @@ public:
             o3d::Float timeframe, o3d::Float timestamp,
             Ohlc &out) = 0;
 
-    virtual o3d::Int32 fetchOhlcArray(
+    virtual o3d::Int32 fetchOhlcArrayFromTo(
             const o3d::String &brokerId, const o3d::String &marketId,
             o3d::Float timeframe,
             o3d::Double from, o3d::Double to,
             OhlcArray &out) = 0;
 
-    virtual o3d::Int32 fetchOhlcArray(
+    virtual o3d::Int32 fetchOhlcArrayLast(
             const o3d::String &brokerId, const o3d::String &marketId,
             o3d::Float timeframe,
             o3d::Int32 lastN,
             OhlcArray &out) = 0;
 
-    virtual o3d::Int32 fetchOhlcArray(
+    virtual o3d::Int32 fetchOhlcArrayLastTo(
             const o3d::String &brokerId, const o3d::String &marketId,
             o3d::Float timeframe,
-            o3d::Int32 lastN,
-            o3d::Double to,
+            o3d::Int32 lastN, o3d::Double to,
             OhlcArray &out) = 0;
 
     virtual o3d::Int32 fetchOhlcArrayFrom(

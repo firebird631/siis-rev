@@ -10,12 +10,12 @@
 
 #include "siis/config/strategyconfig.h"
 #include "siis/handler.h"
-
 #include "siis/connector/traderproxy.h"
 
 #include "siis/connector/connector.h"
 #include "siis/database/database.h"
 #include "siis/database/tradedb.h"
+#include "siis/database/ohlcdb.h"
 
 #include "maadxtrendanalyser.h"
 #include "maadxsiganalyser.h"
@@ -179,8 +179,47 @@ void MaAdx::terminate(Connector *connector, Database *db)
     setTerminated();
 }
 
-void MaAdx::prepareMarketData(Connector *connector, Database *db)
+
+void MaAdx::prepareMarketData(Connector *connector, Database *db, o3d::Double fromTs, o3d::Double toTs)
 {
+    Ohlc::Type ohlcType = Ohlc::TYPE_MID;
+
+    for (Analyser *analyser : m_analysers) {
+        // history might be >= depth but in case of...
+        o3d::Int32 n = o3d::max(analyser->history(), analyser->depth());
+        if (n <= 0) {
+            continue;
+        }
+
+//        o3d::Int32 k = handler()->database()->ohlc()->fetchOhlcArrayLastTo(
+//                           analyser->strategy()->brokerId(), market()->marketId(), analyser->timeframe(), n, fromTs-1.0,
+//                           market()->getOhlcBuffer(ohlcType));
+
+        o3d::Double baseTs = fromTs - 1.0 - analyser->timeframe() * n;
+
+        o3d::Int32 k = handler()->database()->ohlc()->fetchOhlcArrayFromTo(
+                           analyser->strategy()->brokerId(), market()->marketId(), analyser->timeframe(), baseTs, fromTs-1.0,
+                           market()->getOhlcBuffer(ohlcType));
+
+        if (k > 0) {
+            o3d::Int32 lastN = market()->getOhlcBuffer(ohlcType).getSize() - 1;
+
+            o3d::String msg = o3d::String("Retrieved {0}/{1} OHLCs with most recent at {2}").arg(k).arg(n)
+                              .arg(timestampToStr(market()->getOhlcBuffer(ohlcType).get(lastN)->timestamp()));
+
+            log(analyser->timeframe(), "init", msg);
+
+            analyser->onOhlcUpdate(toTs, analyser->timeframe(), market()->getOhlcBuffer(ohlcType));
+
+            //        for (int i = 0; i < market()->getOhlcBuffer(ohlcType).getSize(); ++i) {
+            //            o3d::System::print(market()->getOhlcBuffer(ohlcType)[i].toString(), o3d::String("{0}").arg(i));
+            //        }
+        } else {
+            o3d::String msg = o3d::String("No OHLCs founds (0/{0})").arg(n);
+            log(analyser->timeframe(), "init", msg);
+        }
+    }
+
     setMarketDataPrepared();
 }
 

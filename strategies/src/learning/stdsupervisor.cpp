@@ -120,7 +120,7 @@ void StdSupervisor::terminate(Connector *connector, Database *db)
     setTerminated();
 }
 
-void StdSupervisor::prepareMarketData(Connector *connector, Database *db)
+void StdSupervisor::prepareMarketData(Connector *connector, Database *db, o3d::Double fromTs, o3d::Double toTs)
 {
     setMarketDataPrepared();
 }

@@ -9,6 +9,7 @@
 #define SIIS_OHLC_H
 
 #include "base.h"
+#include "utils/common.h"
 
 #include <o3d/core/atomicarray.h>
 #include <o3d/core/base.h>
@@ -157,8 +158,9 @@ public:
 
     inline o3d::String toString() const
     {
-        return o3d::String("ts={0}, tf={1}, ohlc={2}/{3}/{4}/{5}, vol={6}, ended={7}").arg(D[0]).arg(D[1]).arg(D[2]).
-                arg(D[3]).arg(D[4]).arg(D[5]).arg(D[6]).arg(D[7]);
+        return o3d::String("ts={0}, tf={1}, ohlc={2}/{3}/{4}/{5}, vol={6}, ended={7}")
+                .arg(timestampToStr(D[0])).arg(timeframeToStr(D[1])).arg(D[2])
+                .arg(D[3]).arg(D[4]).arg(D[5]).arg(D[6]).arg(D[7]);
     }
 
 private:

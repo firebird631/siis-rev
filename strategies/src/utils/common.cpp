@@ -266,7 +266,7 @@ o3d::String siis::formatPrice(o3d::Double price, o3d::Int32 precision, o3d::Doub
     return formattedPrice;
 }
 
-o3d::String orderTypeToStr(o3d::Int32 orderType)
+o3d::String siis::orderTypeToStr(o3d::Int32 orderType)
 {
     switch (orderType) {
         case Order::ORDER_UNDEFINED: return "undefined";
@@ -281,7 +281,7 @@ o3d::String orderTypeToStr(o3d::Int32 orderType)
     return "undefined";
 }
 
-o3d::String orderReturnCodeToStr(o3d::Int32 returnCode)
+o3d::String siis::orderReturnCodeToStr(o3d::Int32 returnCode)
 {
     switch (returnCode) {
         case Order::RET_OK: return "success";
@@ -301,4 +301,12 @@ o3d::String orderReturnCodeToStr(o3d::Int32 returnCode)
     }
 
     return "undefined";
+}
+
+o3d::String siis::timestampToStr(o3d::Double ts)
+{
+    o3d::DateTime dt;
+    dt.fromTime(ts, true);
+
+    return dt.buildString("%Y-%m-%d %H:%M:%S");
 }
