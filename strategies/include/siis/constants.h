@@ -41,6 +41,9 @@ constexpr o3d::Int32 UNDEFINED = 0;
 constexpr o3d::Int32 LONG = 1;
 constexpr o3d::Int32 SHORT = -1;
 
+/**
+ * @brief The differents moving average type, used in the configuration of some indicators.
+ */
 enum MAType {
     MA_SMA = 0,  //!< Simple Moving Average
     MA_EMA,      //!< Exponential Average
@@ -51,6 +54,26 @@ enum MAType {
     MA_KAMA,     //!< Kaufman Adaptive Moving Average
     MA_MAMA,     //!< MESA Adaptive Moving Average
     MA_T3        //!< Triple Exponential Moving Average
+};
+
+/**
+ * @brief Distance type for trade policy like breakeven, dynamic-stop-loss and such mores.
+ */
+enum DistanceType {
+    DIST_NONE = 0,
+    DIST_PERCENTIL = 1,   //!< distance is in percentil from the entry (pips are is converted in percentil)
+    DIST_PRICE = 2,       //!< distance is in a fixed price delta
+    DIST_CUSTOM = 3       //!< distance is a custom by design
+};
+
+/**
+ * @brief Adjust policy for trades exits like breakeven, dynamic-stop-loss and such mores.
+ */
+enum AdjustPolicy {
+    ADJ_NONE = 0,
+    ADJ_PRICE = 1,   //!< adjust at each price change
+    ADJ_CLOSE = 2,   //!< adjust after each timeframe close
+    ADJ_CUSTOM = 3   //!< adjust is a custom by design
 };
 
 } // namespace siis

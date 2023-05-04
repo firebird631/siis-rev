@@ -140,17 +140,46 @@ void MaAdx::init(Config *config)
             }
 
             // entry
-            // @todo
+            if (context.isMember("entry")) {
+                Json::Value entry = context.get("entry", Json::Value());
+                ContextConfig ctxConfig(entry);
+                // m_entry.init(market(), ctxConfig);
+            }
 
             // stop-loss
+            if (context.isMember("stop-loss")) {
+                Json::Value stopLoss = context.get("stop-loss", Json::Value());
+                ContextConfig ctxConfig(stopLoss);
+                // m_stopLoss.init(market(), ctxConfig);
+            }
 
             // take-profit
+            if (context.isMember("take-profit")) {
+                Json::Value takeProfit = context.get("take-profit", Json::Value());
+                ContextConfig ctxConfig(takeProfit);
+                // m_takeProfit.init(market(), ctxConfig);
+            }
 
             // breakeven
+            if (context.isMember("breakeven")) {
+                Json::Value breakeven = context.get("breakeven", Json::Value());
+                ContextConfig ctxConfig(breakeven);
+                m_breakeven.init(market(), ctxConfig);
+            }
 
             // dynamic-stop-loss
+            if (context.isMember("dynamic-stop-loss")) {
+                Json::Value dynamicStopLoss = context.get("dynamic-stop-loss", Json::Value());
+                ContextConfig ctxConfig(dynamicStopLoss);
+                m_dynamicStopLoss.init(market(), ctxConfig);
+            }
 
             // dynamic-take-profit
+            if (context.isMember("dynamic-take-profit")) {
+                Json::Value dynamicTakeProfit = context.get("dynamic-take-profit", Json::Value());
+                ContextConfig ctxConfig(dynamicTakeProfit);
+                // m_dynamicTakeProfit.init(market(), ctxConfig);
+            }
         }
     }
 
@@ -191,15 +220,24 @@ void MaAdx::prepareMarketData(Connector *connector, Database *db, o3d::Double fr
             continue;
         }
 
-//        o3d::Int32 k = handler()->database()->ohlc()->fetchOhlcArrayLastTo(
-//                           analyser->strategy()->brokerId(), market()->marketId(), analyser->timeframe(), n, fromTs-1.0,
-//                           market()->getOhlcBuffer(ohlcType));
+        o3d::Int32 k = 0;
 
-        o3d::Double baseTs = fromTs - 1.0 - analyser->timeframe() * n;
+        if (market()->type() == Market::TYPE_CRYPTO) {
+            // crypto market are h24 d7 then query it is trivial
+            o3d::Double baseTs = fromTs - 1.0 - analyser->timeframe() * n;
 
-        o3d::Int32 k = handler()->database()->ohlc()->fetchOhlcArrayFromTo(
-                           analyser->strategy()->brokerId(), market()->marketId(), analyser->timeframe(), baseTs, fromTs-1.0,
-                           market()->getOhlcBuffer(ohlcType));
+            k = handler()->database()->ohlc()->fetchOhlcArrayFromTo(
+                    analyser->strategy()->brokerId(), market()->marketId(), analyser->timeframe(),
+                    baseTs, fromTs-1.0,
+                    market()->getOhlcBuffer(ohlcType));
+        } else {
+            // others are off week-end, even off by night, then ask for at least n OHLCs before starting timestamp
+            // but it must be necessary to filter if the data are too older
+            // @todo filter related to timestamp and timeframe
+            k = handler()->database()->ohlc()->fetchOhlcArrayLastTo(
+                    analyser->strategy()->brokerId(), market()->marketId(), analyser->timeframe(), n, fromTs-1.0,
+                    market()->getOhlcBuffer(ohlcType));
+        }
 
         if (k > 0) {
             o3d::Int32 lastN = market()->getOhlcBuffer(ohlcType).getSize() - 1;
@@ -210,10 +248,6 @@ void MaAdx::prepareMarketData(Connector *connector, Database *db, o3d::Double fr
             log(analyser->timeframe(), "init", msg);
 
             analyser->onOhlcUpdate(toTs, analyser->timeframe(), market()->getOhlcBuffer(ohlcType));
-
-            //        for (int i = 0; i < market()->getOhlcBuffer(ohlcType).getSize(); ++i) {
-            //            o3d::System::print(market()->getOhlcBuffer(ohlcType)[i].toString(), o3d::String("{0}").arg(i));
-            //        }
         } else {
             o3d::String msg = o3d::String("No OHLCs founds (0/{0})").arg(n);
             log(analyser->timeframe(), "init", msg);
@@ -299,7 +333,7 @@ void MaAdx::compute(o3d::Double timestamp)
 
 void MaAdx::finalize(o3d::Double timestamp)
 {
-    // cleanup
+    // cleanup eventually
 }
 
 void MaAdx::updateStats()

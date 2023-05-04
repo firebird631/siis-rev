@@ -18,6 +18,7 @@ namespace siis {
  * @date 2019-03-17
  * Some brokers only offers a unique position per market, without hedging neither individual position management.
  * In that case this trade model is prefered.
+ * @todo case where error during cancel an order (entry, previous stop or limit
  */
 class SIIS_API IndMarginTrade : public Trade
 {

@@ -61,18 +61,6 @@ void StdAnalyser::onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe, con
 
 o3d::Bool StdAnalyser::process(o3d::Double timestamp, o3d::Double lastTimestamp)
 {
-    // static const o3d::Double signalDelayFactor = 0.5;
-//    o3d::Double fromTs = nextTimestamp() - depth() * timeframe();
-//    o3d::Int32 n = m_ohlc.getSize();
-//    o3d::Int32 ofs = 0;
-//    while (ofs < n) {
-//        if (m_ohlc.get(ofs)->timestamp() < fromTs) {
-//            ++ofs;
-//        } else {
-//            break;
-//        }
-//    }
-
     o3d::Int32 n = m_ohlc.size();
 
     if (n < depth()) {

@@ -42,7 +42,7 @@ o3d::UInt32 OhlcGen::genFromTicks(const TickArray &ticks, OhlcCircular &out)
                 n += 1;
             }
         }
-    } else if (m_ohlcType == Ohlc::TYPE_OFR) {
+    } else if (m_ohlcType == Ohlc::TYPE_ASK) {
         for (o3d::Int32 i = 0; i < ticks.getSize(); ++i) {
             if (updateFromTickAsk(ticks.get(i), out)) {
                 n += 1;
@@ -70,7 +70,7 @@ o3d::UInt32 OhlcGen::genFromOhlc(const OhlcArray &ohlc, OhlcCircular &out)
                 n += 1;
             }
         }
-    } else if (m_ohlcType == Ohlc::TYPE_OFR) {
+    } else if (m_ohlcType == Ohlc::TYPE_ASK) {
         for (o3d::Int32 i = 0; i < ohlc.getSize(); ++i) {
             if (updateFromOhlcAsk(ohlc.get(i), out)) {
                 n += 1;

@@ -33,8 +33,8 @@ public:
     enum Type {
         TYPE_MID = 0,
         TYPE_BID = 1,
-        TYPE_OFR = 2,
-        MAX_TYPE = TYPE_OFR
+        TYPE_ASK = 2,
+        MAX_TYPE = TYPE_ASK
     };
 
     static const o3d::Int32 NUM_TYPE = MAX_TYPE+1;

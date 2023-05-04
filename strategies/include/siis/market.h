@@ -147,6 +147,10 @@ public:
     const o3d::CString& pair() const { return m_pair; }
     const o3d::CString& alias() const { return m_alias; }
 
+    Type type() const { return m_type; }
+    Contract contract() const { return m_contract; }
+    Unit unit() const { return m_unit; }
+
     const Symbol& base() const { return m_base; }
     const Symbol& quote() const { return m_quote; }
     const Symbol& settlement() const { return m_settlement; }

@@ -1,17 +1,10 @@
 Prioritaire
 ===========
 
-- sur les 100 Dern 4H xbtusd on a des volume qui passent de l'ordre de 100 a 10000 (avril mai 2023)
-  - ca peu venir que dans un cas les volume fetch sont en xbt alors que le rebuild a ete fait depuis des ticks data volume usd de kraken
-
-- gestion des trades en local (paper trader ultra rapide)
-- gestion des statistiques par strategies
+- gestion limit et stop order sur le local trader (mais attention, très lié à la gestion des context trade life cycle)
 - gestion des statistiques par account (paper trader local)
-- gestion du cycle de vie (fin de vie des trades par le tradeManager/traderProxy/local
-- handler()->traderProxy()->freeTrade(trade); quand un trade est supprimé totalement (donc après que le localtrader ou distanttrader)
+- appliquer les regles breakeven, dynamic-stop-loss aux trades actifs, voir la solution...
 - fixer les size sur connectormessagereceivetickaggreged.cpp
-
-- completer les stats void Strategy::addClosedTrade(Trade *trade)
 
 - events to REDIS
   - trades entry, update, exit
@@ -20,39 +13,25 @@ Prioritaire
 - events from REDIS
   - ...
 
-- connector postgresql à terminer
-  - postgresql load market info data
-  - postgresql load market ohlc + initial fetching
-  - postgresql load market liquidation
-  - postgresql load/save user trader state <=> strategy data ?
-  - postgresql load/save user active/pending trades data
-
 - ind margin trade
-  - open, close, remove, modify tp, modify sl, order events, position events
+  - position events
+
+- position trade
 
 - signaux :
   - order create, canceled, deleted, traded (partially, completed), error
   - position create, updated, modified, closed, deleted
   - account asset balance, balance
 
-- stdtrademanager : pourrait avoir deux hashmap orderId et orderRefId pour retrouver plus rapidement le trade associé
-  - mais demande un insert/remove et de garder les hashmap à jour
-
 - strategy contexts
-  - builder
-  - init
+  - builder ? pas vraiment nécessaire à voir quand même pour simplifier l'initialisation et la gestion
+    - init
   - trade life-cycle components :
-    - entry
-    - exit
-    - stop-loss
-    - take-profit
-    - breakeven
-    - dynamic-stop-loss
-    - dynamic-take-profit
+    - entry (plutôt lié à la stratégie en elle même donc logiquement non nécessaire)
+    - stop-loss (gestion de l'ordre de sortie sur policy, exemple at close ou simple)
+    - take-profit (pareil que stop-loss)
+    - dynamic-take-profit (optionnel)
 
-- avoir un filtragep pour le stop-loss, le faire qu'après une cloture de bougie ou un autre filtrage genre MA...
-  - par exemple sl/tp à close 1min car en matchant avec un step de 60 ça offre une bonne perf et donc il faudrait
-    qu'en live ça soit aussi une cloture en m1 par contre ça peut géner pour mettre un limit order
 
 Secondaire
 ==========
@@ -72,6 +51,12 @@ Secondaire
        - others
     - contexts data
       - trade components
+
+- connector postgresql à terminer
+  - postgresql load market liquidation
+  - postgresql load/save user trader state <=> strategy data ?
+  - postgresql load/save user active/pending trades data
+  - postgresql load/save asset data
 
 - connectors
   - implementer coté strategie
@@ -95,7 +80,14 @@ Tertaire
   - volume profile
   - composite volume profile
 
+- eventuellement avoir une table VP comme on a pour les OHLC mais donc fixé pour une temporalité ou plusieurs
+
 - tick-bar based strategy (non timeframe based)
+  - descente de gradient stochastique (SGD)
+    - SGD classique
+    - Adam (Adaptive Moment Estimation)
+    - RMSprop (Root Mean Square Propagation)
+    - Adagrad (Adaptive Gradient)
 
 - connector postgresql à terminer
   - postgresql load market liquidation
@@ -119,3 +111,6 @@ Pas important
   - open, close, remove, modify tp, modify sl, order events, position events
 
 - learning / trainer / optimizer
+
+- stdtrademanager : pourrait avoir deux hashmap orderId et orderRefId pour retrouver plus rapidement le trade associé
+  - mais demande un insert/remove et de garder les hashmap à jour

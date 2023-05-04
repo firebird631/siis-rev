@@ -16,6 +16,7 @@ namespace siis {
  * @brief Strategy position trade model specialization.
  * @author Frederic Scherma
  * @date 2023-04-28
+ * @todo case where error during cancel an order (entry, previous stop or limit
  */
 class SIIS_API PositionTrade : public Trade
 {
@@ -65,8 +66,8 @@ public:
     virtual void orderSignal(const OrderSignal &signal) override;
     virtual void positionSignal(const PositionSignal &signal) override;
 
-    virtual o3d::Bool isTargetOrder(const o3d::String &orderId, const o3d::String &orderRefId) const override;
-    virtual o3d::Bool isTargetPosition(const o3d::String &positionId, const o3d::String &orderRefId) const override;
+    virtual o3d::Bool isTargetOrder(const o3d::String &orderId, const o3d::String &refId) const override;
+    virtual o3d::Bool isTargetPosition(const o3d::String &positionId, const o3d::String &refId) const override;
 
     //
     // helpers
@@ -84,9 +85,18 @@ public:
 
 private:
 
+    o3d::CString m_entryOrderId;
+    o3d::CString m_entryRefId;
+
+    o3d::CString m_positionId;
+
     State m_entryState;
-    State m_stopState;
-    State m_limitState;
+    State m_exitState;
+
+    o3d::Bool m_closing;
+
+    o3d::Double m_positionLimitPrice;   //!< position limit price or 0.0
+    o3d::Double m_positionStopPrice;    //!< position stop price or 0.0
 };
 
 } // namespace siis

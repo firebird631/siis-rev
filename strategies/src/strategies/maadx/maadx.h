@@ -20,6 +20,9 @@
 #include "siis/analysers/analyser.h"
 #include "siis/trade/stdtrademanager.h"
 
+#include "siis/trade/breakeven.h"
+#include "siis/trade/dynamicstoploss.h"
+
 namespace siis {
 
 class MaAdxTrendAnalyser;
@@ -75,6 +78,9 @@ private:
     o3d::Double m_adxSig;
     o3d::Double m_targetScale;
     o3d::Double m_riskReward;
+
+    Breakeven m_breakeven;
+    DynamicStopLoss m_dynamicStopLoss;
 
     void orderEntry(o3d::Double timestamp,
                     o3d::Double timeframe,
