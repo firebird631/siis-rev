@@ -61,9 +61,7 @@ o3d::Bool PgSqlMarketDb::fetchMarket(const o3d::String &brokerId, const o3d::Str
     query->setCString(1, marketId.toUtf8());
 
     query->execute();
-    if (query->fetch()) {
-        // fetch one row
-    }
+    query->fetch();
 
     if (query->getNumRows() != 1) {
         return false;

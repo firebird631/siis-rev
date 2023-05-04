@@ -103,6 +103,8 @@ public:
 
     ~Ohlc() { O3D_FAST_FREE(D, 64); }
 
+    const o3d::Double* data() const { return D; }
+
     inline o3d::Double timestamp() const { return D[0]; }
     inline o3d::Double ts() const { return D[0]; }
 
@@ -222,12 +224,17 @@ public:
     {
         o3d::Int32 t = getSize();
 
+        // was zero need to preallocate
+        if (getSize() == 0 && getMaxSize() == 0) {
+            growSize();
+        }
         // grow output size
-        if (getSize() > 0 && t >= getMaxSize()-1) {
+        else if (getSize() > 0 && t >= getMaxSize()-1) {
             growSize();
         }
 
-        *get(t) = ohlc;
+        forceSize(t+1);
+        memcpy(getContent(t), ohlc.data(), 64);
     }
 };
 

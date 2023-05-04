@@ -1,6 +1,9 @@
 Prioritaire
 ===========
 
+- sur les 100 Dern 4H xbtusd on a des volume qui passent de l'ordre de 100 a 10000 (avril mai 2023)
+  - ca peu venir que dans un cas les volume fetch sont en xbt alors que le rebuild a ete fait depuis des ticks data volume usd de kraken
+
 - gestion des trades en local (paper trader ultra rapide)
 - gestion des statistiques par strategies
 - gestion des statistiques par account (paper trader local)

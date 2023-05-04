@@ -112,8 +112,19 @@ void Backtest::init(
             O3D_ERROR(o3d::E_InvalidPrecondition(o3d::String("Unable to find market info for ") + mc->marketId));
         }
 
-        // Ohlc ohlc = database->ohlc()->getLastOhlc(config->getBrokerId(), mc->marketId, 4*60*60);
-        // o3d::System::print(ohlc.toString(), "");
+//        Ohlc ohlc;
+//        if (database->ohlc()->getLastOhlc(config->getBrokerId(), mc->marketId, 4*60*60, ohlc)) {
+//            o3d::System::print(ohlc.toString(), "");
+//        }
+        o3d::DateTime dt(true);
+        dt.month -= 1;
+        o3d::Double fr = dt.toDoubleTimestamp(true);
+        OhlcArray ohlcs;
+        o3d::Int32 k = database->ohlc()->fetchOhlcArrayFrom(config->getBrokerId(), mc->marketId, 4*60*60, fr, ohlcs);
+
+        for (int i = 0; i < ohlcs.getSize(); ++i) {
+            o3d::System::print(ohlcs[i].toString(), o3d::String("{0}").arg(i));
+        }
 
         for (DataSource ds : strategy->getDataSources()) {
             // create the stream (for now only tick stream, but could offer OHLC too, but no possibility for order-book history)
