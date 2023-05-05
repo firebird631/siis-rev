@@ -331,7 +331,11 @@ o3d::Int32 LocalConnector::cancelOrder(const o3d::CString &orderId)
     }
 }
 
-o3d::Int32 LocalConnector::closePosition(const o3d::CString &positionId)
+o3d::Int32 LocalConnector::closePosition(const o3d::CString &positionId,
+                                         o3d::Int32 direction,
+                                         o3d::Double quantity,
+                                         o3d::Bool taker,
+                                         o3d::Double limitPrice)
 {
     if (m_traderProxy) {
         if (positionId.isValid()) {

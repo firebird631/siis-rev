@@ -88,7 +88,11 @@ public:
     virtual void fetchAnyPositions() = 0;
     virtual void fetchPositions(const o3d::CString& marketId) = 0;
 
-    virtual o3d::Int32 closePosition(const o3d::CString &positionId) = 0;
+    virtual o3d::Int32 closePosition(const o3d::CString &positionId,
+                                     o3d::Int32 direction,
+                                     o3d::Double quantity,
+                                     o3d::Bool taker,
+                                     o3d::Double limitPrice) = 0;
 
     virtual o3d::Int32 modifyPosition(
             const o3d::CString &positionId,

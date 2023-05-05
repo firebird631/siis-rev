@@ -456,10 +456,15 @@ o3d::Int32 ZmqConnector::cancelOrder(const o3d::CString &orderId)
     }
 }
 
-o3d::Int32 ZmqConnector::closePosition(const o3d::CString &positionId)
+o3d::Int32 ZmqConnector::closePosition(const o3d::CString &positionId,
+                                       o3d::Int32 direction,
+                                       o3d::Double quantity,
+                                       o3d::Bool taker,
+                                       o3d::Double limitPrice)
 {
     if (m_connected && m_traderProxy) {
         // @todo replace by message static serializer
+        // @todo others parameters
         ConnectorMessageClosePosition msg(positionId);
 
         msg.write();

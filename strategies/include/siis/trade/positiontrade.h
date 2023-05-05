@@ -77,6 +77,12 @@ public:
     virtual o3d::String stateToStr() const override;
 
     //
+    // stats
+    //
+
+    virtual void updateStats(o3d::Double lastPrice, o3d::Double timestamp) override;
+
+    //
     // persistance
     //
 
@@ -97,6 +103,9 @@ private:
 
     o3d::Double m_positionLimitPrice;   //!< position limit price or 0.0
     o3d::Double m_positionStopPrice;    //!< position stop price or 0.0
+    o3d::Double m_positionQuantity;     //!< current position quantity
+
+    void updateRealizedPnl();
 };
 
 } // namespace siis

@@ -43,7 +43,7 @@ public:
         quantity(QUANTITY_UNDEFINED),
         avgPrice(PRICE_UNDEFINED),
         execPrice(PRICE_UNDEFINED),
-        stopLossPrice(PRICE_UNDEFINED),
+        stopPrice(PRICE_UNDEFINED),
         limitPrice(PRICE_UNDEFINED),
         profitLoss(RATE_UNDEFINED),
         filled(QUANTITY_UNDEFINED),
@@ -63,7 +63,7 @@ public:
         quantity = QUANTITY_UNDEFINED;
         avgPrice = PRICE_UNDEFINED;
         execPrice = PRICE_UNDEFINED;
-        stopLossPrice = PRICE_UNDEFINED;
+        stopPrice = PRICE_UNDEFINED;
         limitPrice = PRICE_UNDEFINED;
         profitLoss = RATE_UNDEFINED;
         filled = QUANTITY_UNDEFINED;
@@ -91,7 +91,7 @@ public:
     o3d::Double avgPrice;    //!< average price or -1 if not defined
     o3d::Double execPrice;   //!< executed price or -1 if not defined
 
-    o3d::Double stopLossPrice;   //! -1 if not defined
+    o3d::Double stopPrice;   //! -1 if not defined
     o3d::Double limitPrice;      //! -1 if not defined
 
     o3d::CString profitCurrency;  //!< currency symbol

@@ -78,6 +78,10 @@ public:
     virtual o3d::String formatToStr() const override;
     virtual o3d::String stateToStr() const override;
 
+    //
+    // stats
+    //
+
     virtual void updateStats(o3d::Double lastPrice, o3d::Double timestamp) override;
 
     //

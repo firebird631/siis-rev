@@ -257,7 +257,7 @@ void ConnectorMessagePositionSignal::read(zmq::message_t *message)
 	m_signal->avgPrice = readDouble();
 	m_signal->execPrice = readDouble();
 
-	m_signal->stopLossPrice = readDouble();
+	m_signal->stopPrice = readDouble();
 	m_signal->limitPrice = readDouble();
 
     m_signal->profitCurrency = readCString();

@@ -112,7 +112,8 @@ public:
     // position
     //
 
-    o3d::Int32 closePosition(const o3d::CString &positionId);
+    o3d::Int32 closePosition(const o3d::CString &positionId, o3d::Int32 direction, o3d::Double quantity,
+                             o3d::Bool taker = true, o3d::Double limitPrice = 0.0);
 
     o3d::Int32 modifyPosition(const o3d::CString &positionId,
             o3d::Double stopLossPrice,

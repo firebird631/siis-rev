@@ -98,7 +98,11 @@ public:
     virtual void fetchAnyPositions() override;
     virtual void fetchPositions(const o3d::CString &marketId) override;
 
-    virtual o3d::Int32 closePosition(const o3d::CString &positionId) override;
+    virtual o3d::Int32 closePosition(const o3d::CString &positionId,
+                                     o3d::Int32 direction,
+                                      o3d::Double quantity,
+                                      o3d::Bool taker,
+                                      o3d::Double limitPrice) override;
 
     virtual o3d::Int32 modifyPosition(
             const o3d::CString &positionId,

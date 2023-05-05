@@ -58,6 +58,8 @@ Secondaire
   - postgresql load/save user active/pending trades data
   - postgresql load/save asset data
 
+- completer o3d::Int32 ZmqConnector::closePosition
+
 - connectors
   - implementer coté strategie
     - order create, update, delete

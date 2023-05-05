@@ -245,10 +245,14 @@ void TraderProxy::freeOrder(Order *order)
     }
 }
 
-o3d::Int32 TraderProxy::closePosition(const o3d::CString &positionId)
+o3d::Int32 TraderProxy::closePosition(const o3d::CString &positionId,
+                                      o3d::Int32 direction,
+                                      o3d::Double quantity,
+                                      o3d::Bool taker,
+                                      o3d::Double limitPrice)
 {
     if (m_connector) {
-        return m_connector->closePosition(positionId);
+        return m_connector->closePosition(positionId, direction, quantity, taker, limitPrice);
     }
 
     return Order::RET_UNREACHABLE_SERVICE;

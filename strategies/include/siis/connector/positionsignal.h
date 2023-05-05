@@ -27,7 +27,8 @@ public:
     enum Event {
         OPENED = 0,
         UPDATED = 1,
-        DELETED = 2
+        DELETED = 2,
+        AMENDED = 3
     };
 
     PositionSignal(Event _event) :
