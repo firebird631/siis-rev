@@ -356,6 +356,7 @@ void MaAdx::orderEntry(
         o3d::Double takeProfitPrice,
         o3d::Double stopLossPrice)
 {
+    // do not take position over the two sides, else close before
     if (reversal() && m_tradeManager->hasTradesByDirection(-direction)) {
         m_tradeManager->closeAllByDirection(-direction);
     }
@@ -373,7 +374,7 @@ void MaAdx::orderEntry(
                           .arg(direction > 0 ? "long" : "short").arg(formatPrice(price))
                           .arg(formatPrice(stopLossPrice)).arg(formatPrice(takeProfitPrice))
                           .arg(quantity);
-        log(timeframe, "trade-entry", msg);
+        log(timeframe, "order-entry", msg);
     }
 }
 
@@ -390,7 +391,7 @@ void MaAdx::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price)
         }
 
         o3d::String msg = o3d::String("#{0}").arg(trade->id());
-        log(trade->tf(), "trade-exit", msg);
+        log(trade->tf(), "order-exit", msg);
     }
 }
 
@@ -399,7 +400,7 @@ TradeSignal MaAdx::compteSignal(o3d::Double timestamp) const
     TradeSignal signal(m_sigAnalyser->timeframe(), timestamp);
 
     if (m_trendAnalyser->trend() > 0) {
-        if (m_sigAnalyser->adx() > 25) {
+        if (m_sigAnalyser->adx() > m_adxSig) {
             if (m_sigAnalyser->sig() > 0 && m_sigAnalyser->sig() <= ADX_MAX) {
                 if (m_confAnalyser->confirmation() > 0) {
                     // keep only one signal per timeframe
@@ -414,7 +415,7 @@ TradeSignal MaAdx::compteSignal(o3d::Double timestamp) const
             }
         }
     } else if (m_trendAnalyser->trend() < 0) {
-        if (m_sigAnalyser->adx() > 25) {
+        if (m_sigAnalyser->adx() > m_adxSig) {
             if (m_sigAnalyser->sig() < 0 && m_sigAnalyser->sig() <= ADX_MAX) {
                 if (m_confAnalyser->confirmation() < 0) {
                     // keep only one signal per timeframe

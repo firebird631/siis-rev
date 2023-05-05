@@ -24,7 +24,8 @@ MaAdxSigAnalyser::MaAdxSigAnalyser(
     m_fast_l_ma("sfast_l_ma", timeframe),
     m_adx("adx", timeframe),
     m_trend(0),
-    m_sig(0)
+    m_sig(0),
+    m_confirmation(0)
 {
 
 }
@@ -56,18 +57,27 @@ TradeSignal MaAdxSigAnalyser::compute(o3d::Double timestamp, o3d::Double lastTim
 {
     TradeSignal signal(timeframe(), timestamp);
 
-    if (price().consolidated()) {
-        // compute only at close
-        m_fast_h_ma.compute(lastTimestamp, price().high());
-        m_fast_m_ma.compute(lastTimestamp, price().price());
-        m_fast_l_ma.compute(lastTimestamp, price().low());
+    m_confirmation = 0;
 
-        m_adx.compute(lastTimestamp, price().high(), price().low(), price().close());
+    if (price().consolidated()) {
+        if (price().close().last() > price().close().prev()) {
+            m_confirmation = 1;
+        } else if (price().close().last() < price().close().prev()) {
+            m_confirmation = -1;
+        }
+    }
+
+    if (1) {  // price().consolidated()) {
+        // compute only at close
+        m_fast_h_ma.compute(timestamp, price().high());
+        m_fast_m_ma.compute(timestamp, price().price());
+        m_fast_l_ma.compute(timestamp, price().low());
+
+        m_adx.compute(timestamp, price().high(), price().low(), price().close());
 
         o3d::Int32 hc = DataArray::cross(price().close(), m_fast_h_ma.hma());
         o3d::Int32 lc = DataArray::cross(price().close(), m_fast_l_ma.hma());
 
-        // @todo need to take either the first cross signal either the last of the candle
         if (hc > 0) {
             m_trend = 1;
             m_sig = 1;

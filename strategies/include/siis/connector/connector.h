@@ -36,6 +36,7 @@ public:
     virtual ~Connector() = 0;
 
     virtual void init(Config *config) = 0;
+    virtual void terminate() = 0;
 
     virtual void start() = 0;
     virtual void stop() = 0;

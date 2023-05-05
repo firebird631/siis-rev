@@ -145,7 +145,7 @@ void Strategy::addClosedTrade(Trade *trade)
         } else if (trade->isClosed()) {
             m_stats.performance += trade->profitLossRate();
 
-            if (o3d::abs(trade->profitLossRate()) < market()->spread()) {
+            if (o3d::abs(trade->profitLossRate()*market()->mid()) < market()->spread()) {
                 m_stats.roeTrades += 1;
                 m_stats.prevDir = 0;
 

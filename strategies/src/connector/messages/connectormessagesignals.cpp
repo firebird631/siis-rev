@@ -176,7 +176,7 @@ void ConnectorMessageOrderSignal::initSizeReturn()
 	// timestamp, ..
     m_size_return += static_cast<o3d::Int32>(sizeof(o3d::Double)) * 12;
 	// string, ...
-	m_size_return += static_cast<o3d::Int32>(sizeof(o3d::Int32)) * 6;
+    m_size_return += static_cast<o3d::Int32>(sizeof(o3d::Int32)) * 7;
 }
 
 void ConnectorMessageOrderSignal::read(zmq::message_t *message)
@@ -192,6 +192,7 @@ void ConnectorMessageOrderSignal::read(zmq::message_t *message)
 
     m_signal->orderId = readCString();
     m_signal->refId = readCString();
+    m_signal->positionId = readCString();
 
     m_signal->marketId = readCString();
 
@@ -201,7 +202,7 @@ void ConnectorMessageOrderSignal::read(zmq::message_t *message)
 	m_signal->orderQuantity = readDouble();
 	m_signal->orderPrice = readDouble();
 
-	m_signal->stopLossPrice = readDouble();
+	m_signal->stopPrice = readDouble();
 	m_signal->limitPrice = readDouble();
 
     m_signal->timeInForce = static_cast<OrderSignal::TimeInForce>(readInt8());
@@ -231,10 +232,10 @@ void ConnectorMessagePositionSignal::initSizeReturn()
 {
 	ConnectorMessageCore::initSizeReturn();
 
-	// event
-	m_size_return += static_cast<o3d::Int32>(sizeof(o3d::Int8));
-	// timestamp, ...
-	m_size_return += static_cast<o3d::Int32>(sizeof(o3d::Double)) * 10;
+    // event, direction
+    m_size_return += static_cast<o3d::Int32>(sizeof(o3d::Int8)) * 2;
+    // timestamp, ...
+    m_size_return += static_cast<o3d::Int32>(sizeof(o3d::Double)) * 12;
 	// string, ...
 	m_size_return += static_cast<o3d::Int32>(sizeof(o3d::Int32)) * 4;
 }
@@ -247,11 +248,13 @@ void ConnectorMessagePositionSignal::read(zmq::message_t *message)
 	PositionSignal::Event event = static_cast<PositionSignal::Event>(readInt8());
 	m_signal = new PositionSignal(event);
     m_signal->created = readDouble();
+    m_signal->updated = readDouble();
 
     m_signal->positionId = readCString();
+    m_signal->orderRefId = readCString();
     m_signal->marketId = readCString();
 
-	m_signal->direction = readInt32();
+    m_signal->direction = static_cast<o3d::Int32>(readInt8());
 	m_signal->quantity = readDouble();
 
 	m_signal->avgPrice = readDouble();

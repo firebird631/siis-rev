@@ -83,6 +83,19 @@ void Backtest::init(
         O3D_ERROR(o3d::E_InvalidPrecondition("Timestep must be greater than 0"));
     }
 
+    // create and start a primary local connector in this thread
+    m_connector = new LocalConnector(this);
+    m_connector->init(config);
+
+    // and a trader proxy based on this connector
+    m_traderProxy = new TraderProxy(m_connector);
+
+    // and define this proxy on the primary connector
+    m_connector->setTraderProxy(m_traderProxy);
+
+    m_poolWorker = poolWorker;
+    m_cache = cache;
+
     o3d::DateTime fromDt;
     fromDt.fromTime(m_fromTs, true);
 
@@ -133,19 +146,6 @@ void Backtest::init(
 
         m_strategies[mc->marketId] = elt;
     }
-
-    // create and start a primary local connector in this thread
-    m_connector = new LocalConnector(this);
-    m_connector->init(config);
-
-    // and a trader proxy based on this connector
-    m_traderProxy = new TraderProxy(m_connector);
-
-    // and define this proxy on the primary connector
-    m_connector->setTraderProxy(m_traderProxy);
-
-    m_poolWorker = poolWorker;
-    m_cache = cache;
 }
 
 void Backtest::terminate(Config *config)
@@ -166,6 +166,7 @@ void Backtest::terminate(Config *config)
         o3d::deletePtr(pair.second.market);
         o3d::deletePtr(pair.second.tickStream);
     }
+
     m_strategies.clear();
 
     // if learning write final
@@ -173,9 +174,14 @@ void Backtest::terminate(Config *config)
         config->overwriteLearningFile(globalStats, accountStats);
     }
 
+    INFO(o3d::String("Global performance {0}%. Win/loss {1}/{2}={3}").arg(globalStats.performance*100, 2)
+         .arg(globalStats.succeedTrades).arg(globalStats.failedTrades)
+         .arg((globalStats.failedTrades > 0) ? (static_cast<o3d::Double>(globalStats.succeedTrades)/globalStats.failedTrades) : 1.0, 2), "results");
+
     // delete before primary connector
     if (m_traderProxy) {
         if (m_connector) {
+            m_connector->terminate();
             m_connector->setTraderProxy(nullptr);
         }
 

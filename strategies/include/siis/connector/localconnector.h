@@ -39,6 +39,7 @@ public:
     virtual ~LocalConnector() override;
 
     virtual void init(Config *config) override;
+    virtual void terminate() override;
 
     virtual void start() override;
     virtual void stop() override;
@@ -86,8 +87,8 @@ public:
 
     virtual o3d::Int32 modifyPosition(
             const o3d::CString &positionId,
-            o3d::Double stopLossPrice,
-            o3d::Double takeProfitPrice) override;
+            o3d::Double stopPrice,
+            o3d::Double limitPrice) override;
 
     //
     // account

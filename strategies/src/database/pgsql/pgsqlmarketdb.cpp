@@ -79,11 +79,24 @@ o3d::Bool PgSqlMarketDb::fetchMarket(const o3d::String &brokerId, const o3d::Str
     // don't set base quote & settlement display symbol
     // no have hedging in DB
     // out->setExpiry(query->getOut("expiry").toCString());
+
+    // no have this information in DB
+    o3d::Bool hedging = false;
+
+    if (out->contract() == Market::CONTRACT_CFD) {
+        hedging = true;
+    } else if (out->contract() == Market::CONTRACT_FUTURE) {
+        if (out->type() != Market::TYPE_CRYPTO) {
+            // except some case that support dual side like as binancefutures but it is like two separates markets
+            hedging = true;
+        }
+    }
+
     out->setDetails(query->getOut("contract_size").toDouble(),
                     query->getOut("lot_size").toDouble(),
                     query->getOut("value_per_pip").toDouble(),
                     query->getOut("one_pip_means").toDouble(),
-                    true);
+                    hedging);
 
     out->setState(query->getOut("base_exchange_rate").toDouble(), true);
 

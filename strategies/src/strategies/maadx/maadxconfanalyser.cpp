@@ -46,9 +46,9 @@ TradeSignal MaAdxConfAnalyser::compute(o3d::Double timestamp, o3d::Double lastTi
     m_confirmation = 0;
 
     if (price().consolidated()) {
-        if (price().close().getLast() > price().open().getLast()) {
+        if (price().close().last() > price().close().prev()) {
             m_confirmation = 1;
-        } else if (price().close().getLast() < price().open().getLast()) {
+        } else if (price().close().last() < price().close().prev()) {
             m_confirmation = -1;
         }
     }

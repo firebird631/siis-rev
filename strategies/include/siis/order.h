@@ -84,7 +84,7 @@ public:
         direction(UNDEFINED),
         orderQuantity(QUANTITY_UNDEFINED),
         orderPrice(PRICE_UNDEFINED),
-        stopLossPrice(PRICE_UNDEFINED),
+        stopPrice(PRICE_UNDEFINED),
         limitPrice(PRICE_UNDEFINED),
         timeInForce(TIME_IN_FORCE_UNDEFINED),
         priceType(PRICE_TYPE_UNDEFINED),
@@ -107,12 +107,13 @@ public:
         id = -1;
         orderId = "";
         refId = "";
+        positionId = "";
         marketId = "";
         orderType = ORDER_UNDEFINED;
         direction = UNDEFINED;
         orderQuantity = QUANTITY_UNDEFINED;
         orderPrice = PRICE_UNDEFINED;
-        stopLossPrice = PRICE_UNDEFINED;
+        stopPrice = PRICE_UNDEFINED;
         limitPrice = PRICE_UNDEFINED;
         timeInForce = TIME_IN_FORCE_UNDEFINED;
         priceType = PRICE_TYPE_UNDEFINED;
@@ -138,6 +139,7 @@ public:
 
     o3d::CString orderId;    //!< to retrieve it from the distant exchange
     o3d::CString refId;      //!< id of the order that as referenced this one
+    o3d::CString positionId; //!< created position id
 
     o3d::CString marketId;   //!< empty means not defined
 
@@ -147,7 +149,7 @@ public:
     o3d::Double orderQuantity;   //!< initial order quantity
     o3d::Double orderPrice;      //!< initial order price (for limit)
 
-    o3d::Double stopLossPrice;   //!< for position creation order, 0 or -1 if not defined
+    o3d::Double stopPrice;       //!< for position creation order, 0 or -1 if not defined
     o3d::Double limitPrice;      //!< for position creation order, 0 or -1 if not defined
 
     TimeInForce timeInForce;

@@ -34,7 +34,7 @@ public:
     static constexpr o3d::Int8 VALUE_UNDEFINED = -1;
 
     Position() :
-        traderProxy(nullptr),
+        proxy(nullptr),
         strategy(nullptr),
         created(TIMESTAMP_UNDEFINED),
         updated(TIMESTAMP_UNDEFINED),
@@ -72,7 +72,7 @@ public:
         commission = RATE_UNDEFINED;
     }
 
-    TraderProxy *traderProxy;
+    TraderProxy *proxy;
     Strategy *strategy;
 
     o3d::Double created;   //!< creation timestamp

@@ -42,7 +42,8 @@ TraderProxy::TraderProxy(Connector *connector) :
     m_marginFactor(0),
     m_freeTrades{{BUCKET_SIZE, BUCKET_SIZE}, {BUCKET_SIZE, BUCKET_SIZE},
                  {BUCKET_SIZE, BUCKET_SIZE}, {BUCKET_SIZE, BUCKET_SIZE}},
-    m_freeOrders(BUCKET_SIZE, BUCKET_SIZE)
+    m_freeOrders(BUCKET_SIZE, BUCKET_SIZE),
+    m_freePositions(BUCKET_SIZE, BUCKET_SIZE)
 {
     for (o3d::Int32 i = 0; i < BUCKET_SIZE; ++i) {
         m_freeOrders[i] = new Order();
@@ -64,28 +65,66 @@ TraderProxy::TraderProxy(Connector *connector) :
     for (o3d::Int32 i = 0; i < BUCKET_SIZE; ++i) {
         m_freeTrades[Trade::TYPE_POSITION][i] = new PositionTrade(this);
     }
+
+    for (o3d::Int32 i = 0; i < BUCKET_SIZE; ++i) {
+        m_freePositions[i] = new Position();
+        m_freePositions[i]->proxy = this;
+    }
 }
 
 TraderProxy::~TraderProxy()
 {
+    if (m_freeOrders.getSize() < m_freeOrders.getMaxSize()) {
+        WARN("memory", o3d::String("{0} orders are not freed").arg(m_freeOrders.getMaxSize() - m_freeOrders.getSize()));
+    }
+
     for (o3d::Int32 i = 0; i < m_freeOrders.getMaxSize(); ++i) {
         o3d::deletePtr(m_freeOrders[i]);
+    }
+
+    if (m_freeTrades[Trade::TYPE_BUY_SELL].getSize() < m_freeTrades[Trade::TYPE_BUY_SELL].getMaxSize()) {
+        WARN("memory", o3d::String("{0} spots trades are not freed").arg(
+                 m_freeTrades[Trade::TYPE_BUY_SELL].getMaxSize() - m_freeTrades[Trade::TYPE_BUY_SELL].getSize()));
     }
 
     for (o3d::Int32 i = 0; i < m_freeTrades[Trade::TYPE_BUY_SELL].getMaxSize(); ++i) {
         o3d::deletePtr(m_freeTrades[Trade::TYPE_BUY_SELL][i]);
     }
 
+    if (m_freeTrades[Trade::TYPE_MARGIN].getSize() < m_freeTrades[Trade::TYPE_MARGIN].getMaxSize()) {
+        WARN("memory", o3d::String("{0} margins trades are not freed").arg(
+                 m_freeTrades[Trade::TYPE_MARGIN].getMaxSize() - m_freeTrades[Trade::TYPE_MARGIN].getSize()));
+    }
+
     for (o3d::Int32 i = 0; i < m_freeTrades[Trade::TYPE_MARGIN].getMaxSize(); ++i) {
         o3d::deletePtr(m_freeTrades[Trade::TYPE_MARGIN][i]);
+    }
+
+    if (m_freeTrades[Trade::TYPE_IND_MARGIN].getSize() < m_freeTrades[Trade::TYPE_IND_MARGIN].getMaxSize()) {
+        WARN("memory", o3d::String("{0} indivisbles margins trades are not freed").arg(
+                 m_freeTrades[Trade::TYPE_IND_MARGIN].getMaxSize() - m_freeTrades[Trade::TYPE_IND_MARGIN].getSize()));
     }
 
     for (o3d::Int32 i = 0; i < m_freeTrades[Trade::TYPE_IND_MARGIN].getMaxSize(); ++i) {
         o3d::deletePtr(m_freeTrades[Trade::TYPE_IND_MARGIN][i]);
     }
 
+    if (m_freeTrades[Trade::TYPE_POSITION].getSize() < m_freeTrades[Trade::TYPE_POSITION].getMaxSize()) {
+        WARN("memory", o3d::String("{0} positions trades are not freed").arg(
+                 m_freeTrades[Trade::TYPE_POSITION].getMaxSize() - m_freeTrades[Trade::TYPE_POSITION].getSize()));
+    }
+
     for (o3d::Int32 i = 0; i < m_freeTrades[Trade::TYPE_POSITION].getMaxSize(); ++i) {
         o3d::deletePtr(m_freeTrades[Trade::TYPE_POSITION][i]);
+    }
+
+    if (m_freePositions.getSize() < m_freePositions.getMaxSize()) {
+        WARN("memory", o3d::String("{0} positions are not freed").arg(
+                 m_freePositions.getMaxSize() - m_freePositions.getSize()));
+    }
+
+    for (o3d::Int32 i = 0; i < m_freePositions.getMaxSize(); ++i) {
+        o3d::deletePtr(m_freePositions[i]);
     }
 }
 
@@ -245,6 +284,43 @@ void TraderProxy::freeOrder(Order *order)
     }
 }
 
+Position *TraderProxy::newPosition(Strategy *strategy)
+{
+    Position *position = nullptr;
+
+    if (!strategy) {
+        O3D_ERROR(o3d::E_NullPointer("Strategy must be a valid pointer"));
+    }
+
+    if (m_freePositions.getSize() == 0) {
+        // empty allocator, make some news
+        for (o3d::Int32 i = 0; i < BUCKET_SIZE; ++i) {
+            m_freePositions[i] = new Position();
+            m_freePositions[i]->proxy = this;
+        }
+    }
+
+    // get the last free and pop it
+    position = m_freePositions.getLast();
+    m_freePositions.pop();
+
+    // set a unique id for reference
+    if (position) {
+        position->positionId = o3d::Uuid::uuid5("siis").toCString();
+        position->strategy = strategy;
+    }
+
+    return position;
+}
+
+void TraderProxy::freePosition(Position *position)
+{
+    if (position) {
+        position->reset();
+        m_freePositions.push(position);
+    }
+}
+
 o3d::Int32 TraderProxy::closePosition(const o3d::CString &positionId,
                                       o3d::Int32 direction,
                                       o3d::Double quantity,
@@ -258,12 +334,10 @@ o3d::Int32 TraderProxy::closePosition(const o3d::CString &positionId,
     return Order::RET_UNREACHABLE_SERVICE;
 }
 
-o3d::Int32 TraderProxy::modifyPosition(const o3d::CString &positionId,
-                                       o3d::Double stopLossPrice,
-                                       o3d::Double takeProfitPrice)
+o3d::Int32 TraderProxy::modifyPosition(const o3d::CString &positionId, o3d::Double stopPrice, o3d::Double limitPrice)
 {
     if (m_connector) {
-        return m_connector->modifyPosition(positionId, stopLossPrice, takeProfitPrice);
+        return m_connector->modifyPosition(positionId, stopPrice, limitPrice);
     }
 
     return Order::RET_UNREACHABLE_SERVICE;

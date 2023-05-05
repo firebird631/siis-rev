@@ -98,7 +98,7 @@ public:
     Order* newOrder(Strategy *strategy);
 
     /**
-     * @brief freeOrder Once an order message is process release the order with this method.
+     * @brief freeOrder Once an order message or local execution is processed, release the order with this method.
      * @param order Valid order to release.
      */
     void freeOrder(Order *order);
@@ -112,12 +112,39 @@ public:
     // position
     //
 
+    /**
+     * @brief newPosition Returns a new free position to be used with createPosition.
+     */
+    Position* newPosition(Strategy *strategy);
+
+    /**
+     * @brief freePosition Once a position message or local executions is processed, release the order with this method.
+     * @param order Valid position to release.
+     */
+    void freePosition(Position *position);
+
+    /**
+     * @brief closePosition Close an existing position at limit or market.
+     * @param positionId
+     * @param direction Necessary, direction of the position to close.
+     * @param quantity Quantity to close, can be a partial (reduce) quantity.
+     * @param taker If true (default) close a market (in taker) else a limit price must be provided.
+     * @param limitPrice Limit price to close as maker if taker is set to false.
+     * @return
+     */
     o3d::Int32 closePosition(const o3d::CString &positionId, o3d::Int32 direction, o3d::Double quantity,
                              o3d::Bool taker = true, o3d::Double limitPrice = 0.0);
 
-    o3d::Int32 modifyPosition(const o3d::CString &positionId,
-            o3d::Double stopLossPrice,
-            o3d::Double takeProfitPrice);
+    /**
+     * @brief modifyPosition Modifit the stop and or limit price of an existing position.
+     * @param positionId
+     * @param stopPrice If zero will query for remove the stop price of the position. Set a negative value to
+     *  ignore its change.
+     * @param limitPrice If zero will query for remove the limit price of the position. Set a negative value to
+     *  ignore its change.
+     * @return
+     */
+    o3d::Int32 modifyPosition(const o3d::CString &positionId, o3d::Double stopPrice, o3d::Double limitPrice);
 
     /**
      * @brief findOrder Return the local version of a position previously fetched/updated
@@ -176,6 +203,7 @@ protected:
 
     o3d::TemplateArray<Trade*> m_freeTrades[Trade::NUM_TYPES];
     o3d::TemplateArray<Order*> m_freeOrders;
+    o3d::TemplateArray<Position*> m_freePositions;
 };
 
 } // namespace siis

@@ -58,6 +58,8 @@ private:
 
     o3d::Int32 m_trend;
     o3d::Int32 m_sig;
+
+    o3d::Int32 m_confirmation;
 };
 
 } // namespace siis

@@ -93,7 +93,7 @@ void LocalConnector::update()
         }
     }
 
-    // @todo update positions
+    // update positions
     for (auto it = m_virtualPositions.begin(); it != m_virtualPositions.end(); ++it) {
         Position *position = it->second;
         const Market *market = position->strategy->market();
@@ -101,6 +101,15 @@ void LocalConnector::update()
         if (position->quantity > 0.0) {
             // update position state, profit and loss...
             // position->profitLoss =
+            // @todo
+
+            if (position->stopPrice > 0.0) {
+
+            }
+
+            if (position->limitPrice > 0.0) {
+
+            }
         }
     }
 
@@ -190,6 +199,23 @@ void LocalConnector::init(Config *config)
     }
 }
 
+void LocalConnector::terminate()
+{
+    for (auto it = m_virtualOrders.begin(); it != m_virtualOrders.end(); ++it) {
+        // clean non closed orders
+        m_traderProxy->freeOrder(it->second);
+    }
+
+    m_virtualOrders.clear();
+
+    for (auto it = m_virtualPositions.begin(); it != m_virtualPositions.end(); ++it) {
+        // clean non closed positions
+        m_traderProxy->freePosition(it->second);
+    }
+
+    m_virtualPositions.clear();
+}
+
 void LocalConnector::fetchAnyOrders()
 {
     // nothing
@@ -242,6 +268,17 @@ o3d::Int32 LocalConnector::createOrder(Order *order)
             openOrderSignal.refId = order->refId;
             openOrderSignal.orderType = order->orderType;
 
+            // excepted for spot, need a position opened signal
+            if (strategy->tradeType() != Trade::TYPE_ASSET) {
+                if (strategy->tradeType() == Trade::TYPE_POSITION) {
+                    // with the some order as order id for a position
+                    openOrderSignal.positionId = order->orderId;
+                } else {
+                    // or market id for margin
+                    openOrderSignal.positionId = market->marketId();
+                }
+            }
+
             strategy->onOrderSignal(openOrderSignal);
 
             OrderSignal tradedOrderSignal(OrderSignal::TRADED);
@@ -254,8 +291,6 @@ o3d::Int32 LocalConnector::createOrder(Order *order)
 
             tradedOrderSignal.avgPrice = execPrice;
             tradedOrderSignal.execPrice = execPrice;
-            tradedOrderSignal.marketId = order->marketId;
-            tradedOrderSignal.direction = order->direction;
             tradedOrderSignal.filled = order->orderQuantity;
             tradedOrderSignal.cumulativeFilled = order->orderQuantity;
             tradedOrderSignal.completed = true;
@@ -265,6 +300,48 @@ o3d::Int32 LocalConnector::createOrder(Order *order)
             // @todo commission fees and its currency
 
             strategy->onOrderSignal(tradedOrderSignal);
+
+            // excepted for spot, need a position opened signal
+            if (strategy->tradeType() != Trade::TYPE_ASSET) {
+                PositionSignal openPositionSignal(PositionSignal::OPENED);
+
+                // create a virtual position
+                Position *position = traderProxy()->newPosition(strategy);
+                position->orderRefId = order->orderId;
+                position->direction = order->direction;
+                position->marketId = order->marketId;
+                position->created = handler()->timestamp();
+                position->updated = handler()->timestamp();
+
+                position->stopPrice = order->stopPrice;
+                position->limitPrice = order->limitPrice;
+
+                if (strategy->tradeType() == Trade::TYPE_POSITION) {
+                    // with the some order as order id for a position
+                    position->positionId = order->orderId;
+                } else {
+                    // or market id for margin
+                    position->positionId = market->marketId();
+                }
+
+                m_virtualPositions[position->positionId] = position;
+
+                openPositionSignal.direction = order->direction;
+                openPositionSignal.marketId = order->marketId;
+                openPositionSignal.created = handler()->timestamp();
+                openPositionSignal.updated = handler()->timestamp();
+                openPositionSignal.orderRefId = order->orderId;
+                openPositionSignal.positionId = position->positionId;
+                // openPositionSignal.commission @todo
+
+                // entry traded
+                openPositionSignal.avgPrice = execPrice;
+                openPositionSignal.execPrice = execPrice;
+                openPositionSignal.filled = order->orderQuantity;
+                openPositionSignal.cumulativeFilled = order->orderQuantity;
+
+                strategy->onPositionSignal(openPositionSignal);
+            }
 
             OrderSignal deletedOrderSignal(OrderSignal::DELETED);
             deletedOrderSignal.direction = order->direction;
@@ -276,6 +353,9 @@ o3d::Int32 LocalConnector::createOrder(Order *order)
             // @todo do we set cumulative, avg and completed here ?
 
             strategy->onOrderSignal(deletedOrderSignal);
+
+            // finally free the order because it is fully executed
+            m_traderProxy->freeOrder(order);
 
             return Order::RET_OK;
         } else {
@@ -321,6 +401,10 @@ o3d::Int32 LocalConnector::cancelOrder(const o3d::CString &orderId)
 
                 strategy->onOrderSignal(cancelOrderSignal);
 
+                // finally free the order because it is fully executed
+                m_virtualOrders.erase(it);
+                m_traderProxy->freeOrder(order);
+
                 return Order::RET_OK;
             }
         }
@@ -341,7 +425,35 @@ o3d::Int32 LocalConnector::closePosition(const o3d::CString &positionId,
         if (positionId.isValid()) {
             auto it = m_virtualPositions.find(positionId);
             if (it != m_virtualPositions.end()) {
-                // @todo
+                Position *position = it->second;
+                Strategy *strategy = position->strategy;  // @warn not sure to have it on live
+
+                o3d::Double execPrice = strategy->market()->closeExecPrice(position->direction);
+
+                // DBG(o3d::String("close position {0} at={1} pl={2}").arg(positionId).arg(execPrice).arg(position->profitLoss), "");
+
+                // @todo last update and deleted signal
+                PositionSignal deletedPositionSignal(PositionSignal::DELETED);
+
+                deletedPositionSignal.direction = position->direction;
+                deletedPositionSignal.marketId = position->marketId;
+                deletedPositionSignal.created = position->created;
+                deletedPositionSignal.updated = handler()->timestamp();
+                deletedPositionSignal.orderRefId = position->orderRefId;
+                deletedPositionSignal.positionId = position->positionId;
+                // deletedPositionSignal.commission @todo
+
+                // exit traded @todo correct qty
+                deletedPositionSignal.avgPrice = execPrice;
+                deletedPositionSignal.execPrice = execPrice;
+                deletedPositionSignal.filled = position->quantity;
+                deletedPositionSignal.cumulativeFilled = position->quantity;
+
+                strategy->onPositionSignal(deletedPositionSignal);
+
+                // finally free the position because it is fully executed
+                m_virtualPositions.erase(it);
+                m_traderProxy->freePosition(position);
 
                 return Order::RET_OK;
             }
@@ -375,8 +487,8 @@ void LocalConnector::fetchAssets(const o3d::CString &assetId)
 }
 
 o3d::Int32 LocalConnector::modifyPosition(const o3d::CString &positionId,
-        o3d::Double stopLossPrice,
-        o3d::Double takeProfitPrice)
+        o3d::Double stopPrice,
+        o3d::Double limitPrice)
 {
     if (m_traderProxy) {
         // retrieve position

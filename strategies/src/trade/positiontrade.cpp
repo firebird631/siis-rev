@@ -220,7 +220,6 @@ void PositionTrade::close()
 void PositionTrade::process(o3d::Double timestamp)
 {
     if (isActive()) {
-printf("totot\n");
         if (m_stopLossPrice > 0.0 && !m_positionStopPrice) {
             o3d::Double closeExecPrice = m_strategy->market()->closeExecPrice(m_direction);
 
@@ -266,7 +265,7 @@ o3d::Bool PositionTrade::isActive() const
 
 o3d::Bool PositionTrade::isOpened() const
 {
-    return m_exitState == STATE_OPENED;
+    return m_entryState == STATE_OPENED;
 }
 
 o3d::Bool PositionTrade::isCanceled() const
@@ -307,12 +306,16 @@ void PositionTrade::orderSignal(const OrderSignal &signal)
                 m_entryOrderId = signal.orderId;
             }
 
+            if (m_positionId.isEmpty() && signal.positionId.isValid()) {
+                m_positionId = signal.positionId;
+            }
+
             if (m_openTimeStamp != signal.TIMESTAMP_UNDEFINED) {
                 m_openTimeStamp = signal.created;
             }
 
-            if (signal.stopLossPrice != signal.PRICE_UNDEFINED) {
-                m_stopLossPrice = signal.stopLossPrice;
+            if (signal.stopPrice != signal.PRICE_UNDEFINED) {
+                m_stopLossPrice = signal.stopPrice;
             }
 
             if (signal.limitPrice != signal.PRICE_UNDEFINED) {
@@ -357,6 +360,7 @@ void PositionTrade::orderSignal(const OrderSignal &signal)
 void PositionTrade::updateRealizedPnl()
 {
     if (m_entryPrice > 0.0 && m_filledExitQuantity > 0.0) {
+
         m_profitLossRate = m_direction * ((m_exitPrice * m_filledExitQuantity) - (m_entryPrice * m_filledExitQuantity)) /
                            (m_entryPrice * m_filledExitQuantity);
     }
@@ -557,6 +561,7 @@ void PositionTrade::positionSignal(const PositionSignal &signal)
             o3d::Double decQty = 0.0;
             if (m_filledExitQuantity < m_filledEntryQuantity) {
                 decQty = m_filledEntryQuantity - m_filledExitQuantity;
+                m_filledExitQuantity = m_filledEntryQuantity;
             }
 
             m_exitState = STATE_FILLED;
@@ -578,7 +583,7 @@ void PositionTrade::positionSignal(const PositionSignal &signal)
                 }
             }
 
-            // DBG(o3d::String("Exit position avg-price={0} cum-filled={1}".arg(self.axp).arg(self.x));
+            DBG(o3d::String("Exit position avg-price={0} cum-filled={1}").arg(m_exitPrice).arg(m_filledExitQuantity), "");
 
             // finally empty
             m_positionQuantity = 0.0;

@@ -62,6 +62,11 @@ void ZmqConnector::init(Config *config)
     // nothing to do
 }
 
+void ZmqConnector::terminate()
+{
+    // @todo check and cleanup
+}
+
 void ZmqConnector::start()
 {
     if (!m_running) {
