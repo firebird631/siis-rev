@@ -309,7 +309,7 @@ void MaAdx::compute(o3d::Double timestamp)
     }
 
     // compute entries
-    TradeSignal signal = compteSignal(timestamp);
+    TradeSignal signal = computeSignal(timestamp);
     if (signal.type() == TradeSignal::ENTRY) {
         // keep to avoid repetitions
         m_lastSignal = signal;
@@ -329,6 +329,12 @@ void MaAdx::compute(o3d::Double timestamp)
 
     // update the existing trades
     m_tradeManager->process(timestamp);
+
+    // breakeven and dynamic stop
+    // m_breakeven.update()
+
+    // dynamic stop
+    // m_dynamicStopLoss.update()
 }
 
 void MaAdx::finalize(o3d::Double timestamp)
@@ -395,7 +401,7 @@ void MaAdx::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price)
     }
 }
 
-TradeSignal MaAdx::compteSignal(o3d::Double timestamp) const
+TradeSignal MaAdx::computeSignal(o3d::Double timestamp) const
 {
     TradeSignal signal(m_sigAnalyser->timeframe(), timestamp);
 

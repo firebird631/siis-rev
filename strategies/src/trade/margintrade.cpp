@@ -198,6 +198,7 @@ void MarginTrade::modifyTakeProfit(o3d::Double price, o3d::Bool asOrder)
 
             limitOrder->orderType = Order::ORDER_LIMIT;
             limitOrder->orderPrice = price;
+            limitOrder->closeOnly = 1;
 
             m_limit.refId = limitOrder->refId;
 
@@ -240,6 +241,7 @@ void MarginTrade::modifyStopLoss(o3d::Double price, o3d::Bool asOrder)
 
             stopOrder->orderType = Order::ORDER_MARKET;
             stopOrder->orderPrice = price;
+            stopOrder->closeOnly = 1;
 
             m_stop.refId = stopOrder->refId;
 
@@ -293,6 +295,7 @@ void MarginTrade::close()
     stopOrder->direction = -m_direction;
     stopOrder->orderQuantity = remaining_qty;
     stopOrder->orderType = Order::ORDER_MARKET;
+    stopOrder->closeOnly = 1;
 
     o3d::Int32 ret = traderProxy()->createOrder(stopOrder);
     if (ret == Order::RET_OK) {
@@ -555,11 +558,11 @@ void MarginTrade::positionSignal(const PositionSignal &signal)
 {
     if (signal.positionId.isValid() && signal.positionId == m_positionId) {
         if (signal.event == signal.OPENED) {
-
+            // nothing to do
         } else if (signal.event == signal.UPDATED) {
-
+            // nothing to do
         } else if (signal.event == signal.DELETED) {
-
+            // @todo must close the trade
         }
     }
 }

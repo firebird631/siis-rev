@@ -301,46 +301,118 @@ o3d::Int32 LocalConnector::createOrder(Order *order)
 
             strategy->onOrderSignal(tradedOrderSignal);
 
-            // excepted for spot, need a position opened signal
-            if (strategy->tradeType() != Trade::TYPE_ASSET) {
-                PositionSignal openPositionSignal(PositionSignal::OPENED);
+            if (order->closeOnly == 1) {
+                // only for margin and indivisible margin, need a position updated or deleted signal
+                if (strategy->tradeType() == Trade::TYPE_MARGIN || strategy->tradeType() == Trade::TYPE_IND_MARGIN) {
+                    PositionSignal updatedPositionSignal(PositionSignal::DELETED);
 
-                // create a virtual position
-                Position *position = traderProxy()->newPosition(strategy);
-                position->orderRefId = order->orderId;
-                position->direction = order->direction;
-                position->marketId = order->marketId;
-                position->created = handler()->timestamp();
-                position->updated = handler()->timestamp();
+                    // retrieve a virtual position
+                    Position *position = nullptr;
 
-                position->stopPrice = order->stopPrice;
-                position->limitPrice = order->limitPrice;
+                    auto pit = m_virtualPositions.find(market->marketId());
+                    if (pit != m_virtualPositions.end()) {
+                        position = pit->second;
+                    } else {
+                        // error cannot close a non existing position, free order
+                        m_traderProxy->freeOrder(order);
 
-                if (strategy->tradeType() == Trade::TYPE_POSITION) {
-                    // with the some order as order id for a position
-                    position->positionId = order->orderId;
-                } else {
-                    // or market id for margin
-                    position->positionId = market->marketId();
+                        return Order::RET_INSUFFICIENT_FUNDS;
+                    }
+
+                    // @todo check...
+                    position->quantity -= order->orderQuantity;
+
+                    updatedPositionSignal.direction = order->direction;
+                    updatedPositionSignal.marketId = order->marketId;
+                    updatedPositionSignal.created = position->created;
+                    updatedPositionSignal.updated = handler()->timestamp();
+                    updatedPositionSignal.orderRefId = order->orderId;
+                    updatedPositionSignal.positionId = position->positionId;
+                    // openPositionSignal.commission @todo
+
+                    // exit traded
+                    updatedPositionSignal.avgPrice = execPrice;
+                    updatedPositionSignal.execPrice = execPrice;
+                    updatedPositionSignal.filled = order->orderQuantity;
+                    updatedPositionSignal.cumulativeFilled = order->orderQuantity;
+
+                    strategy->onPositionSignal(updatedPositionSignal);
+
+                    // need to delete position
+                    if (position->quantity <= 0.0) {
+                        PositionSignal deletedPositionSignal(PositionSignal::DELETED);
+
+                        deletedPositionSignal.direction = order->direction;
+                        deletedPositionSignal.marketId = order->marketId;
+                        deletedPositionSignal.created = position->created;
+                        deletedPositionSignal.updated = handler()->timestamp();
+                        deletedPositionSignal.orderRefId = order->orderId;
+                        deletedPositionSignal.positionId = position->positionId;
+
+                        strategy->onPositionSignal(deletedPositionSignal);
+
+                        m_traderProxy->freePosition(position);
+                        m_virtualPositions.erase(pit);
+                    }
                 }
+            } else {
+                // excepted for spot, need a position opened signal
+                if (strategy->tradeType() != Trade::TYPE_ASSET) {
+                    PositionSignal openPositionSignal(PositionSignal::OPENED);
 
-                m_virtualPositions[position->positionId] = position;
+                    // create a virtual position
+                    Position *position = nullptr;
 
-                openPositionSignal.direction = order->direction;
-                openPositionSignal.marketId = order->marketId;
-                openPositionSignal.created = handler()->timestamp();
-                openPositionSignal.updated = handler()->timestamp();
-                openPositionSignal.orderRefId = order->orderId;
-                openPositionSignal.positionId = position->positionId;
-                // openPositionSignal.commission @todo
+                    if (strategy->tradeType() == Trade::TYPE_POSITION) {
+                        // always a new position with the some order as order id for a position
+                        position = traderProxy()->newPosition(strategy);
 
-                // entry traded
-                openPositionSignal.avgPrice = execPrice;
-                openPositionSignal.execPrice = execPrice;
-                openPositionSignal.filled = order->orderQuantity;
-                openPositionSignal.cumulativeFilled = order->orderQuantity;
+                        position->positionId = order->orderId;
+                        position->orderRefId = order->orderId;
+                        position->direction = order->direction;
+                        position->marketId = order->marketId;
+                        position->created = handler()->timestamp();
+                        position->updated = handler()->timestamp();
 
-                strategy->onPositionSignal(openPositionSignal);
+                        position->stopPrice = order->stopPrice;
+                        position->limitPrice = order->limitPrice;
+
+                        m_virtualPositions[position->positionId] = position;
+                    } else if (strategy->tradeType() == Trade::TYPE_MARGIN || strategy->tradeType() == Trade::TYPE_IND_MARGIN) {
+                        // or market id for margin, try to retrieve if exists else new
+                        auto pit = m_virtualPositions.find(market->marketId());
+                        if (pit != m_virtualPositions.end()) {
+                            position = pit->second;
+                        } else {
+                            position = traderProxy()->newPosition(strategy);
+
+                            position->positionId = market->marketId();
+                            position->orderRefId = order->orderId;
+                            position->direction = order->direction;
+                            position->marketId = order->marketId;
+                            position->created = handler()->timestamp();
+                            position->updated = handler()->timestamp();
+
+                            m_virtualPositions[position->positionId] = position;
+                        }
+                    }
+
+                    openPositionSignal.direction = order->direction;
+                    openPositionSignal.marketId = order->marketId;
+                    openPositionSignal.created = handler()->timestamp();
+                    openPositionSignal.updated = handler()->timestamp();
+                    openPositionSignal.orderRefId = order->orderId;
+                    openPositionSignal.positionId = position->positionId;
+                    // openPositionSignal.commission @todo
+
+                    // entry traded
+                    openPositionSignal.avgPrice = execPrice;
+                    openPositionSignal.execPrice = execPrice;
+                    openPositionSignal.filled = order->orderQuantity;
+                    openPositionSignal.cumulativeFilled = order->orderQuantity;
+
+                    strategy->onPositionSignal(openPositionSignal);
+                }
             }
 
             OrderSignal deletedOrderSignal(OrderSignal::DELETED);

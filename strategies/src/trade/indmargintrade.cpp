@@ -197,6 +197,7 @@ void IndMarginTrade::modifyTakeProfit(o3d::Double price, o3d::Bool asOrder)
 
             limitOrder->orderType = Order::ORDER_LIMIT;
             limitOrder->orderPrice = price;
+            limitOrder->closeOnly = 1;
 
             m_limit.refId = limitOrder->refId;
 
@@ -239,6 +240,7 @@ void IndMarginTrade::modifyStopLoss(o3d::Double price, o3d::Bool asOrder)
 
             stopOrder->orderType = Order::ORDER_MARKET;
             stopOrder->orderPrice = price;
+            stopOrder->closeOnly = 1;
 
             m_stop.refId = stopOrder->refId;
 
@@ -292,6 +294,7 @@ void IndMarginTrade::close()
     stopOrder->direction = -m_direction;
     stopOrder->orderQuantity = remaining_qty;
     stopOrder->orderType = Order::ORDER_MARKET;
+    stopOrder->closeOnly = 1;
 
     m_stop.refId = stopOrder->refId;
     m_stop.closing = true;
@@ -306,6 +309,19 @@ void IndMarginTrade::close()
 void IndMarginTrade::process(o3d::Double timestamp)
 {
     if (isActive()) {
+        // debug breakeven
+        if (estimateProfitLossRate() > 0.01 && m_stopLossPrice < m_entryPrice) {
+            m_stopLossPrice = m_entryPrice;
+        }
+
+        // debug trailing stop
+        if (m_stopLossPrice > 0.0 && estimateProfitLossRate() > 0.01) {
+            o3d::Double closeExecPrice = m_strategy->market()->closeExecPrice(m_direction);
+            m_stopLossPrice = m_entryPrice + m_direction * 0.01 * closeExecPrice;
+        }
+
+        // @todo could have a stop directive at a candle close or ... and so need to adjust here
+
         if (m_stopLossPrice > 0.0 && !m_stop.orderId.isValid()) {
             o3d::Double closeExecPrice = m_strategy->market()->closeExecPrice(m_direction);
 
@@ -563,11 +579,11 @@ void IndMarginTrade::positionSignal(const PositionSignal &signal)
 {
     if (signal.positionId.isValid() && signal.positionId == m_positionId) {
         if (signal.event == signal.OPENED) {
-
+            // nothing to do
         } else if (signal.event == signal.UPDATED) {
-
+            // nothing to do
         } else if (signal.event == signal.DELETED) {
-
+            // @todo must close the trade, compute profitLoss
         }
     }
 }

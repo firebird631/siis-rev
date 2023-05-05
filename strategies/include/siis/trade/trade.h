@@ -442,6 +442,14 @@ public:
     virtual o3d::String formatToStr() const = 0;
 
     /**
+     * @brief estimateProfitLossRate Compute a precise estimation of the current realized and unrealized rate.
+     */
+    o3d::Double estimateProfitLossRate() const;
+
+    o3d::Double entryFeesRate() const;
+    o3d::Double estimateExitFeesRate() const;
+
+    /**
      * @brief stateToStr Return a string of the state of the trade
      * @return String one of (new, opened, rejected, problem, filling, filled, closing, closed, waiting).
      */

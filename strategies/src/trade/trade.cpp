@@ -99,6 +99,56 @@ o3d::Bool Trade::isTradeTimeout(o3d::Double timestamp, o3d::Double timeout) cons
     return false;
 }
 
+o3d::Double Trade::estimateProfitLossRate() const
+{
+    if (m_entryPrice <= 0.0) {
+        return 0.0;
+    }
+
+    // estimation at close price
+    o3d::Double closeExecPrice = m_strategy->market()->closeExecPrice(m_direction);
+
+    if (closeExecPrice <= 0.0) {
+        return 0.0;
+    }
+
+    o3d::Double pnl = m_direction * (closeExecPrice - m_entryPrice) / m_entryPrice;
+
+    // minus realized entry fees rate
+    pnl -= entryFeesRate();
+
+    // and estimation of the exit fees rate
+    pnl -= estimateExitFeesRate();
+
+    return pnl;
+}
+
+o3d::Double Trade::entryFeesRate() const
+{
+    if (m_entryPrice > 0.0 && m_filledEntryQuantity > 0.0) {
+        return m_stats.entryFees / (m_entryPrice * m_filledEntryQuantity);
+    }
+
+    return 0.0;
+}
+
+o3d::Double Trade::estimateExitFeesRate() const
+{
+    // count the exit fees related to limit order type
+    if (m_stats.takeProfitOrderType == Order::ORDER_LIMIT || m_stats.takeProfitOrderType == Order::ORDER_STOP_LIMIT ||
+        m_stats.takeProfitOrderType == Order::ORDER_TAKE_PROFIT_LIMIT) {
+
+        return m_strategy->market()->makerFee().rate;
+
+    } else if (m_stats.takeProfitOrderType == Order::ORDER_MARKET || m_stats.takeProfitOrderType == Order::ORDER_STOP ||
+               m_stats.takeProfitOrderType == Order::ORDER_TAKE_PROFIT) {
+
+        return m_strategy->market()->takerFee().rate;
+    }
+
+    return 0.0;
+}
+
 void Trade::addCondition(const o3d::String &name, o3d::Double v1, o3d::Double v2, o3d::Double v3, o3d::Double v4)
 {
     m_stats.conditions.push_back(TradeCondition(name, v1, v2, v3, v4));
