@@ -238,6 +238,11 @@ void ForexAlpha::finalize(o3d::Double timestamp)
     // cleanup
 }
 
+void ForexAlpha::updateTrade(Trade *trade)
+{
+
+}
+
 void ForexAlpha::updateStats()
 {
 

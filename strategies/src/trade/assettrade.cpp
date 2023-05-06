@@ -65,12 +65,12 @@ void AssetTrade::cancelClose()
 
 }
 
-void AssetTrade::modifyTakeProfit(o3d::Double price, o3d::Bool asOrder)
+void AssetTrade::modifyTakeProfit(o3d::Double price, ModifierType mod)
 {
 
 }
 
-void AssetTrade::modifyStopLoss(o3d::Double price, o3d::Bool asOrder)
+void AssetTrade::modifyStopLoss(o3d::Double price, ModifierType mod)
 {
 
 }

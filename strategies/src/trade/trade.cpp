@@ -146,6 +146,21 @@ o3d::Double Trade::estimateExitFeesRate() const
         return m_strategy->market()->takerFee().rate;
     }
 
+    return m_strategy->market()->takerFee().rate;
+}
+
+o3d::Double Trade::deltaPrice() const
+{
+    if (m_entryPrice > 0.0) {
+        o3d::Double closeExecPrice = m_strategy->market()->closeExecPrice(m_direction);
+
+        if (m_direction > 0) {
+            return closeExecPrice - m_entryPrice;
+        } else if (m_direction < 0) {
+            return m_entryPrice - closeExecPrice;
+        }
+    }
+
     return 0.0;
 }
 

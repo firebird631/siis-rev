@@ -129,26 +129,22 @@ void PositionTrade::cancelClose()
     // nothing to do
 }
 
-void PositionTrade::modifyTakeProfit(o3d::Double price, o3d::Bool asOrder)
+void PositionTrade::modifyTakeProfit(o3d::Double price, ModifierType mod)
 {
     if (m_closing) {
         return;
     }
 
     if (m_positionId.isValid()) {
-        if (asOrder) {
+        if (mod == MOD_PREVIOUS && m_positionLimitPrice > 0.0) {
+            mod = MOD_DISTANT;
+        }
+
+        if (mod == MOD_DISTANT) {
             // only update the limit price (let to the previous stop)
             o3d::Int32 ret = traderProxy()->modifyPosition(m_positionId, m_positionStopPrice, price);
             if (ret == Order::RET_OK) {
                 m_positionLimitPrice = price;
-            } else {
-                // @todo
-            }
-        } else if (m_positionLimitPrice > 0.0) {
-            // remove the previous but keep in local
-            o3d::Int32 ret = traderProxy()->modifyPosition(m_positionId, m_positionStopPrice, 0.0);
-            if (ret == Order::RET_OK) {
-                m_positionLimitPrice = 0.0;
             } else {
                 // @todo
             }
@@ -158,26 +154,22 @@ void PositionTrade::modifyTakeProfit(o3d::Double price, o3d::Bool asOrder)
     m_takeProfitPrice = price;
 }
 
-void PositionTrade::modifyStopLoss(o3d::Double price, o3d::Bool asOrder)
+void PositionTrade::modifyStopLoss(o3d::Double price, ModifierType mod)
 {
     if (m_closing) {
         return;
     }
 
     if (m_positionId.isValid()) {
-        if (asOrder) {
+        if (mod == MOD_PREVIOUS && m_positionStopPrice > 0.0) {
+            mod = MOD_DISTANT;
+        }
+
+        if (mod == MOD_DISTANT) {
             // only update the stop price (let to the previous limit)
             o3d::Int32 ret = traderProxy()->modifyPosition(m_positionId, price, m_positionLimitPrice);
             if (ret == Order::RET_OK) {
                 m_positionStopPrice = price;
-            } else {
-                // @todo
-            }
-        } else if (m_positionStopPrice > 0.0) {
-            // remove the previous but keep in local
-            o3d::Int32 ret = traderProxy()->modifyPosition(m_positionId, 0.0, m_positionLimitPrice);
-            if (ret == Order::RET_OK) {
-                m_positionStopPrice = 0.0;
             } else {
                 // @todo
             }

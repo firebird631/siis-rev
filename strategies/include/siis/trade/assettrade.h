@@ -42,8 +42,8 @@ public:
     virtual void remove() override;
     virtual void cancelOpen() override;
     virtual void cancelClose() override;
-    virtual void modifyTakeProfit(o3d::Double price, o3d::Bool asOrder) override;
-    virtual void modifyStopLoss(o3d::Double price, o3d::Bool asOrder) override;
+    virtual void modifyTakeProfit(o3d::Double price, ModifierType mod = MOD_LOCAL) override;
+    virtual void modifyStopLoss(o3d::Double price, ModifierType mod = MOD_LOCAL) override;
     virtual void close() override;
 
     //

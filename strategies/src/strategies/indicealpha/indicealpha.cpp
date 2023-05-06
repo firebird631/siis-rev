@@ -241,6 +241,11 @@ void IndiceAlpha::finalize(o3d::Double timestamp)
     // cleanup
 }
 
+void IndiceAlpha::updateTrade(Trade *trade)
+{
+
+}
+
 void IndiceAlpha::updateStats()
 {
 

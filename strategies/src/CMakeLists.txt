@@ -92,6 +92,7 @@ set(STRATEGY_LIB_CXX
     statistics/statistics.cpp
     trade/assettrade.cpp
     trade/breakeven.cpp
+    trade/entryexit.cpp
     trade/dynamicstoploss.cpp
     trade/indmargintrade.cpp
     trade/margintrade.cpp

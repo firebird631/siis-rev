@@ -184,6 +184,13 @@ public:
         ORDER_SL = 2
     };
 
+    enum ModifierType {
+        MOD_NONE = 0,      //!< don't apply
+        MOD_LOCAL = 1,     //!< modify the local value, managed locally
+        MOD_DISTANT = 2,   //!< modify the distant value (apply on exchange by an order or on position)
+        MOD_PREVIOUS = 1   //!< use previous mod, meaning if previous is distant modify distant.
+    };
+
     /**
      * @brief The State of an entry or exit.
      */
@@ -230,6 +237,9 @@ public:
 
     TraderProxy* traderProxy() { return m_proxy; }
     const TraderProxy* traderProxy() const { return m_proxy; }
+
+    Strategy* strategy() { return m_strategy; }
+    const Strategy* strategy() const { return m_strategy; }
 
     void setId(o3d::Int32 id) { m_id = id; }
 
@@ -321,17 +331,17 @@ public:
 
     /**
      * @brief modifyTakeProfit Create/modify the take-order limit order or position limit.
-     * @param asOrder If true create/modify a limit order. If false only modify the takeProfit price member.
+     * @param mod Apply locally or distant or as previous.
      * If false and previous order exists it is canceled.
      */
-    virtual void modifyTakeProfit(o3d::Double price, o3d::Bool asOrder) = 0;
+    virtual void modifyTakeProfit(o3d::Double price, ModifierType mod = MOD_LOCAL) = 0;
 
     /**
      * @brief modifyStopLoss Create/modify the stop-loss taker order or position stop-loss.
-     * @param asOrder If true create/modify a stop-loss order. If false only modify the stopLoss price member.
+     * @param mod Apply locally or distant or as previous.
      * If false and previous order exists it is canceled.
      */
-    virtual void modifyStopLoss(o3d::Double price, o3d::Bool asOrder) = 0;
+    virtual void modifyStopLoss(o3d::Double price, ModifierType mod = MOD_LOCAL) = 0;
 
     /**
      * @brief close Close the position or sell the entire asset.
@@ -402,7 +412,8 @@ public:
 
     /**
      * @brief process Process operation like local take-profit or stop-loss.
-     * @param timestamp
+     * @param timestamp Current timestamp
+     * @param lastTimestamp Previous strategy update timestamp
      */
     virtual void process(o3d::Double timestamp) = 0;
 
@@ -446,8 +457,22 @@ public:
      */
     o3d::Double estimateProfitLossRate() const;
 
+    /**
+     * @brief entryFeesRate Return the applied entry fees rate.
+     */
     o3d::Double entryFeesRate() const;
+
+    /**
+     * @brief estimateExitFeesRate Estimate the exit fees rate that will be applied.
+     * It depends of the type of the exit order. Default use taker fees.
+     */
     o3d::Double estimateExitFeesRate() const;
+
+    /**
+     * @brief deltaPrice Return the delta price from the entry to the last price.
+     * The delta sign is relative to the trade direction. It means that positive delta meaning winning position.
+     */
+    o3d::Double deltaPrice() const;
 
     /**
      * @brief stateToStr Return a string of the state of the trade

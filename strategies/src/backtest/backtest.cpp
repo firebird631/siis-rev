@@ -174,7 +174,7 @@ void Backtest::terminate(Config *config)
         config->overwriteLearningFile(globalStats, accountStats);
     }
 
-    INFO("results", o3d::String("Global performance {0}%. Win/loss {1}/{2}={3} best={4} worst={5} maxAdjWin/Loss={6}/{7}").arg(globalStats.performance*100, 2)
+    INFO("results", o3d::String("Global performance {0}%. Win/loss {1}/{2}={3} best={4}% worst={5}% maxAdjWin/Loss={6}/{7}").arg(globalStats.performance*100, 2)
          .arg(globalStats.succeedTrades).arg(globalStats.failedTrades)
          .arg((globalStats.failedTrades > 0) ? (static_cast<o3d::Double>(globalStats.succeedTrades)/globalStats.failedTrades) : 1.0, 2)
          .arg(globalStats.best*100, 2).arg(globalStats.worst*100, 2).arg(globalStats.maxAdjacentWin).arg(globalStats.maxAdjacentLoss));

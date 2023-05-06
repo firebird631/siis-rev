@@ -170,13 +170,17 @@ void MarginTrade::cancelClose()
     }
 }
 
-void MarginTrade::modifyTakeProfit(o3d::Double price, o3d::Bool asOrder)
+void MarginTrade::modifyTakeProfit(o3d::Double price, ModifierType mod)
 {
     if (m_stop.closing) {
         return;
     }
 
     if (m_limit.hasOrder()) {
+        if (mod == MOD_PREVIOUS) {
+            mod = MOD_DISTANT;
+        }
+
         o3d::Int32 ret = traderProxy()->cancelOrder(m_limit.orderId);
         if (ret == Order::RET_OK) {
             m_limit.orderId = "";
@@ -188,7 +192,7 @@ void MarginTrade::modifyTakeProfit(o3d::Double price, o3d::Bool asOrder)
         }
     }
 
-    if (asOrder) {
+    if (mod == MOD_DISTANT) {
         if (price > 0.0) {
             o3d::Double remaining_qty =  m_filledEntryQuantity - m_filledExitQuantity;
 
@@ -213,13 +217,17 @@ void MarginTrade::modifyTakeProfit(o3d::Double price, o3d::Bool asOrder)
     m_takeProfitPrice = price;
 }
 
-void MarginTrade::modifyStopLoss(o3d::Double price, o3d::Bool asOrder)
+void MarginTrade::modifyStopLoss(o3d::Double price, ModifierType mod)
 {
     if (m_stop.closing) {
         return;
     }
 
     if (m_stop.hasOrder()) {
+        if (mod == MOD_PREVIOUS) {
+            mod = MOD_DISTANT;
+        }
+
         o3d::Int32 ret = traderProxy()->cancelOrder(m_stop.orderId);
         if (ret == Order::RET_OK) {
             m_stop.orderId = "";
@@ -231,7 +239,7 @@ void MarginTrade::modifyStopLoss(o3d::Double price, o3d::Bool asOrder)
         }
     }
 
-    if (asOrder) {
+    if (mod == MOD_DISTANT) {
         if (price > 0.0) {
             o3d::Double remaining_qty =  m_filledEntryQuantity - m_filledExitQuantity;
 

@@ -60,6 +60,8 @@ public:
     virtual void compute(o3d::Double timestamp) override;
     virtual void finalize(o3d::Double timestamp) override;
 
+    virtual void updateTrade(Trade *trade) override;
+
     virtual void updateStats() override;
 
 private:

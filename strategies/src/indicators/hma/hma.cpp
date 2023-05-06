@@ -62,9 +62,9 @@ void Hma::compute(o3d::Double timestamp, const DataArray &price)
         m_hma.setSize(price.getSize());
     }
 
-    o3d::Int32 N = m_len;
-    o3d::Int32 N_2 = o3d::max(1, static_cast<o3d::Int32>(m_len*0.5));
-    o3d::Int32 N_sqrt = o3d::max(1, static_cast<o3d::Int32>(o3d::Math::sqrt(m_len)));
+    o3d::Int32 N = o3d::max(2, m_len);
+    o3d::Int32 N_2 = o3d::max(2, static_cast<o3d::Int32>(m_len*0.5));
+    o3d::Int32 N_sqrt = o3d::max(2, static_cast<o3d::Int32>(o3d::Math::sqrt(m_len)));
 
     o3d::Int32 size = price.getSize();
 

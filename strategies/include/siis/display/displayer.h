@@ -29,15 +29,17 @@ public:
     virtual void init(Config *config) = 0;
     virtual void terminate() = 0;
 
-//    /**
-//     * @brief start Start execution thread(s), do the sync in sync method.
-//     */
-//    virtual void start() = 0;
+    virtual void setVerbosity(o3d::Int32 verbosity) = 0;
 
-//    /**
-//     * @brief stop Stop execution of the processing thread(s).
-//     */
-//    virtual void stop() = 0;
+    /**
+     * @brief start Start execution thread(s), do the sync in sync method.
+     */
+    // virtual void start() = 0;
+
+    /**
+     * @brief stop Stop execution of the processing thread(s).
+     */
+    // virtual void stop() = 0;
 
     /**
      * @brief sync Process necessary synchronizations with the main thread.

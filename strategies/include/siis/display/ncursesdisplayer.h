@@ -31,8 +31,10 @@ public:
     virtual void init(Config *config) override;
     virtual void terminate() override;
 
-//    virtual void start() override;
-//    virtual void stop() override;
+    virtual void setVerbosity(o3d::Int32 verbosity) override;
+
+    // virtual void start() override;
+    // virtual void stop() override;
     virtual void sync() override;
 
     virtual void display(
@@ -59,6 +61,7 @@ private:
     WINDOW *m_timeWin;
 
     o3d::Int32 m_max[2];
+    o3d::Int32 m_verbosity;
 
     void displayInt(const o3d::String &panel, const o3d::String &msg, o3d::System::MessageLevel type);
     void clearInt(const o3d::String &panel);

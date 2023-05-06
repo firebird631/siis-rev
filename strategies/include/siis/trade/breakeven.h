@@ -8,23 +8,17 @@
 #ifndef SIIS_BREAKEVEN_H
 #define SIIS_BREAKEVEN_H
 
-#include "../base.h"
-#include "../utils/common.h"
-
-#include <o3d/core/base.h>
+#include "entryexit.h"
 
 namespace siis {
-
-class Market;
-class ContextConfig;
-class Trade;
 
 /**
  * @brief Strategy trade breakeven handler.
  * @author Frederic Scherma
  * @date 2023-05-04
+ * Inherit from this model for a custom policy and overrides update and init.
  */
-class SIIS_API Breakeven
+class SIIS_API Breakeven : public EntryExit
 {
 public:
 
@@ -32,15 +26,7 @@ public:
 
     void init(const Market *market, ContextConfig &conf);
 
-    void update(Trade *trade);
-
-protected:
-
-    o3d::Double m_timeframe;
-
-    o3d::Double m_distance;   //! distance in percent or pip or value
-    DistanceType m_distanceType;
-    AdjustPolicy m_adjustPolicy;
+    void update(o3d::Double timestamp, o3d::Double lastTimestamp, Trade *trade);
 };
 
 } // namespace siis

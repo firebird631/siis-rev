@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @brief SiiS strategy MAADX.
  * @copyright Copyright (C) 2023 SiiS
  * @author Frederic SCHERMA (frederic.scherma@gmail.com)
@@ -222,7 +222,7 @@ void MaAdx::prepareMarketData(Connector *connector, Database *db, o3d::Double fr
 
         o3d::Int32 k = 0;
 
-        if (market()->type() == Market::TYPE_CRYPTO) {
+        if (1) {  // market()->type() == Market::TYPE_CRYPTO) {
             // crypto market are h24 d7 then query it is trivial
             o3d::Double baseTs = fromTs - 1.0 - analyser->timeframe() * n;
 
@@ -340,6 +340,14 @@ void MaAdx::compute(o3d::Double timestamp)
 void MaAdx::finalize(o3d::Double timestamp)
 {
     // cleanup eventually
+}
+
+void MaAdx::updateTrade(Trade *trade)
+{
+    if (trade) {
+        m_breakeven.update(handler()->timestamp(), lastTimestamp(), trade);
+        m_dynamicStopLoss.update(handler()->timestamp(), lastTimestamp(), trade);
+    }
 }
 
 void MaAdx::updateStats()

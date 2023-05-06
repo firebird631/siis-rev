@@ -28,8 +28,10 @@ public:
     virtual void init(Config *config) override;
     virtual void terminate() override;
 
-//    virtual void start() override;
-//    virtual void stop() override;
+    virtual void setVerbosity(o3d::Int32 verbosity) override;
+
+    // virtual void start() override;
+    // virtual void stop() override;
     virtual void sync() override;
 
     /**
@@ -45,6 +47,10 @@ public:
     virtual void clear(const o3d::String &panel) override;
 
     virtual void echo(o3d::WChar c) override;
+
+private:
+
+    o3d::Int32 m_verbosity;
 };
 
 } // namespace siis

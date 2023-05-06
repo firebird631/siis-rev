@@ -195,6 +195,12 @@ public:
     inline o3d::Bool running() const { return m_curState == STATE_RUNNING; }
 
     /**
+     * @brief updateTrade Update a trade state (adjustment of stop, limit, breakeven, timeout...)
+     * @param trade A valid trade related to the strategy.
+     */
+    virtual void updateTrade(Trade *trade) = 0;
+
+    /**
      * @brief log Log a message throught the message logger of the handler.
      * @param timeframe Timeframe of the message or -1 if none.
      * @param channel Mapped name of the channel.

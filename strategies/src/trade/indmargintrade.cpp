@@ -169,13 +169,17 @@ void IndMarginTrade::cancelClose()
     }
 }
 
-void IndMarginTrade::modifyTakeProfit(o3d::Double price, o3d::Bool asOrder)
+void IndMarginTrade::modifyTakeProfit(o3d::Double price, ModifierType mod)
 {
     if (m_stop.closing) {
         return;
     }
 
     if (m_limit.hasOrder()) {
+        if (mod == MOD_PREVIOUS) {
+            mod = MOD_DISTANT;
+        }
+
         o3d::Int32 ret = traderProxy()->cancelOrder(m_limit.orderId);
         if (ret == Order::RET_OK) {
             m_limit.orderId = "";
@@ -187,7 +191,7 @@ void IndMarginTrade::modifyTakeProfit(o3d::Double price, o3d::Bool asOrder)
         }
     }
 
-    if (asOrder) {
+    if (mod == MOD_DISTANT) {
         if (price > 0.0) {
             o3d::Double remaining_qty =  m_filledEntryQuantity - m_filledExitQuantity;
 
@@ -212,13 +216,17 @@ void IndMarginTrade::modifyTakeProfit(o3d::Double price, o3d::Bool asOrder)
     m_takeProfitPrice = price;
 }
 
-void IndMarginTrade::modifyStopLoss(o3d::Double price, o3d::Bool asOrder)
+void IndMarginTrade::modifyStopLoss(o3d::Double price, ModifierType mod)
 {
     if (m_stop.closing) {
         return;
     }
 
     if (m_stop.hasOrder()) {
+        if (mod == MOD_PREVIOUS) {
+            mod = MOD_DISTANT;
+        }
+
         o3d::Int32 ret = traderProxy()->cancelOrder(m_stop.orderId);
         if (ret == Order::RET_OK) {
             m_stop.orderId = "";
@@ -230,7 +238,7 @@ void IndMarginTrade::modifyStopLoss(o3d::Double price, o3d::Bool asOrder)
         }
     }
 
-    if (asOrder) {
+    if (mod == MOD_DISTANT) {
         if (price > 0.0) {
             o3d::Double remaining_qty =  m_filledEntryQuantity - m_filledExitQuantity;
 
@@ -309,19 +317,9 @@ void IndMarginTrade::close()
 void IndMarginTrade::process(o3d::Double timestamp)
 {
     if (isActive()) {
-        // debug breakeven
-        if (estimateProfitLossRate() > 0.01 && m_stopLossPrice < m_entryPrice) {
-            m_stopLossPrice = m_entryPrice;
-        }
-
-        // debug trailing stop
-        if (m_stopLossPrice > 0.0 && estimateProfitLossRate() > 0.01) {
-            o3d::Double closeExecPrice = m_strategy->market()->closeExecPrice(m_direction);
-            m_stopLossPrice = m_entryPrice + m_direction * 0.01 * closeExecPrice;
-        }
+        m_strategy->updateTrade(this);
 
         // @todo could have a stop directive at a candle close or ... and so need to adjust here
-
         if (m_stopLossPrice > 0.0 && !m_stop.orderId.isValid()) {
             o3d::Double closeExecPrice = m_strategy->market()->closeExecPrice(m_direction);
 

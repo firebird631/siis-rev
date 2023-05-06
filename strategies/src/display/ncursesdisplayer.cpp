@@ -15,7 +15,8 @@ NcursesDisplayer::NcursesDisplayer() :
     m_win2(nullptr),
     m_noticeWin(nullptr),
     m_timeWin(nullptr),
-    m_max{0, 0}
+    m_max{0, 0},
+    m_verbosity(0)
 {
 
 }
@@ -80,6 +81,11 @@ void NcursesDisplayer::terminate()
 
         endwin();
     }
+}
+
+void NcursesDisplayer::setVerbosity(o3d::Int32 verbosity)
+{
+    m_verbosity = o3d::clamp(verbosity, 0, 3);
 }
 
 void NcursesDisplayer::sync()
@@ -147,6 +153,10 @@ void NcursesDisplayer::sync()
 
 void NcursesDisplayer::display(const o3d::String &panel, const o3d::String &msg, o3d::System::MessageLevel type)
 {
+    if (type < m_verbosity) {
+        return;
+    }
+
     if (m_win1) {
         if (panel == "win1" || panel == "default") {
             m_mutex[0].lock();

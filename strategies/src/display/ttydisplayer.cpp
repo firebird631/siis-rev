@@ -9,7 +9,8 @@
 
 using namespace siis;
 
-TtyDisplayer::TtyDisplayer()
+TtyDisplayer::TtyDisplayer() :
+    m_verbosity(0)
 {
 
 }
@@ -29,6 +30,11 @@ void TtyDisplayer::terminate()
 
 }
 
+void TtyDisplayer::setVerbosity(o3d::Int32 verbosity)
+{
+    m_verbosity = o3d::clamp(verbosity, 0, 4);
+}
+
 void TtyDisplayer::sync()
 {
 
@@ -36,6 +42,10 @@ void TtyDisplayer::sync()
 
 void TtyDisplayer::display(const o3d::String &panel, const o3d::String &msg, o3d::System::MessageLevel type)
 {
+    if (type < m_verbosity) {
+        return;
+    }
+
     if (panel == "win1" || panel == "default") {
         o3d::System::print(msg, panel, type);
     } else if (panel == "win2" || panel == "content") {

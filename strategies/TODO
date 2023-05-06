@@ -1,6 +1,7 @@
 Prioritaire
 ===========
 
+- urgent : log rotate ou a minima taille max
 - taille des trades
 
 - attention aux trades, orders, positions non libéré à la fin si pas cloturé (coté trader proxy et local trader)

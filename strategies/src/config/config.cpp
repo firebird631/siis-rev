@@ -544,7 +544,7 @@ void Config::loadProfileSpec(const o3d::String filename)
 
                     }
 
-                    O3D_MESSAGE(o3d::String("Find market {0} min-trade-quantity={1}").arg(mc->marketId).arg(mc->tradeQuantity[0]));
+                    INFO(o3d::String("Find market {0} min-trade-quantity={1}").arg(mc->marketId).arg(mc->tradeQuantity[0]), "config");
 
                     mc->tradeMode = MarketConfig::TRADE_FIXED_QUANTITY;
 

@@ -99,6 +99,7 @@ public:
         printf("  -h --help This help message\n");
         printf("  -v --version SiiS strategy version number\n");
         printf("  -n --nointeractive To disable ncurse interactive mode\n");
+        printf("  -d --verbose [0..4] Set verbosity level from any 0 to 4 only criticals\n");
         printf("  -c --cpu Force the number of workers to uses (from 1 to max CPUs)\n");
         printf("\n");
         printf("  -p --profile <filename.json> To define the profile configuration\n");
@@ -151,6 +152,7 @@ public:
         cmd->addSwitch('L', "learn");
         cmd->addSwitch('o', "optimize");
         cmd->addOptionalOption('c', "cpu", "0");
+        cmd->addOptionalOption('d', "verbose", "0");
 
         if (!cmd->parse()) {
             throw E_InvalidParameter("Invalid parameters");
@@ -311,7 +313,11 @@ public:
             m_displayer = new NcursesDisplayer();
         }
 
+        o3d::Int32 logLevel = cmd->getOptionValue('d').toInt32();
+
         m_displayer->init(m_config);
+        m_displayer->setVerbosity(logLevel);
+        o3d::Debug::instance()->getDefaultLog().setLogLevel(static_cast<o3d::Logger::LogLevel>(logLevel));
 
         m_handler->init(m_displayer, m_config, m_strategyCollection, m_poolWorker, m_database, m_cache);
 
