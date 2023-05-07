@@ -86,7 +86,7 @@ void IndiceAlpha::init(Config *config)
             o3d::Int32 depth = timeframe.get("depth", 0).asInt();
             o3d::Int32 history = timeframe.get("history", 0).asInt();
 
-            if (!timeframe.get("enabled", false).asBool()) {
+            if (!timeframe.get("enabled", true).asBool()) {
                 continue;
             }
 

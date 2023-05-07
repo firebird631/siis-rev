@@ -257,6 +257,23 @@ void Strategy::addOrderBookDataSource(o3d::Int32 depth)
     m_dataSources.push_back(DataSource(DataSource::ORDER_BOOK, 0.0, depth));
 }
 
+void Strategy::adjustOhlcFetchRange(o3d::Int32 depth, o3d::Double &fromTs, o3d::Double &toTs, o3d::Int32 &nLast) const
+{
+    if (market()->type() == Market::TYPE_CRYPTO) {
+        // nothing to do h24, d7 market
+        return;
+    }
+
+    // there is multiples case, weekend off and nationals days off
+    // and the case of stocks markets closed during the local night
+    // but also some 15 min of twice on indices ...
+
+    // so many complexes cases then we try to get the max of last n OHLCs
+    // here simple direct solution but not correct in case of leaks of data
+    nLast = depth;
+    fromTs = 0.0;
+}
+
 void Strategy::setInitialized()
 {
     if (m_nextState == STATE_INITIALIZED) {

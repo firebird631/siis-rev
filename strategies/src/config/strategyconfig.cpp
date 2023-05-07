@@ -16,6 +16,54 @@ using namespace siis;
 using o3d::Debug;
 using o3d::Logger;
 
+static void update(Json::Value& a, const Json::Value& b);
+
+static void mergeTimeframes(Json::Value& a, const Json::Value& b)
+{
+    for (const auto& key : b.getMemberNames()) {
+        if (!a.isMember(key)) {
+            // original from user
+            a[key].copy(b[key]);
+            printf("cp %s\n", key.c_str());
+        } else {
+            // update from default
+            update(a[key], b[key]);
+            printf("up %s\n", key.c_str());
+        }
+    }
+
+    for (const auto& key : a.getMemberNames()) {
+        if (!b.isMember(key)) {
+            // remove from dst
+            a.removeMember(key);
+            printf("rm %s\n", key.c_str());
+        }
+    }
+}
+
+static void mergeContexts(Json::Value& a, const Json::Value& b)
+{
+    for (const auto& key : b.getMemberNames()) {
+        if (!a.isMember(key)) {
+            // original from user
+            a[key].copy(b[key]);
+            printf("cp %s\n", key.c_str());
+        } else {
+            // update from default
+            update(a[key], b[key]);
+            printf("up %s\n", key.c_str());
+        }
+    }
+
+    for (const auto& key : a.getMemberNames()) {
+        if (!b.isMember(key)) {
+            // remove from dst
+            a.removeMember(key);
+            printf("rm %s\n", key.c_str());
+        }
+    }
+}
+
 // Recursively copy the values of b into a. Both a and b must be objects.
 static void update(Json::Value& a, const Json::Value& b)
 {
@@ -24,6 +72,16 @@ static void update(Json::Value& a, const Json::Value& b)
     }
 
     for (const auto& key : b.getMemberNames()) {
+        if (key == "timeframes") {
+            // special case
+            mergeTimeframes(a[key], b[key]);
+            continue;
+        } else if (key == "contexts") {
+            // special case
+            mergeContexts(a[key], b[key]);
+            continue;
+        }
+
         if (!a.isMember(key)) {
             continue;
         }

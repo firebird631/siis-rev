@@ -85,7 +85,7 @@ void MaAdx::init(Config *config)
             o3d::Int32 depth = timeframe.get("depth", 0).asInt();
             o3d::Int32 history = timeframe.get("history", 0).asInt();
 
-            if (!timeframe.get("enabled", false).asBool()) {
+            if (!timeframe.get("enabled", true).asBool()) {
                 continue;
             }
 
@@ -208,48 +208,48 @@ void MaAdx::terminate(Connector *connector, Database *db)
     setTerminated();
 }
 
-
 void MaAdx::prepareMarketData(Connector *connector, Database *db, o3d::Double fromTs, o3d::Double toTs)
 {
     Ohlc::Type ohlcType = Ohlc::TYPE_MID;
 
     for (Analyser *analyser : m_analysers) {
         // history might be >= depth but in case of...
-        o3d::Int32 n = o3d::max(analyser->history(), analyser->depth());
-        if (n <= 0) {
+        o3d::Int32 depth = o3d::max(analyser->history(), analyser->depth());
+        if (depth <= 0) {
             continue;
         }
 
         o3d::Int32 k = 0;
 
-        if (1) {  // market()->type() == Market::TYPE_CRYPTO) {
-            // crypto market are h24 d7 then query it is trivial
-            o3d::Double baseTs = fromTs - 1.0 - analyser->timeframe() * n;
+        o3d::Double srcTs = fromTs - 1.0 - analyser->timeframe() * depth;
+        o3d::Double dstTs = fromTs - 1.0;
+        o3d::Int32 lastN = 0;
 
-            k = handler()->database()->ohlc()->fetchOhlcArrayFromTo(
+        adjustOhlcFetchRange(depth, srcTs, dstTs, lastN);
+
+        if (lastN > 0) {
+            k = handler()->database()->ohlc()->fetchOhlcArrayLastTo(
                     analyser->strategy()->brokerId(), market()->marketId(), analyser->timeframe(),
-                    baseTs, fromTs-1.0,
+                    lastN, dstTs,
                     market()->getOhlcBuffer(ohlcType));
         } else {
-            // others are off week-end, even off by night, then ask for at least n OHLCs before starting timestamp
-            // but it must be necessary to filter if the data are too older
-            // @todo filter related to timestamp and timeframe
-            k = handler()->database()->ohlc()->fetchOhlcArrayLastTo(
-                    analyser->strategy()->brokerId(), market()->marketId(), analyser->timeframe(), n, fromTs-1.0,
+            k = handler()->database()->ohlc()->fetchOhlcArrayFromTo(
+                    analyser->strategy()->brokerId(), market()->marketId(), analyser->timeframe(),
+                    srcTs, dstTs,
                     market()->getOhlcBuffer(ohlcType));
         }
 
         if (k > 0) {
             o3d::Int32 lastN = market()->getOhlcBuffer(ohlcType).getSize() - 1;
 
-            o3d::String msg = o3d::String("Retrieved {0}/{1} OHLCs with most recent at {2}").arg(k).arg(n)
+            o3d::String msg = o3d::String("Retrieved {0}/{1} OHLCs with most recent at {2}").arg(k).arg(depth)
                               .arg(timestampToStr(market()->getOhlcBuffer(ohlcType).get(lastN)->timestamp()));
 
             log(analyser->timeframe(), "init", msg);
 
             analyser->onOhlcUpdate(toTs, analyser->timeframe(), market()->getOhlcBuffer(ohlcType));
         } else {
-            o3d::String msg = o3d::String("No OHLCs founds (0/{0})").arg(n);
+            o3d::String msg = o3d::String("No OHLCs founds (0/{0})").arg(depth);
             log(analyser->timeframe(), "init", msg);
         }
     }

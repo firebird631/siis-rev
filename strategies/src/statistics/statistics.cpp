@@ -44,8 +44,8 @@ void GlobalStatistics::add(const Statistics &stats)
     maxAdjacentWin = o3d::max(stats.maxAdjacentWin, maxAdjacentWin);
     maxAdjacentLoss = o3d::max(stats.maxAdjacentLoss, maxAdjacentLoss);
 
-    worst += o3d::min(stats.worst, worst);
-    best += o3d::max(stats.best, best);
+    worst = o3d::min(stats.worst, worst);
+    best = o3d::max(stats.best, best);
 
     // not correct because it will need an instant from all concurents strategies
     maxDrawDown = o3d::max(stats.maxDrawDown, maxDrawDown);

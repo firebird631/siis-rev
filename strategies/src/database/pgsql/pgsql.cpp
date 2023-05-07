@@ -59,6 +59,8 @@ void siis::PgSql::terminate()
 
         o3d::deletePtr(m_db);
     }
+
+    o3d::pgsql::PgSql::quit();
 }
 
 o3d::Int32 PgSql::run(void *)
