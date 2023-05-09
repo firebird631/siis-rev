@@ -9,6 +9,7 @@
 #include "siis/utils/common.h"
 
 #include <ta-lib/ta_func.h>
+#include <limits>
 
 using namespace siis;
 using o3d::Debug;
@@ -114,8 +115,6 @@ DataArray &DataArray::zero(o3d::Int32 len)
 
     return *this;
 }
-
-#include <limits>
 
 DataArray &DataArray::nan(o3d::Int32 len)
 {
@@ -246,6 +245,23 @@ o3d::Int32 DataArray::cross(const DataArray &a) const
     return 0;
 }
 
+o3d::Int32 DataArray::cross(o3d::Double price) const
+{
+    o3d::Int32 size = getSize();
+
+    if (size < 2) {
+        return 0;
+    }
+
+    if (m_data[size-2] > price && m_data[size-1] < price) {
+        return -1;
+    } else if (m_data[size-2] < price && m_data[size-1] > price) {
+        return 1;
+    }
+
+    return 0;
+}
+
 o3d::Int32 DataArray::cross(const DataArray &a, const DataArray &b)
 {
     o3d::Int32 size = a.getSize();
@@ -257,6 +273,23 @@ o3d::Int32 DataArray::cross(const DataArray &a, const DataArray &b)
     if (a.m_data[size-2] > b.m_data[size-2] && a.m_data[size-1] < b.m_data[size-1]) {
         return -1;
     } else if (a.m_data[size-2] < b.m_data[size-2] && a.m_data[size-1] > b.m_data[size-1]) {
+        return 1;
+    }
+
+    return 0;
+}
+
+o3d::Int32 DataArray::cross(const DataArray &a, o3d::Double price)
+{
+    o3d::Int32 size = a.getSize();
+
+    if (size < 2) {
+        return 0;
+    }
+
+    if (a.m_data[size-2] > price && a.m_data[size-1] < price) {
+        return -1;
+    } else if (a.m_data[size-2] < price && a.m_data[size-1] > price) {
         return 1;
     }
 

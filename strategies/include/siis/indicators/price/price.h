@@ -61,6 +61,22 @@ public:
     // void compute(o3d::Double timestamp, const OhlcArray &ohlc, o3d::Int32 ofs = 0);
     void compute(const OhlcCircular &ohlc);
 
+    /**
+     * @brief cross Cross the previous and last updated price with a given price
+     * The prices used are not the prices of the 2 lasts OHLCs but 2 last from the 2 last update.
+     */
+    inline o3d::Int32 cross(o3d::Double price) const {
+        if (m_prev > price && m_last < price) {
+            return -1;
+        }
+
+        if (m_prev < price && m_last > price) {
+            return 1;
+        }
+
+        return 0;
+    }
+
 private:
 
     Method m_method;

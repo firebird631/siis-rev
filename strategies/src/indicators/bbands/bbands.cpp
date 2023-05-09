@@ -51,10 +51,13 @@ BBands::BBands(const o3d::String &name, o3d::Double timeframe, IndicatorConfig c
         m_len = conf.data().get("len", 21).asInt();
 
         m_maType = siis::maTypeFromStr(conf.data().get("maType", "SMA").asCString());
-        m_numDevUp = conf.data().get("numDevUp", 0).asDouble();
-        m_numDevDn = conf.data().get("numDevDn", 0).asDouble();
+        m_numDevUp = conf.data().get("numDevUp", 2.0).asDouble();
+        m_numDevDn = conf.data().get("numDevDn", 2.0).asDouble();
     } else if (conf.data().isArray()) {
         m_len = conf.data().get((Json::ArrayIndex)1, 21).asInt();
+
+        m_numDevUp = 2.0;
+        m_numDevDn = 2.0;
     }
 }
 
@@ -64,10 +67,13 @@ void BBands::setConf(IndicatorConfig conf)
         m_len = conf.data().get("len", 21).asInt();
 
         m_maType = siis::maTypeFromStr(conf.data().get("maType", "SMA").asCString());
-        m_numDevUp = conf.data().get("numDevUp", 0).asDouble();
-        m_numDevDn = conf.data().get("numDevDn", 0).asDouble();
+        m_numDevUp = conf.data().get("numDevUp", 2.0).asDouble();
+        m_numDevDn = conf.data().get("numDevDn", 2.0).asDouble();
     } else if (conf.data().isArray()) {
         m_len = conf.data().get((Json::ArrayIndex)1, 21).asInt();
+
+        m_numDevUp = 2.0;
+        m_numDevDn = 2.0;
     }
 }
 
@@ -102,6 +108,7 @@ void BBands::compute(o3d::Double timestamp, const DataArray &price)
     m_lastUpper = m_upper.getLast();
     m_lastMiddle = m_middle.getLast();
     m_lastLower = m_lower.getLast();
+
     done(timestamp);
 }
 

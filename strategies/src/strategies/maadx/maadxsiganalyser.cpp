@@ -43,7 +43,9 @@ void MaAdxSigAnalyser::init(AnalyserConfig conf)
 
     configureIndictor(conf, "adx", m_adx);
 
+    m_confirmation = 0;
     m_trend = 0;
+    m_sig = 0;
 
     StdAnalyser::init(conf);
 }

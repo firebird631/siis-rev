@@ -32,6 +32,8 @@ MaAdxConfAnalyser::~MaAdxConfAnalyser()
 void MaAdxConfAnalyser::init(AnalyserConfig conf)
 {
     StdAnalyser::init(conf);
+
+    m_confirmation = 0;
 }
 
 void MaAdxConfAnalyser::terminate()

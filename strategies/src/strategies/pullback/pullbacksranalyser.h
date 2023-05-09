@@ -38,9 +38,17 @@ public:
     virtual void terminate() override;
     virtual TradeSignal compute(o3d::Double timestamp, o3d::Double lastTimestamp) override;
 
+    o3d::Int32 breakoutDirection() const { return m_breakoutDirection; }
+    o3d::Double breakoutPrice() const { return m_breakoutPrice; }
+    o3d::Int32 srLevel() const { return m_srLevel; }
+
 private:
 
     PivotPoint m_pivotpoint;
+
+    o3d::Int32 m_breakoutDirection;
+    o3d::Double m_breakoutPrice;
+    o3d::Int32 m_srLevel;
 };
 
 } // namespace siis

@@ -75,11 +75,18 @@ private:
 
     TradeSignal m_lastSignal;
 
+    o3d::Bool m_confirmAtClose;
     o3d::Double m_targetScale;
     o3d::Double m_riskReward;
 
     Breakeven m_breakeven;
     DynamicStopLoss m_dynamicStopLoss;
+
+    o3d::Double m_breakoutTimestamp;
+    o3d::Int32 m_breakoutDirection;
+    o3d::Double m_breakoutPrice;
+    o3d::Double m_integrateTimestamp;
+    o3d::Int32 m_integrateDirection;
 
     void orderEntry(o3d::Double timestamp,
                     o3d::Double timeframe,
@@ -90,7 +97,7 @@ private:
 
     void orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price);
 
-    TradeSignal computeSignal(o3d::Double timestamp) const;
+    TradeSignal computeSignal(o3d::Double timestamp);
 };
 
 } // namespace siis

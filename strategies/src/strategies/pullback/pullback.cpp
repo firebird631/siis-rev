@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @brief SiiS strategy pullback.
  * @copyright Copyright (C) 2023 SiiS
  * @author Frederic SCHERMA (frederic.scherma@gmail.com)
@@ -41,8 +41,14 @@ Pullback::Pullback(Handler *handler, const o3d::String &identifier) :
     m_bbAnalyser(nullptr),
     m_confAnalyser(nullptr),
     m_lastSignal(0, 0),
+    m_confirmAtClose(false),
     m_targetScale(1.0),
-    m_riskReward(1.0)
+    m_riskReward(1.0),
+    m_breakoutTimestamp(0.0),
+    m_breakoutDirection(0),
+    m_breakoutPrice(0),
+    m_integrateTimestamp(0.0),
+    m_integrateDirection(0)
 {
 
 }
@@ -120,24 +126,27 @@ void Pullback::init(Config *config)
 
             // breakout
             if (context.isMember("breakout")) {
-                Json::Value trend = context.get("trend", Json::Value());
+                Json::Value trend = context.get("breakout", Json::Value());
+                // "type": "sr-bollinger", "sr-timeframe": "30m", "bollinger-timeframe": "5m"
             }
 
             // integrate
             if (context.isMember("integrate")) {
-                Json::Value sig = context.get("sig", Json::Value());
-
+                Json::Value sig = context.get("integrate", Json::Value());
+                // "type": "sr"
             }
 
             // pullback
             if (context.isMember("pullback")) {
-                Json::Value sig = context.get("sig", Json::Value());
-
+                Json::Value pullback = context.get("pullback", Json::Value());
+                // "type": "bollinger"
             }
 
             // conf
             if (context.isMember("confirm")) {
                 Json::Value confirm = context.get("confirm", Json::Value());
+
+                m_confirmAtClose = confirm.get("type", Json::Value()).asCString() == "candle";
 
                 m_targetScale = confirm.get("target-scale", Json::Value()).asDouble();
                 m_riskReward = confirm.get("risk-reward", Json::Value()).asDouble();
@@ -186,6 +195,12 @@ void Pullback::init(Config *config)
             }
         }
     }
+
+    m_breakoutTimestamp = 0.0;
+    m_breakoutDirection = 0;
+    m_breakoutPrice = 0.0;
+    m_integrateTimestamp = 0.0;
+    m_integrateDirection = 0;
 
     setInitialized();
 }
@@ -392,8 +407,8 @@ void Pullback::orderEntry(
         trade->open(this, direction, 0.0, quantity, takeProfitPrice, stopLossPrice);
 
         o3d::String msg = o3d::String("#{0} {1} at {2} sl={3} tp={4} q={5}").arg(trade->id())
-                          .arg(direction > 0 ? "long" : "short").arg(formatPrice(price))
-                          .arg(formatPrice(stopLossPrice)).arg(formatPrice(takeProfitPrice))
+                          .arg(direction > 0 ? "long" : "short").arg(market()->formatPrice(price))
+                          .arg(market()->formatPrice(stopLossPrice)).arg(market()->formatPrice(takeProfitPrice))
                           .arg(quantity);
         log(timeframe, "order-entry", msg);
     }
@@ -416,41 +431,106 @@ void Pullback::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price)
     }
 }
 
-TradeSignal Pullback::computeSignal(o3d::Double timestamp) const
+TradeSignal Pullback::computeSignal(o3d::Double timestamp)
 {
     TradeSignal signal(m_bbAnalyser->timeframe(), timestamp);
 
-//    if (m_trendAnalyser->trend() > 0) {
-//        if (m_sigAnalyser->adx() > m_adxSig) {
-//            if (m_sigAnalyser->sig() > 0 && m_sigAnalyser->sig() <= ADX_MAX) {
-//                if (m_confAnalyser->confirmation() > 0) {
-//                    // keep only one signal per timeframe
-//                    if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
-//                        signal.setEntry();
-//                        signal.setLong();
-//                        signal.setPrice(m_confAnalyser->lastPrice());
-//                        signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_targetScale));
-//                        signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_targetScale, m_riskReward));
-//                    }
-//                }
-//            }
-//        }
-//    } else if (m_trendAnalyser->trend() < 0) {
-//        if (m_sigAnalyser->adx() > m_adxSig) {
-//            if (m_sigAnalyser->sig() < 0 && m_sigAnalyser->sig() <= ADX_MAX) {
-//                if (m_confAnalyser->confirmation() < 0) {
-//                    // keep only one signal per timeframe
-//                    if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
-//                        signal.setEntry();
-//                        signal.setShort();
-//                        signal.setPrice(m_confAnalyser->lastPrice());
-//                        signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_targetScale));
-//                        signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_targetScale, m_riskReward));
-//                    }
-//                }
-//            }
-//        }
-//    }
+    // if integrate => long
+    if (m_srAnalyser->breakoutDirection() < 0 && m_srAnalyser->breakoutPrice() > 0.0 && m_bbAnalyser->isPriceBelowLower()) {
+        m_breakoutTimestamp = timestamp;
+        m_breakoutPrice = m_srAnalyser->breakoutPrice();
+        m_breakoutDirection = -1;
+
+        // reset integration
+        m_integrateTimestamp = 0.0;
+        m_integrateDirection = 0;
+    }
+
+    // if integrate => short
+    if (m_srAnalyser->breakoutDirection() > 0 && m_srAnalyser->breakoutPrice() > 0.0 && m_bbAnalyser->isPriceAboveUpper()) {
+        m_breakoutTimestamp = timestamp;
+        m_breakoutPrice = m_srAnalyser->breakoutPrice();
+        m_breakoutDirection = 1;
+
+        // reset integration
+        m_integrateTimestamp = 0.0;
+        m_integrateDirection = 0;
+    }
+
+    // integrate for possible long
+    if (m_srAnalyser->breakoutDirection() > 0 && m_srAnalyser->breakoutPrice() > 0.0) {
+        // has a previous down breakout and integrate the level back
+        if (m_breakoutDirection < 0 && m_breakoutPrice > 0.0 && m_srAnalyser->lastPrice() > m_breakoutPrice) {
+            m_integrateTimestamp = timestamp;
+            m_integrateDirection = 1;
+        }
+    }
+
+    // integrate for possible short
+    if (m_srAnalyser->breakoutDirection() < 0 && m_srAnalyser->breakoutPrice() > 0.0) {
+        // has a previous down breakout and integrate the level back
+        if (m_breakoutDirection > 0 && m_breakoutPrice > 0.0 && m_srAnalyser->lastPrice() < m_breakoutPrice) {
+            m_integrateTimestamp = timestamp;
+            m_integrateDirection = -1;
+        }
+    }
+
+    // check for price above bollinger => long
+    if (m_integrateDirection > 0 && m_bbAnalyser->isPriceAboveLower()) {
+        if (m_confirmAtClose) {
+            if (m_confAnalyser->confirmation() > 0) {
+                // keep only one signal per timeframe
+                if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
+                    signal.setEntry();
+                    signal.setLong();
+                    signal.setPrice(m_confAnalyser->lastPrice());
+                    signal.setTakeProfitPrice(m_bbAnalyser->takeProfit(1, m_targetScale));
+                    signal.setStopLossPrice(m_bbAnalyser->stopLoss(1, m_targetScale, m_riskReward));
+                }
+            }
+        } else {
+            // aggressive
+            // keep only one signal per timeframe
+            if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
+                signal.setEntry();
+                signal.setLong();
+                signal.setPrice(m_confAnalyser->lastPrice());
+                signal.setTakeProfitPrice(m_bbAnalyser->takeProfit(1, m_targetScale));
+                signal.setStopLossPrice(m_bbAnalyser->stopLoss(1, m_targetScale, m_riskReward));
+            }
+        }
+    }
+
+    // check for price below bollinger => short
+    if (m_integrateDirection < 0 && m_bbAnalyser->isPriceBelowUpper()) {
+        if (m_confirmAtClose) {
+            if (m_confAnalyser->confirmation() < 0) {
+                // keep only one signal per timeframe
+                if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
+                    signal.setEntry();
+                    signal.setShort();
+                    signal.setPrice(m_confAnalyser->lastPrice());
+                    signal.setTakeProfitPrice(m_bbAnalyser->takeProfit(-1, m_targetScale));
+                    signal.setStopLossPrice(m_bbAnalyser->stopLoss(-1, m_targetScale, m_riskReward));
+                }
+            }
+        } else {
+            // aggressive
+            // keep only one signal per timeframe
+            if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
+                signal.setEntry();
+                signal.setShort();
+                signal.setPrice(m_confAnalyser->lastPrice());
+                signal.setTakeProfitPrice(m_bbAnalyser->takeProfit(-1, m_targetScale));
+                signal.setStopLossPrice(m_bbAnalyser->stopLoss(-1, m_targetScale, m_riskReward));
+            }
+        }
+    }
+
+    if (m_integrateTimestamp > 0.0 && timestamp - m_integrateTimestamp > m_srAnalyser->timeframe()) {
+        m_integrateTimestamp = 0.0;
+        m_integrateDirection = 0;
+    }
 
     return signal;
 }

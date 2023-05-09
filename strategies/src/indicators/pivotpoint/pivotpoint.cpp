@@ -9,6 +9,7 @@
 #include "siis/utils/common.h"
 
 #include <ta-lib/ta_func.h>
+#include <limits>
 
 using namespace siis;
 using o3d::Logger;
@@ -90,6 +91,9 @@ void PivotPoint::compute(o3d::Double timestamp,
         for (o3d::Int32 i = 0; i < 3; ++i) {
             m_support[i].setSize(size);
             m_resistance[i].setSize(size);
+
+            m_support[i][0] = std::numeric_limits<double>::quiet_NaN();  // o3d::Limits<o3d::Double>::nan()
+            m_resistance[i][0] = std::numeric_limits<double>::quiet_NaN();  // o3d::Limits<o3d::Double>::nan()
         }
     }
 
@@ -102,22 +106,22 @@ void PivotPoint::compute(o3d::Double timestamp,
         //
 
         // close - (high - low)*1.1/12
-        for (o3d::Int32 i = 0; i < size; ++i) {
-            m_support[0][i] = close[i] - (high[i] - low[i]) * (1.1/12.0);
+        for (o3d::Int32 i = 0; i < size-1; ++i) {
+            m_support[0][i+1] = close[i] - (high[i] - low[i]) * (1.1/12.0);
         }
         // m_tmp1.sub(high, low); m_tmp1 *= 1.1/12;
         // m_support[0].sub(close, m_tmp1);
 
         // close - (high - low)*1.1/6
-        for (o3d::Int32 i = 0; i < size; ++i) {
-            m_support[1][i] = close[i] - (high[i] - low[i]) * (1.1/6.0);
+        for (o3d::Int32 i = 0; i < size-1; ++i) {
+            m_support[1][i+1] = close[i] - (high[i] - low[i]) * (1.1/6.0);
         }
         // m_tmp1.sub(high, low); m_tmp1 *= 1.1/6;
         // m_support[1].sub(close, m_tmp1);
 
         // close - (high - low)*1.1/4
-        for (o3d::Int32 i = 0; i < size; ++i) {
-            m_support[2][i] = close[i] - (high[i] - low[i]) * (1.1/4.0);
+        for (o3d::Int32 i = 0; i < size-1; ++i) {
+            m_support[2][i+1] = close[i] - (high[i] - low[i]) * (1.1/4.0);
         }
         // m_tmp1.sub(high, low); m_tmp1 *= 1.1/4;
         // m_support[2].sub(close, m_tmp1);
@@ -127,22 +131,22 @@ void PivotPoint::compute(o3d::Double timestamp,
         //
 
         // close + (high - low)*1.1/12
-        for (o3d::Int32 i = 0; i < size; ++i) {
-            m_resistance[0][i] = close[i] + (high[i] - low[i]) * (1.1/12.0);
+        for (o3d::Int32 i = 0; i < size-1; ++i) {
+            m_resistance[0][i+1] = close[i] + (high[i] - low[i]) * (1.1/12.0);
         }
         // m_tmp1.sub(high, low); m_tmp1 *= 1.1/12;
         // resistance[0].add(close, m_tmp1);
 
         // close + (high - low)*1.1/6
-        for (o3d::Int32 i = 0; i < size; ++i) {
-            m_resistance[1][i] = close[i] + (high[i] - low[i]) * (1.1/6.0);
+        for (o3d::Int32 i = 0; i < size-1; ++i) {
+            m_resistance[1][i+1] = close[i] + (high[i] - low[i]) * (1.1/6.0);
         }
         // m_tmp1.sub(high, low); m_tmp1 *= 1.1/6;
         // m_resistance[1].add(close, m_tmp1);
 
         // close + (high - low)*1.1/4
-        for (o3d::Int32 i = 0; i < size; ++i) {
-            m_resistance[2][i] = close[i] + (high[i] - low[i]) * (1.1/4.0);
+        for (o3d::Int32 i = 0; i < size-1; ++i) {
+            m_resistance[2][i+1] = close[i] + (high[i] - low[i]) * (1.1/4.0);
         }
         // m_tmp1.sub(high, low); m_tmp1 *= 1.1/4;
         // m_resistance[2].add(close, m_tmp1);
@@ -150,23 +154,23 @@ void PivotPoint::compute(o3d::Double timestamp,
         // classical or woodie
         if (m_method == CLASSICAL) {
             // (high + low + close) / 3.0
-            for (o3d::Int32 i = 0; i < size; ++i) {
-                m_pivot[i] = (high[i] + low[i] + close[i]) * (1.0/3.0);
+            for (o3d::Int32 i = 0; i < size-1; ++i) {
+                m_pivot[i+1] = (high[i] + low[i] + close[i]) * (1.0/3.0);
             }
         } else if (m_method == CLASSICAL_OHLC) {
             //pivot = (open + high + low + close) / 4.0
-            for (o3d::Int32 i = 0; i < size; ++i) {
-                m_pivot[i] = (open[i] + high[i] + low[i] + close[i]) * (1.0/4.0);
+            for (o3d::Int32 i = 0; i < size-1; ++i) {
+                m_pivot[i+1] = (open[i] + high[i] + low[i] + close[i]) * (1.0/4.0);
             }
         } else if (m_method == CLASSICAL_OHL) {
             //pivot = (high + low + open) / 3.0
-            for (o3d::Int32 i = 0; i < size; ++i) {
-                m_pivot[i] = (open[i] + high[i] + low[i]) * (1.0/3.0);
+            for (o3d::Int32 i = 0; i < size-1; ++i) {
+                m_pivot[i+1] = (open[i] + high[i] + low[i]) * (1.0/3.0);
             }
         } else if (m_method == WOODIE) {
             // pivot = (high + low + 2.0 * close) / 4.0
-            for (o3d::Int32 i = 0; i < size; ++i) {
-                m_pivot[i] = (high[i] + low[i] + 2.0 * close[i]) * (1.0/4.0);
+            for (o3d::Int32 i = 0; i < size-1; ++i) {
+                m_pivot[i+1] = (high[i] + low[i] + 2.0 * close[i]) * (1.0/4.0);
             }
         }
 
@@ -175,18 +179,18 @@ void PivotPoint::compute(o3d::Double timestamp,
         //
 
         // (2.0 * pivot) - high
-        for (o3d::Int32 i = 0; i < size; ++i) {
-            m_support[0][i] = (2.0 * m_pivot[i]) - high[i];
+        for (o3d::Int32 i = 0; i < size-1; ++i) {
+            m_support[0][i+1] = (2.0 * m_pivot[i+1]) - high[i];
         }
 
         // pivot - (high - low)
-        for (o3d::Int32 i = 0; i < size; ++i) {
-            m_support[1][i] = m_pivot[i] - (high[i] - low[i]);
+        for (o3d::Int32 i = 0; i < size-1; ++i) {
+            m_support[1][i+1] = m_pivot[i+1] - (high[i] - low[i]);
         }
 
         // low - 2.0 * (high - pivot)
-        for (o3d::Int32 i = 0; i < size; ++i) {
-            m_support[2][i] = low[i] - 2.0 * (high[i] - m_pivot[i]);
+        for (o3d::Int32 i = 0; i < size-1; ++i) {
+            m_support[2][i+1] = low[i] - 2.0 * (high[i] - m_pivot[i+1]);
         }
 
         //
@@ -194,18 +198,18 @@ void PivotPoint::compute(o3d::Double timestamp,
         //
 
         // (2.0 * pivot) - low
-        for (o3d::Int32 i = 0; i < size; ++i) {
-            m_resistance[0][i] = (2.0 * m_pivot[i]) - low[i];
+        for (o3d::Int32 i = 0; i < size-1; ++i) {
+            m_resistance[0][i+1] = (2.0 * m_pivot[i+1]) - low[i];
         }
 
         // pivot + (high - low)
-        for (o3d::Int32 i = 0; i < size; ++i) {
-            m_resistance[1][i] = m_pivot[i] + (high[i] - low[i]);
+        for (o3d::Int32 i = 0; i < size-1; ++i) {
+            m_resistance[1][i+1] = m_pivot[i+1] + (high[i] - low[i]);
         }
 
         // high + 2.0 * (pivot - low)
-        for (o3d::Int32 i = 0; i < size; ++i) {
-            m_resistance[2][i] = high[i] + 2.0 * (m_pivot[i] - low[i]);
+        for (o3d::Int32 i = 0; i < size-1; ++i) {
+            m_resistance[2][i+1] = high[i] + 2.0 * (m_pivot[i+1] - low[i]);
         }
     }
 

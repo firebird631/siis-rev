@@ -73,10 +73,22 @@ public:
     o3d::Int32 cross(const DataArray &a) const;
 
     /**
+     * @brief cross With the two last values and a line
+     * @return -1, 1 or 0 (this cross under a, this cross upper a, none)
+     */
+    o3d::Int32 cross(o3d::Double price) const;
+
+    /**
      * @brief cross With the two last values
      * @return -1, 1 or 0 (this cross under a, this cross upper a, none)
      */
     static o3d::Int32 cross(const DataArray &a, const DataArray &b);
+
+    /**
+     * @brief cross With the two last values
+     * @return -1, 1 or 0 (this cross under a, this cross upper a, none)
+     */
+    static o3d::Int32 cross(const DataArray &a, o3d::Double price);
 };
 
 } // namespace siis
