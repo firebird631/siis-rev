@@ -1,21 +1,21 @@
 /**
- * @brief SiiS strategy MAADX default parameters.
+ * @brief SiiS strategy pullback default parameters.
  * @copyright Copyright (C) 2023 SiiS
  * @author Frederic SCHERMA (frederic.scherma@gmail.com)
- * @date 2023-04-24
+ * @date 2023-05-09
  */
 
-#ifndef SIIS_MAADXPARAMETERS_H
-#define SIIS_MAADXPARAMETERS_H
+#ifndef SIIS_PULLBACKPARAMETERS_H
+#define SIIS_PULLBACKPARAMETERS_H
 
 namespace siis {
 
 /**
- * @brief Strategy MAADX default parameters.
+ * @brief Strategy pullback default parameters.
  * @author Frederic Scherma
  * @date 2023-04-24
  */
-static const char* MaAdxParameters = R"JSON(
+static const char* PullbackParameters = R"JSON(
 {
     "reversal": true,
     "hedging": false,
@@ -24,7 +24,7 @@ static const char* MaAdxParameters = R"JSON(
     "need-update": false,
     "trade-type": "ind-margin",
     "contexts": {
-        "ma-adx-5m-1m": {
+        "pullback-5m-1m": {
             "mode": "trade",
             "method": "standard",
             "max-trades": 3,
@@ -40,33 +40,28 @@ static const char* MaAdxParameters = R"JSON(
         }
     },
     "timeframes": {
-        "4hour": {
+        "30min": {
             "enabled": true,
-            "timeframe": "4h",
+            "timeframe": "30m",
             "sub-timeframe": "5m",
-            "mode": "trend",
-            "depth": 25,
-            "history": 25,
+            "mode": "sr",
+            "depth": 5,
+            "history": 5,
             "indicators": {
-                "price": {"method": "HLC"},
-                "slow_h_ma": {"len": 20},
-                "slow_m_ma": {"len": 20},
-                "slow_l_ma": {"len": 20}
+                "price": {"method": "CLOSE"},
+                "pivotpoint": {"method": "classical"}
             }
         },
          "5min": {
             "enabled": true,
             "timeframe": "5m",
             "sub-timeframe": "1m",
-            "mode": "sig",
-            "depth": 25,
-            "history": 25,
+            "mode": "bollinger",
+            "depth": 45,
+            "history": 45,
             "indicators": {
-                "price": {"method": "HLC"},
-                "fast_h_ma": {"len": 6},
-                "fast_m_ma": {"len": 6},
-                "fast_l_ma": {"len": 6},
-                "adx": {"len": 5}
+                "price": {"method": "CLOSE"},
+                "bollinger": {"len": 20, "numDevUp": 2, "numDevDn": 2}
             }
         },
         "1min": {
@@ -74,10 +69,10 @@ static const char* MaAdxParameters = R"JSON(
             "timeframe": "1m",
             "sub-timeframe": "t",
             "mode": "conf",
-            "depth": 10,
-            "history": 10,
+            "depth": 5,
+            "history": 5,
             "indicators": {
-                "price": {"method": "HLC"}
+                "price": {"method": "CLOSE"}
             }
         }
     }
@@ -85,4 +80,4 @@ static const char* MaAdxParameters = R"JSON(
 
 } // namespace siis
 
-#endif // SIIS_MAADXPARAMETERS_H
+#endif // SIIS_PULLBACKPARAMETERS_H

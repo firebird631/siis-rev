@@ -30,6 +30,11 @@ using namespace siis;
 using o3d::Debug;
 using o3d::Logger;
 
+o3d::Bool Handler::isBacktesting() const
+{
+    return false;
+}
+
 Backtest::Backtest() :
     m_thread(this),
     m_running(false),
@@ -146,6 +151,11 @@ void Backtest::init(
 
         m_strategies[mc->marketId] = elt;
     }
+}
+
+o3d::Bool Backtest::isBacktesting() const
+{
+    return true;
 }
 
 void Backtest::terminate(Config *config)

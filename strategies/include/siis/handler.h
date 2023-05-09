@@ -87,6 +87,12 @@ public:
     virtual void setPaperMode(o3d::Bool active) = 0;
 
     /**
+     * @brief isBacktesting Return true if the handler process a backtest
+     * @return
+     */
+    virtual o3d::Bool isBacktesting() const;
+
+    /**
      * @brief onTick On tick received.
      * @param tick Reference on a valid tick.
      */

@@ -677,6 +677,7 @@ src/strategies/forexalpha/forexalpha.cpp
 src/strategies/forexalpha/forexalpha.h
 src/strategies/forexalpha/forexalpha.h
 src/strategies/goldalpha/README
+src/strategies/hmama/CMakeLists.txt
 src/strategies/indicealpha/CMakeLists.txt
 src/strategies/indicealpha/README
 src/strategies/indicealpha/iaaanalyser.cpp
@@ -701,6 +702,18 @@ src/strategies/maadx/maadxsiganalyser.cpp
 src/strategies/maadx/maadxsiganalyser.h
 src/strategies/maadx/maadxtrendanalyser.cpp
 src/strategies/maadx/maadxtrendanalyser.h
+src/strategies/maichimoku/CMakeLists.txt
+src/strategies/pullback/CMakeLists.txt
+src/strategies/pullback/README
+src/strategies/pullback/pullback.cpp
+src/strategies/pullback/pullback.h
+src/strategies/pullback/pullbackbbanalyser.cpp
+src/strategies/pullback/pullbackbbanalyser.h
+src/strategies/pullback/pullbackconfanalyser.cpp
+src/strategies/pullback/pullbackconfanalyser.h
+src/strategies/pullback/pullbackparameters.h
+src/strategies/pullback/pullbacksranalyser.cpp
+src/strategies/pullback/pullbacksranalyser.h
 src/strategy.cpp
 src/strategy.cpp
 src/strategy.cpp

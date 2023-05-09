@@ -18,17 +18,17 @@ using o3d::Logger;
 
 static void update(Json::Value& a, const Json::Value& b);
 
-static void mergeTimeframes(Json::Value& a, const Json::Value& b)
+static void joinRightToLeft(Json::Value& a, const Json::Value& b)
 {
     for (const auto& key : b.getMemberNames()) {
         if (!a.isMember(key)) {
             // original from user
             a[key].copy(b[key]);
-            printf("cp %s\n", key.c_str());
         } else {
             // update from default
-            update(a[key], b[key]);
-            printf("up %s\n", key.c_str());
+            // update(a[key], b[key]);
+            // take user version
+            a[key].copy(b[key]);
         }
     }
 
@@ -36,22 +36,19 @@ static void mergeTimeframes(Json::Value& a, const Json::Value& b)
         if (!b.isMember(key)) {
             // remove from dst
             a.removeMember(key);
-            printf("rm %s\n", key.c_str());
         }
     }
 }
 
-static void mergeContexts(Json::Value& a, const Json::Value& b)
+static void mergeRightToLeft(Json::Value& a, const Json::Value& b)
 {
     for (const auto& key : b.getMemberNames()) {
         if (!a.isMember(key)) {
             // original from user
             a[key].copy(b[key]);
-            printf("cp %s\n", key.c_str());
         } else {
             // update from default
-            update(a[key], b[key]);
-            printf("up %s\n", key.c_str());
+             update(a[key], b[key]);
         }
     }
 
@@ -59,7 +56,6 @@ static void mergeContexts(Json::Value& a, const Json::Value& b)
         if (!b.isMember(key)) {
             // remove from dst
             a.removeMember(key);
-            printf("rm %s\n", key.c_str());
         }
     }
 }
@@ -74,11 +70,11 @@ static void update(Json::Value& a, const Json::Value& b)
     for (const auto& key : b.getMemberNames()) {
         if (key == "timeframes") {
             // special case
-            mergeTimeframes(a[key], b[key]);
+            joinRightToLeft(a[key], b[key]);
             continue;
         } else if (key == "contexts") {
             // special case
-            mergeContexts(a[key], b[key]);
+            joinRightToLeft(a[key], b[key]);
             continue;
         }
 

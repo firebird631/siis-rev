@@ -100,3 +100,6 @@ src/strategies/maadx
 .
 include/siis/statistics
 src/statistics
+src/strategies/pullback
+src/strategies/maichimoku
+src/strategies/hmama
