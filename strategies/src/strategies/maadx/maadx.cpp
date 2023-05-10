@@ -307,6 +307,9 @@ void MaAdx::compute(o3d::Double timestamp)
 {
     o3d::Bool sig = false;
 
+    m_breakeven.update(handler()->timestamp(), lastTimestamp());
+    m_dynamicStopLoss.update(handler()->timestamp(), lastTimestamp());
+
     for (Analyser *analyser : m_analysers) {
         sig |= analyser->process(timestamp, lastTimestamp());
     }
@@ -332,12 +335,6 @@ void MaAdx::compute(o3d::Double timestamp)
 
     // update the existing trades
     m_tradeManager->process(timestamp);
-
-    // breakeven and dynamic stop
-    // m_breakeven.update()
-
-    // dynamic stop
-    // m_dynamicStopLoss.update()
 }
 
 void MaAdx::finalize(o3d::Double timestamp)
@@ -348,8 +345,8 @@ void MaAdx::finalize(o3d::Double timestamp)
 void MaAdx::updateTrade(Trade *trade)
 {
     if (trade) {
-        m_breakeven.update(handler()->timestamp(), lastTimestamp(), trade);
-        m_dynamicStopLoss.update(handler()->timestamp(), lastTimestamp(), trade);
+        m_breakeven.updateΤrade(handler()->timestamp(), lastTimestamp(), trade);
+        m_dynamicStopLoss.updateΤrade(handler()->timestamp(), lastTimestamp(), trade);
     }
 }
 

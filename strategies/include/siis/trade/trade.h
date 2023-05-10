@@ -458,6 +458,16 @@ public:
     o3d::Double estimateProfitLossRate() const;
 
     /**
+     * @brief estimateTakeProfitRate Compute a precise estimation of the possible realized profit.
+     */
+    o3d::Double estimateTakeProfitRate() const;
+
+    /**
+     * @brief estimateProfitLossRate Compute a precise estimation of the possible realized loss.
+     */
+    o3d::Double estimateStopLossRate() const;
+
+    /**
      * @brief entryFeesRate Return the applied entry fees rate.
      */
     o3d::Double entryFeesRate() const;
@@ -470,7 +480,6 @@ public:
 
     /**
      * @brief deltaPrice Return the delta price from the entry to the last price.
-     * The delta sign is relative to the trade direction. It means that positive delta meaning winning position.
      */
     o3d::Double deltaPrice() const;
 

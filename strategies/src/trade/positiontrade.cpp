@@ -212,6 +212,8 @@ void PositionTrade::close()
 void PositionTrade::process(o3d::Double timestamp)
 {
     if (isActive()) {
+        m_strategy->updateTrade(this);
+
         if (m_stopLossPrice > 0.0 && !m_positionStopPrice) {
             o3d::Double closeExecPrice = m_strategy->market()->closeExecPrice(m_direction);
 
@@ -575,7 +577,7 @@ void PositionTrade::positionSignal(const PositionSignal &signal)
                 }
             }
 
-            DBG(o3d::String("Exit position avg-price={0} cum-filled={1}").arg(m_exitPrice).arg(m_filledExitQuantity), "");
+            // DBG(o3d::String("Exit position avg-price={0} cum-filled={1}").arg(m_exitPrice).arg(m_filledExitQuantity), "");
 
             // finally empty
             m_positionQuantity = 0.0;

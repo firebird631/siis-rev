@@ -123,6 +123,34 @@ o3d::Double Trade::estimateProfitLossRate() const
     return pnl;
 }
 
+o3d::Double Trade::estimateTakeProfitRate() const
+{
+    if (m_takeProfitPrice > 0.0) {
+        o3d::Double entryPrice = m_entryPrice;
+        if (entryPrice <= 0.0) {
+            entryPrice = m_orderPrice;
+        }
+
+        return m_direction * (m_takeProfitPrice - entryPrice) / entryPrice;
+    }
+
+    return 0.0;
+}
+
+o3d::Double Trade::estimateStopLossRate() const
+{
+    if (m_stopLossPrice > 0.0) {
+        o3d::Double entryPrice = m_entryPrice;
+        if (entryPrice <= 0.0) {
+            entryPrice = m_orderPrice;
+        }
+
+        return -m_direction * (entryPrice - m_stopLossPrice) / entryPrice;
+    }
+
+    return 0.0;
+}
+
 o3d::Double Trade::entryFeesRate() const
 {
     if (m_entryPrice > 0.0 && m_filledEntryQuantity > 0.0) {
@@ -149,16 +177,12 @@ o3d::Double Trade::estimateExitFeesRate() const
     return m_strategy->market()->takerFee().rate;
 }
 
+
 o3d::Double Trade::deltaPrice() const
 {
     if (m_entryPrice > 0.0) {
         o3d::Double closeExecPrice = m_strategy->market()->closeExecPrice(m_direction);
-
-        if (m_direction > 0) {
-            return closeExecPrice - m_entryPrice;
-        } else if (m_direction < 0) {
-            return m_entryPrice - closeExecPrice;
-        }
+        return closeExecPrice - m_entryPrice;
     }
 
     return 0.0;

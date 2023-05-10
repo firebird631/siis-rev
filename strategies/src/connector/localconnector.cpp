@@ -319,6 +319,8 @@ o3d::Int32 LocalConnector::createOrder(Order *order)
                         return Order::RET_INSUFFICIENT_FUNDS;
                     }
 
+                    o3d::Double closeExecPrice = market->closeExecPrice(position->direction);
+
                     // @todo check...
                     position->quantity -= order->orderQuantity;
 
@@ -331,8 +333,8 @@ o3d::Int32 LocalConnector::createOrder(Order *order)
                     // openPositionSignal.commission @todo
 
                     // exit traded
-                    updatedPositionSignal.avgPrice = execPrice;
-                    updatedPositionSignal.execPrice = execPrice;
+                    updatedPositionSignal.avgPrice = closeExecPrice;
+                    updatedPositionSignal.execPrice = closeExecPrice;
                     updatedPositionSignal.filled = order->orderQuantity;
                     updatedPositionSignal.cumulativeFilled = order->orderQuantity;
 
@@ -493,6 +495,7 @@ o3d::Int32 LocalConnector::closePosition(const o3d::CString &positionId,
                                          o3d::Bool taker,
                                          o3d::Double limitPrice)
 {
+    // @todo only taker and no limit price supported
     if (m_traderProxy) {
         if (positionId.isValid()) {
             auto it = m_virtualPositions.find(positionId);

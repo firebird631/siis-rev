@@ -67,10 +67,10 @@ void EntryExit::init(const Market *market, ContextConfig &conf)
     }
 }
 
-o3d::Bool EntryExit::consolidated(o3d::Double timestamp, o3d::Double lastTimestamp)
+void EntryExit::update(o3d::Double timestamp, o3d::Double lastTimestamp)
 {
     if (m_timeframe <= 0.0) {
-        return false;
+        return;
     }
 
     m_consolidated = false;
@@ -79,6 +79,4 @@ o3d::Bool EntryExit::consolidated(o3d::Double timestamp, o3d::Double lastTimesta
         m_consolidated = true;
         m_lastClosedTimestamp = timestamp;
     }
-
-    return m_consolidated;
 }

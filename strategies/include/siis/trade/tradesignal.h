@@ -73,6 +73,18 @@ public:
 
     o3d::Double baseTime() const { return siis::baseTime(m_timestamp, m_timeframe); }
 
+    void reset()
+    {
+        m_type = NONE;
+        // m_timeframe = timeframe;
+        m_direction = 0;
+        m_price = 0.0;
+        m_limitPrice = 0.0;
+        m_stopPrice = 0.0;
+        m_stopLossPrice = 0.0;
+        m_takeProfitPrice = 0.0;
+    }
+
     Type type() const { return m_type; }
     o3d::Bool valid() const { return m_type != NONE; }
     o3d::Bool entry() const { return m_type == ENTRY; }
@@ -125,6 +137,30 @@ public:
     void setTakeProfitPrice(o3d::Double p) { m_takeProfitPrice = p; }
     void setTakeProfit(o3d::Double p) { m_takeProfitPrice = p; }
     void setLimit(o3d::Double p) { m_takeProfitPrice = p; }
+
+    o3d::Double estimateTakeProfitRate() const {
+        if (m_price > 0.0 && m_takeProfitPrice > 0.0) {
+            return m_direction * (m_takeProfitPrice - m_price) / m_price;
+        }
+
+        return 0.0;
+    }
+
+    o3d::Double estimateStopLossRate() const {
+        if (m_price > 0.0 && m_stopLossPrice > 0.0) {
+            return m_direction * (m_price - m_stopLossPrice) / m_price;
+        }
+
+        return 0.0;
+    }
+
+    o3d::Double estimateRiskReward() const {
+        if (m_price > 0.0 && m_stopLossPrice > 0.0 && m_takeProfitPrice > 0.0) {
+            return estimateStopLossRate() / estimateTakeProfitRate();
+        }
+
+        return 0.0;
+    }
 
     /**
      * @brief addCondition Add a condition related to the emission of this signal.

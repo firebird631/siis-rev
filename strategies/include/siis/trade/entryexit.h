@@ -32,9 +32,18 @@ public:
 
     void init(const Market *market, ContextConfig &conf);
 
-    // void update(o3d::Double timestamp, o3d::Double lastTimestamp, Trade *trade);
+    /**
+     * @brief update To be called at each processing pass before trade manager update.
+     * @param timestamp Current timestamp.
+     * @param lastTimestamp Previous processed timestamp.
+     */
+    void update(o3d::Double timestamp, o3d::Double lastTimestamp);
 
-    o3d::Bool consolidated(o3d::Double timestamp, o3d::Double lastTimestamp);
+    /**
+     * @brief consolidated True if the timeframe is consolidate during this processing pass.
+     * Always true if no timeframe defined.
+     */
+    o3d::Bool consolidated() const { return m_timeframe > 0.0 ? m_consolidated : true; }
 
 protected:
 

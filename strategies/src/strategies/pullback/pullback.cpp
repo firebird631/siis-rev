@@ -44,6 +44,7 @@ Pullback::Pullback(Handler *handler, const o3d::String &identifier) :
     m_confirmAtClose(false),
     m_targetScale(1.0),
     m_riskReward(1.0),
+    m_minProfit(0.0),
     m_breakoutTimestamp(0.0),
     m_breakoutDirection(0),
     m_breakoutPrice(0),
@@ -123,6 +124,8 @@ void Pullback::init(Config *config)
         Json::Value contexts = conf.root().get("contexts", Json::Value());
         for (auto it = contexts.begin(); it != contexts.end(); ++it) {
             Json::Value context = *it;
+
+            m_minProfit = context.get("min-profit", 0.0).asDouble();
 
             // breakout
             if (context.isMember("breakout")) {
@@ -326,6 +329,9 @@ void Pullback::compute(o3d::Double timestamp)
 {
     o3d::Bool sig = false;
 
+    m_breakeven.update(handler()->timestamp(), lastTimestamp());
+    m_dynamicStopLoss.update(handler()->timestamp(), lastTimestamp());
+
     for (Analyser *analyser : m_analysers) {
         sig |= analyser->process(timestamp, lastTimestamp());
     }
@@ -344,6 +350,10 @@ void Pullback::compute(o3d::Double timestamp)
             doOrder = false;
         }
 
+        if (signal.estimateTakeProfitRate() < m_minProfit) {
+            doOrder = false;
+        }
+
         if (doOrder) {
             orderEntry(timestamp, signal.tf(), signal.d(), signal.price(), signal.tp(), signal.sl());
         }
@@ -351,12 +361,6 @@ void Pullback::compute(o3d::Double timestamp)
 
     // update the existing trades
     m_tradeManager->process(timestamp);
-
-    // breakeven and dynamic stop
-    // m_breakeven.update()
-
-    // dynamic stop
-    // m_dynamicStopLoss.update()
 }
 
 void Pullback::finalize(o3d::Double timestamp)
@@ -367,8 +371,8 @@ void Pullback::finalize(o3d::Double timestamp)
 void Pullback::updateTrade(Trade *trade)
 {
     if (trade) {
-        m_breakeven.update(handler()->timestamp(), lastTimestamp(), trade);
-        m_dynamicStopLoss.update(handler()->timestamp(), lastTimestamp(), trade);
+        m_breakeven.updateΤrade(handler()->timestamp(), lastTimestamp(), trade);
+        m_dynamicStopLoss.updateΤrade(handler()->timestamp(), lastTimestamp(), trade);
     }
 }
 
@@ -406,10 +410,10 @@ void Pullback::orderEntry(
         // query open
         trade->open(this, direction, 0.0, quantity, takeProfitPrice, stopLossPrice);
 
-        o3d::String msg = o3d::String("#{0} {1} at {2} sl={3} tp={4} q={5}").arg(trade->id())
+        o3d::String msg = o3d::String("#{0} {1} at {2} sl={3} tp={4} q={5} {6}%/{7}%").arg(trade->id())
                           .arg(direction > 0 ? "long" : "short").arg(market()->formatPrice(price))
                           .arg(market()->formatPrice(stopLossPrice)).arg(market()->formatPrice(takeProfitPrice))
-                          .arg(quantity);
+                          .arg(quantity).arg(trade->estimateTakeProfitRate() * 100, 2).arg(trade->estimateStopLossRate() * 100, 2);
         log(timeframe, "order-entry", msg);
     }
 }
@@ -444,6 +448,7 @@ TradeSignal Pullback::computeSignal(o3d::Double timestamp)
         // reset integration
         m_integrateTimestamp = 0.0;
         m_integrateDirection = 0;
+        printf("LL %S %f\n", timestampToStr(timestamp).getData(), m_breakoutPrice);
     }
 
     // if integrate => short
@@ -455,6 +460,7 @@ TradeSignal Pullback::computeSignal(o3d::Double timestamp)
         // reset integration
         m_integrateTimestamp = 0.0;
         m_integrateDirection = 0;
+        printf("SS %S %f\n", timestampToStr(timestamp).getData(), m_breakoutPrice);
     }
 
     // integrate for possible long
