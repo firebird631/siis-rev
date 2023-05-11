@@ -348,6 +348,8 @@ o3d::Int32 Backtest::run(void *)
     Market *market = nullptr;
     o3d::Int32 n = 0;
     DataArray ticks;
+    o3d::Double lastTimestamp = 0.0;
+    o3d::Double maxDeltaTime = 0.0;
 
     if (m_strategies.size() <= 1) {
         while (m_running) {
@@ -374,13 +376,15 @@ o3d::Int32 Backtest::run(void *)
                     continue;
                 }
 
+                lastTimestamp = market->getTickBuffer().last().timestamp();
+
 //                printf("%i %f\n", market->getTickBuffer().getSize(), m_curTs);
 //                if (market->getTickBuffer().getSize() > 0) {
-//                    printf(">%f \n", market->getTickBuffer().getData()[0]);
+//                    printf(">until %s first tick found at %f \n", timestamp, market->getTickBuffer().getData()[0]);
 //                }
 
                 // inject ticks into the strategy
-                strategy->onTickUpdate(m_curTs, market->getTickBuffer());
+                strategy->onTickUpdate(lastTimestamp/*m_curTs*/, market->getTickBuffer());
 
                 // consume them
                 market->setLastTick(market->getTickBuffer().last());
@@ -388,7 +392,12 @@ o3d::Int32 Backtest::run(void *)
                 // ticks.destroy();
 
                 // process one strategy iteration
-                strategy->process(m_curTs);
+                strategy->process(lastTimestamp/*m_curTs*/);
+
+                if (m_curTs - lastTimestamp > maxDeltaTime) {
+                    maxDeltaTime = m_curTs - lastTimestamp;
+                    DBG("general", o3d::String("Higher time deviation : {0}").arg(maxDeltaTime));
+                }
 
                 // update the local connector to manage orders, positions and virtual account details
                 m_connector->update();

@@ -291,6 +291,8 @@ o3d::Int32 Learning::run(void *)
     Supervisor *supervisor = nullptr;
     Market *market = nullptr;
     o3d::Int32 n = 0;
+    o3d::Double lastTimestamp = 0.0;
+    o3d::Double maxDeltaTime = 0.0;
     // DataArray ticks;
 
     if (m_learnings.size() <= 1) {
@@ -314,8 +316,10 @@ o3d::Int32 Learning::run(void *)
                     continue;
                 }
 
+                lastTimestamp = market->getTickBuffer().last().timestamp();
+
                 // inject the tick to the strategy
-//                supervisor->onTickUpdate(m_curTs, market->getTickBuffer());
+                supervisor->onTickUpdate(m_curTs, market->getTickBuffer());
 
                 // consume them
                 market->setLastTick(market->getTickBuffer().last());
@@ -323,7 +327,12 @@ o3d::Int32 Learning::run(void *)
                 // ticks.destroy();
 
                 // process one strategy iteration
-//                supervisor->process(m_curTs);
+//                supervisor->process(lastTimestamp/*m_curTs*/);
+
+                if (m_curTs - lastTimestamp > maxDeltaTime) {
+                    maxDeltaTime = m_curTs - lastTimestamp;
+                    DBG("general", o3d::String("Higher time deviation : {0}").arg(maxDeltaTime));
+                }
 
                 // from strategy trades, once a trade is active follow and compare with the bests entry/exit prices
                 // supervisor->learnFromStrategy(strategy->tradeManager());

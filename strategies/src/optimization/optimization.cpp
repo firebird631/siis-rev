@@ -284,6 +284,8 @@ o3d::Int32 Optimization::run(void *)
     Optimizer *optimizer = nullptr;
     Market *market = nullptr;
     o3d::Int32 n = 0;
+    o3d::Double lastTimestamp = 0.0;
+    o3d::Double maxDeltaTime = 0.0;
     // DataArray ticks;
 
     if (m_optimizers.size() <= 1) {
@@ -308,6 +310,8 @@ o3d::Int32 Optimization::run(void *)
                     continue;
                 }
 
+                lastTimestamp = market->getTickBuffer().last().timestamp();
+
                 // inject the tick to the strategy
                 strategy->onTickUpdate(m_curTs, market->getTickBuffer());
 
@@ -317,12 +321,15 @@ o3d::Int32 Optimization::run(void *)
                 // ticks.destroy();
 
                 // process one strategy iteration
-                strategy->process(m_curTs);
+                strategy->process(lastTimestamp/*m_curTs*/);
 
                 // from strategy trades, once a trade is active follow and compare with the bests entry/exit prices
                 // optimizer->optimize();
 
-                //
+                if (m_curTs - lastTimestamp > maxDeltaTime) {
+                    maxDeltaTime = m_curTs - lastTimestamp;
+                    DBG("general", o3d::String("Higher time deviation : {0}").arg(maxDeltaTime));
+                }
             }
 
             m_curTs += m_timestep;

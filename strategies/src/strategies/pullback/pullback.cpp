@@ -448,7 +448,6 @@ TradeSignal Pullback::computeSignal(o3d::Double timestamp)
         // reset integration
         m_integrateTimestamp = 0.0;
         m_integrateDirection = 0;
-        printf("LL %S %f\n", timestampToStr(timestamp).getData(), m_breakoutPrice);
     }
 
     // if integrate => short
@@ -460,7 +459,6 @@ TradeSignal Pullback::computeSignal(o3d::Double timestamp)
         // reset integration
         m_integrateTimestamp = 0.0;
         m_integrateDirection = 0;
-        printf("SS %S %f\n", timestampToStr(timestamp).getData(), m_breakoutPrice);
     }
 
     // integrate for possible long
