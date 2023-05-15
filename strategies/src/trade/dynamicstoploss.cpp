@@ -89,6 +89,10 @@ void DynamicStopLoss::updateΤrade(o3d::Double timestamp, o3d::Double lastTimest
         return;
     }
 
+    if (trade->estimateProfitLossRate() <= 0.0) {
+        return;
+    }
+
     if (m_adjustPolicy == ADJ_PRICE) {
         // price change at anytime
         if (m_distanceType == DIST_PERCENTIL) {

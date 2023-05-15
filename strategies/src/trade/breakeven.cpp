@@ -35,21 +35,21 @@ void Breakeven::updateΤrade(o3d::Double timestamp, o3d::Double lastTimestamp, T
         if (m_distanceType == DIST_PERCENTIL) {
             if (trade->direction() > 0) {
                 if (trade->estimateProfitLossRate() > m_distance && trade->stopLossPrice() < trade->entryPrice()) {
-                    trade->modifyStopLoss(trade->entryPrice(), Trade::MOD_PREVIOUS);
+                    trade->modifyStopLoss(trade->entryPrice() + trade->strategy()->market()->spread(), Trade::MOD_PREVIOUS);
                 }
             } else if (trade->direction() < 0) {
                 if (trade->estimateProfitLossRate() > m_distance && trade->stopLossPrice() > trade->entryPrice()) {
-                    trade->modifyStopLoss(trade->entryPrice(), Trade::MOD_PREVIOUS);
+                    trade->modifyStopLoss(trade->entryPrice() - trade->strategy()->market()->spread(), Trade::MOD_PREVIOUS);
                 }
             }
         } else if (m_distanceType == DIST_PRICE) {
             if (trade->direction() > 0) {
                 if (trade->deltaPrice() >= m_distance && trade->stopLossPrice() < trade->entryPrice()) {
-                    trade->modifyStopLoss(trade->entryPrice(), Trade::MOD_PREVIOUS);
+                    trade->modifyStopLoss(trade->entryPrice() + trade->strategy()->market()->spread(), Trade::MOD_PREVIOUS);
                 }
             } else if (trade->direction() < 0) {
                 if (trade->deltaPrice() <= -m_distance && trade->stopLossPrice() > trade->entryPrice()) {
-                    trade->modifyStopLoss(trade->entryPrice(), Trade::MOD_PREVIOUS);
+                    trade->modifyStopLoss(trade->entryPrice() - trade->strategy()->market()->spread(), Trade::MOD_PREVIOUS);
                 }
             }
         }
@@ -59,21 +59,21 @@ void Breakeven::updateΤrade(o3d::Double timestamp, o3d::Double lastTimestamp, T
             if (m_distanceType == DIST_PERCENTIL) {
                 if (trade->direction() > 0) {
                     if (trade->estimateProfitLossRate() > m_distance && trade->stopLossPrice() < trade->entryPrice()) {
-                        trade->modifyStopLoss(trade->entryPrice(), Trade::MOD_PREVIOUS);
+                        trade->modifyStopLoss(trade->entryPrice() + trade->strategy()->market()->spread(), Trade::MOD_PREVIOUS);
                     }
                 } else if (trade->direction() < 0) {
                     if (trade->estimateProfitLossRate() > m_distance && trade->stopLossPrice() > trade->entryPrice()) {
-                        trade->modifyStopLoss(trade->entryPrice(), Trade::MOD_PREVIOUS);
+                        trade->modifyStopLoss(trade->entryPrice() - trade->strategy()->market()->spread(), Trade::MOD_PREVIOUS);
                     }
                 }
             } else if (m_distanceType == DIST_PRICE) {
                 if (trade->direction() > 0) {
                     if (trade->deltaPrice() >= m_distance && trade->stopLossPrice() < trade->entryPrice()) {
-                        trade->modifyStopLoss(trade->entryPrice(), Trade::MOD_PREVIOUS);
+                        trade->modifyStopLoss(trade->entryPrice() + trade->strategy()->market()->spread(), Trade::MOD_PREVIOUS);
                     }
                 } else if (trade->direction() < 0) {
                     if (trade->deltaPrice() <= -m_distance && trade->stopLossPrice() > trade->entryPrice()) {
-                        trade->modifyStopLoss(trade->entryPrice(), Trade::MOD_PREVIOUS);
+                        trade->modifyStopLoss(trade->entryPrice() - trade->strategy()->market()->spread(), Trade::MOD_PREVIOUS);
                     }
                 }
             }

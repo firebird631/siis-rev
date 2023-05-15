@@ -320,9 +320,8 @@ void MaAdx::compute(o3d::Double timestamp)
         // keep to avoid repetitions
         m_lastSignal = signal;
 
-        o3d::Bool doOrder = true;
         // second level : entry invalidation
-        // @todo
+        o3d::Bool doOrder = true;
 
         if (m_tradeManager->numTrades() >= maxTrades()) {
             doOrder = false;
