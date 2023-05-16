@@ -42,7 +42,6 @@ public:
     virtual TradeSignal compute(o3d::Double timestamp, o3d::Double lastTimestamp) override;
 
     inline o3d::Double adx() const { return m_adx.last(); }
-    inline o3d::Int32 trend() const { return m_trend; }
     inline o3d::Int32 sig() const { return m_sig; }
 
     o3d::Double takeProfit(o3d::Double profitScale) const;

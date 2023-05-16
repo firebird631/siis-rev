@@ -342,6 +342,11 @@ void Pullback::compute(o3d::Double timestamp)
         // keep to avoid repetitions
         m_lastSignal = signal;
 
+        // do not take position over the two sides, else close before
+        if (reversal() && m_tradeManager->hasTradesByDirection(-signal.direction())) {
+            m_tradeManager->closeAllByDirection(-signal.direction());
+        }
+
         o3d::Bool doOrder = true;
         // second level : entry invalidation
         // @todo
@@ -396,11 +401,6 @@ void Pullback::orderEntry(
         o3d::Double takeProfitPrice,
         o3d::Double stopLossPrice)
 {
-    // do not take position over the two sides, else close before
-    if (reversal() && m_tradeManager->hasTradesByDirection(-direction)) {
-        m_tradeManager->closeAllByDirection(-direction);
-    }
-
     Trade* trade = handler()->traderProxy()->createTrade(market(), tradeType(), timeframe);
     if (trade) {
         m_tradeManager->addTrade(trade);
