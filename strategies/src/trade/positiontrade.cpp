@@ -179,7 +179,7 @@ void PositionTrade::modifyStopLoss(o3d::Double price, ModifierType mod)
     m_stopLossPrice = price;
 }
 
-void PositionTrade::close()
+void PositionTrade::close(TradeStats::ExitReason reason)
 {
     if (m_closing) {
         return;
@@ -197,6 +197,8 @@ void PositionTrade::close()
             // @todo
         }
     }
+
+    m_stats.exitReason = reason;
 
     if (m_positionId.isValid()) {
         m_closing = true;
@@ -219,12 +221,12 @@ void PositionTrade::process(o3d::Double timestamp)
 
             if (m_direction > 0) {
                 if (closeExecPrice <= m_stopLossPrice) {
-                    close();
+                    close(TradeStats::REASON_STOP_LOSS_MARKET);
                     return;
                 }
             } else if (m_direction < 0) {
                 if (closeExecPrice >= m_stopLossPrice) {
-                    close();
+                    close(TradeStats::REASON_STOP_LOSS_MARKET);
                     return;
                 }
             }
@@ -235,12 +237,12 @@ void PositionTrade::process(o3d::Double timestamp)
 
             if (m_direction > 0) {
                 if (closeExecPrice >= m_takeProfitPrice) {
-                    close();
+                    close(TradeStats::REASON_TAKE_PROFIT_MARKET);
                     return;
                 }
             } else if (m_direction < 0) {
                 if (closeExecPrice <= m_takeProfitPrice) {
-                    close();
+                    close(TradeStats::REASON_TAKE_PROFIT_MARKET);
                     return;
                 }
             }

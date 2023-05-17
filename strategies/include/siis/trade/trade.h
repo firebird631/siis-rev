@@ -347,7 +347,7 @@ public:
      * @brief close Close the position or sell the entire asset.
      * Any others related orders are canceled.
      */
-    virtual void close() = 0;
+    virtual void close(TradeStats::ExitReason reason) = 0;
 
     //
     // processing states

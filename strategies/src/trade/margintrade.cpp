@@ -264,7 +264,7 @@ void MarginTrade::modifyStopLoss(o3d::Double price, ModifierType mod)
     m_stopLossPrice = price;
 }
 
-void MarginTrade::close()
+void MarginTrade::close(TradeStats::ExitReason reason)
 {
     if (m_stop.closing) {
         return;
@@ -299,6 +299,8 @@ void MarginTrade::close()
         }
     }
 
+    m_stats.exitReason = reason;
+
     Order *stopOrder = traderProxy()->newOrder(m_strategy);
     stopOrder->direction = -m_direction;
     stopOrder->orderQuantity = remaining_qty;
@@ -320,12 +322,12 @@ void MarginTrade::process(o3d::Double timestamp)
 
             if (m_direction > 0) {
                 if (closeExecPrice < m_stopLossPrice) {
-                    close();
+                    close(TradeStats::REASON_STOP_LOSS_MARKET);
                     return;
                 }
             } else if (m_direction < 0) {
                 if (closeExecPrice > m_stopLossPrice) {
-                    close();
+                    close(TradeStats::REASON_STOP_LOSS_MARKET);
                     return;
                 }
             }
@@ -336,12 +338,12 @@ void MarginTrade::process(o3d::Double timestamp)
 
             if (m_direction > 0) {
                 if (closeExecPrice > m_takeProfitPrice) {
-                    close();
+                    close(TradeStats::REASON_TAKE_PROFIT_MARKET);
                     return;
                 }
             } else if (m_direction < 0) {
                 if (closeExecPrice < m_takeProfitPrice) {
-                    close();
+                    close(TradeStats::REASON_TAKE_PROFIT_MARKET);
                     return;
                 }
             }

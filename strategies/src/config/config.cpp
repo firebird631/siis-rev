@@ -685,6 +685,7 @@ void Config::overwriteLearningFile(const GlobalStatistics &global, const Account
 
             root["best"] = o3d::String::print("%.2f%%", global.best * 100).toAscii().getData();
             root["worst"] = o3d::String::print("%.2f%%", global.worst * 100).toAscii().getData();
+
             root["succeed-trades"] = global.succeedTrades;
             root["failed-trades"] = global.failedTrades;
             root["roe-trades"] = global.roeTrades;
@@ -692,10 +693,14 @@ void Config::overwriteLearningFile(const GlobalStatistics &global, const Account
             root["canceled-trades"] = global.canceledTrades;
             root["open-trades"] = global.openTrades;
             root["active-trades"] = global.activeTrades;
+
             root["stop-loss-in-loss"] = global.stopLossInLoss;
             root["take-profit-in-loss"] = global.takeProfitInLoss;
             root["stop-loss-in-gain"] = global.stopLossInGain;
             root["take-profit-in-gain"] = global.takeProfitInGain;
+
+            root["max-loss-serie"] = global.maxAdjacentLoss;
+            root["max-win-serie"] = global.maxAdjacentWin;
 
             parser.save(m_learningPath.getFullPathName(), m_learningFilename);
         }

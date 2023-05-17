@@ -278,7 +278,7 @@ void IndiceAlpha::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double pri
         if (price > 0.0) {
             // if price defined, limit close else market close
         } else {
-            trade->close();
+            trade->close(TradeStats::REASON_CLOSE_MARKET);
         }
 
         // @todo trade manager removeTrader and it must also freeTrade from tradeproxy

@@ -397,7 +397,7 @@ void MaAdx::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price)
         if (price > 0.0) {
             // if price defined, limit/stop close else market close
         } else {
-            trade->close();
+            trade->close(TradeStats::REASON_CLOSE_MARKET);
 
             // free trade once completed @todo done by tradeManager
             handler()->traderProxy()->freeTrade(trade);

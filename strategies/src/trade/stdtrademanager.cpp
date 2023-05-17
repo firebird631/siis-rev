@@ -276,7 +276,7 @@ void StdTradeManager::closeAll()
         if (trade->isActive()) {
             // found : apply
             m_mutex.lock();
-            trade->close();
+            trade->close(TradeStats::REASON_CLOSE_MARKET);
             m_mutex.unlock();
         } else if (!trade->isActive()) {
             m_mutex.lock();
@@ -300,12 +300,14 @@ void StdTradeManager::closeAllByDirection(o3d::Int32 dir)
         if (trade->isActive()) {
             // found : close
             m_mutex.unlock();
-            trade->close();
+            trade->close(TradeStats::REASON_CLOSE_MARKET);
+
             m_mutex.lock();
         } else if (!trade->isActive()) {
             // found : cancel
             m_mutex.unlock();
             trade->cancelOpen();
+
             m_mutex.lock();
         }
     }

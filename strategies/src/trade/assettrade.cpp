@@ -75,7 +75,7 @@ void AssetTrade::modifyStopLoss(o3d::Double price, ModifierType mod)
 
 }
 
-void AssetTrade::close()
+void AssetTrade::close(TradeStats::ExitReason reason)
 {
     // @todo
     m_filledExitQuantity = m_orderQuantity;
