@@ -125,7 +125,7 @@ void Pullback::init(Config *config)
         for (auto it = contexts.begin(); it != contexts.end(); ++it) {
             Json::Value context = *it;
 
-            m_minProfit = context.get("min-profit", 0.0).asDouble();
+            m_minProfit = context.get("min-profit", 0.0).asDouble() * 0.01;
 
             // breakout
             if (context.isMember("breakout")) {
@@ -149,7 +149,7 @@ void Pullback::init(Config *config)
             if (context.isMember("confirm")) {
                 Json::Value confirm = context.get("confirm", Json::Value());
 
-                m_confirmAtClose = confirm.get("type", Json::Value()).asCString() == "candle";
+                m_confirmAtClose = confirm.get("type", Json::Value()).asString() == "candle";
 
                 m_targetScale = confirm.get("target-scale", Json::Value()).asDouble();
                 m_riskReward = confirm.get("risk-reward", Json::Value()).asDouble();
@@ -327,35 +327,36 @@ void Pullback::prepare(o3d::Double timestamp)
 
 void Pullback::compute(o3d::Double timestamp)
 {
-    o3d::Bool sig = false;
+    for (Analyser *analyser : m_analysers) {
+        analyser->process(timestamp, lastTimestamp());
+    }
 
     m_breakeven.update(handler()->timestamp(), lastTimestamp());
     m_dynamicStopLoss.update(handler()->timestamp(), lastTimestamp());
 
-    for (Analyser *analyser : m_analysers) {
-        sig |= analyser->process(timestamp, lastTimestamp());
+    o3d::Int32 numClosed = 0;
+    TradeSignal signal = computeSignal(timestamp);
+    if (signal.type() == TradeSignal::ENTRY) {
+        // do not take position over the two sides, else close before
+        if (reversal() && m_tradeManager->hasTradesByDirection(-signal.direction())) {
+            numClosed = m_tradeManager->closeAllByDirection(-signal.direction());
+        }
     }
 
-    // compute entries
-    TradeSignal signal = computeSignal(timestamp);
+    // update the existing trades
+    m_tradeManager->process(timestamp);
+
     if (signal.type() == TradeSignal::ENTRY) {
         // keep to avoid repetitions
         m_lastSignal = signal;
 
-        // do not take position over the two sides, else close before
-        if (reversal() && m_tradeManager->hasTradesByDirection(-signal.direction())) {
-            m_tradeManager->closeAllByDirection(-signal.direction());
-        }
-
         o3d::Bool doOrder = true;
-        // second level : entry invalidation
-        // @todo
 
-        if (m_tradeManager->numTrades() >= maxTrades()) {
+        if (signal.estimateTakeProfitRate() < m_minProfit) {
             doOrder = false;
         }
 
-        if (signal.estimateTakeProfitRate() < m_minProfit) {
+        if (m_tradeManager->numTrades() >= maxTrades() && numClosed < 1) {
             doOrder = false;
         }
 
@@ -363,9 +364,6 @@ void Pullback::compute(o3d::Double timestamp)
             orderEntry(timestamp, signal.tf(), signal.d(), signal.price(), signal.tp(), signal.sl());
         }
     }
-
-    // update the existing trades
-    m_tradeManager->process(timestamp);
 }
 
 void Pullback::finalize(o3d::Double timestamp)
@@ -448,6 +446,7 @@ TradeSignal Pullback::computeSignal(o3d::Double timestamp)
         // reset integration
         m_integrateTimestamp = 0.0;
         m_integrateDirection = 0;
+        // printf("LB %S %g\n", timestampToStr(timestamp).getData(), m_breakoutPrice);
     }
 
     // if integrate => short
@@ -459,6 +458,7 @@ TradeSignal Pullback::computeSignal(o3d::Double timestamp)
         // reset integration
         m_integrateTimestamp = 0.0;
         m_integrateDirection = 0;
+        // printf("SB %S %g\n", timestampToStr(timestamp).getData(), m_breakoutPrice);
     }
 
     // integrate for possible long
@@ -467,6 +467,7 @@ TradeSignal Pullback::computeSignal(o3d::Double timestamp)
         if (m_breakoutDirection < 0 && m_breakoutPrice > 0.0 && m_srAnalyser->lastPrice() > m_breakoutPrice) {
             m_integrateTimestamp = timestamp;
             m_integrateDirection = 1;
+            // printf("LI %S %g\n", timestampToStr(timestamp).getData(), m_breakoutPrice);
         }
     }
 
@@ -476,6 +477,7 @@ TradeSignal Pullback::computeSignal(o3d::Double timestamp)
         if (m_breakoutDirection > 0 && m_breakoutPrice > 0.0 && m_srAnalyser->lastPrice() < m_breakoutPrice) {
             m_integrateTimestamp = timestamp;
             m_integrateDirection = -1;
+            // printf("SI %S %g\n", timestampToStr(timestamp).getData(), m_breakoutPrice);
         }
     }
 
@@ -532,6 +534,14 @@ TradeSignal Pullback::computeSignal(o3d::Double timestamp)
     }
 
     if (m_integrateTimestamp > 0.0 && timestamp - m_integrateTimestamp > m_srAnalyser->timeframe()) {
+        m_integrateTimestamp = 0.0;
+        m_integrateDirection = 0;
+    }  
+
+    if (signal.valid()) {
+        m_breakoutTimestamp = 0.0;
+        m_breakoutPrice = 0.0;
+        m_breakoutDirection = 0;
         m_integrateTimestamp = 0.0;
         m_integrateDirection = 0;
     }

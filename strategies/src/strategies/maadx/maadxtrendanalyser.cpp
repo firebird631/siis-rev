@@ -63,12 +63,10 @@ TradeSignal MaAdxTrendAnalyser::compute(o3d::Double timestamp, o3d::Double lastT
         m_trend = 1;
     } else if (lc < 0) {
         m_trend = -1;
+    } else if (hc < 0 || lc > 0) {
+        // no trend between two MAs
+        m_trend = 0;
     }
-
-    // no trend between two MAs
-//    if (price().last() <= m_slow_h_ma.last() && price().last() >= m_slow_l_ma.last()) {
-//        m_trend = 0;
-//    }
 
     return signal;
 }

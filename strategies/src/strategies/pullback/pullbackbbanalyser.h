@@ -41,11 +41,37 @@ public:
     inline o3d::Int32 breakout() const { return m_breakout; }
     inline o3d::Int32 integrate() const { return m_integrate; }
 
-    inline o3d::Bool isPriceBelowLower() const { return price().last() < m_bollinger.lower().last(); }
-    inline o3d::Bool isPriceAboveUpper() const { return price().last() > m_bollinger.upper().last(); }
+    inline o3d::Bool isPriceBelowLower() const {
+        if (price().last() <= 0.0 || m_bollinger.lower().last() <= 0.0) {
+            return false;
+        }
 
-    inline o3d::Bool isPriceBelowUpper() const { return price().last() < m_bollinger.upper().last(); }
-    inline o3d::Bool isPriceAboveLower() const { return price().last() > m_bollinger.lower().last(); }
+        return price().last() < m_bollinger.lower().last();
+    }
+
+    inline o3d::Bool isPriceAboveUpper() const {
+        if (price().last() <= 0.0 || m_bollinger.upper().last() <= 0.0) {
+            return false;
+        }
+
+        return price().last() > m_bollinger.upper().last();
+    }
+
+    inline o3d::Bool isPriceBelowUpper() const {
+        if (price().last() <= 0.0 || m_bollinger.upper().last() <= 0.0) {
+            return false;
+        }
+
+        return price().last() < m_bollinger.upper().last();
+    }
+
+    inline o3d::Bool isPriceAboveLower() const {
+        if (price().last() <= 0.0 || m_bollinger.lower().last() <= 0.0) {
+            return false;
+        }
+
+        return price().last() > m_bollinger.lower().last();
+    }
 
     o3d::Double entryPrice() const;
     o3d::Double takeProfit(o3d::Int32 dir, o3d::Double profitScale) const;

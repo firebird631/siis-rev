@@ -43,7 +43,8 @@ MaAdx::MaAdx(Handler *handler, const o3d::String &identifier) :
     m_lastSignal(0, 0),
     m_adxSig(40),
     m_targetScale(1.0),
-    m_riskReward(1.0)
+    m_riskReward(1.0),
+    m_minProfit(0.0)
 {
 
 }
@@ -118,6 +119,8 @@ void MaAdx::init(Config *config)
         Json::Value contexts = conf.root().get("contexts", Json::Value());
         for (auto it = contexts.begin(); it != contexts.end(); ++it) {
             Json::Value context = *it;
+
+            m_minProfit = context.get("min-profit", 0.0).asDouble() * 0.01;
 
             // trend
             if (context.isMember("trend")) {
@@ -304,31 +307,37 @@ void MaAdx::prepare(o3d::Double timestamp)
 }
 
 void MaAdx::compute(o3d::Double timestamp)
-{
-    o3d::Bool sig = false;
+{  
+    for (Analyser *analyser : m_analysers) {
+        analyser->process(timestamp, lastTimestamp());
+    }
 
     m_breakeven.update(handler()->timestamp(), lastTimestamp());
     m_dynamicStopLoss.update(handler()->timestamp(), lastTimestamp());
 
-    for (Analyser *analyser : m_analysers) {
-        sig |= analyser->process(timestamp, lastTimestamp());
+    o3d::Int32 numClosed = 0;
+    TradeSignal signal = computeSignal(timestamp);
+    if (signal.type() == TradeSignal::ENTRY) {
+        // do not take position over the two sides, else close before
+        if (reversal() && m_tradeManager->hasTradesByDirection(-signal.direction())) {
+            numClosed = m_tradeManager->closeAllByDirection(-signal.direction());
+        }
     }
 
-    // compute entries
-    TradeSignal signal = computeSignal(timestamp);
+    // update the existing trades
+    m_tradeManager->process(timestamp);
+
     if (signal.type() == TradeSignal::ENTRY) {
         // keep to avoid repetitions
         m_lastSignal = signal;
 
-        // do not take position over the two sides, else close before
-        if (reversal() && m_tradeManager->hasTradesByDirection(-signal.direction())) {
-            m_tradeManager->closeAllByDirection(-signal.direction());
-        }
-
-        // second level : entry invalidation
         o3d::Bool doOrder = true;
 
-        if (m_tradeManager->numTrades() >= maxTrades()) {
+        if (signal.estimateTakeProfitRate() < m_minProfit) {
+            doOrder = false;
+        }
+
+        if (m_tradeManager->numTrades() >= maxTrades() && numClosed < 1) {
             doOrder = false;
         }
 
@@ -336,9 +345,6 @@ void MaAdx::compute(o3d::Double timestamp)
             orderEntry(timestamp, signal.tf(), signal.d(), signal.price(), signal.tp(), signal.sl());
         }
     }
-
-    // update the existing trades
-    m_tradeManager->process(timestamp);
 }
 
 void MaAdx::finalize(o3d::Double timestamp)

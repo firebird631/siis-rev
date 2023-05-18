@@ -50,6 +50,7 @@ public:
     o3d::Bool hasTradeById(o3d::Int32 id) const;
 
     o3d::Int32 numTrades() const;
+    o3d::Int32 numActiveTrades() const;
 
     Trade* getTrade(o3d::Int32 id);
     const Trade* getTrade(o3d::Int32 id) const;
@@ -64,8 +65,9 @@ public:
                             o3d::Int32 &pending,
                             o3d::Int32 &actives) const;
 
-    void closeAll();
-    void closeAllByDirection(o3d::Int32 dir);
+
+    o3d::Int32 closeAll();
+    o3d::Int32 closeAllByDirection(o3d::Int32 dir);
 
     void onOrderSignal(const OrderSignal &orderSignal);
     void onPositionSignal(const PositionSignal &positionSignal);

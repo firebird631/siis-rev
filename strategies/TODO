@@ -8,7 +8,6 @@ Prioritaire
 
 - gestion limit et stop order sur le local trader (mais attention, très lié à la gestion des context trade life cycle)
 - gestion des statistiques par account (paper trader local)
-- appliquer les regles breakeven, dynamic-stop-loss aux trades actifs, voir la solution...
 - fixer les size sur connectormessagereceivetickaggreged.cpp
 
 - events to REDIS

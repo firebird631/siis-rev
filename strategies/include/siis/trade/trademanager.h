@@ -71,6 +71,7 @@ public:
     void process(o3d::Double timestamp) { T::process(timestamp); }
 
     o3d::Int32 numTrades() const { return T::numTrades(); }
+    o3d::Int32 numActiveTrades() const { return T::numActiveTrades(); }
 
     o3d::Bool hasTrades() const { return T::hasTrades(); }
 
@@ -98,7 +99,7 @@ public:
      * @param timestamp Last timestamp
      * @param price Last market price.
      */
-    void closeAll(o3d::Double timestamp, o3d::Double price) { T::closeAll(timestamp, price); }
+    o3d::Int32 closeAll(o3d::Double timestamp, o3d::Double price) { return T::closeAll(timestamp, price); }
 
     /**
      * @brief closeAllByDirection Similar as closeAll by only trade from a specific direction.
@@ -106,8 +107,9 @@ public:
      * @param timestamp
      * @param price
      */
-    void closeAllByDirection(o3d::Int32 dir, o3d::Double timestamp, o3d::Double price) {
-        T::closeAllByDirection(timestamp, price); }
+    o3d::Int32 closeAllByDirection(o3d::Int32 dir, o3d::Double timestamp, o3d::Double price) {
+        return T::closeAllByDirection(timestamp, price);
+    }
 
     //
     // signals

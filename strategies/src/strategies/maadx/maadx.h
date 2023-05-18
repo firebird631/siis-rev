@@ -80,6 +80,7 @@ private:
     o3d::Double m_adxSig;
     o3d::Double m_targetScale;
     o3d::Double m_riskReward;
+    o3d::Double m_minProfit;
 
     Breakeven m_breakeven;
     DynamicStopLoss m_dynamicStopLoss;

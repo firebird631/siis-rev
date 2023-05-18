@@ -121,5 +121,5 @@ o3d::Bool StdAnalyser::process(o3d::Double timestamp, o3d::Double lastTimestamp)
 
 o3d::Double StdAnalyser::lastPrice() const
 {
-    return m_price.close().getSize() ? m_price.close().getLast() : 0.0;
+    return m_price.close().last();
 }

@@ -89,9 +89,11 @@ void StdTradeManager::process(o3d::Double timestamp)
     }
 
     for (Trade *trade : removed_trades) {
-        o3d::String msg = o3d::String("#{0} {1} exit at p={2} pl={3}%").arg(trade->id())
+        o3d::String msg = o3d::String("#{0} {1} exit at p={2} pl={3}% {4}").arg(trade->id())
                           .arg(trade->direction() > 0 ? "long" : "short")
-                          .arg(trade->strategy()->market()->formatPrice(trade->exitPrice())).arg(trade->profitLossRate()*100.0, 2);
+                          .arg(trade->strategy()->market()->formatPrice(trade->exitPrice()))
+                          .arg(trade->profitLossRate()*100.0, 2)
+                          .arg(trade->profitLossRate() > 0 ? "WIN" : "LOSS");
         m_strategy->log(trade->tf(), "trade-exit", msg);
 
         m_trades.remove(trade);
@@ -153,6 +155,21 @@ o3d::Int32 StdTradeManager::numTrades() const
 {
     m_mutex.lock();
     o3d::Int32 n = static_cast<o3d::Int32>(m_trades.size());
+    m_mutex.unlock();
+
+    return n;
+}
+
+o3d::Int32 StdTradeManager::numActiveTrades() const
+{
+    m_mutex.lock();
+    o3d::Int32 n = static_cast<o3d::Int32>(m_trades.size());
+
+    for (Trade *trade : m_trades) {
+        if (trade->isClosed() || trade->isClosing()) {
+            --n;
+        }
+    }
     m_mutex.unlock();
 
     return n;
@@ -268,8 +285,10 @@ void StdTradeManager::computePerformance(
     m_mutex.unlock();
 }
 
-void StdTradeManager::closeAll()
+o3d::Int32 StdTradeManager::closeAll()
 {
+    o3d::Int32 n = 0;
+
     m_mutex.lock();
 
     for (Trade *trade : m_trades) {
@@ -277,19 +296,29 @@ void StdTradeManager::closeAll()
             // found : apply
             m_mutex.lock();
             trade->close(TradeStats::REASON_CLOSE_MARKET);
+
+            ++n;
+
             m_mutex.unlock();
         } else if (!trade->isActive()) {
             m_mutex.lock();
             trade->cancelOpen();
+
+            ++n;
+
             m_mutex.unlock();
         }
     }
 
     m_mutex.unlock();
+
+    return n;
 }
 
-void StdTradeManager::closeAllByDirection(o3d::Int32 dir)
+o3d::Int32 StdTradeManager::closeAllByDirection(o3d::Int32 dir)
 {
+    o3d::Int32 n = 0;
+
     m_mutex.lock();
 
     for (Trade *trade : m_trades) {
@@ -302,17 +331,23 @@ void StdTradeManager::closeAllByDirection(o3d::Int32 dir)
             m_mutex.unlock();
             trade->close(TradeStats::REASON_CLOSE_MARKET);
 
+            ++n;
+
             m_mutex.lock();
         } else if (!trade->isActive()) {
             // found : cancel
             m_mutex.unlock();
             trade->cancelOpen();
 
+            ++n;
+
             m_mutex.lock();
         }
     }
 
     m_mutex.unlock();
+
+    return n;
 }
 
 void StdTradeManager::onOrderSignal(const OrderSignal &orderSignal)
