@@ -124,6 +124,7 @@ void Pullback::init(Config *config)
         Json::Value contexts = conf.root().get("contexts", Json::Value());
         for (auto it = contexts.begin(); it != contexts.end(); ++it) {
             Json::Value context = *it;
+            ContextConfig ctxConfig(context);
 
             m_minProfit = context.get("min-profit", 0.0).asDouble() * 0.01;
 
@@ -155,47 +156,13 @@ void Pullback::init(Config *config)
                 m_riskReward = confirm.get("risk-reward", Json::Value()).asDouble();
             }
 
-            // entry
-            if (context.isMember("entry")) {
-                Json::Value entry = context.get("entry", Json::Value());
-                ContextConfig ctxConfig(entry);
-                // m_entry.init(market(), ctxConfig);
-            }
-
-            // stop-loss
-            if (context.isMember("stop-loss")) {
-                Json::Value stopLoss = context.get("stop-loss", Json::Value());
-                ContextConfig ctxConfig(stopLoss);
-                // m_stopLoss.init(market(), ctxConfig);
-            }
-
-            // take-profit
-            if (context.isMember("take-profit")) {
-                Json::Value takeProfit = context.get("take-profit", Json::Value());
-                ContextConfig ctxConfig(takeProfit);
-                // m_takeProfit.init(market(), ctxConfig);
-            }
-
-            // breakeven
-            if (context.isMember("breakeven")) {
-                Json::Value breakeven = context.get("breakeven", Json::Value());
-                ContextConfig ctxConfig(breakeven);
-                m_breakeven.init(market(), ctxConfig);
-            }
-
-            // dynamic-stop-loss
-            if (context.isMember("dynamic-stop-loss")) {
-                Json::Value dynamicStopLoss = context.get("dynamic-stop-loss", Json::Value());
-                ContextConfig ctxConfig(dynamicStopLoss);
-                m_dynamicStopLoss.init(market(), ctxConfig);
-            }
-
-            // dynamic-take-profit
-            if (context.isMember("dynamic-take-profit")) {
-                Json::Value dynamicTakeProfit = context.get("dynamic-take-profit", Json::Value());
-                ContextConfig ctxConfig(dynamicTakeProfit);
-                // m_dynamicTakeProfit.init(market(), ctxConfig);
-            }
+            // entry-exits
+            // m_entry.init(market(), ctxConfig);
+            m_stopLoss.init(market(), ctxConfig);
+            // m_takeProfit.init(market(), ctxConfig);
+            m_breakeven.init(market(), ctxConfig);
+            m_dynamicStopLoss.init(market(), ctxConfig);
+            // m_dynamicTakeProfit.init(market(), ctxConfig);
         }
     }
 
@@ -544,6 +511,8 @@ TradeSignal Pullback::computeSignal(o3d::Double timestamp)
         m_breakoutDirection = 0;
         m_integrateTimestamp = 0.0;
         m_integrateDirection = 0;
+
+        m_stopLoss.updateSignal(signal);
     }
 
     return signal;

@@ -21,10 +21,10 @@ Breakeven::Breakeven() :
 
 void Breakeven::init(const Market *market, ContextConfig &conf)
 {
-    EntryExit::init(market, conf);
+    EntryExit::init(market, conf.breakeven());
 }
 
-void Breakeven::updateΤrade(o3d::Double timestamp, o3d::Double lastTimestamp, Trade *trade)
+void Breakeven::updateΤrade(o3d::Double timestamp, o3d::Double lastTimestamp, Trade *trade) const
 {
     if (!trade) {
         return;

@@ -98,6 +98,7 @@ set(STRATEGY_LIB_CXX
     trade/margintrade.cpp
     trade/positiontrade.cpp
     trade/stdtrademanager.cpp
+    trade/stoploss.cpp
     trade/trade.cpp
     trade/tradeoperation.cpp
     monitor/monitor.cpp

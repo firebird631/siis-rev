@@ -65,35 +65,13 @@ private:
 };
 
 /**
- * @brief Per context specific config.
- */
-class SIIS_API ContextConfig
-{
-public:
-
-    ContextConfig(Json::Value &data) :
-        m_data(data)
-    {
-    }
-
-    /**
-     * @brief data Tree relative to the context configuration.
-     */
-    const Json::Value& data() const { return m_data; }
-
-private:
-
-    Json::Value m_data;
-};
-
-/**
  * @brief Context entry specific config.
  */
-class SIIS_API EntryConfig
+class SIIS_API EntryExitConfig
 {
 public:
 
-    EntryConfig(Json::Value &data) :
+    EntryExitConfig(const Json::Value &data) :
         m_data(data)
     {
     }
@@ -109,109 +87,106 @@ private:
 };
 
 /**
- * @brief Context take-profit specific config.
+ * @brief Context entry specific config.
  */
-class SIIS_API TakeProfitConfig
+class SIIS_API EntryConfig : public EntryExitConfig
 {
 public:
 
-    TakeProfitConfig(Json::Value &data) :
-        m_data(data)
+    EntryConfig(const Json::Value &data) :
+        EntryExitConfig(data)
     {
     }
+};
 
-    /**
-     * @brief data Tree relative to the context take-profit configuration.
-     */
-    const Json::Value& data() const { return m_data; }
+/**
+ * @brief Context take-profit specific config.
+ */
+class SIIS_API TakeProfitConfig : public EntryExitConfig
+{
+public:
 
-private:
-
-    Json::Value m_data;
+    TakeProfitConfig(const Json::Value &data) :
+        EntryExitConfig(data)
+    {
+    }
 };
 
 /**
  * @brief Context stop-loss specific config.
  */
-class SIIS_API StopLossConfig
+class SIIS_API StopLossConfig : public EntryExitConfig
 {
 public:
 
-    StopLossConfig(Json::Value &data) :
-        m_data(data)
+    StopLossConfig(const Json::Value &data) :
+        EntryExitConfig(data)
     {
     }
-
-    /**
-     * @brief data Tree relative to the context stop-loss configuration.
-     */
-    const Json::Value& data() const { return m_data; }
-
-private:
-
-    Json::Value m_data;
 };
 
 /**
  * @brief Context breakeven specific config.
  */
-class SIIS_API BreakevenConfig
+class SIIS_API BreakevenConfig : public EntryExitConfig
 {
 public:
 
-    BreakevenConfig(Json::Value &data) :
-        m_data(data)
+    BreakevenConfig(const Json::Value &data) :
+        EntryExitConfig(data)
     {
     }
-
-    /**
-     * @brief data Tree relative to the context breakeven configuration.
-     */
-    const Json::Value& data() const { return m_data; }
-
-private:
-
-    Json::Value m_data;
 };
 
 /**
  * @brief Context dynamic stop-loss specific config.
  */
-class SIIS_API DynamicStopLossConfig
+class SIIS_API DynamicStopLossConfig : public EntryExitConfig
 {
 public:
 
-    DynamicStopLossConfig(Json::Value &data) :
-        m_data(data)
+    DynamicStopLossConfig(const Json::Value &data) :
+        EntryExitConfig(data)
     {
     }
-
-    /**
-     * @brief data Tree relative to the context dynamic stop-loss configuration.
-     */
-    const Json::Value& data() const { return m_data; }
-
-private:
-
-    Json::Value m_data;
 };
 
 /**
  * @brief Context dynamic take-profit specific config.
  */
-class SIIS_API DynamicTakeProfitConfig
+class SIIS_API DynamicTakeProfitConfig : public EntryExitConfig
 {
 public:
 
-    DynamicTakeProfitConfig(Json::Value &data) :
+    DynamicTakeProfitConfig(const Json::Value &data) :
+        EntryExitConfig(data)
+    {
+    }
+};
+
+/**
+ * @brief Per context specific config.
+ */
+class SIIS_API ContextConfig
+{
+public:
+
+    ContextConfig(const Json::Value &data) :
         m_data(data)
     {
     }
 
     /**
-     * @brief data Tree relative to the context dynamic take-profit configuration.
+     * @brief data Tree relative to the context configuration.
      */
     const Json::Value& data() const { return m_data; }
+
+    EntryConfig entry() const;
+    TakeProfitConfig takeProfit() const;
+    StopLossConfig stopLoss() const;
+    BreakevenConfig breakeven() const;
+    DynamicTakeProfitConfig dynamicTakeProfit() const;
+    DynamicStopLossConfig dynamicStopLoss() const;
 
 private:
 

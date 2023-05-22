@@ -17,6 +17,7 @@ namespace siis {
 
 class Market;
 class ContextConfig;
+class EntryExitConfig;
 class Trade;
 
 /**
@@ -30,7 +31,7 @@ public:
 
     EntryExit();
 
-    void init(const Market *market, ContextConfig &conf);
+    void init(const Market *market, const EntryExitConfig &conf);
 
     /**
      * @brief update To be called at each processing pass before trade manager update.

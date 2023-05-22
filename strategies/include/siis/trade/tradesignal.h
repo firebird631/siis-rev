@@ -162,6 +162,22 @@ public:
         return 0.0;
     }
 
+    o3d::Double absDistanceFromStop() const {
+        if (m_price > 0.0 && m_stopLossPrice > 0.0) {
+            return m_direction * (m_price - m_stopLossPrice);
+        }
+
+        return 0.0;
+    }
+
+    o3d::Double absDistanceFromTakeProfit() const {
+        if (m_price > 0.0 && m_takeProfitPrice > 0.0) {
+            return m_direction * (m_takeProfitPrice - m_price);
+        }
+
+        return 0.0;
+    }
+
     /**
      * @brief addCondition Add a condition related to the emission of this signal.
      */

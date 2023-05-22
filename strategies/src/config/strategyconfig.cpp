@@ -324,3 +324,63 @@ o3d::Double StrategyConfig::timeframeAsDouble(Json::Value &parent, const o3d::St
         return 0.0;
     }
 }
+
+EntryConfig ContextConfig::entry() const
+{
+    if (data().isMember("entry")) {
+        Json::Value d = data().get("entry", Json::Value());
+        return EntryConfig(d);
+    }
+
+    return EntryConfig(Json::Value());
+}
+
+TakeProfitConfig ContextConfig::takeProfit() const
+{
+    if (data().isMember("take-profit")) {
+        Json::Value d = data().get("take-profit", Json::Value());
+        return TakeProfitConfig(d);
+    }
+
+    return TakeProfitConfig(Json::Value());
+}
+
+StopLossConfig ContextConfig::stopLoss() const
+{
+    if (data().isMember("stop-loss")) {
+        Json::Value d = data().get("stop-loss", Json::Value());
+        return StopLossConfig(d);
+    }
+
+    return StopLossConfig(Json::Value());
+}
+
+BreakevenConfig ContextConfig::breakeven() const
+{
+    if (data().isMember("breakeven")) {
+        Json::Value d = data().get("breakeven", Json::Value());
+        return BreakevenConfig(d);
+    }
+
+    return BreakevenConfig(Json::Value());
+}
+
+DynamicTakeProfitConfig ContextConfig::dynamicTakeProfit() const
+{
+    if (data().isMember("dynamic-take-profit")) {
+        Json::Value d = data().get("dynamic-take-profit", Json::Value());
+        return DynamicTakeProfitConfig(d);
+    }
+
+    return DynamicTakeProfitConfig(Json::Value());
+}
+
+DynamicStopLossConfig ContextConfig::dynamicStopLoss() const
+{
+    if (data().isMember("dynamic-stop-loss")) {
+        Json::Value d = data().get("dynamic-stop-loss", Json::Value());
+        return DynamicStopLossConfig(d);
+    }
+
+    return DynamicStopLossConfig(Json::Value());
+}

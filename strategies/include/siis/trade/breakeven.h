@@ -26,7 +26,7 @@ public:
 
     void init(const Market *market, ContextConfig &conf);
 
-    void updateΤrade(o3d::Double timestamp, o3d::Double lastTimestamp, Trade *trade);
+    void updateΤrade(o3d::Double timestamp, o3d::Double lastTimestamp, Trade *trade) const;
 };
 
 } // namespace siis

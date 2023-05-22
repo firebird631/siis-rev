@@ -24,9 +24,14 @@ public:
 
     DynamicStopLoss();
 
-    void init(const Market *market, ContextConfig &conf);
+    void init(const Market *market, const ContextConfig &conf);
 
-    void updateΤrade(o3d::Double timestamp, o3d::Double lastTimestamp, Trade *trade);
+    void updateΤrade(o3d::Double timestamp, o3d::Double lastTimestamp, Trade *trade) const;
+
+private:
+
+    o3d::Double m_breakevenDistance;
+    DistanceType m_breakevenDistanceType;
 };
 
 } // namespace siis

@@ -24,12 +24,14 @@ EntryExit::EntryExit() :
 
 }
 
-void EntryExit::init(const Market *market, ContextConfig &conf)
+void EntryExit::init(const Market *market, const EntryExitConfig &conf)
 {
     if (conf.data().isMember("type")) {
         o3d::String type = conf.data().get("type", Json::Value()).asCString();
         if (type == "fixed-pct") {
             m_distanceType = DIST_PERCENTIL;
+        } else if (type == "fixed-dist") {
+            m_distanceType = DIST_PRICE;
         } else if (type == "custom") {
             m_distanceType = DIST_CUSTOM;
         }

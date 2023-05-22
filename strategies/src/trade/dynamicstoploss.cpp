@@ -13,14 +13,47 @@
 using namespace siis;
 
 DynamicStopLoss::DynamicStopLoss() :
-    EntryExit()
+    EntryExit(),
+    m_breakevenDistance(0.0),
+    m_breakevenDistanceType(DIST_NONE)
 {
 
 }
 
-void DynamicStopLoss::init(const Market *market, ContextConfig &conf)
+void DynamicStopLoss::init(const Market *market, const ContextConfig &conf)
 {
-    EntryExit::init(market, conf);
+    EntryExit::init(market, conf.dynamicStopLoss());
+
+    // needed if configured
+    BreakevenConfig breakevenConfig = conf.breakeven();
+    if (breakevenConfig.data().isMember("type")) {
+        o3d::String type = breakevenConfig.data().get("type", Json::Value()).asCString();
+        if (type == "fixed-pct") {
+            m_breakevenDistanceType = DIST_PERCENTIL;
+        } else if (type == "fixed-dist") {
+            m_breakevenDistanceType = DIST_PRICE;
+        } else if (type == "custom") {
+            m_breakevenDistanceType = DIST_CUSTOM;
+        }
+    }
+
+    if (breakevenConfig.data().isMember("distance")) {
+        if (breakevenConfig.data().isMember("distance")) {
+            o3d::String distance = breakevenConfig.data().get("distance", Json::Value()).asCString();
+            if (distance.endsWith("%")) {
+                distance.trimRight('%');
+                m_breakevenDistance = distance.toDouble() * 0.01;
+            } else if (distance.endsWith("pip")) {
+                distance.trimRight("pip");
+                m_breakevenDistance = distance.toDouble() * market->onePipMean();
+            } else if (distance.endsWith("pips")) {
+                distance.trimRight("pips");
+                m_breakevenDistance = distance.toDouble() * market->onePipMean();
+            } else {
+                m_breakevenDistance = distance.toDouble();
+            }
+        }
+    }
 }
 
 o3d::Double distanceFromPercentile(Trade *trade, o3d::Double closeExecPrice)
@@ -83,14 +116,27 @@ o3d::Double computeStopLossPriceFixedDistancePrice(Trade *trade, o3d::Double dis
     return 0.0;
 }
 
-void DynamicStopLoss::updateΤrade(o3d::Double timestamp, o3d::Double lastTimestamp, Trade *trade)
+void DynamicStopLoss::updateΤrade(o3d::Double timestamp, o3d::Double lastTimestamp, Trade *trade) const
 {
     if (!trade) {
         return;
     }
 
-    if (trade->estimateProfitLossRate() <= 0.0) {
-        return;
+    // at least a breakeven distance if defined else it is 0
+    if (m_breakevenDistance > 0.0) {
+        if (m_breakevenDistanceType == DIST_PERCENTIL) {
+            if (trade->estimateProfitLossRate() <= m_breakevenDistance) {
+                return;
+            }
+        } else if (m_breakevenDistanceType == DIST_PRICE) {
+            if (trade->deltaPrice() <= trade->direction() * m_breakevenDistance) {
+                return;
+            }
+        }
+    } else {
+        if (trade->estimateProfitLossRate() <= 0.0) {
+            return;
+        }
     }
 
     if (m_adjustPolicy == ADJ_PRICE) {
