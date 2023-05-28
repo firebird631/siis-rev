@@ -1,8 +1,8 @@
-set(LIB_NAME maichimoku)
+set(LIB_NAME bourricot)
 
 set(STRATEGY_CXX
-   maichimoku.cpp
-#    maichimoku...analyser.cpp)
+#    bourricot.cpp
+#    bourricot...analyser.cpp)
 )
 
 set(LIBRARY_OUTPUT_PATH ../../../strategies)

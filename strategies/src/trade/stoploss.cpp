@@ -31,12 +31,10 @@ void StopLoss::updateSignal(TradeSignal &signal) const
         if (signal.direction() > 0) {
             if (signal.stopLoss() <= 0.0 || signal.estimateStopLossRate() > m_distance) {
                 signal.setStopLossPrice(signal.price() * (1.0 - m_distance));
-                printf("clamp to SL %g\n", m_distance*100);
             }
         } else if (signal.direction() < 0) {
             if (signal.stopLoss() <= 0.0 || signal.estimateStopLossRate() > m_distance) {
                 signal.setStopLossPrice(signal.price() * (1.0 + m_distance));
-                printf("clamp to SL %g\n", m_distance*100);
             }
         }
     } else if (m_distanceType == DIST_PRICE) {

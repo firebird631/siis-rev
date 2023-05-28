@@ -19,6 +19,7 @@ static const char* MaAdxParameters = R"JSON(
 {
     "reversal": true,
     "hedging": false,
+    "dual": false,
     "max-trades": 3,
     "trade-delay": 30,
     "need-update": false,

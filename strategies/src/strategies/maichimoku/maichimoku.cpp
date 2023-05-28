@@ -1,12 +1,12 @@
-﻿/**
- * @brief SiiS strategy pullback.
+/**
+ * @brief SiiS strategy MA Ichimoku.
  * @copyright Copyright (C) 2023 SiiS
  * @author Frederic SCHERMA (frederic.scherma@gmail.com)
- * @date 2023-05-09
+ * @date 2023-05-25
  */
 
-#include "pullback.h"
-#include "pullbackparameters.h"
+#include "maichimoku.h"
+#include "maichimokuparameters.h"
 
 #include "siis/config/strategyconfig.h"
 #include "siis/handler.h"
@@ -17,9 +17,9 @@
 #include "siis/database/tradedb.h"
 #include "siis/database/ohlcdb.h"
 
-#include "pullbacksranalyser.h"
-#include "pullbackbbanalyser.h"
-#include "pullbackconfanalyser.h"
+//#include "maichimokutrendanalyser.h"
+//#include "maichimokusiganalyser.h"
+//#include "maichimokuconfanalyser.h"
 
 using namespace siis;
 using o3d::Logger;
@@ -30,50 +30,45 @@ extern "C"
 
 SIIS_PLUGIN_API siis::Strategy* siisStrategy(Handler *handler, const o3d::String &identifier)
 {
-    return new siis::Pullback(handler, identifier);
+    return new siis::MaIchimoku(handler, identifier);
 }
 
 } // extern "C"
 
-Pullback::Pullback(Handler *handler, const o3d::String &identifier) :
+MaIchimoku::MaIchimoku(Handler *handler, const o3d::String &identifier) :
     Strategy(handler, identifier),
-    m_srAnalyser(nullptr),
-    m_bbAnalyser(nullptr),
-    m_confAnalyser(nullptr),
+//    m_srAnalyser(nullptr),
+//    m_bbAnalyser(nullptr),
+//    m_confAnalyser(nullptr),
     m_lastSignal(0, 0),
     m_confirmAtClose(false),
     m_targetScale(1.0),
     m_riskReward(1.0),
-    m_minProfit(0.0),
-    m_breakoutTimestamp(0.0),
-    m_breakoutDirection(0),
-    m_breakoutPrice(0),
-    m_integrateTimestamp(0.0),
-    m_integrateDirection(0)
+    m_minProfit(0.0)
 {
 
 }
 
-Pullback::~Pullback()
+MaIchimoku::~MaIchimoku()
 {
 
 }
 
-void Pullback::init(Config *config)
+void MaIchimoku::init(Config *config)
 {
     Strategy::init(config);
 
     // author defined strategy properties details
-    setProperty("name", "pullback");
+    setProperty("name", "ma-ichimoku");
     setProperty("author", "Frederic SCHERMA (frederic.scherma@gmail.com)");
-    setProperty("date", "2023-05-09");
+    setProperty("date", "2023-05-25");
     setProperty("revision", "1");
     setProperty("copyright", "2018-2023 Dream Overflow");
     setProperty("comment", "Αny kind of market dedicaded strategy, but specialy interesting with Forex.");
 
     // strategie parameters
     StrategyConfig conf;
-    conf.parseDefaults(PullbackParameters);
+    conf.parseDefaults(MaIchimokuParameters);
     conf.parseOverrides(config);
 
     initBasicsParameters(conf);
@@ -95,28 +90,28 @@ void Pullback::init(Config *config)
                 continue;
             }
 
-            if (mode == "sr") {
-                Analyser *a = new PullbackSRAnalyser(this, tf, subTf, depth, history, Price::PRICE_CLOSE);
-                a->init(AnalyserConfig(timeframe));
+//            if (mode == "sr") {
+//                Analyser *a = new PullbackSRAnalyser(this, tf, subTf, depth, history, Price::PRICE_CLOSE);
+//                a->init(AnalyserConfig(timeframe));
 
-                m_analysers.push_back(a);
-                m_srAnalyser = static_cast<PullbackSRAnalyser*>(a);
-            } else if (mode == "bollinger") {
-                Analyser *a = new PullbackBBAnalyser(this, tf, subTf, depth, history, Price::PRICE_CLOSE);
-                a->init(AnalyserConfig(timeframe));
+//                m_analysers.push_back(a);
+//                m_srAnalyser = static_cast<PullbackSRAnalyser*>(a);
+//            } else if (mode == "bollinger") {
+//                Analyser *a = new PullbackBBAnalyser(this, tf, subTf, depth, history, Price::PRICE_CLOSE);
+//                a->init(AnalyserConfig(timeframe));
 
-                m_analysers.push_back(a);
-                m_bbAnalyser = static_cast<PullbackBBAnalyser*>(a);
-            } else if (mode == "conf") {
-                Analyser *a = new PullbackConfAnalyser(this, tf, subTf, depth, history, Price::PRICE_CLOSE);
-                a->init(AnalyserConfig(timeframe));
+//                m_analysers.push_back(a);
+//                m_bbAnalyser = static_cast<PullbackBBAnalyser*>(a);
+//            } else if (mode == "conf") {
+//                Analyser *a = new PullbackConfAnalyser(this, tf, subTf, depth, history, Price::PRICE_CLOSE);
+//                a->init(AnalyserConfig(timeframe));
 
-                m_analysers.push_back(a);
-                m_confAnalyser = static_cast<PullbackConfAnalyser*>(a);
-            } else {
-                // ignored, unknow mode
-                O3D_WARNING(o3d::String("Pullback strategy unknow mode {0}").arg(mode));
-            }
+//                m_analysers.push_back(a);
+//                m_confAnalyser = static_cast<PullbackConfAnalyser*>(a);
+//            } else {
+//                // ignored, unknow mode
+//                O3D_WARNING(o3d::String("Pullback strategy unknow mode {0}").arg(mode));
+//            }
         }
     }
 
@@ -128,23 +123,23 @@ void Pullback::init(Config *config)
 
             m_minProfit = context.get("min-profit", 0.0).asDouble() * 0.01;
 
-            // breakout
-            if (context.isMember("breakout")) {
-                Json::Value trend = context.get("breakout", Json::Value());
-                // "type": "sr-bollinger", "sr-timeframe": "30m", "bollinger-timeframe": "5m"
-            }
+//            // breakout
+//            if (context.isMember("breakout")) {
+//                Json::Value trend = context.get("breakout", Json::Value());
+//                // "type": "sr-bollinger", "sr-timeframe": "30m", "bollinger-timeframe": "5m"
+//            }
 
-            // integrate
-            if (context.isMember("integrate")) {
-                Json::Value sig = context.get("integrate", Json::Value());
-                // "type": "sr"
-            }
+//            // integrate
+//            if (context.isMember("integrate")) {
+//                Json::Value sig = context.get("integrate", Json::Value());
+//                // "type": "sr"
+//            }
 
-            // pullback
-            if (context.isMember("pullback")) {
-                Json::Value pullback = context.get("pullback", Json::Value());
-                // "type": "bollinger"
-            }
+//            // pullback
+//            if (context.isMember("pullback")) {
+//                Json::Value pullback = context.get("pullback", Json::Value());
+//                // "type": "bollinger"
+//            }
 
             // conf
             if (context.isMember("confirm")) {
@@ -166,25 +161,19 @@ void Pullback::init(Config *config)
         }
     }
 
-    m_breakoutTimestamp = 0.0;
-    m_breakoutDirection = 0;
-    m_breakoutPrice = 0.0;
-    m_integrateTimestamp = 0.0;
-    m_integrateDirection = 0;
-
     setInitialized();
 }
 
-void Pullback::terminate(Connector *connector, Database *db)
+void MaIchimoku::terminate(Connector *connector, Database *db)
 {
     for (Analyser *analyser : m_analysers) {
         analyser->terminate();
         o3d::deletePtr(analyser);
     }
 
-    m_srAnalyser = nullptr;
-    m_bbAnalyser = nullptr;
-    m_confAnalyser = nullptr;
+//    m_srAnalyser = nullptr;
+//    m_bbAnalyser = nullptr;
+//    m_confAnalyser = nullptr;
 
     m_analysers.clear();
 
@@ -200,7 +189,7 @@ void Pullback::terminate(Connector *connector, Database *db)
     setTerminated();
 }
 
-void Pullback::prepareMarketData(Connector *connector, Database *db, o3d::Double fromTs, o3d::Double toTs)
+void MaIchimoku::prepareMarketData(Connector *connector, Database *db, o3d::Double fromTs, o3d::Double toTs)
 {
     Ohlc::Type ohlcType = Ohlc::TYPE_MID;
 
@@ -249,14 +238,14 @@ void Pullback::prepareMarketData(Connector *connector, Database *db, o3d::Double
     setMarketDataPrepared();
 }
 
-void Pullback::finalizeMarketData(Connector *connector, Database *db)
+void MaIchimoku::finalizeMarketData(Connector *connector, Database *db)
 {
     m_tradeManager = new StdTradeManager(this);
     setReady();
     setRunning();
 }
 
-void Pullback::onTickUpdate(o3d::Double timestamp, const TickArray &ticks)
+void MaIchimoku::onTickUpdate(o3d::Double timestamp, const TickArray &ticks)
 {
     if (baseTimeframe() == TF_TICK) {
         for (Analyser *analyser : m_analysers) {
@@ -265,7 +254,7 @@ void Pullback::onTickUpdate(o3d::Double timestamp, const TickArray &ticks)
     }
 }
 
-void Pullback::onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe, Ohlc::Type ohlcType, const OhlcArray &ohlc)
+void MaIchimoku::onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe, Ohlc::Type ohlcType, const OhlcArray &ohlc)
 {
     if (baseTimeframe() == timeframe) {
         for (Analyser *analyser : m_analysers) {
@@ -274,17 +263,17 @@ void Pullback::onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe, Ohlc::
     }
 }
 
-void Pullback::onOrderSignal(const OrderSignal &orderSignal)
+void MaIchimoku::onOrderSignal(const OrderSignal &orderSignal)
 {
     m_tradeManager->onOrderSignal(orderSignal);
 }
 
-void Pullback::onPositionSignal(const PositionSignal &positionSignal)
+void MaIchimoku::onPositionSignal(const PositionSignal &positionSignal)
 {
     m_tradeManager->onPositionSignal(positionSignal);
 }
 
-void Pullback::prepare(o3d::Double timestamp)
+void MaIchimoku::prepare(o3d::Double timestamp)
 {
     // prepare before compute
     for (Analyser *analyser : m_analysers) {
@@ -292,7 +281,7 @@ void Pullback::prepare(o3d::Double timestamp)
     }
 }
 
-void Pullback::compute(o3d::Double timestamp)
+void MaIchimoku::compute(o3d::Double timestamp)
 {
     for (Analyser *analyser : m_analysers) {
         analyser->process(timestamp, lastTimestamp());
@@ -339,12 +328,12 @@ void Pullback::compute(o3d::Double timestamp)
     }
 }
 
-void Pullback::finalize(o3d::Double timestamp)
+void MaIchimoku::finalize(o3d::Double timestamp)
 {
     // cleanup eventually
 }
 
-void Pullback::updateTrade(Trade *trade)
+void MaIchimoku::updateTrade(Trade *trade)
 {
     if (trade) {
         m_breakeven.updateΤrade(handler()->timestamp(), lastTimestamp(), trade);
@@ -352,7 +341,7 @@ void Pullback::updateTrade(Trade *trade)
     }
 }
 
-void Pullback::updateStats()
+void MaIchimoku::updateStats()
 {
     o3d::Double performance = 0.0;
     o3d::Double drawDown = 0.0;
@@ -364,7 +353,7 @@ void Pullback::updateStats()
     setActiveStats(performance, drawDown, pending, actives);
 }
 
-void Pullback::orderEntry(
+void MaIchimoku::orderEntry(
         o3d::Double timestamp,
         o3d::Double timeframe,
         o3d::Int32 direction,
@@ -389,7 +378,7 @@ void Pullback::orderEntry(
     }
 }
 
-void Pullback::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price)
+void MaIchimoku::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price)
 {
     if (trade) {
         if (price > 0.0) {
@@ -406,117 +395,13 @@ void Pullback::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price)
     }
 }
 
-TradeSignal Pullback::computeSignal(o3d::Double timestamp)
+TradeSignal MaIchimoku::computeSignal(o3d::Double timestamp)
 {
-    TradeSignal signal(m_bbAnalyser->timeframe(), timestamp);
+    TradeSignal signal(5/*m_bbAnalyser->timeframe()*/, timestamp);
 
-    // if integrate => long
-    if (m_srAnalyser->breakoutDirection() < 0 && m_srAnalyser->breakoutPrice() > 0.0 && m_bbAnalyser->isPriceBelowLower()) {
-        m_breakoutTimestamp = timestamp;
-        m_breakoutPrice = m_srAnalyser->breakoutPrice();
-        m_breakoutDirection = -1;
-
-        // reset integration
-        m_integrateTimestamp = 0.0;
-        m_integrateDirection = 0;
-        // printf("LB %S %g\n", timestampToStr(timestamp).getData(), m_breakoutPrice);
-    }
-
-    // if integrate => short
-    if (m_srAnalyser->breakoutDirection() > 0 && m_srAnalyser->breakoutPrice() > 0.0 && m_bbAnalyser->isPriceAboveUpper()) {
-        m_breakoutTimestamp = timestamp;
-        m_breakoutPrice = m_srAnalyser->breakoutPrice();
-        m_breakoutDirection = 1;
-
-        // reset integration
-        m_integrateTimestamp = 0.0;
-        m_integrateDirection = 0;
-        // printf("SB %S %g\n", timestampToStr(timestamp).getData(), m_breakoutPrice);
-    }
-
-    // integrate for possible long
-    if (m_srAnalyser->breakoutDirection() > 0 && m_srAnalyser->breakoutPrice() > 0.0) {
-        // has a previous down breakout and integrate the level back
-        if (m_breakoutDirection < 0 && m_breakoutPrice > 0.0 && m_srAnalyser->lastPrice() > m_breakoutPrice) {
-            m_integrateTimestamp = timestamp;
-            m_integrateDirection = 1;
-            // printf("LI %S %g\n", timestampToStr(timestamp).getData(), m_breakoutPrice);
-        }
-    }
-
-    // integrate for possible short
-    if (m_srAnalyser->breakoutDirection() < 0 && m_srAnalyser->breakoutPrice() > 0.0) {
-        // has a previous down breakout and integrate the level back
-        if (m_breakoutDirection > 0 && m_breakoutPrice > 0.0 && m_srAnalyser->lastPrice() < m_breakoutPrice) {
-            m_integrateTimestamp = timestamp;
-            m_integrateDirection = -1;
-            // printf("SI %S %g\n", timestampToStr(timestamp).getData(), m_breakoutPrice);
-        }
-    }
-
-    // check for price above bollinger => long
-    if (m_integrateDirection > 0 && m_bbAnalyser->isPriceAboveLower()) {
-        if (m_confirmAtClose) {
-            if (m_confAnalyser->confirmation() > 0) {
-                // keep only one signal per timeframe
-                if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
-                    signal.setEntry();
-                    signal.setLong();
-                    signal.setPrice(m_confAnalyser->lastPrice());
-                    signal.setTakeProfitPrice(m_bbAnalyser->takeProfit(1, m_targetScale));
-                    signal.setStopLossPrice(m_bbAnalyser->stopLoss(1, m_targetScale, m_riskReward));
-                }
-            }
-        } else {
-            // aggressive
-            // keep only one signal per timeframe
-            if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
-                signal.setEntry();
-                signal.setLong();
-                signal.setPrice(m_confAnalyser->lastPrice());
-                signal.setTakeProfitPrice(m_bbAnalyser->takeProfit(1, m_targetScale));
-                signal.setStopLossPrice(m_bbAnalyser->stopLoss(1, m_targetScale, m_riskReward));
-            }
-        }
-    }
-
-    // check for price below bollinger => short
-    if (m_integrateDirection < 0 && m_bbAnalyser->isPriceBelowUpper()) {
-        if (m_confirmAtClose) {
-            if (m_confAnalyser->confirmation() < 0) {
-                // keep only one signal per timeframe
-                if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
-                    signal.setEntry();
-                    signal.setShort();
-                    signal.setPrice(m_confAnalyser->lastPrice());
-                    signal.setTakeProfitPrice(m_bbAnalyser->takeProfit(-1, m_targetScale));
-                    signal.setStopLossPrice(m_bbAnalyser->stopLoss(-1, m_targetScale, m_riskReward));
-                }
-            }
-        } else {
-            // aggressive
-            // keep only one signal per timeframe
-            if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
-                signal.setEntry();
-                signal.setShort();
-                signal.setPrice(m_confAnalyser->lastPrice());
-                signal.setTakeProfitPrice(m_bbAnalyser->takeProfit(-1, m_targetScale));
-                signal.setStopLossPrice(m_bbAnalyser->stopLoss(-1, m_targetScale, m_riskReward));
-            }
-        }
-    }
-
-    if (m_integrateTimestamp > 0.0 && timestamp - m_integrateTimestamp > m_srAnalyser->timeframe()) {
-        m_integrateTimestamp = 0.0;
-        m_integrateDirection = 0;
-    }  
+    // @todo
 
     if (signal.valid()) {
-        m_breakoutTimestamp = 0.0;
-        m_breakoutPrice = 0.0;
-        m_breakoutDirection = 0;
-        m_integrateTimestamp = 0.0;
-        m_integrateDirection = 0;
 
         m_stopLoss.updateSignal(signal);
     }

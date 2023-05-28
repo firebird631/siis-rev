@@ -27,6 +27,11 @@ public:
     void init(const Market *market, ContextConfig &conf);
 
     void updateΤrade(o3d::Double timestamp, o3d::Double lastTimestamp, Trade *trade) const;
+
+    /**
+     * @brief breakevenTiggerPrice According to the method, return the trigger price to set trade at breakeven.
+     */
+    o3d::Double breakevenTiggerPrice(o3d::Double price, o3d::Int32 direction) const;
 };
 
 } // namespace siis

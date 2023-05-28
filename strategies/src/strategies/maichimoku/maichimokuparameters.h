@@ -1,21 +1,21 @@
 /**
- * @brief SiiS strategy pullback default parameters.
+ * @brief SiiS strategy MA Ichimoku default parameters.
  * @copyright Copyright (C) 2023 SiiS
  * @author Frederic SCHERMA (frederic.scherma@gmail.com)
- * @date 2023-05-09
+ * @date 2023-05-25
  */
 
-#ifndef SIIS_PULLBACKPARAMETERS_H
-#define SIIS_PULLBACKPARAMETERS_H
+#ifndef SIIS_MAICHIMOKUPARAMETERS_H
+#define SIIS_MAICHIMOKUPARAMETERS_H
 
 namespace siis {
 
 /**
- * @brief Strategy pullback default parameters.
+ * @brief Strategy MA Ichimoku default parameters.
  * @author Frederic Scherma
- * @date 2023-04-24
+ * @date 2023-05-25
  */
-static const char* PullbackParameters = R"JSON(
+static const char* MaIchimokuParameters = R"JSON(
 {
     "reversal": true,
     "hedging": false,
@@ -25,7 +25,7 @@ static const char* PullbackParameters = R"JSON(
     "need-update": false,
     "trade-type": "ind-margin",
     "contexts": {
-        "pullback-5m-1m": {
+        "ma-ichimoku-5m-1m": {
             "mode": "trade",
             "method": "standard",
             "max-trades": 3,
@@ -41,28 +41,33 @@ static const char* PullbackParameters = R"JSON(
         }
     },
     "timeframes": {
-        "30min": {
+        "4hour": {
             "enabled": true,
-            "timeframe": "30m",
+            "timeframe": "4h",
             "sub-timeframe": "5m",
-            "mode": "sr",
-            "depth": 5,
-            "history": 5,
+            "mode": "trend",
+            "depth": 25,
+            "history": 25,
             "indicators": {
-                "price": {"method": "CLOSE"},
-                "pivotpoint": {"method": "classical"}
+                "price": {"method": "HLC"},
+                "slow_h_ma": {"len": 20},
+                "slow_m_ma": {"len": 20},
+                "slow_l_ma": {"len": 20}
             }
         },
          "5min": {
             "enabled": true,
             "timeframe": "5m",
             "sub-timeframe": "1m",
-            "mode": "bollinger",
-            "depth": 45,
-            "history": 45,
+            "mode": "sig",
+            "depth": 25,
+            "history": 25,
             "indicators": {
-                "price": {"method": "CLOSE"},
-                "bollinger": {"len": 20, "numDevUp": 2, "numDevDn": 2}
+                "price": {"method": "HLC"},
+                "fast_h_ma": {"len": 6},
+                "fast_m_ma": {"len": 6},
+                "fast_l_ma": {"len": 6},
+                "adx": {"len": 5}
             }
         },
         "1min": {
@@ -70,10 +75,10 @@ static const char* PullbackParameters = R"JSON(
             "timeframe": "1m",
             "sub-timeframe": "t",
             "mode": "conf",
-            "depth": 5,
-            "history": 5,
+            "depth": 10,
+            "history": 10,
             "indicators": {
-                "price": {"method": "CLOSE"}
+                "price": {"method": "HLC"}
             }
         }
     }
@@ -81,4 +86,4 @@ static const char* PullbackParameters = R"JSON(
 
 } // namespace siis
 
-#endif // SIIS_PULLBACKPARAMETERS_H
+#endif // SIIS_MAICHIMOKUPARAMETERS_H

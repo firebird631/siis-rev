@@ -650,8 +650,8 @@ src/poolworker.h
 src/statistics/statistics.cpp
 src/strategies/CMakeLists.txt
 src/strategies/CMakeLists.txt
-src/strategies/bitcoinalpha/README
-src/strategies/cryptoalpha/README
+src/strategies/bourricot/CMakeLists.txt
+src/strategies/bourricot/README
 src/strategies/forexalpha/CMakeLists.txt
 src/strategies/forexalpha/CMakeLists.txt
 src/strategies/forexalpha/README
@@ -677,8 +677,8 @@ src/strategies/forexalpha/forexalpha.cpp
 src/strategies/forexalpha/forexalpha.cpp
 src/strategies/forexalpha/forexalpha.h
 src/strategies/forexalpha/forexalpha.h
-src/strategies/goldalpha/README
 src/strategies/hmama/CMakeLists.txt
+src/strategies/hmama/README
 src/strategies/indicealpha/CMakeLists.txt
 src/strategies/indicealpha/README
 src/strategies/indicealpha/iaaanalyser.cpp
@@ -704,6 +704,10 @@ src/strategies/maadx/maadxsiganalyser.h
 src/strategies/maadx/maadxtrendanalyser.cpp
 src/strategies/maadx/maadxtrendanalyser.h
 src/strategies/maichimoku/CMakeLists.txt
+src/strategies/maichimoku/README
+src/strategies/maichimoku/maichimoku.cpp
+src/strategies/maichimoku/maichimoku.h
+src/strategies/maichimoku/maichimokuparameters.h
 src/strategies/pullback/CMakeLists.txt
 src/strategies/pullback/README
 src/strategies/pullback/pullback.cpp

@@ -261,6 +261,8 @@ void StdTradeManager::computePerformance(
         o3d::Int32 &pending,
         o3d::Int32 &actives) const
 {
+    o3d::Bool drawDownByPercentage = true;
+
     performance = 0.0;
     drawDown = 0.0;
     pending = 0;
@@ -272,13 +274,25 @@ void StdTradeManager::computePerformance(
         if (trade->isActive()) {
             ++actives;
 
-            if (trade->stats().unrealizedProfitLoss < 0.0) {
-                drawDown += -trade->stats().unrealizedProfitLoss;
-            }
-
-            performance += trade->stats().unrealizedProfitLoss;
+            drawDown += trade->stats().unrealizedProfitLoss;
+            performance += trade->estimateProfitLossRate();
         } else {
             ++pending;
+        }
+    }
+
+    if (drawDownByPercentage) {
+        if (performance < 0.0) {
+            drawDown = -performance;
+        }
+    } else {
+        if (drawDown < 0.0) {
+            o3d::Double freeMargin = strategy()->handler()->traderProxy()->freeMargin();
+            if (freeMargin > 0.0) {
+                drawDown = -drawDown / freeMargin;
+            }
+        } else {
+            drawDown = 0.0;
         }
     }
 

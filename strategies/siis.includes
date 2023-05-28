@@ -103,3 +103,4 @@ src/statistics
 src/strategies/pullback
 src/strategies/maichimoku
 src/strategies/hmama
+src/strategies/bourricot

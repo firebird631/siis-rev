@@ -30,6 +30,7 @@ Strategy::Strategy(Handler *handler, const o3d::String &identifier) :
     m_processing(false),
     m_reversal(false),
     m_hedging(false),
+    m_dual(false),
     m_maxTrades(1),
     m_tradeDelay(0.0),
     m_needUpdate(false),
@@ -72,6 +73,7 @@ void Strategy::initBasicsParameters(StrategyConfig &conf)
 {
     m_reversal = conf.root().get("reversal", true).asBool();
     m_hedging = conf.root().get("hedging", false).asBool();
+    m_dual = conf.root().get("dual", false).asBool();
     m_maxTrades = conf.root().get("max-trades", 1).asInt();
     m_tradeDelay = conf.root().get("trade-delay", 30).asDouble();
     m_needUpdate = conf.root().get("need-update", false).asBool();
@@ -87,7 +89,10 @@ void Strategy::initBasicsParameters(StrategyConfig &conf)
     }
 }
 
-void Strategy::setActiveStats(o3d::Double performance, o3d::Double drawDown, o3d::Int32 pending, o3d::Int32 actives)
+void Strategy::setActiveStats(o3d::Double performance,
+                              o3d::Double drawDown,
+                              o3d::Int32 pending,
+                              o3d::Int32 actives)
 {
     m_stats.activeTrades = actives;
     m_stats.openTrades = pending;
@@ -126,6 +131,8 @@ void Strategy::process(o3d::Double timestamp)
     prepare(timestamp);
     compute(timestamp);
     finalize(timestamp);
+
+    updateStats();
 
     m_lastTimestamp = timestamp;
     m_processing = false;

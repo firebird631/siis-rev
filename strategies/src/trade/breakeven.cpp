@@ -82,3 +82,14 @@ void Breakeven::updateΤrade(o3d::Double timestamp, o3d::Double lastTimestamp, T
         // custom method from strategy
     }
 }
+
+o3d::Double Breakeven::breakevenTiggerPrice(o3d::Double price, o3d::Int32 direction) const
+{
+    if (m_distanceType == DIST_PERCENTIL) {
+        return price + (direction * price * m_distance);
+    } else if (m_distanceType == DIST_PRICE) {
+        return price + direction * m_distance;
+    }
+
+    return 0.0;
+}

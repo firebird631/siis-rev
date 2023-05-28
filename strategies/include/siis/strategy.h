@@ -234,6 +234,7 @@ public:
 
     o3d::Bool reversal() const { return m_reversal; }
     o3d::Bool hedging() const { return m_hedging; }
+    o3d::Bool dual() const { return m_dual; }
     o3d::Int32 maxTrades() const { return m_maxTrades; }
     o3d::Double tradeDelay() const { return m_tradeDelay; }
     o3d::Bool needUpdate() const { return m_needUpdate; }
@@ -294,7 +295,10 @@ protected:
 
     void initBasicsParameters(StrategyConfig &conf);
 
-    void setActiveStats(o3d::Double performance,  o3d::Double drawDown, o3d::Int32 pending, o3d::Int32 actives);
+    void setActiveStats(o3d::Double performance,
+                        o3d::Double drawDown,
+                        o3d::Int32 pending,
+                        o3d::Int32 actives);
 
 private:
 
@@ -320,6 +324,7 @@ private:
 
     o3d::Bool m_reversal;
     o3d::Bool m_hedging;
+    o3d::Bool m_dual;
     o3d::Int32 m_maxTrades;
     o3d::Double m_tradeDelay;
     o3d::Bool m_needUpdate;
