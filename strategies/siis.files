@@ -679,6 +679,9 @@ src/strategies/forexalpha/forexalpha.h
 src/strategies/forexalpha/forexalpha.h
 src/strategies/hmama/CMakeLists.txt
 src/strategies/hmama/README
+src/strategies/hmama/hmama.cpp
+src/strategies/hmama/hmama.h
+src/strategies/hmama/hmamaparameters.h
 src/strategies/indicealpha/CMakeLists.txt
 src/strategies/indicealpha/README
 src/strategies/indicealpha/iaaanalyser.cpp

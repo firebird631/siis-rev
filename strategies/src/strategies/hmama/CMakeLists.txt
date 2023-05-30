@@ -1,7 +1,7 @@
 set(LIB_NAME hmama)
 
 set(STRATEGY_CXX
-#    hmama.cpp
+    hmama.cpp
 #    hmama...analyser.cpp)
 )
 
