@@ -437,7 +437,7 @@ TradeSignal Pullback::computeSignal(o3d::Double timestamp)
     // integrate for possible long
     if (m_srAnalyser->breakoutDirection() > 0 && m_srAnalyser->breakoutPrice() > 0.0) {
         // has a previous down breakout and integrate the level back
-        if (m_breakoutDirection < 0 && m_breakoutPrice > 0.0 && m_srAnalyser->lastPrice() > m_breakoutPrice) {
+        if (m_breakoutDirection < 0 && m_breakoutPrice > 0.0 && m_srAnalyser->lastPrice() >= m_breakoutPrice) {
             m_integrateTimestamp = timestamp;
             m_integrateDirection = 1;
             // printf("LI %S %g\n", timestampToStr(timestamp).getData(), m_breakoutPrice);
@@ -447,7 +447,7 @@ TradeSignal Pullback::computeSignal(o3d::Double timestamp)
     // integrate for possible short
     if (m_srAnalyser->breakoutDirection() < 0 && m_srAnalyser->breakoutPrice() > 0.0) {
         // has a previous down breakout and integrate the level back
-        if (m_breakoutDirection > 0 && m_breakoutPrice > 0.0 && m_srAnalyser->lastPrice() < m_breakoutPrice) {
+        if (m_breakoutDirection > 0 && m_breakoutPrice > 0.0 && m_srAnalyser->lastPrice() <= m_breakoutPrice) {
             m_integrateTimestamp = timestamp;
             m_integrateDirection = -1;
             // printf("SI %S %g\n", timestampToStr(timestamp).getData(), m_breakoutPrice);
