@@ -76,11 +76,13 @@ void PositionTrade::open(
     }
 
     m_entryRefId = entryOrder->refId;
+    m_stats.entryOrderType = entryOrder->orderType;
 
     o3d::Int32 ret = traderProxy()->createOrder(entryOrder);
     if (ret == Order::RET_OK) {
     } else {
         m_entryState = STATE_REJECTED;
+        m_stats.entryOrderType = Order::ORDER_UNDEFINED;
     }
 }
 
@@ -142,11 +144,16 @@ void PositionTrade::modifyTakeProfit(o3d::Double price, ModifierType mod)
 
         if (mod == MOD_DISTANT) {
             // only update the limit price (let to the previous stop)
+            m_stats.takeProfitOrderType = Order::ORDER_LIMIT;
+
             o3d::Int32 ret = traderProxy()->modifyPosition(m_positionId, m_positionStopPrice, price);
             if (ret == Order::RET_OK) {
                 m_positionLimitPrice = price;
             } else {
                 // @todo
+                if (m_positionLimitPrice > 0.0) {
+                    m_stats.stopOrderType = Order::ORDER_UNDEFINED;
+                }
             }
         }
     }
@@ -167,11 +174,16 @@ void PositionTrade::modifyStopLoss(o3d::Double price, ModifierType mod)
 
         if (mod == MOD_DISTANT) {
             // only update the stop price (let to the previous limit)
+            m_stats.stopOrderType = Order::ORDER_MARKET;
+
             o3d::Int32 ret = traderProxy()->modifyPosition(m_positionId, price, m_positionLimitPrice);
             if (ret == Order::RET_OK) {
                 m_positionStopPrice = price;
             } else {
                 // @todo
+                if (m_positionStopPrice > 0.0) {
+                    m_stats.stopOrderType = Order::ORDER_UNDEFINED;
+                }
             }
         }
     }
@@ -199,6 +211,7 @@ void PositionTrade::close(TradeStats::ExitReason reason)
     }
 
     m_stats.exitReason = reason;
+    m_stats.stopOrderType = Order::ORDER_MARKET;
 
     if (m_positionId.isValid()) {
         m_closing = true;
@@ -207,6 +220,9 @@ void PositionTrade::close(TradeStats::ExitReason reason)
         if (ret == Order::RET_OK) {
         } else {
             m_closing = false;
+            if (m_positionStopPrice > 0.0) {
+                m_stats.stopOrderType = Order::ORDER_UNDEFINED;
+            }
         }
     }
 }

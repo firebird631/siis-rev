@@ -30,6 +30,7 @@ Strategy::Strategy(Handler *handler, const o3d::String &identifier) :
     m_processing(false),
     m_reversal(false),
     m_hedging(false),
+    m_allowShort(true),
     m_dual(false),
     m_maxTrades(1),
     m_tradeDelay(0.0),
@@ -73,6 +74,7 @@ void Strategy::initBasicsParameters(StrategyConfig &conf)
 {
     m_reversal = conf.root().get("reversal", true).asBool();
     m_hedging = conf.root().get("hedging", false).asBool();
+    m_allowShort = conf.root().get("allow-short", true).asBool();
     m_dual = conf.root().get("dual", false).asBool();
     m_maxTrades = conf.root().get("max-trades", 1).asInt();
     m_tradeDelay = conf.root().get("trade-delay", 30).asDouble();
@@ -150,13 +152,19 @@ void Strategy::addClosedTrade(Trade *trade)
             m_stats.canceledTrades += 1;
 
         } else if (trade->isClosed()) {
-            m_stats.performance += trade->profitLossRate();
+            o3d::Double rpnl = trade->profitLossRate();
 
-            if (o3d::abs(trade->profitLossRate()*market()->mid()) < market()->spread()) {
+            // managed fees
+            rpnl -= trade->entryFeesRate();
+            rpnl -= trade->exitFeesRate();
+
+            m_stats.performance += rpnl;
+
+            if (o3d::abs(rpnl*market()->mid()) < market()->spread()) {
                 m_stats.roeTrades += 1;
                 m_stats.prevDir = 0;
 
-            } else if (trade->profitLossRate() < 0.0) {
+            } else if (rpnl < 0.0) {
                 m_stats.failedTrades += 1;
 
                 if (m_stats.prevDir <= 0) {
@@ -175,7 +183,7 @@ void Strategy::addClosedTrade(Trade *trade)
                            trade->stats().exitReason == TradeStats::REASON_TAKE_PROFIT_MARKET) {
                     m_stats.takeProfitInLoss += 1;
                 }
-            } else if (trade->profitLossRate() > 0.0) {
+            } else if (rpnl > 0.0) {
                 m_stats.succeedTrades += 1;
 
                 if (m_stats.prevDir >= 0) {
@@ -198,8 +206,8 @@ void Strategy::addClosedTrade(Trade *trade)
 
             m_stats.totalTrades += 1;
 
-            m_stats.best = o3d::max(m_stats.best, trade->profitLossRate());
-            m_stats.worst = o3d::min(m_stats.worst, trade->profitLossRate());
+            m_stats.best = o3d::max(m_stats.best, rpnl);
+            m_stats.worst = o3d::min(m_stats.worst, rpnl);
         }
     }
 }

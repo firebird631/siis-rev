@@ -569,7 +569,7 @@ void Config::loadProfileSpec(const o3d::String filename)
                 o3d::String name = it.name().c_str();
 
                 Json::Value symbols = it->get("symbols", Json::Value());
-                // @todo
+                // @todo for live mode
             }
 
             // strategy
@@ -599,8 +599,34 @@ void Config::loadLearningSpec(const o3d::String filename)
             // root
 
             // trader/connector
+            Json::Value trader = parser.root().get("trader", Json::Value());
+            if (trader.isMember("symbols")) {
+                Json::Value symbols = trader.get("symbols", Json::Value());
+
+                // remove non represented markets
+                for (auto it = symbols.begin(); it!= symbols.end(); ++it) {
+                    o3d::CString marketId = it->asString().c_str();
+
+                    for (auto it = m_configuredMarkets.begin(); it != m_configuredMarkets.end(); ++it) {
+                        MarketConfig *marketConfig = *it;
+
+                        if (marketConfig->marketId == marketId) {
+                            m_configuredMarkets.erase(it);
+                            o3d::deletePtr(marketConfig);
+                            break;
+                        }
+                    }
+                }
+            }
 
             // watcher/connectors
+            Json::Value watchers = parser.root().get("watchers", Json::Value());
+            for (auto it = watchers.begin(); it!= watchers.end(); ++it) {
+                o3d::String name = it.name().c_str();
+
+                Json::Value symbols = it->get("symbols", Json::Value());
+                // @todo for live mode
+            }
 
             // strategy
             // @todo and overrides

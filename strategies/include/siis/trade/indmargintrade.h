@@ -16,9 +16,11 @@ namespace siis {
  * @brief Strategy indivisible position, margin trade model specialization.
  * @author Frederic Scherma
  * @date 2019-03-17
- * Some brokers only offers a unique position per market, without hedging neither individual position management.
+ * Some CEX only offers a unique position per market, without hedging neither individual position management.
  * In that case this trade model is prefered.
- * @todo case where error during cancel an order (entry, previous stop or limit
+ * @todo case where error during cancel an order (entry, previous stop or limit)
+ * Fees are generally taken from equity and generally no commissions.
+ * Pnl is reduced from fees rates.
  */
 class SIIS_API IndMarginTrade : public Trade
 {

@@ -17,6 +17,7 @@ namespace siis {
  * @author Frederic Scherma
  * @date 2023-04-28
  * @todo case where error during cancel an order (entry, previous stop or limit
+ * Fees are in the spread in most of the cases and no commissions.
  */
 class SIIS_API PositionTrade : public Trade
 {

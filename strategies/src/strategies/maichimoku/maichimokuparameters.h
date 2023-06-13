@@ -19,6 +19,7 @@ static const char* MaIchimokuParameters = R"JSON(
 {
     "reversal": true,
     "hedging": false,
+    "allow-short": true,
     "dual": false,
     "max-trades": 3,
     "trade-delay": 30,

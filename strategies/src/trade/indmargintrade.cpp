@@ -66,11 +66,13 @@ void IndMarginTrade::open(
     }
 
     m_entry.refId = entryOrder->refId;
+    m_stats.entryOrderType = entryOrder->orderType;
 
     o3d::Int32 ret = traderProxy()->createOrder(entryOrder);
     if (ret == Order::RET_OK) {
     } else {
         m_entry.state = STATE_REJECTED;
+        m_stats.entryOrderType = Order::ORDER_UNDEFINED;
     }
 }
 
@@ -204,11 +206,12 @@ void IndMarginTrade::modifyTakeProfit(o3d::Double price, ModifierType mod)
             limitOrder->closeOnly = 1;
 
             m_limit.refId = limitOrder->refId;
+            m_stats.stopOrderType = limitOrder->orderType;
 
-            o3d::Int32 ret = traderProxy()->createOrder(limitOrder);
+            o3d::Int32 ret = traderProxy()->createOrder(limitOrder);            
             if (ret == Order::RET_OK) {
             } else {
-
+                m_stats.stopOrderType = Order::ORDER_UNDEFINED;
             }
         }
     }
@@ -251,11 +254,12 @@ void IndMarginTrade::modifyStopLoss(o3d::Double price, ModifierType mod)
             stopOrder->closeOnly = 1;
 
             m_stop.refId = stopOrder->refId;
+            m_stats.stopOrderType = stopOrder->orderType;
 
             o3d::Int32 ret = traderProxy()->createOrder(stopOrder);
             if (ret == Order::RET_OK) {
             } else {
-
+                m_stats.stopOrderType = Order::ORDER_UNDEFINED;
             }
         }
     }
@@ -308,11 +312,13 @@ void IndMarginTrade::close(TradeStats::ExitReason reason)
 
     m_stop.refId = stopOrder->refId;
     m_stop.closing = true;
+    m_stats.stopOrderType = stopOrder->orderType;
 
     o3d::Int32 ret = traderProxy()->createOrder(stopOrder);
     if (ret == Order::RET_OK) {
     } else {
         m_stop.closing = false;
+        m_stats.stopOrderType = Order::ORDER_UNDEFINED;
     }
 }
 
@@ -451,6 +457,20 @@ void IndMarginTrade::orderSignal(const OrderSignal &signal)
             } else {
                 m_entry.state = STATE_PARTIALLY_FILLED;
             }
+
+            // update entry fees
+            o3d::Bool maker = false;  // signal.maker == 1
+
+            if (1) {  // signal.maker < 0) {
+                // no information, try to detect it
+                if (m_stats.entryOrderType == Order::ORDER_LIMIT) {
+                    // @todo only if execution price is equal or better, then order price (depends on direction)
+                    maker = true;
+                }
+            }
+
+            m_stats.entryFees = (maker ? strategy()->market()->makerFee().rate : strategy()->market()->takerFee().rate) * (
+                                    m_entryPrice * m_filledEntryQuantity);
         }
     } else if ((signal.orderId.isValid() && signal.orderId == m_limit.orderId) ||
         (signal.refId.isValid() && signal.refId == m_limit.refId)) {
@@ -511,6 +531,20 @@ void IndMarginTrade::orderSignal(const OrderSignal &signal)
             } else {
                 m_limit.state = STATE_PARTIALLY_FILLED;
             }
+
+            // exit fees
+            o3d::Bool maker = false;  // signal.maker == 1
+
+            if (1) {  // signal.maker < 0) {
+                // no information, try to detect it
+                if (m_stats.takeProfitOrderType == Order::ORDER_LIMIT) {
+                    // @todo only if execution price is equal or better, then order price (depends on direction)
+                    maker = true;
+                }
+            }
+
+            m_stats.exitFees = (maker ? strategy()->market()->makerFee().rate : strategy()->market()->takerFee().rate) * (
+                                    m_exitPrice * m_filledExitQuantity);
         }
     } else if ((signal.orderId.isValid() && signal.orderId == m_stop.orderId) ||
         (signal.refId.isValid() && signal.refId == m_stop.refId)) {
@@ -571,6 +605,20 @@ void IndMarginTrade::orderSignal(const OrderSignal &signal)
             } else {
                 m_stop.state = STATE_PARTIALLY_FILLED;
             }
+
+            // exit fees
+            o3d::Bool maker = false;  // signal.maker == 1
+
+            if (1) {  // signal.maker < 0) {
+                // no information, try to detect it
+                if (m_stats.stopOrderType == Order::ORDER_LIMIT) {
+                    // @todo only if execution price is equal or better, then order price (depends on direction)
+                    maker = true;
+                }
+            }
+
+            m_stats.exitFees = (maker ? strategy()->market()->makerFee().rate : strategy()->market()->takerFee().rate) * (
+                                    m_exitPrice * m_filledExitQuantity);
         }
     }
 }

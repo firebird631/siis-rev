@@ -473,6 +473,11 @@ public:
     o3d::Double entryFeesRate() const;
 
     /**
+     * @brief exitFeesRate Return the applied exit fees rate.
+     */
+    o3d::Double exitFeesRate() const;
+
+    /**
      * @brief estimateExitFeesRate Estimate the exit fees rate that will be applied.
      * It depends of the type of the exit order. Default use taker fees.
      */

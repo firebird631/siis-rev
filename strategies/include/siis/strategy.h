@@ -234,6 +234,7 @@ public:
 
     o3d::Bool reversal() const { return m_reversal; }
     o3d::Bool hedging() const { return m_hedging; }
+    o3d::Bool allowShort() const { return m_allowShort; }
     o3d::Bool dual() const { return m_dual; }
     o3d::Int32 maxTrades() const { return m_maxTrades; }
     o3d::Double tradeDelay() const { return m_tradeDelay; }
@@ -324,6 +325,7 @@ private:
 
     o3d::Bool m_reversal;
     o3d::Bool m_hedging;
+    o3d::Bool m_allowShort;
     o3d::Bool m_dual;
     o3d::Int32 m_maxTrades;
     o3d::Double m_tradeDelay;

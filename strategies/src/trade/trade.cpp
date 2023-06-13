@@ -160,6 +160,15 @@ o3d::Double Trade::entryFeesRate() const
     return 0.0;
 }
 
+o3d::Double Trade::exitFeesRate() const
+{
+    if (m_exitPrice > 0.0 && m_filledExitQuantity > 0.0) {
+        return m_stats.exitFees / (m_exitPrice * m_filledExitQuantity);
+    }
+
+    return 0.0;
+}
+
 o3d::Double Trade::estimateExitFeesRate() const
 {
     // count the exit fees related to limit order type

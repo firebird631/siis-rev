@@ -300,6 +300,10 @@ void MaAdx::compute(o3d::Double timestamp)
 
         o3d::Bool doOrder = true;
 
+        if (signal.direction() < 0 && !allowShort()) {
+            doOrder = false;
+        }
+
         if (signal.estimateTakeProfitRate() < m_minProfit) {
             doOrder = false;
         }
