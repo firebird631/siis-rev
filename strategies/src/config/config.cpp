@@ -608,11 +608,13 @@ void Config::loadLearningSpec(const o3d::String filename)
                     o3d::CString marketId = it->asString().c_str();
 
                     for (auto it = m_configuredMarkets.begin(); it != m_configuredMarkets.end(); ++it) {
-                        MarketConfig *marketConfig = *it;
+                        MarketConfig *mc = *it;
 
-                        if (marketConfig->marketId == marketId) {
+                        if (mc->marketId == marketId) {
+                            INFO(o3d::String("Ignored market {0}").arg(mc->marketId), "config");
+
                             m_configuredMarkets.erase(it);
-                            o3d::deletePtr(marketConfig);
+                            o3d::deletePtr(mc);
                             break;
                         }
                     }
