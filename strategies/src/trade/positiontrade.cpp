@@ -595,7 +595,7 @@ void PositionTrade::positionSignal(const PositionSignal &signal)
                 }
             }
 
-            // DBG(o3d::String("Exit position avg-price={0} cum-filled={1}").arg(m_exitPrice).arg(m_filledExitQuantity), "");
+            // DBG("", o3d::String("Exit position avg-price={0} cum-filled={1}").arg(m_exitPrice).arg(m_filledExitQuantity));
 
             // finally empty
             m_positionQuantity = 0.0;

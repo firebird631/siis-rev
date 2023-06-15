@@ -527,7 +527,7 @@ void Config::loadProfileSpec(const o3d::String filename)
             // defaultTradeMode
             // defaultTradeQuantity[0] = defaultTradeQuantity[1] = instrument.get("quantity", 0.0).asDouble();
 
-            for (auto it = symbols.begin(); it!= symbols.end(); ++it) {
+            for (auto it = symbols.begin(); it != symbols.end(); ++it) {
                 // @todo support instrument key whichs start with * and then market-id can contains {0} placeholder
                 MarketConfig *mc = new MarketConfig;
                 mc->marketId = it->asString().c_str();
@@ -544,7 +544,7 @@ void Config::loadProfileSpec(const o3d::String filename)
 
                     }
 
-                    INFO(o3d::String("Find market {0} min-trade-quantity={1}").arg(mc->marketId).arg(mc->tradeQuantity[0]), "config");
+                    INFO("config", o3d::String("Find market {0} min-trade-quantity={1}").arg(mc->marketId).arg(mc->tradeQuantity[0]));
 
                     mc->tradeMode = MarketConfig::TRADE_FIXED_QUANTITY;
 
@@ -604,20 +604,33 @@ void Config::loadLearningSpec(const o3d::String filename)
                 Json::Value symbols = trader.get("symbols", Json::Value());
 
                 // remove non represented markets
-                for (auto it = symbols.begin(); it!= symbols.end(); ++it) {
-                    o3d::CString marketId = it->asString().c_str();
+                std::list<MarketConfig*> rmList;
 
-                    for (auto it = m_configuredMarkets.begin(); it != m_configuredMarkets.end(); ++it) {
-                        MarketConfig *mc = *it;
+                for (auto it1 = m_configuredMarkets.begin(); it1 != m_configuredMarkets.end(); ++it1) {
+                    MarketConfig *mc = *it1;
+                    o3d::Bool found = false;
+
+                    for (auto it2 = symbols.begin(); it2 != symbols.end(); ++it2) {
+                        o3d::CString marketId = it2->asString().c_str();
 
                         if (mc->marketId == marketId) {
-                            INFO(o3d::String("Ignored market {0}").arg(mc->marketId), "config");
-
-                            m_configuredMarkets.erase(it);
-                            o3d::deletePtr(mc);
+                            found = true;
                             break;
                         }
                     }
+
+                    if (!found) {
+                        rmList.push_back(mc);
+                    }
+                }
+
+                for (auto it = rmList.begin(); it != rmList.end(); ++it) {
+                    MarketConfig *mc = *it;
+
+                    INFO("config", o3d::String("Ignored market {0}").arg(mc->marketId));
+
+                    m_configuredMarkets.remove(mc);
+                    o3d::deletePtr(mc);
                 }
             }
 

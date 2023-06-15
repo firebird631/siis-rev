@@ -505,7 +505,7 @@ o3d::Int32 LocalConnector::closePosition(const o3d::CString &positionId,
 
                 o3d::Double execPrice = strategy->market()->closeExecPrice(position->direction);
 
-                // DBG(o3d::String("close position {0} at={1} pl={2}").arg(positionId).arg(execPrice).arg(position->profitLoss), "");
+                // DBG("", o3d::String("close position {0} at={1} pl={2}").arg(positionId).arg(execPrice).arg(position->profitLoss));
 
                 // @todo last update and deleted signal
                 PositionSignal deletedPositionSignal(PositionSignal::DELETED);
