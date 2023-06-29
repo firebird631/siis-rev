@@ -95,11 +95,13 @@ o3d::Double PullbackBBAnalyser::entryPrice() const
 o3d::Double PullbackBBAnalyser::takeProfit(o3d::Int32 dir, o3d::Double profitScale) const
 {
     if (dir > 0) {
-        return m_bollinger.lastMiddle() + profitScale * (m_bollinger.lastMiddle() - m_bollinger.lastLower());
+        // return m_bollinger.lastMiddle() + profitScale * (m_bollinger.lastMiddle() - m_bollinger.lastLower());
+        return price().last() + profitScale * (m_bollinger.lastMiddle() - m_bollinger.lastLower());
         // si on met pas le meme delta alors ca risque de faire balotter le fitness
         // m_bollinger.lastUpper() - m_bollinger.lastMiddle())
     } else if (dir < 0) {
-        return m_bollinger.lastMiddle() - profitScale * (m_bollinger.lastUpper() - m_bollinger.lastMiddle());
+        // return m_bollinger.lastMiddle() - profitScale * (m_bollinger.lastUpper() - m_bollinger.lastMiddle());
+        return price().last() - profitScale * (m_bollinger.lastUpper() - m_bollinger.lastMiddle());
     }
 
     return 0.0;
@@ -110,9 +112,11 @@ o3d::Double PullbackBBAnalyser::stopLoss(o3d::Int32 dir, o3d::Double lossScale, 
     // return min(pullback.bb_tf.price.low) - price_epsilon
 
     if (dir > 0) {
-        return m_bollinger.lastMiddle() - riskReward * lossScale * (m_bollinger.lastMiddle() - m_bollinger.lastLower());
+        // return m_bollinger.lastMiddle() - riskReward * lossScale * (m_bollinger.lastMiddle() - m_bollinger.lastLower());
+        return price().last() - riskReward * lossScale * (m_bollinger.lastMiddle() - m_bollinger.lastLower());
     } else if (dir < 0) {
-        return m_bollinger.lastMiddle() + riskReward * lossScale * (m_bollinger.lastUpper() - m_bollinger.lastMiddle());
+        // return m_bollinger.lastMiddle() + riskReward * lossScale * (m_bollinger.lastUpper() - m_bollinger.lastMiddle());
+        return price().last() + riskReward * lossScale * (m_bollinger.lastUpper() - m_bollinger.lastMiddle());
     }
 
     return 0.0;

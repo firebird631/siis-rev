@@ -740,8 +740,8 @@ void Config::overwriteLearningFile(const GlobalStatistics &global, const Account
             root["stop-loss-in-gain"] = global.stopLossInGain;
             root["take-profit-in-gain"] = global.takeProfitInGain;
 
-            root["max-loss-serie"] = global.maxAdjacentLoss;
-            root["max-win-serie"] = global.maxAdjacentWin;
+            root["max-loss-series"] = global.maxAdjacentLoss;
+            root["max-win-series"] = global.maxAdjacentWin;
 
             parser.save(m_learningPath.getFullPathName(), m_learningFilename);
         }

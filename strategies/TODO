@@ -2,6 +2,7 @@ Prioritaire
 ===========
 
 - urgent : log rotate ou a minima taille max
+- urgent : exit-fee doit être multiplier par le raw PNL
 - taille des trades
 
 - attention aux trades, orders, positions non libéré à la fin si pas cloturé (coté trader proxy et local trader)

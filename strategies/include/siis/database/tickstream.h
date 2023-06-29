@@ -95,6 +95,7 @@ private:
 
     o3d::Double m_fromTs;
     o3d::Double m_toTs;
+    o3d::Double m_lastTs;
 
     o3d::ArrayInt8 m_preBuffer;
     DataArray m_buffer;

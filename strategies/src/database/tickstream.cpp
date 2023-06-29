@@ -32,6 +32,7 @@ TickStream::TickStream(
     m_from(from),
     m_to(to),
     m_cur(from),
+    m_lastTs(0.0),
     m_preBuffer(bufferSize*TICK_STORED_SIZE, bufferSize*TICK_STORED_SIZE),
     m_buffer(bufferSize*TICK_MEM_SIZE, bufferSize*TICK_MEM_SIZE),
     m_bufferSize(bufferSize),
@@ -272,6 +273,14 @@ void TickStream::bufferize()
                 for (o3d::Int32 i = 0; i < x; ++i, ofs += TICK_STORED_SIZE) {
                     d_ptr = reinterpret_cast<o3d::Double*>(&m_preBuffer[ofs]);
 
+                    if (m_lastTs > 0.0 && d_ptr[0] < m_lastTs) {
+                        // broken file
+                        n = 0;
+                        break;
+                    }
+
+                    m_lastTs = d_ptr[0];
+
                     m_buffer.push(d_ptr[0]);  // from s
                     m_buffer.push(d_ptr[1]);  // bid
                     m_buffer.push(d_ptr[2]);  // ask
@@ -339,10 +348,20 @@ void TickStream::bufferize()
 
             // next month/year
             if (m_cur.month == o3d::MONTH_DECEMBER) {
-                ++m_cur.year;
+                int y = m_cur.year + 1;
+                m_cur.destroy();
+                m_cur.year = y;
                 m_cur.month = o3d::MONTH_JANUARY;
+                m_cur.wday = o3d::DAY_MONDAY;  // not exact but not issuing
+                m_cur.mday = 1;
             } else {
-                ++m_cur.month;
+                int y = m_cur.year;
+                int m = m_cur.month + 1;
+                m_cur.destroy();
+                m_cur.year = y;
+                m_cur.month = m;
+                m_cur.wday = o3d::DAY_MONDAY;  // not exact but not issuing
+                m_cur.mday = 1;
             }
 
             if (m_cur < m_to) {
