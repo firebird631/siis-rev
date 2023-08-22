@@ -31,9 +31,8 @@ void AssetTrade::init(o3d::Double timeframe)
     Trade::init(timeframe);
 }
 
-void AssetTrade::open(
-        Strategy *strategy,
-        o3d::Int32 direction,
+void AssetTrade::open(Strategy *strategy,
+        o3d::Int32 direction, Order::OrderType orderType,
         o3d::Double orderPrice,
         o3d::Double quantity,
         o3d::Double takeProfitPrice,
@@ -41,7 +40,7 @@ void AssetTrade::open(
 {
     m_strategy = strategy;
 
-    // @todo
+    // @todo continue and orderPrice/orderType
     m_direction = direction;
     m_orderQuantity = quantity;
     m_takeProfitPrice = takeProfitPrice;

@@ -67,7 +67,7 @@ void StdTradeManager::removeTrade(Trade *trade)
 
 void StdTradeManager::process(o3d::Double timestamp)
 {
-    std::list<Trade*> removed_trades;
+    std::list<Trade*> removedTrades;
 
     m_mutex.lock();
 
@@ -82,13 +82,13 @@ void StdTradeManager::process(o3d::Double timestamp)
 
         // purge closed or canceled trades
         if (trade->canDelete()) {
-            removed_trades.push_back(trade);
+            removedTrades.push_back(trade);
         }
 
         m_mutex.lock();
     }
 
-    for (Trade *trade : removed_trades) {
+    for (Trade *trade : removedTrades) {
         o3d::String msg = o3d::String("#{0} {1} exit at p={2} pl={3}% {4}").arg(trade->id())
                           .arg(trade->direction() > 0 ? "long" : "short")
                           .arg(trade->strategy()->market()->formatPrice(trade->exitPrice()))

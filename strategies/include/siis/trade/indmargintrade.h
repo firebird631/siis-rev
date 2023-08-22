@@ -21,6 +21,8 @@ namespace siis {
  * @todo case where error during cancel an order (entry, previous stop or limit)
  * Fees are generally taken from equity and generally no commissions.
  * Pnl is reduced from fees rates.
+ * @todo distinct limit and stop (per order) qty and exec qty, and distincts fees, from them
+ * recompute exit state qty and fees
  */
 class SIIS_API IndMarginTrade : public Trade
 {
@@ -38,6 +40,7 @@ public:
 
     virtual void open(Strategy *strategy,
             o3d::Int32 direction,
+            Order::OrderType orderType,
             o3d::Double orderPrice,
             o3d::Double quantity,
             o3d::Double takeProfitPrice,
@@ -130,10 +133,14 @@ private:
             EntryExit::reset();
 
             closing = false;
+
+            orderedQty = 0.0;
+            fees = 0.0;
         }
 
-
         o3d::Bool closing = false;
+        o3d::Double orderedQty = 0.0;  //!< ordered qty
+        o3d::Double fees = 0.0;        //! order relative fees
     };
 
     /**
@@ -141,7 +148,15 @@ private:
      */
     struct Limit : EntryExit
     {
+        void reset() {
+            EntryExit::reset();
 
+            orderedQty = 0.0;
+            fees = 0.0;
+        }
+
+        o3d::Double orderedQty = 0.0;  //!< ordered qty
+        o3d::Double fees = 0.0;        //! order relative fees
     };
 
     o3d::CString m_positionId;   //!< Mostly similar to market id

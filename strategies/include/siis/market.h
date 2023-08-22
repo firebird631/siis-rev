@@ -168,6 +168,7 @@ public:
     o3d::Double marginFactor() const { return m_marginFactor; }
 
     o3d::Double bid() const { return m_bid; }
+    o3d::Double ask() const { return m_ask; }
     o3d::Double ofr() const { return m_ask; }
     o3d::Double mid() const { return (m_bid + m_ask) * 0.5; }
     o3d::Double spread() const { return m_ask - m_bid; }

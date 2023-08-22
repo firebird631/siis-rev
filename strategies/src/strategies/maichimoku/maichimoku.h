@@ -20,6 +20,7 @@
 #include "siis/analysers/analyser.h"
 #include "siis/trade/stdtrademanager.h"
 
+#include "siis/trade/entry.h"
 #include "siis/trade/stoploss.h"
 #include "siis/trade/breakeven.h"
 #include "siis/trade/dynamicstoploss.h"
@@ -81,6 +82,7 @@ private:
     o3d::Double m_riskReward;
     o3d::Double m_minProfit;
 
+    Entry m_entry;
     StopLoss m_stopLoss;
     Breakeven m_breakeven;
     DynamicStopLoss m_dynamicStopLoss;
@@ -88,6 +90,7 @@ private:
     void orderEntry(o3d::Double timestamp,
                     o3d::Double timeframe,
                     o3d::Int32 direction,
+                    Order::OrderType orderType,
                     o3d::Double price,
                     o3d::Double takeProfitPrice,
                     o3d::Double stopLossPrice);

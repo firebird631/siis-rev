@@ -253,6 +253,7 @@ include/siis/trade/assettrade.h
 include/siis/trade/assettrade.h
 include/siis/trade/breakeven.h
 include/siis/trade/dynamicstoploss.h
+include/siis/trade/entry.h
 include/siis/trade/entryexit.h
 include/siis/trade/indmargintrade.h
 include/siis/trade/indmargintrade.h
@@ -746,6 +747,7 @@ src/trade/assettrade.cpp
 src/trade/assettrade.cpp
 src/trade/breakeven.cpp
 src/trade/dynamicstoploss.cpp
+src/trade/entry.cpp
 src/trade/entryexit.cpp
 src/trade/indmargintrade.cpp
 src/trade/indmargintrade.cpp

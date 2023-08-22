@@ -144,7 +144,7 @@ void MaAdx::init(Config *config)
             }
 
             // entry-exits
-            // m_entry.init(market(), ctxConfig);
+            m_entry.init(market(), ctxConfig);
             m_stopLoss.init(market(), ctxConfig);
             // m_takeProfit.init(market(), ctxConfig);
             m_breakeven.init(market(), ctxConfig);
@@ -313,7 +313,7 @@ void MaAdx::compute(o3d::Double timestamp)
         }
 
         if (doOrder) {
-            orderEntry(timestamp, signal.tf(), signal.d(), signal.price(), signal.tp(), signal.sl());
+            orderEntry(timestamp, signal.tf(), signal.d(), signal.orderType(), signal.price(), signal.tp(), signal.sl());
         }
     }
 }
@@ -347,6 +347,7 @@ void MaAdx::orderEntry(
         o3d::Double timestamp,
         o3d::Double timeframe,
         o3d::Int32 direction,
+        Order::OrderType orderType,
         o3d::Double price,
         o3d::Double takeProfitPrice,
         o3d::Double stopLossPrice)
@@ -358,7 +359,7 @@ void MaAdx::orderEntry(
         o3d::Double quantity = 1.0;  // @todo
 
         // query open
-        trade->open(this, direction, 0.0, quantity, takeProfitPrice, stopLossPrice);
+        trade->open(this, direction, orderType, price, quantity, takeProfitPrice, stopLossPrice);
 
         o3d::String msg = o3d::String("#{0} {1} at {2} sl={3} tp={4} q={5}").arg(trade->id())
                           .arg(direction > 0 ? "long" : "short").arg(formatPrice(price))
@@ -397,7 +398,11 @@ TradeSignal MaAdx::computeSignal(o3d::Double timestamp) const
                     if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
                         signal.setEntry();
                         signal.setLong();
+
+                        // m_entry.updateSignal(signal, market());
+                        // signal.setOrderType(Order::ORDER_MARKET);
                         signal.setPrice(m_confAnalyser->lastPrice());
+
                         signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_targetScale));
                         signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_targetScale, m_riskReward));
                     }
@@ -412,7 +417,11 @@ TradeSignal MaAdx::computeSignal(o3d::Double timestamp) const
                     if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
                         signal.setEntry();
                         signal.setShort();
+
+                        // m_entry.updateSignal(signal, market());
+                        // signal.setOrderType(Order::ORDER_MARKET);
                         signal.setPrice(m_confAnalyser->lastPrice());
+
                         signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_targetScale));
                         signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_targetScale, m_riskReward));
                     }

@@ -71,6 +71,7 @@ private:
     void orderEntry(o3d::Double timestamp,
                     o3d::Double timeframe,
                     o3d::Int32 direction,
+                    Order::OrderType orderType,
                     o3d::Double price,
                     o3d::Double limitPrice,
                     o3d::Double stopPrice);

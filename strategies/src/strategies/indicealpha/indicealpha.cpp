@@ -216,7 +216,7 @@ void IndiceAlpha::compute(o3d::Double timestamp)
                     // @todo or trade at order book, compute the limit price from what the order book offer or could use ATR
                     o3d::Double signalPrice = signal.price() + height;
 
-                    orderEntry(timestamp, signal.tf(), signal.d(), signalPrice, signal.tp(), signal.sl());
+                    orderEntry(timestamp, signal.tf(), signal.d(), signal.orderType(), signalPrice, signal.tp(), signal.sl());
                 }
             } else if (analyser->lastSignal().type() == TradeSignal::EXIT) {
                 // exit signal
@@ -255,6 +255,7 @@ void IndiceAlpha::orderEntry(
         o3d::Double timestamp,
         o3d::Double timeframe,
         o3d::Int32 direction,
+        Order::OrderType orderType,
         o3d::Double price,
         o3d::Double limitPrice,
         o3d::Double stopPrice)
@@ -266,7 +267,7 @@ void IndiceAlpha::orderEntry(
         o3d::Double quantity = 1.0;  // @todo
 
         // query open
-        trade->open(this, direction, price, quantity, stopPrice, limitPrice);
+        trade->open(this, direction, orderType, price, quantity, stopPrice, limitPrice);
 
         log(timeframe, "content", "entry");
     }

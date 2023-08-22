@@ -16,6 +16,8 @@ namespace siis {
  * @brief Strategy asset/spot trade model specialization.
  * @author Frederic Scherma
  * @date 2019-03-17
+ * @todo distinct limit and stop (per order) qty and exec qty, and distincts fees, from them
+ * recompute exit state qty and fees
  */
 class SIIS_API AssetTrade : public Trade
 {
@@ -34,6 +36,7 @@ public:
     virtual void open(
             Strategy *strategy,
             o3d::Int32 direction,
+            Order::OrderType orderType,
             o3d::Double orderPrice,
             o3d::Double quantity,
             o3d::Double takeProfitPrice,

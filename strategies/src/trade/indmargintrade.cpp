@@ -38,9 +38,9 @@ void IndMarginTrade::init(o3d::Double timeframe)
     m_positionId = "";
 }
 
-void IndMarginTrade::open(
-        Strategy *strategy,
+void IndMarginTrade::open(Strategy *strategy,
         o3d::Int32 direction,
+        Order::OrderType orderType,
         o3d::Double orderPrice,
         o3d::Double quantity,
         o3d::Double takeProfitPrice,
@@ -57,13 +57,8 @@ void IndMarginTrade::open(
     Order *entryOrder = traderProxy()->newOrder(m_strategy);
     entryOrder->direction = direction;
     entryOrder->orderQuantity = quantity;
-
-    if (orderPrice <= 0.0) {
-        entryOrder->orderType = Order::ORDER_MARKET;
-    } else {
-        entryOrder->orderType = Order::ORDER_LIMIT;
-        entryOrder->orderPrice = orderPrice;
-    }
+    entryOrder->orderType = orderType;
+    entryOrder->orderPrice = orderPrice;
 
     m_entry.refId = entryOrder->refId;
     m_stats.entryOrderType = entryOrder->orderType;

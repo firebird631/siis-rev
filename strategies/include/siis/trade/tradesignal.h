@@ -10,6 +10,7 @@
 
 #include "../base.h"
 #include "../utils/common.h"
+#include "../order.h"
 
 #include <list>
 
@@ -35,6 +36,7 @@ public:
         m_timeframe(timeframe),
         m_timestamp(timestamp),
         m_direction(0),
+        m_orderType(Order::ORDER_MARKET),
         m_price(0),
         m_limitPrice(0),
         m_stopPrice(0),
@@ -48,6 +50,7 @@ public:
         m_timeframe(dup.m_timeframe),
         m_timestamp(dup.m_timestamp),
         m_direction(dup.m_direction),
+        m_orderType(dup.m_orderType),
         m_price(dup.m_price),
         m_limitPrice(dup.m_limitPrice),
         m_stopPrice(dup.m_stopPrice),
@@ -62,6 +65,7 @@ public:
         m_timeframe = dup.m_timeframe;
         m_timestamp = dup.m_timestamp;
         m_direction = dup.m_direction;
+        m_orderType = dup.m_orderType;
         m_price = dup.m_price;
         m_limitPrice = dup.m_limitPrice;
         m_stopPrice = dup.m_stopPrice;
@@ -78,6 +82,7 @@ public:
         m_type = NONE;
         // m_timeframe = timeframe;
         m_direction = 0;
+        m_orderType = Order::ORDER_MARKET;
         m_price = 0.0;
         m_limitPrice = 0.0;
         m_stopPrice = 0.0;
@@ -113,6 +118,9 @@ public:
     o3d::Double p() const { return m_price; }
     void setPrice(o3d::Double p) { m_price = p; }
     void setEntryPrice(o3d::Double p) { m_price = p; }
+
+    Order::OrderType orderType() const { return m_orderType; }
+    void setOrderType(Order::OrderType orderType) { m_orderType = orderType; }
 
     o3d::Double limitPrice() const { return m_limitPrice; }
     o3d::Double lp() const { return m_limitPrice; }
@@ -192,7 +200,8 @@ private:
 
     o3d::Int32 m_direction;
 
-    o3d::Double m_price;            //<! price at the moment of the signal
+    Order::OrderType m_orderType;   //!< entry order type (default is market)
+    o3d::Double m_price;            //!<! price at the moment of the signal
     o3d::Double m_limitPrice;       //!< if limit entry this price must be precised
     o3d::Double m_stopPrice;        //!< if stop entry or stop-limit entry
     o3d::Double m_stopLossPrice;    //!< to set up an initial stop-loss price

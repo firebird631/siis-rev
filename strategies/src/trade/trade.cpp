@@ -197,11 +197,6 @@ o3d::Double Trade::deltaPrice() const
     return 0.0;
 }
 
-void Trade::addCondition(const o3d::String &name, o3d::Double v1, o3d::Double v2, o3d::Double v3, o3d::Double v4)
-{
-    m_stats.conditions.push_back(TradeCondition(name, v1, v2, v3, v4));
-}
-
 void Trade::addOperation(TradeOperation *tradeOp)
 {
 
@@ -260,7 +255,8 @@ void TradeStats::dumps() const
 //            'unrealized-profit-loss': 0.0,
 //            'profit-loss-currency': "",
 //            'exit-reason': StrategyTrade.REASON_NONE,
+//            'notional-value': 0.0,
 //            'entry-fees': 0.0,
 //            'exit-fees': 0.0,
-//            'conditions': {}
+//            'margin-fees': 0.0
 }

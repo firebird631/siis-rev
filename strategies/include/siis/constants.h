@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @brief SiiS strategy global constants.
  * @copyright Copyright (C) 2019 SiiS
  * @author Frederic SCHERMA (frederic.scherma@gmail.com)
@@ -61,9 +61,12 @@ enum MAType {
  */
 enum DistanceType {
     DIST_NONE = 0,
-    DIST_PERCENTIL = 1,   //!< distance is in percentil from the entry (pips are is converted in percentil)
-    DIST_PRICE = 2,       //!< distance is in a fixed price delta
-    DIST_CUSTOM = 3       //!< distance is a custom by design
+    DIST_CUSTOM = 1,       //!< distance is a custom by design
+    DIST_PERCENTIL = 2,    //!< distance is in percentil from the entry (pips are is converted in percentil)
+    DIST_PRICE = 3,        //!< distance is in a fixed price delta
+    DIST_LAST = 4,         //!< entry at market price
+    DIST_BEST1 = 5,        //!< entry on limit (maker if possible) using the first ticker best price
+    DIST_BEST2 = 6         //!< entry on limit (maker if possible) using the first ticker best price plus a spread
 };
 
 /**
@@ -71,9 +74,9 @@ enum DistanceType {
  */
 enum AdjustPolicy {
     ADJ_NONE = 0,
-    ADJ_PRICE = 1,   //!< adjust at each price change
-    ADJ_CLOSE = 2,   //!< adjust after each timeframe close
-    ADJ_CUSTOM = 3   //!< adjust is a custom by design
+    ADJ_CUSTOM = 1,   //!< adjust is a custom by design
+    ADJ_PRICE = 2,    //!< adjust at each price change
+    ADJ_CLOSE = 3     //!< adjust after each timeframe close
 };
 
 } // namespace siis

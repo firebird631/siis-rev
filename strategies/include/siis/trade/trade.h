@@ -23,38 +23,6 @@ namespace siis {
 
 class TraderProxy;
 class Market;
-
-/**
- * @brief Strategy trade condition model.
- * @author Frederic Scherma
- * @date 2019-03-17
- */
-class SIIS_API TradeCondition
-{
-public:
-
-    o3d::String name;
-
-    o3d::Double v1;
-    o3d::Double v2;
-    o3d::Double v3;
-    o3d::Double v4;
-
-    TradeCondition(
-            const o3d::String& _name,
-            o3d::Double _v1,
-            o3d::Double _v2 = 0.0,
-            o3d::Double _v3 = 0.0,
-            o3d::Double _v4 = 0.0) :
-        name(_name),
-        v1(_v1),
-        v2(_v2),
-        v3(_v3),
-        v4(_v4)
-    {
-    }
-};
-
 class Trade;
 
 /**
@@ -97,11 +65,12 @@ public:
     o3d::Double unrealizedProfitLoss;
     o3d::CString profitLossCurrency;
 
+    o3d::Double notionalValue;
     o3d::Double entryFees;
     o3d::Double exitFees;
+    o3d::Double marginFees;
 
     ExitReason exitReason;
-    std::list<TradeCondition> conditions;
 
     TradeStats() :
         bestPrice(0.0),
@@ -117,10 +86,11 @@ public:
         lastRealizedExitTimestamp(0.0),
         unrealizedProfitLoss(0.0),
         profitLossCurrency(),
+        notionalValue(0.0),
         entryFees(0.0),
         exitFees(0.0),
-        exitReason(REASON_NONE),
-        conditions()
+        marginFees(0.0),
+        exitReason(REASON_NONE)
     {
     }
 
@@ -139,13 +109,11 @@ public:
         lastRealizedExitTimestamp = 0.0;
         unrealizedProfitLoss = 0.0;
         profitLossCurrency = "";
+        notionalValue = 0.0;
         entryFees = 0.0;
         exitFees = 0.0;
+        marginFees = 0.0;
         exitReason = REASON_NONE;
-
-        if (!conditions.empty()) {
-            conditions.clear();
-        }
     }
 
     void loads();
@@ -301,7 +269,8 @@ public:
      * @brief open Initial creation of the entry order using the trader proxy and market.
      * @param strategy Valid related strategy.
      * @param direction -1 for short, 1 for long.
-     * @param orderPrice If <= 0 then market order, else limit order.
+     * @param orderType Order type (market, limit, stop).
+     * @param orderPrice Must be valid for limit or stop, optional for market.
      * @param quantity
      * @param takeProfitPrice If > 0 then defines the take-profit (limit) price of the position or a SL order.
      * @param stopLossPrice If > 0 then defines the stop-loss (stop) price of the position or a TP order.
@@ -309,6 +278,7 @@ public:
     virtual void open(
             Strategy *strategy,
             o3d::Int32 direction,
+            Order::OrderType orderType,
             o3d::Double orderPrice,
             o3d::Double quantity,
             o3d::Double takeProfitPrice,
@@ -521,15 +491,6 @@ public:
     virtual void updateStats(o3d::Double lastPrice, o3d::Double timestamp);
 
     const TradeStats& stats() const { return m_stats; }
-
-    const std::list<TradeCondition>& getConditions() const { return m_stats.conditions; }
-
-    void addCondition(
-            const o3d::String& name,
-            o3d::Double v1,
-            o3d::Double v2 = 0.0,
-            o3d::Double v3 = 0.0,
-            o3d::Double v4 = 0.0);
 
     //
     // operations

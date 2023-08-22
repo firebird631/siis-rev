@@ -58,7 +58,7 @@ void LocalConnector::update()
 
         if (order->orderType == Order::ORDER_LIMIT) {
             if (order->direction > 0) {
-                // @todo
+                // @todo execute
             } else if (order->direction < 0) {
 
             }

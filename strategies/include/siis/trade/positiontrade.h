@@ -35,6 +35,7 @@ public:
 
     virtual void open(Strategy *strategy,
             o3d::Int32 direction,
+            Order::OrderType orderType,
             o3d::Double orderPrice,
             o3d::Double quantity,
             o3d::Double takeProfitPrice,
