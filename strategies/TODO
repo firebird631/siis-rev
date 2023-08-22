@@ -10,6 +10,8 @@ Prioritaire
 ===========
 
 - taille des trades
+- notional-value des trades
+- inverse perpetual contract position computation
 
 - attention aux trades, orders, positions non libérés à la fin si pas cloturé (coté trader proxy et local trader)
 

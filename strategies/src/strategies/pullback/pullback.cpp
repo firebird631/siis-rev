@@ -469,7 +469,6 @@ TradeSignal Pullback::computeSignal(o3d::Double timestamp)
                     signal.setLong();
 
                     // m_entry.updateSignal(signal, market());
-                    signal.setOrderType(Order::ORDER_MARKET);
                     signal.setPrice(m_confAnalyser->lastPrice());
 
                     signal.setTakeProfitPrice(m_bbAnalyser->takeProfit(1, m_targetScale));
@@ -484,7 +483,6 @@ TradeSignal Pullback::computeSignal(o3d::Double timestamp)
                 signal.setLong();
 
                 // m_entry.updateSignal(signal, market());
-                // signal.setOrderType(Order::ORDER_MARKET);
                 signal.setPrice(m_confAnalyser->lastPrice());
 
                 signal.setTakeProfitPrice(m_bbAnalyser->takeProfit(1, m_targetScale));
@@ -503,7 +501,6 @@ TradeSignal Pullback::computeSignal(o3d::Double timestamp)
                     signal.setShort();
 
                     // m_entry.updateSignal(signal, market());
-                    // signal.setOrderType(Order::ORDER_MARKET);
                     signal.setPrice(m_confAnalyser->lastPrice());
 
                     signal.setTakeProfitPrice(m_bbAnalyser->takeProfit(-1, m_targetScale));
@@ -518,7 +515,6 @@ TradeSignal Pullback::computeSignal(o3d::Double timestamp)
                 signal.setShort();
 
                 // m_entry.updateSignal(signal, market());
-                // signal.setOrderType(Order::ORDER_MARKET);
                 signal.setPrice(m_confAnalyser->lastPrice());
 
                 signal.setTakeProfitPrice(m_bbAnalyser->takeProfit(-1, m_targetScale));

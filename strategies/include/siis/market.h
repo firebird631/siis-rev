@@ -89,7 +89,8 @@ public:
         UNIT_UNDEFINED = -1,
         UNIT_AMOUNT = 0,      //!< amount is in number of token
         UNIT_CONTRACTS = 1,   //!< amount is in contract size
-        UNIT_SHARES = 2       //!< amount is in currency (quote)
+        UNIT_SHARES = 2,      //!< amount is in currency (quote)
+        UNIT_INVERSE = 3      //!< for inverses futures contract only
     };
 
     struct Symbol

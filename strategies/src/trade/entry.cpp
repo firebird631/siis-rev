@@ -96,22 +96,22 @@ void Entry::updateSignal(TradeSignal &signal, const Market *market) const
             signal.setEntryPrice(market->ask() + market->spread());
         }
     } else if (m_distanceType == DIST_PERCENTIL) {
-        // @todo price percent delta price
+        // sub a price percent
         if (signal.direction() > 0) {
             signal.setOrderType(Order::ORDER_LIMIT);
-            // signal.setEntryPrice(price);
+            signal.setEntryPrice(market->bid() * (1.0 - m_distance));
         } else if (signal.direction() < 0) {
             signal.setOrderType(Order::ORDER_LIMIT);
-            // signal.setEntryPrice(price);
+            signal.setEntryPrice(market->ask() * (1.0 + m_distance));
         }
     } else if (m_distanceType == DIST_PRICE) {
-        // @todo price delta price
+        // sub a price delta price
         if (signal.direction() > 0) {
             signal.setOrderType(Order::ORDER_LIMIT);
-            // signal.setEntryPrice(price);
+            signal.setEntryPrice(market->bid() - m_distance);
         } else if (signal.direction() < 0) {
             signal.setOrderType(Order::ORDER_LIMIT);
-            // signal.setEntryPrice(price);
+            signal.setEntryPrice(market->ask() + m_distance);
         }
     }
 }

@@ -89,6 +89,7 @@ o3d::String siis::marketUnitToStr(o3d::Int32 marketUnit)
         case Market::UNIT_AMOUNT: return "amount";
         case Market::UNIT_CONTRACTS: return "contracts";
         case Market::UNIT_SHARES: return "shares";
+        case Market::UNIT_INVERSE: return "inverse";
     }
 
     return "undefined";

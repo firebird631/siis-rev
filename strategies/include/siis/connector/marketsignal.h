@@ -55,7 +55,8 @@ public:
         UNIT_UNDEFINED = -1,
         UNIT_AMOUNT = 0,
         UNIT_CONTRACTS = 1,
-        UNIT_SHARES = 2
+        UNIT_SHARES = 2,
+        UNIT_INVERSE = 3
     };
 
     static const o3d::Int32 TRADE_UNDEFINED = -1;

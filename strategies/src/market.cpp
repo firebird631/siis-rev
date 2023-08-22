@@ -462,6 +462,9 @@ o3d::Double Market::marginCost(o3d::Double qty, o3d::Double price) const
     } else if (m_unit == UNIT_SHARES) {
         // in quote currency
         realizedPositionCost = qty * price;
+    } else if (m_unit == UNIT_INVERSE) {
+        // in quote currency
+        realizedPositionCost = qty * (m_lotSize * m_contractSize) * price;
     } else {
         // in quote currency
         realizedPositionCost = qty * (m_lotSize * m_contractSize) * price;
@@ -481,6 +484,9 @@ o3d::Double Market::effectiveCost(o3d::Double qty, o3d::Double price) const
     } else if (m_unit == UNIT_SHARES) {
         // in quote currency
         return qty * price;
+    } else if (m_unit == UNIT_INVERSE) {
+        // in quote currency
+        return qty * (m_lotSize * m_contractSize) * price;
     } else {
         // in quote currency
         return qty * (m_lotSize * m_contractSize) * price;
