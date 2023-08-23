@@ -50,46 +50,25 @@ void LocalConnector::stop()
 
 void LocalConnector::update()
 {
-    // @todo execute orders (stop, limit)
     for (auto it = m_virtualOrders.begin(); it != m_virtualOrders.end(); ++it) {
         // check and execute order...
         Order *order = it->second;
         const Market *market = order->strategy->market();
 
         if (order->orderType == Order::ORDER_LIMIT) {
-            if (order->direction > 0) {
-                // @todo execute
-            } else if (order->direction < 0) {
-
-            }
+            handleLimitOrder(order, market);
         }
         else if (order->orderType == Order::ORDER_STOP) {
-            if (order->direction > 0) {
-                // @todo
-            } else if (order->direction < 0) {
-
-            }
+            handleStopOrder(order, market);
         }
         else if (order->orderType == Order::ORDER_STOP_LIMIT) {
-            if (order->direction > 0) {
-                // @todo
-            } else if (order->direction < 0) {
-
-            }
+            // @todo handleStopLimitOrder(order, market);
         }
         else if (order->orderType == Order::ORDER_TAKE_PROFIT) {
-            if (order->direction > 0) {
-                // @todo
-            } else if (order->direction < 0) {
-
-            }
+            // @todo handleTakeProfitOrder(order, market);
         }
         else if (order->orderType == Order::ORDER_TAKE_PROFIT_LIMIT) {
-            if (order->direction > 0) {
-                // @todo
-            } else if (order->direction < 0) {
-
-            }
+            // @todo handleTakeProfitLimitOrder(order, market);
         }
     }
 
@@ -98,19 +77,13 @@ void LocalConnector::update()
         Position *position = it->second;
         const Market *market = position->strategy->market();
 
-        if (position->quantity > 0.0) {
-            // update position state, profit and loss...
-            // position->profitLoss =
-            // @todo
-
-            if (position->stopPrice > 0.0) {
-
-            }
-
-            if (position->limitPrice > 0.0) {
-
-            }
+        // update position state for active positions, profit and loss...
+        if (market->hasPosition()) {
+            updatePosition(position, market);
         }
+
+        // update profit/loss for stats
+        position->updatePnl(market);
     }
 
     // update virtual account
@@ -321,7 +294,7 @@ o3d::Int32 LocalConnector::createOrder(Order *order)
 
                     o3d::Double closeExecPrice = market->closeExecPrice(position->direction);
 
-                    // @todo check...
+                    // @todo check qty, compute avgPrice, execPrice, entryPrice, entryQty, exitPrice, exitQty
                     position->quantity -= order->orderQuantity;
 
                     updatedPositionSignal.direction = order->direction;
@@ -558,6 +531,24 @@ void LocalConnector::fetchAssets(const o3d::CString &assetId)
 {
     if (m_traderProxy) {
         // @todo could set initial asset quantity from configuration
+    }
+}
+
+void LocalConnector::handleLimitOrder(Order *order, const Market *market)
+{
+    if (order->direction > 0) {
+        // @todo execute
+    } else if (order->direction < 0) {
+
+    }
+}
+
+void LocalConnector::handleStopOrder(Order *order, const Market *market)
+{
+    if (order->direction > 0) {
+        // @todo execute
+    } else if (order->direction < 0) {
+
     }
 }
 

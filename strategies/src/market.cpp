@@ -454,6 +454,10 @@ o3d::Double Market::marginCost(o3d::Double qty, o3d::Double price) const
 {
     o3d::Double realizedPositionCost = 0.0;
 
+    if (qty <= 0.0 || price <= 0.0) {
+        return 0.0;
+    }
+
     if (m_unit == UNIT_AMOUNT) {
         // in quote currency
         realizedPositionCost = qty * (m_lotSize * m_contractSize) * price;
@@ -464,7 +468,7 @@ o3d::Double Market::marginCost(o3d::Double qty, o3d::Double price) const
         realizedPositionCost = qty * price;
     } else if (m_unit == UNIT_INVERSE) {
         // in quote currency
-        realizedPositionCost = qty * (m_lotSize * m_contractSize) * price;
+        realizedPositionCost = qty * (m_lotSize * m_contractSize) / price;
     } else {
         // in quote currency
         realizedPositionCost = qty * (m_lotSize * m_contractSize) * price;
@@ -476,6 +480,10 @@ o3d::Double Market::marginCost(o3d::Double qty, o3d::Double price) const
 
 o3d::Double Market::effectiveCost(o3d::Double qty, o3d::Double price) const
 {
+    if (qty <= 0.0 || price <= 0.0) {
+        return 0.0;
+    }
+
     if (m_unit == UNIT_AMOUNT) {
         // in quote currency
         return qty * (m_lotSize * m_contractSize) * price;
@@ -486,9 +494,34 @@ o3d::Double Market::effectiveCost(o3d::Double qty, o3d::Double price) const
         return qty * price;
     } else if (m_unit == UNIT_INVERSE) {
         // in quote currency
-        return qty * (m_lotSize * m_contractSize) * price;
+        return qty * (m_lotSize * m_contractSize) / price;
     } else {
         // in quote currency
         return qty * (m_lotSize * m_contractSize) * price;
     }
 }
+
+o3d::Double Market::computePnl(o3d::Double qty, o3d::Int32 direction,
+                               o3d::Double initialPrice, o3d::Double lastPrice) const
+{
+    if (qty <= 0.0 || initialPrice <= 0.0 || lastPrice <= 0.0 || direction == 0) {
+        return 0.0;
+    }
+
+    if (m_unit == UNIT_AMOUNT) {
+        // in quote or settlement currency
+        return qty * (m_lotSize * m_contractSize) * direction * (lastPrice - initialPrice);
+    } else if (m_unit == UNIT_CONTRACTS) {
+        return qty * (m_lotSize * m_contractSize / m_valuePerPip * direction * (lastPrice - initialPrice));
+    } else if (m_unit == UNIT_SHARES) {
+        // in quote or settlement currency
+        return qty * (lastPrice - initialPrice) * direction;
+    } else if (m_unit == UNIT_INVERSE) {
+        // in quote or settlement currency
+        return qty * (m_lotSize * m_contractSize) * direction * (1.0 / initialPrice - 1.0 / lastPrice);
+    } else {
+        // in quote or settlement currency
+        return qty * (m_lotSize * m_contractSize) * direction * (lastPrice - initialPrice);
+    }
+}
+

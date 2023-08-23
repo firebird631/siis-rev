@@ -9,6 +9,7 @@ set(STRATEGY_LIB_CXX
     logger.cpp
     market.cpp
     poolworker.cpp
+    position.cpp
     strategy.cpp
     terminal.cpp
     worker.cpp
@@ -23,6 +24,10 @@ set(STRATEGY_LIB_CXX
     config/strategyconfig.cpp
     connector/connector.cpp
     connector/localconnector.cpp
+    connector/localconnectorasset.cpp
+    connector/localconnectorfifomargin.cpp
+    connector/localconnectorindmargin.cpp
+    connector/localconnectorposition.cpp
     connector/zmqconnector.cpp
     connector/traderproxy.cpp
     connector/messages/connectormessagecore.cpp
@@ -179,4 +184,3 @@ install (TARGETS ${EXEC_NAME}
 
 add_subdirectory(strategies)
 add_subdirectory(supervisors)
-

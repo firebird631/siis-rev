@@ -215,17 +215,17 @@ public:
     o3d::Bool hasMargin() const { return m_tradeCaps & TRADE_MARGIN; }
 
     /**
-     * @brief hasSpot Has spot market capacity.
+     * @brief indivisiblePosition Has cumulated one sided margin position capacity.
      */
     o3d::Bool indivisiblePosition() const { return m_tradeCaps & TRADE_IND_MARGIN; }
 
     /**
-     * @brief hasSpot Has spot market capacity.
+     * @brief fifoPosition Has FIFO mangement to executed orders for margin capacity.
      */
     o3d::Bool fifoPosition() const { return m_tradeCaps & TRADE_FIFO; }
 
     /**
-     * @brief hasSpot Has spot market capacity.
+     * @brief hasPosition Has individual position capacity.
      */
     o3d::Bool hasPosition() const { return m_tradeCaps & TRADE_POSITION; }
 
@@ -399,6 +399,16 @@ public:
      * according to the given quantity and market details.
      */
     o3d::Double effectiveCost(o3d::Double qty, o3d::Double price) const;
+
+    /**
+     * @brief computePnl Compute the profit or loss according to the market unit type.
+     * @param qty
+     * @param direction
+     * @param initialPrice
+     * @param lastPrice
+     * @return float
+     */
+    o3d::Double computePnl(o3d::Double qty, o3d::Int32 direction, o3d::Double initialPrice, o3d::Double lastPrice) const;
 
     //
     // processing

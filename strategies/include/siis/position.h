@@ -16,6 +16,7 @@ namespace siis {
 
 class TraderProxy;
 class Strategy;
+class Market;
 
 /**
  * @brief Strategy position model.
@@ -29,9 +30,47 @@ public:
     static constexpr o3d::Double TIMESTAMP_UNDEFINED = -1.0;
     static constexpr o3d::Double PRICE_UNDEFINED = -1.0;
     static constexpr o3d::Double QUANTITY_UNDEFINED = -1.0;
-    static constexpr o3d::Double RATE_UNDEFINED = -1.0;
+    static constexpr o3d::Double RATE_UNDEFINED = O3D_MIN_DOUBLE;
     static constexpr o3d::Int8 FLAG_UNDEFINED = -1;
     static constexpr o3d::Int8 VALUE_UNDEFINED = -1;
+
+    struct Local
+    {
+        o3d::Double entryPrice;
+        o3d::Double exitPrice;
+
+        o3d::Double profitLoss;
+        o3d::Double rawProfitLoss;
+        o3d::Double rawProfitLossRate;
+        o3d::Double profitLossRate;
+        o3d::Double profitLossMarket;
+        o3d::Double profitLossMarketRate;
+
+        Local() :
+            entryPrice(0.0),
+            exitPrice(0.0),
+            profitLoss(0.0),
+            rawProfitLoss(0.0),
+            rawProfitLossRate(0.0),
+            profitLossRate(0.0),
+            profitLossMarket(0.0),
+            profitLossMarketRate(0.0)
+        {
+
+        }
+
+        void reset() {
+            entryPrice = 0.0;
+            exitPrice = 0.0;
+
+            profitLoss = 0.0;
+            rawProfitLoss = 0.0;
+            rawProfitLossRate = 0.0;
+            profitLossRate = 0.0;
+            profitLossMarket = 0.0;
+            profitLossMarketRate = 0.0;
+        }
+    };
 
     Position() :
         proxy(nullptr),
@@ -51,6 +90,7 @@ public:
         liquidationPrice(PRICE_UNDEFINED),
         commission(RATE_UNDEFINED)
     {
+
     }
 
     void reset()
@@ -72,6 +112,18 @@ public:
         commission = RATE_UNDEFINED;
     }
 
+    //
+    // helpers
+    //
+
+    /**
+     * @brief updatePnl Compute profit/loss and profit/loss rate for maker and taker.
+     * @param market A valid market object related to the symbol of the position.
+     * @todo partial reduce make a RPNL
+     * @param market
+     */
+    void updatePnl(const Market* market);
+
     TraderProxy *proxy;
     Strategy *strategy;
 
@@ -88,10 +140,10 @@ public:
     o3d::Int32 direction;    //!< -1 or 1, 0 means not defined
     o3d::Double quantity;    //!< always positive or 0
 
-    o3d::Double avgPrice;    //!< average price or -1 if not defined
+    o3d::Double avgPrice;    //!< average entry price or -1 if not defined
     o3d::Double execPrice;   //!< executed price or -1 if not defined
 
-    o3d::Double stopPrice;   //! -1 if not defined
+    o3d::Double stopPrice;       //! -1 if not defined
     o3d::Double limitPrice;      //! -1 if not defined
 
     o3d::CString profitCurrency;  //!< currency symbol
@@ -102,6 +154,8 @@ public:
 
     o3d::Double liquidationPrice;   //!< liquidation price, neg if not defined
     o3d::Double commission;         //!< commission rate realized on the position
+
+    Local local;             //!< locally computed value for measures/stats...
 };
 
 } // namespace siis

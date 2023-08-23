@@ -22,6 +22,7 @@ namespace siis {
 
 class Handler;
 class Config;
+class Market;
 
 /**
  * @brief SiiS strategy local connector implementation.
@@ -144,6 +145,34 @@ protected:
 
     o3d::StringMap<Order*> m_virtualOrders;
     o3d::StringMap<Position*> m_virtualPositions;
+
+    void handleLimitOrder(Order *order, const Market *market);
+    void handleStopOrder(Order *order, const Market *market);
+
+    //
+    // asset order management (@see localconnectorasset.cpp)
+    //
+
+    void execAssetOrder(Order *order, const Market *market);
+
+    //
+    // indivisible margin position and order management (@see localconnectorindmargin.cpp)
+    //
+
+    void execIndMarginOrder(Order *order, const Market *market);
+
+    //
+    // margin position and FIFO order management (@see localconnectorfifomargin.cpp)
+    //
+
+    void execFifoMarginOrder(Order *order, const Market *market);
+
+    //
+    // individual position and order management (@see localconnectorposition.cpp)
+    //
+
+    void execPositionOrder(Order *order, const Market *market);
+    void updatePosition(Position *position, const Market *market);
 };
 
 } // namespace siis

@@ -36,9 +36,9 @@ public:
     static constexpr o3d::Double TIMESTAMP_UNDEFINED = -1.0;
     static constexpr o3d::Double PRICE_UNDEFINED = -1.0;
     static constexpr o3d::Double QUANTITY_UNDEFINED = -1.0;
-    static constexpr o3d::Double RATE_UNDEFINED = -1.0;
+    static constexpr o3d::Double RATE_UNDEFINED = O3D_MIN_DOUBLE;
     static constexpr o3d::Int8 FLAG_UNDEFINED = -1;
-    static constexpr o3d::Int8 VALUE_UNDEFINED = -1;    
+    static constexpr o3d::Int8 VALUE_UNDEFINED = -1;
 
     BaseSignal(BaseType baseType) :
         T(),

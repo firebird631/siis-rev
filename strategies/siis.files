@@ -370,6 +370,10 @@ src/connector/connector.cpp
 src/connector/connector.cpp
 src/connector/connector.cpp
 src/connector/localconnector.cpp
+src/connector/localconnectorasset.cpp
+src/connector/localconnectorfifomargin.cpp
+src/connector/localconnectorindmargin.cpp
+src/connector/localconnectorposition.cpp
 src/connector/messages/connectormessagecancelorder.cpp
 src/connector/messages/connectormessagecloseposition.cpp
 src/connector/messages/connectormessagecore.cpp
@@ -648,6 +652,7 @@ src/poolworker.cpp
 src/poolworker.cpp
 src/poolworker.h
 src/poolworker.h
+src/position.cpp
 src/statistics/statistics.cpp
 src/strategies/CMakeLists.txt
 src/strategies/CMakeLists.txt
