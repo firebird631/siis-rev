@@ -20,7 +20,8 @@ using namespace siis;
 using o3d::Logger;
 using o3d::Debug;
 
-void LocalConnector::execAssetOrder(Order *order, const Market *market)
+void LocalConnector::execAssetOrder(Order *order, const Market *market,
+                                    o3d::Double openExePrice, o3d::Double closeExePrice)
 {
 
 }

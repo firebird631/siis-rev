@@ -147,7 +147,7 @@ public:
     o3d::Int32 direction;
 
     o3d::Double orderQuantity;   //!< initial order quantity
-    o3d::Double orderPrice;      //!< initial order price (for limit)
+    o3d::Double orderPrice;      //!< initial order price (for limit or stop)
 
     o3d::Double stopPrice;       //!< for position creation order, 0 or -1 if not defined
     o3d::Double limitPrice;      //!< for position creation order, 0 or -1 if not defined

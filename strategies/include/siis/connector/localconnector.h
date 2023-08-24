@@ -30,6 +30,7 @@ class Market;
  * @date 2019-06-03
  * Always connected, no fetching, no outside data, state, only accept
  * order, position modification, deletion, no subscriptions.
+ * @todo mutex locker to protect maps when used in multi market async
  */
 class SIIS_API LocalConnector : public Connector
 {
@@ -146,32 +147,38 @@ protected:
     o3d::StringMap<Order*> m_virtualOrders;
     o3d::StringMap<Position*> m_virtualPositions;
 
-    void handleLimitOrder(Order *order, const Market *market);
-    void handleStopOrder(Order *order, const Market *market);
+    std::list<Order*> m_removedOrders;
+    std::list<Position*> m_removedPositions;
+
+    o3d::Bool handleLimitOrder(Order *order, const Market *market);
+    o3d::Bool handleStopOrder(Order *order, const Market *market);
+    o3d::Bool handleStopLimitOrder(Order *order, const Market *market);
+    o3d::Bool handleTakeProfitOrder(Order *order, const Market *market);
+    o3d::Bool handleTakeProfitLimitOrder(Order *order, const Market *market);
 
     //
     // asset order management (@see localconnectorasset.cpp)
     //
 
-    void execAssetOrder(Order *order, const Market *market);
+    void execAssetOrder(Order *order, const Market *market, o3d::Double openExePrice, o3d::Double closeExePrice);
 
     //
     // indivisible margin position and order management (@see localconnectorindmargin.cpp)
     //
 
-    void execIndMarginOrder(Order *order, const Market *market);
+    void execIndMarginOrder(Order *order, const Market *market, o3d::Double openExePrice, o3d::Double closeExePrice);
 
     //
     // margin position and FIFO order management (@see localconnectorfifomargin.cpp)
     //
 
-    void execFifoMarginOrder(Order *order, const Market *market);
+    void execFifoMarginOrder(Order *order, const Market *market, o3d::Double openExePrice, o3d::Double closeExePrice);
 
     //
     // individual position and order management (@see localconnectorposition.cpp)
     //
 
-    void execPositionOrder(Order *order, const Market *market);
+    void execPositionOrder(Order *order, const Market *market, o3d::Double openExePrice, o3d::Double closeExePrice);
     void updatePosition(Position *position, const Market *market);
 };
 

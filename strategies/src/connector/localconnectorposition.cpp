@@ -75,7 +75,8 @@ void LocalConnector::updatePosition(Position *position, const Market *market)
     }
 }
 
-void LocalConnector::execPositionOrder(Order *order, const Market *market)
+void LocalConnector::execPositionOrder(Order *order, const Market *market,
+                                       o3d::Double openExePrice, o3d::Double closeExePrice)
 {
     // @todo
 }
