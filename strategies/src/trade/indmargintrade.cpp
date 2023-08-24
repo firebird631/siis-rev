@@ -65,6 +65,16 @@ void IndMarginTrade::open(Strategy *strategy,
 
     o3d::Int32 ret = traderProxy()->createOrder(entryOrder);
     if (ret == Order::RET_OK) {
+        // retrieve order id and position id by signal
+        m_entry.orderId = entryOrder->orderId;
+
+        // might be market-id, but it is related by hedging state
+        m_positionId = entryOrder->positionId;
+
+        if (m_openTimeStamp <= 0.0 && entryOrder->created > 0.0) {
+            // only at the first open
+            m_openTimeStamp = entryOrder->created;
+        }
     } else {
         m_entry.state = STATE_REJECTED;
         m_stats.entryOrderType = Order::ORDER_UNDEFINED;
@@ -198,7 +208,7 @@ void IndMarginTrade::modifyTakeProfit(o3d::Double price, ModifierType mod)
 
             limitOrder->orderType = Order::ORDER_LIMIT;
             limitOrder->orderPrice = price;
-            limitOrder->closeOnly = 1;
+            limitOrder->setReduceOnly();
 
             m_limit.refId = limitOrder->refId;
             m_stats.stopOrderType = limitOrder->orderType;
@@ -246,7 +256,7 @@ void IndMarginTrade::modifyStopLoss(o3d::Double price, ModifierType mod)
 
             stopOrder->orderType = Order::ORDER_MARKET;
             stopOrder->orderPrice = price;
-            stopOrder->closeOnly = 1;
+            stopOrder->setReduceOnly();
 
             m_stop.refId = stopOrder->refId;
             m_stats.stopOrderType = stopOrder->orderType;
@@ -303,7 +313,7 @@ void IndMarginTrade::close(TradeStats::ExitReason reason)
     stopOrder->direction = -m_direction;
     stopOrder->orderQuantity = remaining_qty;
     stopOrder->orderType = Order::ORDER_MARKET;
-    stopOrder->closeOnly = 1;
+    stopOrder->setReduceOnly();
 
     m_stop.refId = stopOrder->refId;
     m_stop.closing = true;

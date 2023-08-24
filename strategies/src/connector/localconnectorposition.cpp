@@ -78,5 +78,67 @@ void LocalConnector::updatePosition(Position *position, const Market *market)
 void LocalConnector::execPositionOrder(Order *order, const Market *market,
                                        o3d::Double openExePrice, o3d::Double closeExePrice)
 {
-    // @todo
+    // only perform entry order (not close, reduce)
+    Strategy *strategy = order->strategy;
+    if (strategy == nullptr) {
+        return;
+    }
+
+    if (strategy->tradeType() != Trade::TYPE_POSITION) {
+        // only for position trade
+        return;
+    }
+
+    if (!order->hedging()) {
+        // support only hedging
+        return;
+    }
+
+    // always a new position with the same order as order id for a position
+    Position *position = traderProxy()->newPosition(strategy);
+
+    // execution price at open
+    o3d::Double execPrice = openExePrice;
+
+    position->positionId = order->orderId;
+    position->refOrderId = order->refId;
+    position->direction = order->direction;
+    position->marketId = order->marketId;
+    position->created = handler()->timestamp();
+    position->updated = handler()->timestamp();
+
+    position->stopPrice = order->stopPrice;
+    position->limitPrice = order->limitPrice;
+
+    m_virtualPositions[position->positionId] = position;
+
+    // need a position opened signal
+    PositionSignal openPositionSignal(PositionSignal::OPENED);
+    openPositionSignal.direction = order->direction;
+    openPositionSignal.marketId = order->marketId;
+    openPositionSignal.created = handler()->timestamp();
+    openPositionSignal.updated = handler()->timestamp();
+    openPositionSignal.refOrderId = order->refId;
+    openPositionSignal.positionId = position->positionId;
+    // openPositionSignal.commission @todo
+
+    // entry traded
+    openPositionSignal.avgPrice = execPrice;
+    openPositionSignal.execPrice = execPrice;
+    openPositionSignal.filled = order->orderQuantity;
+    openPositionSignal.cumulativeFilled = order->orderQuantity;
+
+    strategy->onPositionSignal(openPositionSignal);
+
+    OrderSignal deletedOrderSignal(OrderSignal::DELETED);
+    deletedOrderSignal.direction = order->direction;
+    deletedOrderSignal.marketId = order->marketId;
+    deletedOrderSignal.executed = handler()->timestamp();
+    deletedOrderSignal.orderId = order->orderId;
+    deletedOrderSignal.refId = order->refId;
+    deletedOrderSignal.orderType = order->orderType;
+    deletedOrderSignal.flags = order->flags;
+    // @todo do we set cumulative, avg and completed here ?
+
+    strategy->onOrderSignal(deletedOrderSignal);
 }

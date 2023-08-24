@@ -468,8 +468,8 @@ TradeSignal Pullback::computeSignal(o3d::Double timestamp)
                     signal.setEntry();
                     signal.setLong();
 
-                    // m_entry.updateSignal(signal, market());
-                    signal.setPrice(m_confAnalyser->lastPrice());
+                    m_entry.updateSignal(signal, market());
+                    // signal.setPrice(m_confAnalyser->lastPrice());
 
                     signal.setTakeProfitPrice(m_bbAnalyser->takeProfit(1, m_targetScale));
                     signal.setStopLossPrice(m_bbAnalyser->stopLoss(1, m_targetScale, m_riskReward));
@@ -482,8 +482,8 @@ TradeSignal Pullback::computeSignal(o3d::Double timestamp)
                 signal.setEntry();
                 signal.setLong();
 
-                // m_entry.updateSignal(signal, market());
-                signal.setPrice(m_confAnalyser->lastPrice());
+                m_entry.updateSignal(signal, market());
+                // signal.setPrice(m_confAnalyser->lastPrice());
 
                 signal.setTakeProfitPrice(m_bbAnalyser->takeProfit(1, m_targetScale));
                 signal.setStopLossPrice(m_bbAnalyser->stopLoss(1, m_targetScale, m_riskReward));
@@ -500,8 +500,8 @@ TradeSignal Pullback::computeSignal(o3d::Double timestamp)
                     signal.setEntry();
                     signal.setShort();
 
-                    // m_entry.updateSignal(signal, market());
-                    signal.setPrice(m_confAnalyser->lastPrice());
+                    m_entry.updateSignal(signal, market());
+                    // signal.setPrice(m_confAnalyser->lastPrice());
 
                     signal.setTakeProfitPrice(m_bbAnalyser->takeProfit(-1, m_targetScale));
                     signal.setStopLossPrice(m_bbAnalyser->stopLoss(-1, m_targetScale, m_riskReward));
@@ -514,8 +514,8 @@ TradeSignal Pullback::computeSignal(o3d::Double timestamp)
                 signal.setEntry();
                 signal.setShort();
 
-                // m_entry.updateSignal(signal, market());
-                signal.setPrice(m_confAnalyser->lastPrice());
+                m_entry.updateSignal(signal, market());
+                // signal.setPrice(m_confAnalyser->lastPrice());
 
                 signal.setTakeProfitPrice(m_bbAnalyser->takeProfit(-1, m_targetScale));
                 signal.setStopLossPrice(m_bbAnalyser->stopLoss(-1, m_targetScale, m_riskReward));

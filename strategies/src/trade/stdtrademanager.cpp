@@ -385,7 +385,7 @@ void StdTradeManager::onPositionSignal(const PositionSignal &positionSignal)
     m_mutex.lock();
 
     for (Trade *trade : m_trades) {
-        if (trade->isTargetPosition(positionSignal.positionId, positionSignal.orderRefId)) {
+        if (trade->isTargetPosition(positionSignal.positionId, positionSignal.refOrderId)) {
             // found : apply
             m_mutex.unlock();
             trade->positionSignal(positionSignal);

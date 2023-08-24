@@ -399,8 +399,8 @@ TradeSignal MaAdx::computeSignal(o3d::Double timestamp) const
                         signal.setEntry();
                         signal.setLong();
 
-                        // m_entry.updateSignal(signal, market());
-                        signal.setPrice(m_confAnalyser->lastPrice());
+                        m_entry.updateSignal(signal, market());
+                        // signal.setPrice(m_confAnalyser->lastPrice());
 
                         signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_targetScale));
                         signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_targetScale, m_riskReward));
@@ -417,8 +417,8 @@ TradeSignal MaAdx::computeSignal(o3d::Double timestamp) const
                         signal.setEntry();
                         signal.setShort();
 
-                        // m_entry.updateSignal(signal, market());
-                        signal.setPrice(m_confAnalyser->lastPrice());
+                        m_entry.updateSignal(signal, market());
+                        // signal.setPrice(m_confAnalyser->lastPrice());
 
                         signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_targetScale));
                         signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_targetScale, m_riskReward));

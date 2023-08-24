@@ -22,8 +22,10 @@ Entry::Entry() :
 
 void Entry::init(const Market *market, ContextConfig &conf)
 {
-    if (conf.data().isMember("type")) {
-        o3d::String type = conf.data().get("type", Json::Value()).asCString();
+    EntryConfig entryConfig = conf.entry();
+
+    if (entryConfig.data().isMember("type")) {
+        o3d::String type = entryConfig.data().get("type", Json::Value()).asCString();
         if (type == "fixed-pct") {
             m_distanceType = DIST_PERCENTIL;
         } else if (type == "fixed-dist") {
@@ -39,13 +41,13 @@ void Entry::init(const Market *market, ContextConfig &conf)
         }
     }
 
-    if (conf.data().isMember("timeframe")) {
-        o3d::String timeframe = conf.data().get("timeframe", Json::Value()).asCString();
+    if (entryConfig.data().isMember("timeframe")) {
+        o3d::String timeframe = entryConfig.data().get("timeframe", Json::Value()).asCString();
         m_timeframe = timeframeFromStr(timeframe);
     }
 
-    if (conf.data().isMember("distance")) {
-        o3d::String distance = conf.data().get("distance", Json::Value()).asCString();
+    if (entryConfig.data().isMember("distance")) {
+        o3d::String distance = entryConfig.data().get("distance", Json::Value()).asCString();
         if (distance.endsWith("%")) {
             distance.trimRight('%');
             m_distance = distance.toDouble() * 0.01;

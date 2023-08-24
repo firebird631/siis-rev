@@ -198,7 +198,7 @@ void MarginTrade::modifyTakeProfit(o3d::Double price, ModifierType mod)
 
             limitOrder->orderType = Order::ORDER_LIMIT;
             limitOrder->orderPrice = price;
-            limitOrder->closeOnly = 1;
+            limitOrder->setReduceOnly();
 
             m_limit.refId = limitOrder->refId;
 
@@ -245,7 +245,7 @@ void MarginTrade::modifyStopLoss(o3d::Double price, ModifierType mod)
 
             stopOrder->orderType = Order::ORDER_MARKET;
             stopOrder->orderPrice = price;
-            stopOrder->closeOnly = 1;
+            stopOrder->setReduceOnly();
 
             m_stop.refId = stopOrder->refId;
 
@@ -301,7 +301,7 @@ void MarginTrade::close(TradeStats::ExitReason reason)
     stopOrder->direction = -m_direction;
     stopOrder->orderQuantity = remaining_qty;
     stopOrder->orderType = Order::ORDER_MARKET;
-    stopOrder->closeOnly = 1;
+    stopOrder->setReduceOnly();
 
     o3d::Int32 ret = traderProxy()->createOrder(stopOrder);
     if (ret == Order::RET_OK) {

@@ -50,6 +50,17 @@ public:
         PRICE_TYPE_MARK = 2     //!< Use last mark price
     };
 
+    /**
+     * @brief The Flags enum 5 bits, cannot exceed 7 bits, -1 means undefined
+     */
+    enum Flags {
+        F_POST_ONLY = 1,      //!< cannot only be executed has maker (Participate Do Not Initiate)
+        F_REDUCE_ONLY = 2,    //!< only allowed to reduce the size of the position
+        F_CLOSE_ONLY = 4,     //!< close and reduce position size only allowed
+        F_HEDGING = 8,        //!< force position mean heding
+        F_MARGIN = 16         //!< create a margin order when spot and margin are on the same instrument
+    };
+
     static constexpr o3d::Double TIMESTAMP_UNDEFINED = -1.0;
     static constexpr o3d::Double PRICE_UNDEFINED = -1.0;
     static constexpr o3d::Double QUANTITY_UNDEFINED = -1.0;
@@ -84,12 +95,12 @@ public:
         direction(UNDEFINED),
         orderQuantity(QUANTITY_UNDEFINED),
         orderPrice(PRICE_UNDEFINED),
-        stopPrice(PRICE_UNDEFINED),
+        orderStopPrice(PRICE_UNDEFINED),
         limitPrice(PRICE_UNDEFINED),
+        stopPrice(PRICE_UNDEFINED),
         timeInForce(TIME_IN_FORCE_UNDEFINED),
         priceType(PRICE_TYPE_UNDEFINED),
-        postOnly(FLAG_UNDEFINED),
-        closeOnly(FLAG_UNDEFINED),
+        flags(FLAG_UNDEFINED),
         execPrice(PRICE_UNDEFINED),
         avgPrice(PRICE_UNDEFINED),
         filled(QUANTITY_UNDEFINED),
@@ -113,12 +124,12 @@ public:
         direction = UNDEFINED;
         orderQuantity = QUANTITY_UNDEFINED;
         orderPrice = PRICE_UNDEFINED;
-        stopPrice = PRICE_UNDEFINED;
+        orderStopPrice = PRICE_UNDEFINED;
         limitPrice = PRICE_UNDEFINED;
+        stopPrice = PRICE_UNDEFINED;
         timeInForce = TIME_IN_FORCE_UNDEFINED;
         priceType = PRICE_TYPE_UNDEFINED;
-        postOnly = FLAG_UNDEFINED;
-        closeOnly = FLAG_UNDEFINED;
+        flags = FLAG_UNDEFINED;
         tradeId = "";
         execPrice = PRICE_UNDEFINED;
         avgPrice = PRICE_UNDEFINED;
@@ -128,6 +139,20 @@ public:
         commissionAmount = QUANTITY_UNDEFINED;
         commissionAsset = "";
     }
+
+    inline void defineFlag(o3d::Int8 v) { flags = flags < 0 ? v : flags | v; }
+
+    inline void setPostOnly() { defineFlag(F_POST_ONLY); }
+    inline void setReduceOnly() { defineFlag(F_REDUCE_ONLY); }
+    inline void setCloseOnly() { defineFlag(F_CLOSE_ONLY); }
+    inline void setHedging() { defineFlag(F_HEDGING); }
+    inline void setMargin() { defineFlag(F_MARGIN); }
+
+    o3d::Bool postOnly() const { return flags > 0 && flags & F_POST_ONLY; }
+    o3d::Bool reduceOnly() const { return flags > 0 && flags & F_REDUCE_ONLY; }
+    o3d::Bool closeOnly() const { return flags > 0 && flags & F_CLOSE_ONLY; }
+    o3d::Bool hedging() const { return flags > 0 && flags & F_HEDGING; }
+    o3d::Bool margin() const { return flags > 0 && flags & F_MARGIN; }
 
     TraderProxy *proxy;      //!< must be valid
     Strategy *strategy;      //!< must be valid
@@ -147,16 +172,15 @@ public:
     o3d::Int32 direction;
 
     o3d::Double orderQuantity;   //!< initial order quantity
-    o3d::Double orderPrice;      //!< initial order price (for limit or stop)
+    o3d::Double orderPrice;      //!< initial order price (for limit or )
+    o3d::Double orderStopPrice;  //!< initial order price (for stop limit, take profit...)
 
-    o3d::Double stopPrice;       //!< for position creation order, 0 or -1 if not defined
-    o3d::Double limitPrice;      //!< for position creation order, 0 or -1 if not defined
+    o3d::Double limitPrice;      //!< for position creation order, initial exit limit price, 0 or -1 if not defined
+    o3d::Double stopPrice;       //!< for position creation order, initial exit stop price, 0 or -1 if not defined
 
     TimeInForce timeInForce;
-    PriceType priceType;
-
-    o3d::Int8 postOnly;    //!< means maker fee only, else invalidate the trade
-    o3d::Int8 closeOnly;   //!< mean only reduce an existing position, cannot increase or create
+    PriceType priceType;         //!< used price (last: default, index, mark)
+    o3d::Int8 flags;             //!< contains post-only, close-reduce, reduce-only, hedging, margin flags
 
     o3d::CString tradeId;
 

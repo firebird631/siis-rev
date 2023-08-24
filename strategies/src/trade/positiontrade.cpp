@@ -69,12 +69,16 @@ void PositionTrade::open(Strategy *strategy,
     entryOrder->orderQuantity = quantity;
     entryOrder->orderType = orderType;
     entryOrder->orderPrice = orderPrice;
+    entryOrder->setHedging();
 
     m_entryRefId = entryOrder->refId;
     m_stats.entryOrderType = entryOrder->orderType;
 
     o3d::Int32 ret = traderProxy()->createOrder(entryOrder);
     if (ret == Order::RET_OK) {
+        // defines here but could be retrieved by a position signal
+        m_entryOrderId = entryOrder->orderId;
+        m_positionId = entryOrder->orderId;
     } else {
         m_entryState = STATE_REJECTED;
         m_stats.entryOrderType = Order::ORDER_UNDEFINED;
@@ -376,7 +380,7 @@ void PositionTrade::updateRealizedPnl()
 void PositionTrade::positionSignal(const PositionSignal &signal)
 {
     if ((signal.positionId.isValid() && m_positionId == signal.positionId) ||
-        (signal.orderRefId.isValid() && m_entryRefId == signal.orderRefId)) {
+        (signal.refOrderId.isValid() && m_entryRefId == signal.refOrderId)) {
 
         if (signal.event == signal.OPENED) {
             m_entryState = STATE_OPENED;
@@ -630,6 +634,7 @@ o3d::Bool PositionTrade::isTargetPosition(const o3d::String &positionId, const o
     }
 
     if (refId.isValid() && refId == m_entryRefId) {
+    printf("totot\n");
         return true;
     }
 

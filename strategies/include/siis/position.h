@@ -133,7 +133,7 @@ public:
     o3d::Int32 id;           //!< internal integer unique id
 
     o3d::CString positionId;  //!< must always be valid
-    o3d::CString orderRefId;  //!< id of the order that as initied this position
+    o3d::CString refOrderId;  //!< reference id of the order that as initied this position
 
     o3d::CString marketId;    //!< empty means not defined
 
