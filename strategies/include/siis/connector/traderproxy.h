@@ -188,6 +188,7 @@ public:
 protected:
 
     Connector *m_connector;
+    o3d::FastMutex m_mutex;
 
     o3d::Bool m_alive;  //!< true if connection on the client connector is alive
 

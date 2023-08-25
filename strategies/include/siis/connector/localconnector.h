@@ -111,6 +111,7 @@ protected:
     Handler *m_handler;
 
     o3d::Bool m_running;
+    o3d::FastMutex m_mutex;
 
     TraderProxy *m_traderProxy;
 
@@ -160,25 +161,28 @@ protected:
     // asset order management (@see localconnectorasset.cpp)
     //
 
-    void execAssetOrder(Order *order, const Market *market, o3d::Double openExePrice, o3d::Double closeExePrice);
+    void execAssetOrder(Order *order, const Market *market, o3d::Double openExecPrice, o3d::Double closeExecPrice);
 
     //
     // indivisible margin position and order management (@see localconnectorindmargin.cpp)
     //
 
-    void execIndMarginOrder(Order *order, const Market *market, o3d::Double openExePrice, o3d::Double closeExePrice);
+    void execIndMarginOrder(Order *order, const Market *market, o3d::Double openExecPrice, o3d::Double closeExecPrice);
 
     //
     // margin position and FIFO order management (@see localconnectorfifomargin.cpp)
     //
 
-    void execFifoMarginOrder(Order *order, const Market *market, o3d::Double openExePrice, o3d::Double closeExePrice);
+    void execFifoMarginOrder(Order *order, const Market *market, o3d::Double openExecPrice, o3d::Double closeExecPrice);
 
     //
     // individual position and order management (@see localconnectorposition.cpp)
     //
 
-    void execPositionOrder(Order *order, const Market *market, o3d::Double openExePrice, o3d::Double closeExePrice);
+    void execPositionOrder(Order *order, const Market *market, o3d::Double openExecPrice, o3d::Double closeExecPrice);
+    void createPositionOrder(Order *order, const Market *market, o3d::Double openExecPrice);
+    void reducePositionOrder(Order *order, const Market *market, o3d::Double closeExecPrice);
+    void closePositionOrder(Order *order, const Market *market, o3d::Double closeExecPrice);
     void updatePosition(Position *position, const Market *market);
 };
 

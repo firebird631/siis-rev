@@ -67,6 +67,7 @@ void LocalConnector::updatePosition(Position *position, const Market *market)
         o3d::Double execPrice = closeExecPrice;
 
         // @todo fill and send position signal
+        // closePositionOrder(order, market, closeExecPrice);
 
         // position->avgPrice = execPrice;  // fully executed
         // position->execPrice = execPrice;
@@ -76,7 +77,7 @@ void LocalConnector::updatePosition(Position *position, const Market *market)
 }
 
 void LocalConnector::execPositionOrder(Order *order, const Market *market,
-                                       o3d::Double openExePrice, o3d::Double closeExePrice)
+                                       o3d::Double openExecPrice, o3d::Double closeExecPrice)
 {
     // only perform entry order (not close, reduce)
     Strategy *strategy = order->strategy;
@@ -94,11 +95,35 @@ void LocalConnector::execPositionOrder(Order *order, const Market *market,
         return;
     }
 
+    if (order->positionId.isEmpty()) {
+        createPositionOrder(order, market, openExecPrice);
+    } else {
+        Position *position = nullptr;
+
+        auto it = m_virtualPositions.find(order->positionId);
+        if (it != m_virtualPositions.end()) {
+            position = it->second;
+        }
+
+        if (position != nullptr) {
+            if (order->orderQuantity > 0 && order->orderQuantity < position->quantity) {
+                reducePositionOrder(order, market, closeExecPrice);
+            } else {
+                closePositionOrder(order, market, closeExecPrice);
+            }
+        }
+    }
+}
+
+void LocalConnector::createPositionOrder(Order *order, const Market *market, o3d::Double openExecPrice)
+{
+    Strategy *strategy = order->strategy;
+
     // always a new position with the same order as order id for a position
     Position *position = traderProxy()->newPosition(strategy);
 
     // execution price at open
-    o3d::Double execPrice = openExePrice;
+    o3d::Double execPrice = openExecPrice;
 
     position->positionId = order->orderId;
     position->refOrderId = order->refId;
@@ -141,4 +166,16 @@ void LocalConnector::execPositionOrder(Order *order, const Market *market,
     // @todo do we set cumulative, avg and completed here ?
 
     strategy->onOrderSignal(deletedOrderSignal);
+}
+
+void LocalConnector::reducePositionOrder(Order *order, const Market *market, o3d::Double closeExecPrice)
+{
+    Strategy *strategy = order->strategy;
+    // @todo
+}
+
+void LocalConnector::closePositionOrder(Order *order, const Market *market, o3d::Double closeExecPrice)
+{
+    Strategy *strategy = order->strategy;
+    // @todo
 }

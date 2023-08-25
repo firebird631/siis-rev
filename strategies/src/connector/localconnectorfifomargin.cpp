@@ -21,7 +21,45 @@ using o3d::Logger;
 using o3d::Debug;
 
 void LocalConnector::execFifoMarginOrder(Order *order, const Market *market,
-                                         o3d::Double openExePrice, o3d::Double closeExePrice)
+                                         o3d::Double openExecPrice, o3d::Double closeExecPrice)
 {
+    // only perform entry order (not close, reduce)
+    Strategy *strategy = order->strategy;
+    if (strategy == nullptr) {
+        return;
+    }
 
+    if (strategy->tradeType() != Trade::TYPE_IND_MARGIN) {
+        // only for indivisble margin trade
+        return;
+    }
+
+    if (order->hedging() && !market->hedging()) {
+        // do not support hedging
+        return;
+    }
+
+    // either no position exists, must open one increase qty
+    // either a position exists, must increase (same direction) or reduce (opposite direction) it fully or partially
+    // when a position exists a reversal is possible if quantity in opposite direction is greater than current quantity
+
+    // lookup for an existing position
+    Position *position = nullptr;
+
+    // @todo
+    if (position) {
+        // compare direction to know if increase or decrease (eventually close) position
+        if (position->direction == order->direction) {
+            // increase qty because of same direction
+        } else if (order->orderQuantity == position->quantity) {
+            // close position
+        } else if (order->orderQuantity < position->quantity) {
+            // reduce position but not close it
+        } else if (order->orderQuantity > position->quantity) {
+            // position reversal
+        }
+    } else {
+        // create a new position and increase quantity
+        // @todo
+    }
 }

@@ -137,69 +137,68 @@ Trade* TraderProxy::createTrade(Market *market, Trade::Type tradeType, o3d::Doub
 {
     Trade *trade = nullptr;
 
-    if (market) {
-        if (tradeType == Trade::TYPE_BUY_SELL && market->hasSpot()) {
-            if (m_freeTrades[Trade::TYPE_BUY_SELL].getSize() == 0) {
-                // empty allocator, make some news
-                for (o3d::Int32 i = 0; i < BUCKET_SIZE; ++i) {
-                    m_freeTrades[Trade::TYPE_BUY_SELL][i] = new AssetTrade(this);
-                }
+    if (market == nullptr) {
+        return nullptr;
+    }
+
+    m_mutex.lock();
+
+    if (tradeType == Trade::TYPE_BUY_SELL && market->hasSpot()) {
+        if (m_freeTrades[Trade::TYPE_BUY_SELL].getSize() == 0) {
+            // empty allocator, make some news
+            for (o3d::Int32 i = 0; i < BUCKET_SIZE; ++i) {
+                m_freeTrades[Trade::TYPE_BUY_SELL][i] = new AssetTrade(this);
             }
-
-            // get the last free and pop it
-            trade = m_freeTrades[Trade::TYPE_BUY_SELL].getLast();
-            m_freeTrades[Trade::TYPE_BUY_SELL].pop();
-
-            trade->init(timeframe);
-
-        } else if (tradeType == Trade::TYPE_MARGIN && market->hasMargin()) {
-            if (m_freeTrades[Trade::TYPE_MARGIN].getSize() == 0) {
-                // empty allocator, make some news
-                for (o3d::Int32 i = 0; i < BUCKET_SIZE; ++i) {
-                    m_freeTrades[Trade::TYPE_MARGIN][i] = new MarginTrade(this);
-                }
-            }
-
-            // get the last free and pop it
-            trade = m_freeTrades[Trade::TYPE_MARGIN].getLast();
-            m_freeTrades[Trade::TYPE_MARGIN].pop();
-
-            trade->init(timeframe);
-
-        } else if (tradeType == Trade::TYPE_IND_MARGIN && market->hasMargin() && market->indivisiblePosition()) {
-            if (m_freeTrades[Trade::TYPE_IND_MARGIN].getSize() == 0) {
-                // empty allocator, make some news
-                for (o3d::Int32 i = 0; i < BUCKET_SIZE; ++i) {
-                    m_freeTrades[Trade::TYPE_IND_MARGIN][i] = new IndMarginTrade(this);
-                }
-            }
-
-            // get the last free and pop it
-            trade = m_freeTrades[Trade::TYPE_IND_MARGIN].getLast();
-            m_freeTrades[Trade::TYPE_IND_MARGIN].pop();
-
-            trade->init(timeframe);
-        } else if (tradeType == Trade::TYPE_POSITION && market->hasPosition()) {
-            if (m_freeTrades[Trade::TYPE_POSITION].getSize() == 0) {
-                // empty allocator, make some news
-                for (o3d::Int32 i = 0; i < BUCKET_SIZE; ++i) {
-                    m_freeTrades[Trade::TYPE_POSITION][i] = new PositionTrade(this);
-                }
-            }
-
-            // get the last free and pop it
-            trade = m_freeTrades[Trade::TYPE_POSITION].getLast();
-            m_freeTrades[Trade::TYPE_POSITION].pop();
-
-            trade->init(timeframe);
         }
+
+        // get the last free and pop it
+        trade = m_freeTrades[Trade::TYPE_BUY_SELL].getLast();
+        m_freeTrades[Trade::TYPE_BUY_SELL].pop();
+
+    } else if (tradeType == Trade::TYPE_MARGIN && market->hasMargin()) {
+        if (m_freeTrades[Trade::TYPE_MARGIN].getSize() == 0) {
+            // empty allocator, make some news
+            for (o3d::Int32 i = 0; i < BUCKET_SIZE; ++i) {
+                m_freeTrades[Trade::TYPE_MARGIN][i] = new MarginTrade(this);
+            }
+        }
+
+        // get the last free and pop it
+        trade = m_freeTrades[Trade::TYPE_MARGIN].getLast();
+        m_freeTrades[Trade::TYPE_MARGIN].pop();
+
+    } else if (tradeType == Trade::TYPE_IND_MARGIN && market->hasMargin() && market->indivisiblePosition()) {
+        if (m_freeTrades[Trade::TYPE_IND_MARGIN].getSize() == 0) {
+            // empty allocator, make some news
+            for (o3d::Int32 i = 0; i < BUCKET_SIZE; ++i) {
+                m_freeTrades[Trade::TYPE_IND_MARGIN][i] = new IndMarginTrade(this);
+            }
+        }
+
+        // get the last free and pop it
+        trade = m_freeTrades[Trade::TYPE_IND_MARGIN].getLast();
+        m_freeTrades[Trade::TYPE_IND_MARGIN].pop();
+
+    } else if (tradeType == Trade::TYPE_POSITION && market->hasPosition()) {
+        if (m_freeTrades[Trade::TYPE_POSITION].getSize() == 0) {
+            // empty allocator, make some news
+            for (o3d::Int32 i = 0; i < BUCKET_SIZE; ++i) {
+                m_freeTrades[Trade::TYPE_POSITION][i] = new PositionTrade(this);
+            }
+        }
+
+        // get the last free and pop it
+        trade = m_freeTrades[Trade::TYPE_POSITION].getLast();
+        m_freeTrades[Trade::TYPE_POSITION].pop();
     }
 
     if (trade) {
+        trade->init(timeframe);
         trade->setId(m_nextTradeId++);
+        O3D_ASSERT(m_nextTradeId <= o3d::Limits<o3d::Int32>::max());
     }
 
-    O3D_ASSERT(m_nextTradeId <= o3d::Limits<o3d::Int32>::max());
+    m_mutex.unlock();
 
     return trade;
 }
@@ -213,19 +212,21 @@ Trade* TraderProxy::createTrade(const o3d::CString &marketId, Trade::Type tradeT
 void TraderProxy::freeTrade(Trade *trade)
 {
     if (trade) {
+        trade->reset();
+
+        m_mutex.lock();
+
         if (trade->type() == Trade::TYPE_BUY_SELL) {
-            trade->reset();
             m_freeTrades[Trade::TYPE_BUY_SELL].push(trade);
         } else if (trade->type() == Trade::TYPE_MARGIN) {
-            trade->reset();
             m_freeTrades[Trade::TYPE_MARGIN].push(trade);
         } else if (trade->type() == Trade::TYPE_IND_MARGIN) {
-            trade->reset();
             m_freeTrades[Trade::TYPE_IND_MARGIN].push(trade);
         } else if (trade->type() == Trade::TYPE_POSITION) {
-            trade->reset();
             m_freeTrades[Trade::TYPE_POSITION].push(trade);
         }
+
+        m_mutex.unlock();
     }
 }
 
@@ -255,6 +256,8 @@ Order *TraderProxy::newOrder(Strategy *strategy)
         O3D_ERROR(o3d::E_NullPointer("Strategy must be a valid pointer"));
     }
 
+    m_mutex.lock();
+
     if (m_freeOrders.getSize() == 0) {
         // empty allocator, make some news
         for (o3d::Int32 i = 0; i < BUCKET_SIZE; ++i) {
@@ -266,6 +269,8 @@ Order *TraderProxy::newOrder(Strategy *strategy)
     // get the last free and pop it
     order = m_freeOrders.getLast();
     m_freeOrders.pop();
+
+    m_mutex.unlock();
 
     // set a unique id for reference
     if (order) {
@@ -280,7 +285,10 @@ void TraderProxy::freeOrder(Order *order)
 {
     if (order) {
         order->reset();
+
+        m_mutex.lock();
         m_freeOrders.push(order);
+        m_mutex.unlock();
     }
 }
 
@@ -291,6 +299,8 @@ Position *TraderProxy::newPosition(Strategy *strategy)
     if (!strategy) {
         O3D_ERROR(o3d::E_NullPointer("Strategy must be a valid pointer"));
     }
+
+    m_mutex.lock();
 
     if (m_freePositions.getSize() == 0) {
         // empty allocator, make some news
@@ -303,6 +313,8 @@ Position *TraderProxy::newPosition(Strategy *strategy)
     // get the last free and pop it
     position = m_freePositions.getLast();
     m_freePositions.pop();
+
+    m_mutex.unlock();
 
     // set a unique id for reference
     if (position) {
@@ -317,7 +329,10 @@ void TraderProxy::freePosition(Position *position)
 {
     if (position) {
         position->reset();
+
+        m_mutex.lock();
         m_freePositions.push(position);
+        m_mutex.unlock();
     }
 }
 
@@ -350,33 +365,51 @@ o3d::Double TraderProxy::freeMargin() const
 
 o3d::Double TraderProxy::freeAssetQuantity(const o3d::CString &assetId) const
 {
+    o3d::Double qty = 0.0;
+
+    m_mutex.lock();
+
     auto cit = m_assets.find(assetId);
     if (cit != m_assets.cend()) {
-        return cit->second.freeQuantity();
+        qty = cit->second.freeQuantity();
     }
 
-    return 0.0;
+    m_mutex.unlock();
+
+    return qty;
 }
 
 o3d::Double TraderProxy::lockedAssetQuantity(const o3d::CString &assetId) const
 {
+    o3d::Double qty = 0.0;
+
+    m_mutex.lock();
+
     auto cit = m_assets.find(assetId);
     if (cit != m_assets.cend()) {
         return cit->second.lockedQuantity();
     }
 
-    return 0.0;
+    m_mutex.unlock();
+
+    return qty;
 }
 
 void TraderProxy::onAccountSignal(const AccountSignal &signal)
 {
+    m_mutex.lock();
+
     m_freeMargin = signal.freeMargin;
     m_reservedMargin = signal.reservedMargin;
     m_marginFactor = signal.marginFactor;
+
+    m_mutex.unlock();
 }
 
 void TraderProxy::onAssetSignal(const AssetSignal &signal)
 {
+    m_mutex.lock();
+
     auto it = m_assets.find(signal.symbol);
     if (it != m_assets.end()) {
         it->second.setQuantity(signal.freeQuantity, signal.lockedQuantity, signal.timestamp);
@@ -385,6 +418,8 @@ void TraderProxy::onAssetSignal(const AssetSignal &signal)
         m_assets[signal.symbol] = Asset(signal.symbol);
         m_assets[signal.symbol].setQuantity(signal.freeQuantity, signal.lockedQuantity, signal.timestamp);
     }
+
+    m_mutex.unlock();
 }
 
 void TraderProxy::onMarketSignal(const MarketSignal &signal)
@@ -504,6 +539,8 @@ void TraderProxy::onPositionSignal(const PositionSignal &signal)
 
 void TraderProxy::onStatusSignal(const StatusSignal &signal)
 {
+    m_mutex.lock();
+
     if (signal.event == StatusSignal::CONN_ACQUIRED) {
         // @todo could propagate a signal on each strategy if was lost and now acquired
         m_alive = true;
@@ -511,4 +548,6 @@ void TraderProxy::onStatusSignal(const StatusSignal &signal)
         // we cannot do anything if connection is lost on client side
         m_alive = false;
     }
+
+    m_mutex.unlock();
 }

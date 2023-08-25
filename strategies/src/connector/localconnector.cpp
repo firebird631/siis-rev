@@ -50,6 +50,8 @@ void LocalConnector::stop()
 
 void LocalConnector::update()
 {
+    o3d::FastMutexLocker _(m_mutex);
+
     if (!m_virtualOrders.empty()) {
         for (auto it = m_virtualOrders.begin(); it != m_virtualOrders.end(); ++it) {
             // check and execute order...
@@ -57,20 +59,23 @@ void LocalConnector::update()
             const Market *market = order->strategy->market();
             o3d::Bool closed = false;
 
-            if (order->orderType == Order::ORDER_LIMIT) {
-                closed = handleLimitOrder(order, market);
-            }
-            else if (order->orderType == Order::ORDER_STOP) {
-                closed = handleStopOrder(order, market);
-            }
-            else if (order->orderType == Order::ORDER_STOP_LIMIT) {
-                closed = handleStopLimitOrder(order, market);
-            }
-            else if (order->orderType == Order::ORDER_TAKE_PROFIT) {
-                closed = handleTakeProfitOrder(order, market);
-            }
-            else if (order->orderType == Order::ORDER_TAKE_PROFIT_LIMIT) {
-                closed = handleTakeProfitLimitOrder(order, market);
+            try {
+                if (order->orderType == Order::ORDER_LIMIT) {
+                    closed = handleLimitOrder(order, market);
+                }
+                else if (order->orderType == Order::ORDER_STOP) {
+                    closed = handleStopOrder(order, market);
+                }
+                else if (order->orderType == Order::ORDER_STOP_LIMIT) {
+                    closed = handleStopLimitOrder(order, market);
+                }
+                else if (order->orderType == Order::ORDER_TAKE_PROFIT) {
+                    closed = handleTakeProfitOrder(order, market);
+                }
+                else if (order->orderType == Order::ORDER_TAKE_PROFIT_LIMIT) {
+                    closed = handleTakeProfitLimitOrder(order, market);
+                }
+            } catch (o3d::E_BaseException &e) {
             }
 
             if (closed) {
@@ -86,13 +91,16 @@ void LocalConnector::update()
             const Market *market = position->strategy->market();
             o3d::Bool closed = false;
 
-            // update position state for active positions, profit and loss...
-            if (market->hasPosition()) {
-                updatePosition(position, market);
-            }
+            try {
+                // trigger position limit/stop for position only
+                if (market->hasPosition()) {
+                    updatePosition(position, market);
+                }
 
-            // update profit/loss for stats
-            position->updatePnl(market);
+                // update profit/loss for stats
+                position->updatePnl(market);
+            } catch (o3d::E_BaseException &e) {
+            }
 
             if (closed) {
                 m_removedPositions.push_back(position);
