@@ -161,29 +161,29 @@ protected:
     // asset order management (@see localconnectorasset.cpp)
     //
 
-    void execAssetOrder(Order *order, const Market *market, o3d::Double openExecPrice, o3d::Double closeExecPrice);
+    void _execAssetOrder(Order *order, const Market *market, o3d::Double openExecPrice, o3d::Double closeExecPrice);
 
     //
     // indivisible margin position and order management (@see localconnectorindmargin.cpp)
     //
 
-    void execIndMarginOrder(Order *order, const Market *market, o3d::Double openExecPrice, o3d::Double closeExecPrice);
+    void _execIndMarginOrder(Order *order, const Market *market, o3d::Double openExecPrice, o3d::Double closeExecPrice);
 
     //
     // margin position and FIFO order management (@see localconnectorfifomargin.cpp)
     //
 
-    void execFifoMarginOrder(Order *order, const Market *market, o3d::Double openExecPrice, o3d::Double closeExecPrice);
+    void _execFifoMarginOrder(Order *order, const Market *market, o3d::Double openExecPrice, o3d::Double closeExecPrice);
 
     //
     // individual position and order management (@see localconnectorposition.cpp)
     //
 
-    void execPositionOrder(Order *order, const Market *market, o3d::Double openExecPrice, o3d::Double closeExecPrice);
-    void createPositionOrder(Order *order, const Market *market, o3d::Double openExecPrice);
-    void reducePositionOrder(Order *order, const Market *market, o3d::Double closeExecPrice);
-    void closePositionOrder(Order *order, const Market *market, o3d::Double closeExecPrice);
-    void updatePosition(Position *position, const Market *market);
+    o3d::Int32 _execPositionOrder(Order *order, const Market *market, o3d::Double openExecPrice, o3d::Double closeExecPrice);
+    o3d::Int32 _createPosition(Order *order, const Market *market, o3d::Double openExecPrice);
+    o3d::Int32 _reducePosition(Position *position, const Market *market, o3d::Double closeExecPrice);
+    o3d::Int32 _closePosition(Position *order, const Market *market, o3d::Double closeExecPrice);
+    void _updatePosition(Position *position, const Market *market);
 };
 
 } // namespace siis

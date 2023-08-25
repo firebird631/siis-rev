@@ -136,6 +136,10 @@ void PositionTrade::modifyTakeProfit(o3d::Double price, ModifierType mod)
         return;
     }
 
+    if (price < 0) {
+        return;
+    }
+
     if (m_positionId.isValid()) {
         if (mod == MOD_PREVIOUS && m_positionLimitPrice > 0.0) {
             mod = MOD_DISTANT;
@@ -143,26 +147,32 @@ void PositionTrade::modifyTakeProfit(o3d::Double price, ModifierType mod)
 
         if (mod == MOD_DISTANT) {
             // only update the limit price (let to the previous stop)
-            m_stats.takeProfitOrderType = Order::ORDER_LIMIT;
-
             o3d::Int32 ret = traderProxy()->modifyPosition(m_positionId, m_positionStopPrice, price);
             if (ret == Order::RET_OK) {
+                if (price <= 0.0) {
+                    // no longer defined
+                    m_stats.takeProfitOrderType = Order::ORDER_UNDEFINED;
+                } else {
+                    m_stats.takeProfitOrderType = Order::ORDER_LIMIT;
+                }
                 m_positionLimitPrice = price;
             } else {
-                // @todo
-                if (m_positionLimitPrice > 0.0) {
-                    m_stats.stopOrderType = Order::ORDER_UNDEFINED;
-                }
+                // no changes
             }
         }
     }
 
+    // local take-profit price
     m_takeProfitPrice = price;
 }
 
 void PositionTrade::modifyStopLoss(o3d::Double price, ModifierType mod)
 {
     if (m_closing) {
+        return;
+    }
+
+    if (price < 0) {
         return;
     }
 
@@ -173,20 +183,22 @@ void PositionTrade::modifyStopLoss(o3d::Double price, ModifierType mod)
 
         if (mod == MOD_DISTANT) {
             // only update the stop price (let to the previous limit)
-            m_stats.stopOrderType = Order::ORDER_MARKET;
-
             o3d::Int32 ret = traderProxy()->modifyPosition(m_positionId, price, m_positionLimitPrice);
             if (ret == Order::RET_OK) {
+                if (price <= 0.0) {
+                    // no longer defined
+                    m_stats.stopOrderType = Order::ORDER_UNDEFINED;
+                } else {
+                    m_stats.stopOrderType = Order::ORDER_STOP;
+                }
                 m_positionStopPrice = price;
             } else {
-                // @todo
-                if (m_positionStopPrice > 0.0) {
-                    m_stats.stopOrderType = Order::ORDER_UNDEFINED;
-                }
+                // no changes
             }
         }
     }
 
+    // local stop price
     m_stopLossPrice = price;
 }
 

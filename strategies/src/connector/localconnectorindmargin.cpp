@@ -20,7 +20,7 @@ using namespace siis;
 using o3d::Logger;
 using o3d::Debug;
 
-void LocalConnector::execIndMarginOrder(Order *order, const Market *market,
+void LocalConnector::_execIndMarginOrder(Order *order, const Market *market,
                                         o3d::Double openExecPrice, o3d::Double closeExecPrice)
 {
     // only perform entry order (not close, reduce)

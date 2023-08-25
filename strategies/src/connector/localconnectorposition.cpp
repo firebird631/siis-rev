@@ -21,7 +21,7 @@ using o3d::Logger;
 using o3d::Debug;
 
 
-void LocalConnector::updatePosition(Position *position, const Market *market)
+void LocalConnector::_updatePosition(Position *position, const Market *market)
 {
     if (position->quantity <= 0.0) {
         return;
@@ -62,41 +62,31 @@ void LocalConnector::updatePosition(Position *position, const Market *market)
     }
 
     if (closedBy > 0) {
-        // position signal
-        o3d::Double execQty = position->quantity;
-        o3d::Double execPrice = closeExecPrice;
-
-        // @todo fill and send position signal
-        // closePositionOrder(order, market, closeExecPrice);
-
-        // position->avgPrice = execPrice;  // fully executed
-        // position->execPrice = execPrice;
-        // position->local.exitPrice = closeExecPrice;
-        // position->quantity = 0;
+        _closePosition(position, market, closeExecPrice);
     }
 }
 
-void LocalConnector::execPositionOrder(Order *order, const Market *market,
-                                       o3d::Double openExecPrice, o3d::Double closeExecPrice)
+o3d::Int32 LocalConnector::_execPositionOrder(Order *order, const Market *market,
+                                             o3d::Double openExecPrice, o3d::Double closeExecPrice)
 {
     // only perform entry order (not close, reduce)
     Strategy *strategy = order->strategy;
     if (strategy == nullptr) {
-        return;
+        return Order::RET_ERROR;
     }
 
     if (strategy->tradeType() != Trade::TYPE_POSITION) {
         // only for position trade
-        return;
+        return Order::RET_ERROR;
     }
 
     if (!order->hedging()) {
         // support only hedging
-        return;
+        return Order::RET_ERROR;
     }
 
     if (order->positionId.isEmpty()) {
-        createPositionOrder(order, market, openExecPrice);
+        return _createPosition(order, market, openExecPrice);
     } else {
         Position *position = nullptr;
 
@@ -107,23 +97,34 @@ void LocalConnector::execPositionOrder(Order *order, const Market *market,
 
         if (position != nullptr) {
             if (order->orderQuantity > 0 && order->orderQuantity < position->quantity) {
-                reducePositionOrder(order, market, closeExecPrice);
+                return _reducePosition(position, market, closeExecPrice);
             } else {
-                closePositionOrder(order, market, closeExecPrice);
+                return _closePosition(position, market, closeExecPrice);
             }
         }
     }
+
+    return Order::RET_OK;
 }
 
-void LocalConnector::createPositionOrder(Order *order, const Market *market, o3d::Double openExecPrice)
+o3d::Int32 LocalConnector::_createPosition(Order *order, const Market *market, o3d::Double openExecPrice)
 {
     Strategy *strategy = order->strategy;
+    if (strategy == nullptr) {
+        return Order::RET_ERROR;
+    }
 
     // always a new position with the same order as order id for a position
     Position *position = traderProxy()->newPosition(strategy);
+    if (position == nullptr) {
+        return Order::RET_ERROR;
+    }
 
     // execution price at open
     o3d::Double execPrice = openExecPrice;
+    if (execPrice <= 0.0) {
+        return Order::RET_ERROR;
+    }
 
     position->positionId = order->orderId;
     position->refOrderId = order->refId;
@@ -132,8 +133,16 @@ void LocalConnector::createPositionOrder(Order *order, const Market *market, o3d
     position->created = handler()->timestamp();
     position->updated = handler()->timestamp();
 
+    position->quantity = order->orderQuantity;
     position->stopPrice = order->stopPrice;
     position->limitPrice = order->limitPrice;
+    position->avgPrice = execPrice;
+    position->execPrice = execPrice;
+    position->profitCurrency = market->quote().symbol;
+
+    // local position data
+    position->local.entryPrice = execPrice;
+    position->local.entryQty = order->orderQuantity;  // 100% entry
 
     m_virtualPositions[position->positionId] = position;
 
@@ -166,16 +175,90 @@ void LocalConnector::createPositionOrder(Order *order, const Market *market, o3d
     // @todo do we set cumulative, avg and completed here ?
 
     strategy->onOrderSignal(deletedOrderSignal);
+
+    return Order::RET_OK;
 }
 
-void LocalConnector::reducePositionOrder(Order *order, const Market *market, o3d::Double closeExecPrice)
+o3d::Int32 LocalConnector::_reducePosition(Position *position, const Market *market, o3d::Double closeExecPrice)
 {
-    Strategy *strategy = order->strategy;
+    if (position == nullptr) {
+        return Order::RET_ERROR;
+    }
+
+    Strategy *strategy = position->strategy;
+    if (strategy == nullptr) {
+        return Order::RET_ERROR;
+    }
+
+    // execution price at open
+    o3d::Double execPrice = closeExecPrice;
+    if (execPrice <= 0.0) {
+        return Order::RET_ERROR;
+    }
+
     // @todo
+
+    DBG("", o3d::String("LocalConnector::_reducePosition !!TODO!! {0} at={1} pl={2}{3}")
+                .arg(position->positionId).arg(execPrice).arg(position->local.profitLoss)
+                .arg(o3d::String(position->profitCurrency)));
+
+    return Order::RET_OK;
 }
 
-void LocalConnector::closePositionOrder(Order *order, const Market *market, o3d::Double closeExecPrice)
+o3d::Int32 LocalConnector::_closePosition(Position *position, const Market *market, o3d::Double closeExecPrice)
 {
-    Strategy *strategy = order->strategy;
-    // @todo
+    if (position == nullptr) {
+        return Order::RET_ERROR;
+    }
+
+    Strategy *strategy = position->strategy;
+    if (strategy == nullptr) {
+        return Order::RET_ERROR;
+    }
+
+    // execution price at open
+    o3d::Double execPrice = closeExecPrice;
+    if (execPrice <= 0.0) {
+        return Order::RET_ERROR;
+    }
+
+    // @todo avg exit price according to local members in case _reducePosition usage
+
+    // local position data
+    position->local.exitPrice = execPrice;
+    position->local.exitQty = position->local.entryQty;  // 100% exit
+    position->updated = handler()->timestamp();
+
+    // @todo last update and deleted signal
+    PositionSignal deletedPositionSignal(PositionSignal::DELETED);
+
+    deletedPositionSignal.direction = position->direction;
+    deletedPositionSignal.marketId = position->marketId;
+    deletedPositionSignal.created = position->created;
+    deletedPositionSignal.updated = handler()->timestamp();
+    deletedPositionSignal.refOrderId = position->refOrderId;
+    deletedPositionSignal.positionId = position->positionId;
+    // deletedPositionSignal.commission @todo
+
+    // exit traded @todo correct qty
+    deletedPositionSignal.avgPrice = execPrice;
+    deletedPositionSignal.execPrice = execPrice;
+    deletedPositionSignal.filled = position->quantity;
+    deletedPositionSignal.cumulativeFilled = position->local.exitQty;
+
+    strategy->onPositionSignal(deletedPositionSignal);
+
+    position->updatePnl(market);
+    position->quantity = 0;
+
+//    DBG("", o3d::String("LocalConnector::_closePosition {0} at={1} pl={2}{3}")
+//                .arg(position->positionId).arg(execPrice).arg(position->local.profitLoss)
+//                .arg(o3d::String(position->profitCurrency)));
+
+//    o3d::String msg = o3d::String("LocalConnector::_closePosition {0} at={1} pl={2}{3}")
+//                .arg(position->positionId).arg(execPrice).arg(position->local.profitLoss)
+//                .arg(o3d::String(position->profitCurrency));
+//    handler()->log(0, market->marketId(), "local", msg);
+
+    return Order::RET_OK;
 }

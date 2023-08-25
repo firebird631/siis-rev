@@ -156,7 +156,7 @@ public:
         MOD_NONE = 0,      //!< don't apply
         MOD_LOCAL = 1,     //!< modify the local value, managed locally
         MOD_DISTANT = 2,   //!< modify the distant value (apply on exchange by an order or on position)
-        MOD_PREVIOUS = 1   //!< use previous mod, meaning if previous is distant modify distant.
+        MOD_PREVIOUS = 3   //!< use previous mod, meaning if previous is distant modify distant.
     };
 
     /**

@@ -37,7 +37,10 @@ public:
     struct Local
     {
         o3d::Double entryPrice;
+        o3d::Double entryQty;
+
         o3d::Double exitPrice;
+        o3d::Double exitQty;
 
         o3d::Double profitLoss;
         o3d::Double rawProfitLoss;
@@ -48,7 +51,9 @@ public:
 
         Local() :
             entryPrice(0.0),
+            entryQty(0.0),
             exitPrice(0.0),
+            exitQty(0.0),
             profitLoss(0.0),
             rawProfitLoss(0.0),
             rawProfitLossRate(0.0),
@@ -61,7 +66,10 @@ public:
 
         void reset() {
             entryPrice = 0.0;
+            entryQty = 0.0;
+
             exitPrice = 0.0;
+            exitQty = 0.0;
 
             profitLoss = 0.0;
             rawProfitLoss = 0.0;

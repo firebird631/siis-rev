@@ -49,6 +49,12 @@ Prioritaire
 Secondaire
 ==========
 
+- tout comme la version Python mettre un timestamp sur les modification des trades (sl/tp) pour éviter de saturer
+  l'API en cas de call successifs
+
+- tout comme la version Python la gestion des close, modify(sl/tp), cancel, remove, doit tenir compte de l'execution
+  possible de l'ordre précédent entre le moment ou il est cancel et le nouveau créé (cas ou traded partially)
+
 - monitoring
   - est-ce que le monitor communique avec un socket (zMQ, o3d::net) ou au travers de REDIS ?
   - cli simple monitor one command at time

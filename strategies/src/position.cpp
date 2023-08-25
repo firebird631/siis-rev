@@ -44,4 +44,6 @@ void Position::updatePnl(const Market *market)
     // use taker fee and commission
     local.profitLossMarket = rawProfitLoss - (positionCost * market->takerFee().rate) - market->takerFee().commission;
     local.profitLossMarketRate = positionCost > 0.0 ? (local.profitLossMarket / positionCost) : 0.0;
+
+    profitLoss = local.profitLoss;
 }
