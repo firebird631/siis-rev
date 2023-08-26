@@ -9,6 +9,8 @@ Urgent
 Prioritaire
 ===========
 
+- pour les XxxxPositionSignal.refOrderId met on orderId or refOrderId ?
+
 - taille des trades
 - notional-value des trades
 - inverse perpetual contract position computation

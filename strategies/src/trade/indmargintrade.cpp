@@ -65,17 +65,6 @@ void IndMarginTrade::open(Strategy *strategy,
 
     o3d::Int32 ret = traderProxy()->createOrder(entryOrder);
     if (ret == Order::RET_OK) {
-        // entryOrder state is undetermined now
-//        // retrieve order id and position id by signal
-//        m_entry.orderId = entryOrder->orderId;
-
-//        // might be market-id, but it is related by hedging state
-//        m_positionId = entryOrder->positionId;
-
-//        if (m_openTimeStamp <= 0.0 && entryOrder->created > 0.0) {
-//            // only at the first open
-//            m_openTimeStamp = entryOrder->created;
-//        }
     } else {
         m_entry.state = STATE_REJECTED;
         m_stats.entryOrderType = Order::ORDER_UNDEFINED;

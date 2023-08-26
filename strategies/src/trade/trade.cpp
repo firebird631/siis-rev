@@ -24,6 +24,11 @@ Trade::Trade(TraderProxy *proxy, Type type, o3d::Double timeframe) :
     m_entryTimeout(0.0),
     m_openTimeStamp(0.0),
     m_exitTimeStamp(0.0),
+    m_entryPrice(0.0),
+    m_exitPrice(0.0),
+    m_takeProfitPrice(0.0),
+    m_stopLossPrice(0.0),
+    m_orderPrice(0.0),
     m_orderQuantity(0.0),
     m_filledEntryQuantity(0.0),
     m_filledExitQuantity(0.0),
@@ -47,6 +52,11 @@ void Trade::init(o3d::Double timeframe)
     m_entryTimeout = 0.0;
     m_openTimeStamp = 0.0;
     m_exitTimeStamp = 0.0;
+    m_entryPrice = 0.0;
+    m_exitPrice = 0.0;
+    m_takeProfitPrice = 0.0;
+    m_stopLossPrice = 0.0;
+    m_orderPrice = 0.0;
     m_orderQuantity = 0.0;
     m_filledEntryQuantity = 0.0;
     m_filledExitQuantity = 0.0;

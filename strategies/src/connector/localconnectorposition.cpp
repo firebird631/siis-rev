@@ -32,7 +32,7 @@ void LocalConnector::_updatePosition(Position *position, const Market *market)
     }
 
     // only for individual positions with attached limit/stop prices
-    o3d::Double closeExecPrice = market->closeExecPrice(position->direction);
+    const o3d::Double closeExecPrice = market->closeExecPrice(position->direction);
     o3d::Int32 closedBy = 0;   // 0 none, 1 stop, 2 limit
 
     if (position->stopPrice > 0.0) {
@@ -69,7 +69,6 @@ void LocalConnector::_updatePosition(Position *position, const Market *market)
 o3d::Int32 LocalConnector::_execPositionOrder(Order *order, const Market *market,
                                              o3d::Double openExecPrice, o3d::Double closeExecPrice)
 {
-    // only perform entry order (not close, reduce)
     Strategy *strategy = order->strategy;
     if (strategy == nullptr) {
         return Order::RET_ERROR;
@@ -86,6 +85,12 @@ o3d::Int32 LocalConnector::_execPositionOrder(Order *order, const Market *market
     }
 
     if (order->positionId.isEmpty()) {
+        if (order->closeOnly() || order->reduceOnly()) {
+            // not compatible with opening/increasing position
+            return Order::RET_INVALID_ARGS;
+        }
+
+        // order is not related to a position, meaning create a new one
         return _createPosition(order, market, openExecPrice);
     } else {
         Position *position = nullptr;
@@ -95,6 +100,7 @@ o3d::Int32 LocalConnector::_execPositionOrder(Order *order, const Market *market
             position = it->second;
         }
 
+        // else retrieve the position and reduce or close it
         if (position != nullptr) {
             if (order->orderQuantity > 0 && order->orderQuantity < position->quantity) {
                 return _reducePosition(position, market, closeExecPrice);
@@ -102,9 +108,9 @@ o3d::Int32 LocalConnector::_execPositionOrder(Order *order, const Market *market
                 return _closePosition(position, market, closeExecPrice);
             }
         }
-    }
 
-    return Order::RET_OK;
+        return Order::RET_ERROR;
+    }
 }
 
 o3d::Int32 LocalConnector::_createPosition(Order *order, const Market *market, o3d::Double openExecPrice)
@@ -121,7 +127,7 @@ o3d::Int32 LocalConnector::_createPosition(Order *order, const Market *market, o
     }
 
     // execution price at open
-    o3d::Double execPrice = openExecPrice;
+    const o3d::Double execPrice = openExecPrice;
     if (execPrice <= 0.0) {
         return Order::RET_ERROR;
     }
@@ -151,7 +157,6 @@ o3d::Int32 LocalConnector::_createPosition(Order *order, const Market *market, o
 
     m_virtualPositions[position->positionId] = position;
 
-    // need a position opened signal
     PositionSignal openPositionSignal(PositionSignal::OPENED);
     openPositionSignal.direction = order->direction;
     openPositionSignal.marketId = order->marketId;
@@ -168,6 +173,8 @@ o3d::Int32 LocalConnector::_createPosition(Order *order, const Market *market, o
     openPositionSignal.cumulativeFilled = order->orderQuantity;
 
     strategy->onPositionSignal(openPositionSignal);
+
+    // not necessary but could send a position opened signal
 
     OrderSignal deletedOrderSignal(OrderSignal::DELETED);
     deletedOrderSignal.direction = order->direction;
@@ -196,7 +203,7 @@ o3d::Int32 LocalConnector::_reducePosition(Position *position, const Market *mar
     }
 
     // execution price at open
-    o3d::Double execPrice = closeExecPrice;
+    const o3d::Double execPrice = closeExecPrice;
     if (execPrice <= 0.0) {
         return Order::RET_ERROR;
     }
@@ -222,7 +229,7 @@ o3d::Int32 LocalConnector::_closePosition(Position *position, const Market *mark
     }
 
     // execution price at open
-    o3d::Double execPrice = closeExecPrice;
+    const o3d::Double execPrice = closeExecPrice;
     if (execPrice <= 0.0) {
         return Order::RET_ERROR;
     }

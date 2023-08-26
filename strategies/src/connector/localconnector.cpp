@@ -57,28 +57,28 @@ void LocalConnector::update()
             // check and execute order...
             Order *order = it->second;
             const Market *market = order->strategy->market();
-            o3d::Bool closed = false;
+            o3d::Bool done = false;  // filled or rejected or canceled but processed
 
             try {
                 if (order->orderType == Order::ORDER_LIMIT) {
-                    closed = handleLimitOrder(order, market);
+                    done = _handleLimitOrder(order, market);
                 }
                 else if (order->orderType == Order::ORDER_STOP) {
-                    closed = handleStopOrder(order, market);
+                    done = _handleStopOrder(order, market);
                 }
                 else if (order->orderType == Order::ORDER_STOP_LIMIT) {
-                    closed = handleStopLimitOrder(order, market);
+                    done = _handleStopLimitOrder(order, market);
                 }
                 else if (order->orderType == Order::ORDER_TAKE_PROFIT) {
-                    closed = handleTakeProfitOrder(order, market);
+                    done = _handleTakeProfitOrder(order, market);
                 }
                 else if (order->orderType == Order::ORDER_TAKE_PROFIT_LIMIT) {
-                    closed = handleTakeProfitLimitOrder(order, market);
+                    done = _handleTakeProfitLimitOrder(order, market);
                 }
             } catch (o3d::E_BaseException &e) {
             }
 
-            if (closed) {
+            if (done) {
                 m_removedOrders.push_back(order);
             }
         }
@@ -89,7 +89,7 @@ void LocalConnector::update()
         for (auto it = m_virtualPositions.begin(); it != m_virtualPositions.end(); ++it) {
             Position *position = it->second;
             const Market *market = position->strategy->market();
-            o3d::Bool closed = false;
+            o3d::Bool done = false;
 
             try {
                 // trigger position limit/stop for position only
@@ -102,7 +102,7 @@ void LocalConnector::update()
             } catch (o3d::E_BaseException &e) {
             }
 
-            if (closed) {
+            if (done) {
                 m_removedPositions.push_back(position);
             }
         }
@@ -295,223 +295,42 @@ o3d::Int32 LocalConnector::createOrder(Order *order)
             return Order::RET_INVALID_ARGS;
         }
 
+        // either execute a market order or add it for later execution (limit, stop...)
         if (order->orderType == Order::ORDER_MARKET) {
-            // @todo refactoring
             // direct execution and return
             Strategy *strategy = order->strategy;
             const Market* market = strategy->market();
 
-            o3d::Double execPrice = market->openExecPrice(order->direction);
+            const o3d::Double openExecPrice = market->openExecPrice(order->direction);
+            const o3d::Double closeExecPrice = market->closeExecPrice(order->direction);
 
+            o3d::Int32 res = Order::RET_UNDEFINED;
+
+            // set a unique order identifier
             order->orderId = o3d::Uuid::uuid5("siis").toCString();
             order->created = handler()->timestamp();
 
-            order->executed = handler()->timestamp();
-            order->execPrice = execPrice;
-            order->avgPrice = execPrice;
-            order->filled = order->orderQuantity;
-            order->cumulativeFilled = order->orderQuantity;
+            m_mutex.lock();
 
-            // direct order signal to strategy
-            OrderSignal openOrderSignal(OrderSignal::OPENED);
-            openOrderSignal.direction = order->direction;
-            openOrderSignal.marketId = order->marketId;
-            openOrderSignal.created = handler()->timestamp();
-            openOrderSignal.orderId = order->orderId;
-            openOrderSignal.refId = order->refId;
-            openOrderSignal.orderType = order->orderType;
-            openOrderSignal.flags = order->flags;
-
-            // excepted for spot, need a position opened signal
-            if (strategy->tradeType() != Trade::TYPE_ASSET) {
-                if (strategy->tradeType() == Trade::TYPE_POSITION) {
-                    // with the same order as order id for a position
-                    openOrderSignal.positionId = order->orderId;
-                } else {
-                    // or market id for margin
-                    openOrderSignal.positionId = market->marketId();
-                }
-            }
-
-            // order is accepted
-            strategy->onOrderSignal(openOrderSignal);
-
-            OrderSignal tradedOrderSignal(OrderSignal::TRADED);
-            tradedOrderSignal.direction = order->direction;
-            tradedOrderSignal.marketId = order->marketId;
-            tradedOrderSignal.executed = handler()->timestamp();
-            tradedOrderSignal.orderId = order->orderId;
-            tradedOrderSignal.refId = order->refId;
-            tradedOrderSignal.orderType = order->orderType;
-            tradedOrderSignal.flags = order->flags;
-
-            tradedOrderSignal.avgPrice = execPrice;
-            tradedOrderSignal.execPrice = execPrice;
-            tradedOrderSignal.filled = order->orderQuantity;
-            tradedOrderSignal.cumulativeFilled = order->orderQuantity;
-            tradedOrderSignal.completed = true;
-
-            // @todo compute quote transacted
-            // tradedOrderSignal.quoteTransacted =
-            // @todo commission fees and its currency
-
-            strategy->onOrderSignal(tradedOrderSignal);
-
-            if (order->closeOnly() || order->reduceOnly()) {
-                // only for margin and indivisible margin, need a position updated or deleted signal
-                // for position use modifyPosition or closePosition
-                if (strategy->tradeType() == Trade::TYPE_MARGIN || strategy->tradeType() == Trade::TYPE_IND_MARGIN) {
-                    PositionSignal updatedPositionSignal(PositionSignal::DELETED);
-
-                    // retrieve a virtual position                   
-                    Position *position = nullptr;
-
-                    m_mutex.lock();
-
-                    auto pit = m_virtualPositions.find(market->marketId());
-                    if (pit != m_virtualPositions.end()) {
-                        position = pit->second;
-                    } else {
-                        // error cannot close a non existing position, free order
-                        m_traderProxy->freeOrder(order);
-                        m_mutex.unlock();
-
-                        return Order::RET_INSUFFICIENT_FUNDS;
-                    }
-
-                    m_mutex.unlock();
-
-                    o3d::Double closeExecPrice = market->closeExecPrice(position->direction);
-
-                    // @todo check qty, compute avgPrice, execPrice, entryPrice, entryQty, exitPrice, exitQty
-                    position->quantity -= order->orderQuantity;
-
-                    updatedPositionSignal.direction = order->direction;
-                    updatedPositionSignal.marketId = order->marketId;
-                    updatedPositionSignal.created = position->created;
-                    updatedPositionSignal.updated = handler()->timestamp();
-                    updatedPositionSignal.refOrderId = order->refId;
-                    updatedPositionSignal.positionId = position->positionId;
-                    // openPositionSignal.commission @todo
-
-                    // exit traded
-                    updatedPositionSignal.avgPrice = closeExecPrice;
-                    updatedPositionSignal.execPrice = closeExecPrice;
-                    updatedPositionSignal.filled = order->orderQuantity;
-                    updatedPositionSignal.cumulativeFilled = order->orderQuantity;
-
-                    strategy->onPositionSignal(updatedPositionSignal);
-
-                    // need to delete position
-                    if (position->quantity <= 0.0) {
-                        PositionSignal deletedPositionSignal(PositionSignal::DELETED);
-
-                        deletedPositionSignal.direction = order->direction;
-                        deletedPositionSignal.marketId = order->marketId;
-                        deletedPositionSignal.created = position->created;
-                        deletedPositionSignal.updated = handler()->timestamp();
-                        deletedPositionSignal.refOrderId = order->refId;
-                        deletedPositionSignal.positionId = position->positionId;
-
-                        strategy->onPositionSignal(deletedPositionSignal);
-
-                        m_mutex.lock();
-                        m_traderProxy->freePosition(position);
-                        m_virtualPositions.erase(pit);
-                        m_mutex.unlock();
-                    }
-                }
+            if (strategy->tradeType() == Trade::TYPE_SPOT) {
+                res = _execAssetOrder(order, market, openExecPrice, closeExecPrice);
+            } else if (strategy->tradeType() == Trade::TYPE_MARGIN) {
+                res = _execFifoMarginOrder(order, market, openExecPrice, closeExecPrice);
+            } else if (strategy->tradeType() == Trade::TYPE_IND_MARGIN) {
+                res = _execIndMarginOrder(order, market, openExecPrice, closeExecPrice);
+            } else if (strategy->tradeType() == Trade::TYPE_POSITION) {
+                res = _execPositionOrder(order, market, openExecPrice, closeExecPrice);
             } else {
-                // @todo refactoring
-                // excepted for spot, need a position opened signal
-                if (strategy->tradeType() != Trade::TYPE_ASSET) {
-                    // create a virtual position
-                    Position *position = nullptr;
-
-                    if (strategy->tradeType() == Trade::TYPE_POSITION) {
-                        // always a new position with the same order as order id for a position
-                        position = traderProxy()->newPosition(strategy);
-
-                        position->positionId = order->orderId;   // same as order id
-                        position->refOrderId = order->refId;
-                        position->direction = order->direction;
-                        position->marketId = order->marketId;
-                        position->created = handler()->timestamp();
-                        position->updated = handler()->timestamp();
-
-                        position->stopPrice = order->stopPrice;
-                        position->limitPrice = order->limitPrice;
-
-                        m_mutex.lock();
-                        m_virtualPositions[position->positionId] = position;
-                        m_mutex.unlock();
-
-                    } else if (strategy->tradeType() == Trade::TYPE_MARGIN || strategy->tradeType() == Trade::TYPE_IND_MARGIN) {
-                        // or market id for margin, try to retrieve if exists else new
-                        m_mutex.lock();
-
-                        auto pit = m_virtualPositions.find(market->marketId());
-                        if (pit != m_virtualPositions.end()) {
-                            position = pit->second;
-                        } else {
-                            position = traderProxy()->newPosition(strategy);
-
-                            position->positionId = market->marketId();  // same as market id (only if no hedging)
-                            position->refOrderId = order->refId;
-                            position->direction = order->direction;
-                            position->marketId = order->marketId;
-                            position->created = handler()->timestamp();
-                            position->updated = handler()->timestamp();
-
-                            m_virtualPositions[position->positionId] = position;
-                        }
-
-                        m_mutex.unlock();
-                    }
-
-                    order->positionId = position->positionId;
-
-                    // local position data
-                    position->local.entryPrice = execPrice;
-                    position->local.entryQty = order->orderQuantity;  // 100% entry
-
-                    PositionSignal openPositionSignal(PositionSignal::OPENED);
-                    openPositionSignal.direction = order->direction;
-                    openPositionSignal.marketId = order->marketId;
-                    openPositionSignal.created = handler()->timestamp();
-                    openPositionSignal.updated = handler()->timestamp();
-                    openPositionSignal.refOrderId = order->refId;
-                    openPositionSignal.positionId = position->positionId;
-                    // openPositionSignal.commission @todo
-
-                    // entry traded
-                    openPositionSignal.avgPrice = execPrice;
-                    openPositionSignal.execPrice = execPrice;
-                    openPositionSignal.filled = order->orderQuantity;
-                    openPositionSignal.cumulativeFilled = order->orderQuantity;
-
-                    strategy->onPositionSignal(openPositionSignal);
-                }
+                res = Order::RET_INVALID_ARGS;
+                // @todo rejected signal
             }
-
-            OrderSignal deletedOrderSignal(OrderSignal::DELETED);
-            deletedOrderSignal.direction = order->direction;
-            deletedOrderSignal.marketId = order->marketId;
-            deletedOrderSignal.executed = handler()->timestamp();
-            deletedOrderSignal.orderId = order->orderId;
-            deletedOrderSignal.refId = order->refId;
-            deletedOrderSignal.orderType = order->orderType;
-            deletedOrderSignal.flags = order->flags;
-            // @todo do we set cumulative, avg and completed here ?
-
-            strategy->onOrderSignal(deletedOrderSignal);
 
             // finally free the order because it is fully executed
-            m_mutex.lock();
             m_traderProxy->freeOrder(order);
+
             m_mutex.unlock();
 
-            return Order::RET_OK;
+            return res;
 
         } else {
             // check and insert for later execution
@@ -650,7 +469,7 @@ void LocalConnector::fetchAssets(const o3d::CString &assetId)
     }
 }
 
-o3d::Bool LocalConnector::handleLimitOrder(Order *order, const Market *market)
+o3d::Bool LocalConnector::_handleLimitOrder(Order *order, const Market *market)
 {
     if (order == nullptr || order->orderType != Order::ORDER_LIMIT) {
         return false;
@@ -674,7 +493,7 @@ o3d::Bool LocalConnector::handleLimitOrder(Order *order, const Market *market)
             _execPositionOrder(order, market, openExecPrice, closeExecPrice);
         } else if (market->fifoPosition()) {
             _execFifoMarginOrder(order, market, openExecPrice, closeExecPrice);
-        } else if (market->hasMargin()) {
+        } else if (market->indivisiblePosition()) {
             _execIndMarginOrder(order, market, openExecPrice, closeExecPrice);
         } else if (market->hasSpot()) {
             _execAssetOrder(order, market, openExecPrice, closeExecPrice);
@@ -686,7 +505,7 @@ o3d::Bool LocalConnector::handleLimitOrder(Order *order, const Market *market)
     return false;
 }
 
-o3d::Bool LocalConnector::handleStopOrder(Order *order, const Market *market)
+o3d::Bool LocalConnector::_handleStopOrder(Order *order, const Market *market)
 {
     if (order == nullptr || order->orderType != Order::ORDER_STOP) {
         return false;
@@ -710,7 +529,7 @@ o3d::Bool LocalConnector::handleStopOrder(Order *order, const Market *market)
             _execPositionOrder(order, market, openExecPrice, closeExecPrice);
         } else if (market->fifoPosition()) {
             _execFifoMarginOrder(order, market, openExecPrice, closeExecPrice);
-        } else if (market->hasMargin()) {
+        } else if (market->indivisiblePosition()) {
             _execIndMarginOrder(order, market, openExecPrice, closeExecPrice);
         } else if (market->hasSpot()) {
             _execAssetOrder(order, market, openExecPrice, closeExecPrice);
@@ -722,7 +541,7 @@ o3d::Bool LocalConnector::handleStopOrder(Order *order, const Market *market)
     return false;
 }
 
-o3d::Bool LocalConnector::handleStopLimitOrder(Order *order, const Market *market)
+o3d::Bool LocalConnector::_handleStopLimitOrder(Order *order, const Market *market)
 {
     if (order == nullptr || order->orderType != Order::ORDER_STOP_LIMIT) {
         return false;
@@ -747,7 +566,7 @@ o3d::Bool LocalConnector::handleStopLimitOrder(Order *order, const Market *marke
             _execPositionOrder(order, market, openExecPrice, closeExecPrice);
         } else if (market->fifoPosition()) {
             _execFifoMarginOrder(order, market, openExecPrice, closeExecPrice);
-        } else if (market->hasMargin()) {
+        } else if (market->indivisiblePosition()) {
             _execIndMarginOrder(order, market, openExecPrice, closeExecPrice);
         } else if (market->hasSpot()) {
             _execAssetOrder(order, market, openExecPrice, closeExecPrice);
@@ -759,7 +578,7 @@ o3d::Bool LocalConnector::handleStopLimitOrder(Order *order, const Market *marke
     return false;
 }
 
-o3d::Bool LocalConnector::handleTakeProfitOrder(Order *order, const Market *market)
+o3d::Bool LocalConnector::_handleTakeProfitOrder(Order *order, const Market *market)
 {
     if (order == nullptr || order->orderType != Order::ORDER_TAKE_PROFIT) {
         return false;
@@ -784,7 +603,7 @@ o3d::Bool LocalConnector::handleTakeProfitOrder(Order *order, const Market *mark
             _execPositionOrder(order, market, openExecPrice, closeExecPrice);
         } else if (market->fifoPosition()) {
             _execFifoMarginOrder(order, market, openExecPrice, closeExecPrice);
-        } else if (market->hasMargin()) {
+        } else if (market->indivisiblePosition()) {
             _execIndMarginOrder(order, market, openExecPrice, closeExecPrice);
         } else if (market->hasSpot()) {
             _execAssetOrder(order, market, openExecPrice, closeExecPrice);
@@ -796,7 +615,7 @@ o3d::Bool LocalConnector::handleTakeProfitOrder(Order *order, const Market *mark
     return false;
 }
 
-o3d::Bool LocalConnector::handleTakeProfitLimitOrder(Order *order, const Market *market)
+o3d::Bool LocalConnector::_handleTakeProfitLimitOrder(Order *order, const Market *market)
 {
     if (order == nullptr || order->orderType != Order::ORDER_TAKE_PROFIT_LIMIT) {
         return false;
@@ -822,7 +641,7 @@ o3d::Bool LocalConnector::handleTakeProfitLimitOrder(Order *order, const Market 
             _execPositionOrder(order, market, openExecPrice, closeExecPrice);
         } else if (market->fifoPosition()) {
             _execFifoMarginOrder(order, market, openExecPrice, closeExecPrice);
-        } else if (market->hasMargin()) {
+        } else if (market->indivisiblePosition()) {
             _execIndMarginOrder(order, market, openExecPrice, closeExecPrice);
         } else if (market->hasSpot()) {
             _execAssetOrder(order, market, openExecPrice, closeExecPrice);

@@ -20,8 +20,24 @@ using namespace siis;
 using o3d::Logger;
 using o3d::Debug;
 
-void LocalConnector::_execAssetOrder(Order *order, const Market *market,
-                                    o3d::Double openExecPrice, o3d::Double closeExecPrice)
+o3d::Int32 LocalConnector::_execAssetOrder(Order *order, const Market *market,
+                                           o3d::Double openExecPrice, o3d::Double closeExecPrice)
 {
+    // @todo
 
+    return Order::RET_ERROR;
+}
+
+o3d::Int32 LocalConnector::_execBuyAssetOrder(Order *order, const Market *market, o3d::Double openExecPrice)
+{
+    // @todo
+
+    return Order::RET_ERROR;
+}
+
+o3d::Int32 LocalConnector::_execSellAssetOrder(Order *order, const Market *market, o3d::Double closeExecPrice)
+{
+    // @todo
+
+    return Order::RET_ERROR;
 }

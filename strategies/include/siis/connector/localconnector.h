@@ -151,38 +151,54 @@ protected:
     std::list<Order*> m_removedOrders;
     std::list<Position*> m_removedPositions;
 
-    o3d::Bool handleLimitOrder(Order *order, const Market *market);
-    o3d::Bool handleStopOrder(Order *order, const Market *market);
-    o3d::Bool handleStopLimitOrder(Order *order, const Market *market);
-    o3d::Bool handleTakeProfitOrder(Order *order, const Market *market);
-    o3d::Bool handleTakeProfitLimitOrder(Order *order, const Market *market);
+    o3d::Bool _handleLimitOrder(Order *order, const Market *market);
+    o3d::Bool _handleStopOrder(Order *order, const Market *market);
+    o3d::Bool _handleStopLimitOrder(Order *order, const Market *market);
+    o3d::Bool _handleTakeProfitOrder(Order *order, const Market *market);
+    o3d::Bool _handleTakeProfitLimitOrder(Order *order, const Market *market);
 
     //
     // asset order management (@see localconnectorasset.cpp)
     //
 
-    void _execAssetOrder(Order *order, const Market *market, o3d::Double openExecPrice, o3d::Double closeExecPrice);
+    o3d::Int32 _execAssetOrder(Order *order, const Market *market,
+                               o3d::Double openExecPrice, o3d::Double closeExecPrice);
+
+    o3d::Int32 _execBuyAssetOrder(Order *order, const Market *market, o3d::Double openExecPrice);
+    o3d::Int32 _execSellAssetOrder(Order *order, const Market *market, o3d::Double closeExecPrice);
 
     //
     // indivisible margin position and order management (@see localconnectorindmargin.cpp)
     //
 
-    void _execIndMarginOrder(Order *order, const Market *market, o3d::Double openExecPrice, o3d::Double closeExecPrice);
+    o3d::Int32 _execIndMarginOrder(Order *order, const Market *market,
+                                   o3d::Double openExecPrice, o3d::Double closeExecPrice);
+
+    o3d::Int32 _indMarginOpenPosition(Order* order, const Market *market, o3d::Double openExecPrice);
+    o3d::Int32 _indMarginIncreasePosition(Order* order, Position *position, const Market *market,
+                                          o3d::Double openExecPrice);
+    o3d::Int32 _indMarginClosePosition(Order* order, Position *position, const Market *market,
+                                       o3d::Double closeExecPrice);
+    o3d::Int32 _indMarginReversePosition(Order* order, Position *position, const Market *market,
+                                         o3d::Double closeExecPrice);
 
     //
     // margin position and FIFO order management (@see localconnectorfifomargin.cpp)
     //
 
-    void _execFifoMarginOrder(Order *order, const Market *market, o3d::Double openExecPrice, o3d::Double closeExecPrice);
+    o3d::Int32 _execFifoMarginOrder(Order *order, const Market *market,
+                                    o3d::Double openExecPrice, o3d::Double closeExecPrice);
 
     //
     // individual position and order management (@see localconnectorposition.cpp)
     //
 
-    o3d::Int32 _execPositionOrder(Order *order, const Market *market, o3d::Double openExecPrice, o3d::Double closeExecPrice);
+    o3d::Int32 _execPositionOrder(Order *order, const Market *market,
+                                  o3d::Double openExecPrice, o3d::Double closeExecPrice);
     o3d::Int32 _createPosition(Order *order, const Market *market, o3d::Double openExecPrice);
     o3d::Int32 _reducePosition(Position *position, const Market *market, o3d::Double closeExecPrice);
     o3d::Int32 _closePosition(Position *order, const Market *market, o3d::Double closeExecPrice);
+
     void _updatePosition(Position *position, const Market *market);
 };
 

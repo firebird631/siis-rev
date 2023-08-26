@@ -20,23 +20,23 @@ using namespace siis;
 using o3d::Logger;
 using o3d::Debug;
 
-void LocalConnector::_execFifoMarginOrder(Order *order, const Market *market,
-                                         o3d::Double openExecPrice, o3d::Double closeExecPrice)
+o3d::Int32 LocalConnector::_execFifoMarginOrder(Order *order, const Market *market,
+                                                o3d::Double openExecPrice, o3d::Double closeExecPrice)
 {
     // only perform entry order (not close, reduce)
     Strategy *strategy = order->strategy;
     if (strategy == nullptr) {
-        return;
+        return Order::RET_ERROR;
     }
 
     if (strategy->tradeType() != Trade::TYPE_IND_MARGIN) {
         // only for indivisble margin trade
-        return;
+        return Order::RET_ERROR;
     }
 
     if (order->hedging() && !market->hedging()) {
         // do not support hedging
-        return;
+        return Order::RET_ERROR;
     }
 
     // either no position exists, must open one increase qty
@@ -45,6 +45,8 @@ void LocalConnector::_execFifoMarginOrder(Order *order, const Market *market,
 
     // lookup for an existing position
     Position *position = nullptr;
+
+    // list any positions for market order them by FIFO and execute the quantity over them
 
     // @todo
     if (position) {
@@ -58,8 +60,12 @@ void LocalConnector::_execFifoMarginOrder(Order *order, const Market *market,
         } else if (order->orderQuantity > position->quantity) {
             // position reversal
         }
+
+        return Order::RET_ERROR;
     } else {
         // create a new position and increase quantity
         // @todo
+
+        return Order::RET_ERROR;
     }
 }

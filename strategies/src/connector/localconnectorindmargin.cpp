@@ -20,23 +20,22 @@ using namespace siis;
 using o3d::Logger;
 using o3d::Debug;
 
-void LocalConnector::_execIndMarginOrder(Order *order, const Market *market,
-                                        o3d::Double openExecPrice, o3d::Double closeExecPrice)
+o3d::Int32 LocalConnector::_execIndMarginOrder(Order *order, const Market *market,
+                                               o3d::Double openExecPrice, o3d::Double closeExecPrice)
 {
-    // only perform entry order (not close, reduce)
     Strategy *strategy = order->strategy;
     if (strategy == nullptr) {
-        return;
+        return Order::RET_ERROR;
     }
 
     if (strategy->tradeType() != Trade::TYPE_IND_MARGIN) {
         // only for indivisble margin trade
-        return;
+        return Order::RET_ERROR;
     }
 
     if (order->hedging() && !market->hedging()) {
         // do not support hedging
-        return;
+        return Order::RET_ERROR;
     }
 
     // either no position exists, must open one increase qty
@@ -46,52 +45,163 @@ void LocalConnector::_execIndMarginOrder(Order *order, const Market *market,
     // lookup for an existing position
     Position *position = nullptr;
 
-    // @todo
+    // or market id for margin, try to retrieve if a position exists else new one
+    auto pit = m_virtualPositions.find(market->marketId());
+    if (pit != m_virtualPositions.end()) {
+        position = pit->second;
+    }
+
     if (position) {
+        o3d::Int32 res = Order::RET_ERROR;
+
+        // keep it but order would be deleted just after
+        if (order->positionId.isEmpty()) {
+            order->positionId = position->positionId;
+        }
+
         // compare direction to know if increase or decrease (eventually close) position
         if (position->direction == order->direction) {
-            // increase qty because of same direction
-        } else if (order->orderQuantity == position->quantity) {
-            // close position
-        } else if (order->orderQuantity < position->quantity) {
-            // reduce position but not close it
+            // increase qty because on same direction
+            res = _indMarginIncreasePosition(order, position, market, openExecPrice);
+
+        } else if (order->orderQuantity <= position->quantity) {
+            // close or reduce position
+            res = _indMarginClosePosition(order, position, market, closeExecPrice);
+
         } else if (order->orderQuantity > position->quantity) {
             // position reversal
+            res = _indMarginReversePosition(order, position, market, closeExecPrice);
         }
+
+        if (position->quantity <= 0.0) {
+            // delete the position
+            PositionSignal deletedPositionSignal(PositionSignal::DELETED);
+
+            deletedPositionSignal.direction = position->direction;
+            deletedPositionSignal.marketId = position->marketId;
+            deletedPositionSignal.created = position->created;
+            deletedPositionSignal.updated = position->updated;
+            deletedPositionSignal.refOrderId = order->refId;
+            deletedPositionSignal.positionId = position->positionId;
+
+            strategy->onPositionSignal(deletedPositionSignal);
+
+            m_traderProxy->freePosition(position);
+            m_virtualPositions.erase(pit);
+        }
+
+        return res;
+
     } else {
+        if (order->closeOnly() || order->reduceOnly()) {
+            // not compatible with opening/increasing position
+            return Order::RET_INVALID_ARGS;
+        }
+
         // create a new position and increase quantity
-        // @todo
+        return _indMarginOpenPosition(order, market, openExecPrice);
     }
-/*
-    // always a new position with the same order as order id for a position
-    Position *position = traderProxy()->newPosition(strategy);
 
-    // execution price at open
-    o3d::Double execPrice = openExecPrice;
+    return Order::RET_ERROR;
+}
 
-    position->positionId = order->orderId;
-    position->refOrderId = order->refId;
-    position->direction = order->direction;
-    position->marketId = order->marketId;
-    position->created = handler()->timestamp();
-    position->updated = handler()->timestamp();
+o3d::Int32 LocalConnector::_indMarginOpenPosition(Order* order, const Market *market, o3d::Double openExecPrice)
+{
+    Strategy *strategy = order->strategy;
+    if (strategy == nullptr) {
+        return Order::RET_ERROR;
+    }
 
-    position->stopPrice = order->stopPrice;
-    position->limitPrice = order->limitPrice;
+    if (order == nullptr) {
+        return Order::RET_ERROR;
+    }
 
-    m_virtualPositions[position->positionId] = position;
+    const o3d::Double execPrice = openExecPrice;
+    const o3d::Double executed = handler()->timestamp();
 
-    // need a position opened signal
+    OrderSignal openOrderSignal(OrderSignal::OPENED);
+    openOrderSignal.direction = order->direction;
+    openOrderSignal.marketId = order->marketId;
+    openOrderSignal.created = executed;
+    openOrderSignal.orderId = order->orderId;
+    openOrderSignal.refId = order->refId;
+    openOrderSignal.orderType = order->orderType;
+    openOrderSignal.flags = order->flags;
+
+    // or market id for margin @todo support for hedging
+    openOrderSignal.positionId = market->marketId();
+
+    // order is accepted
+    strategy->onOrderSignal(openOrderSignal);
+
+    order->executed = executed;
+    order->execPrice = execPrice;
+    order->avgPrice = execPrice;
+    order->filled = order->orderQuantity;
+    order->cumulativeFilled = order->orderQuantity;
+
+    OrderSignal tradedOrderSignal(OrderSignal::TRADED);
+    tradedOrderSignal.direction = order->direction;
+    tradedOrderSignal.marketId = order->marketId;
+    tradedOrderSignal.executed = executed;
+    tradedOrderSignal.orderId = order->orderId;
+    tradedOrderSignal.refId = order->refId;
+    tradedOrderSignal.orderType = order->orderType;
+    tradedOrderSignal.flags = order->flags;
+
+    tradedOrderSignal.avgPrice = execPrice;
+    tradedOrderSignal.execPrice = execPrice;
+    tradedOrderSignal.filled = order->orderQuantity;
+    tradedOrderSignal.cumulativeFilled = order->orderQuantity;
+    tradedOrderSignal.completed = true;
+
+    // compute quote transacted @todo
+    // tradedOrderSignal.quoteTransacted =
+    // commission fees and its currency @todo
+
+    strategy->onOrderSignal(tradedOrderSignal);
+
+    // create a virtual position
+    Position *position = nullptr;
+
+    // or market id for margin, try to retrieve if a position exists else new one
+    auto pit = m_virtualPositions.find(market->marketId());
+    if (pit != m_virtualPositions.end()) {
+        // retrive existing position but it means it is empty in that branch
+        position = pit->second;
+    } else {
+        position = traderProxy()->newPosition(strategy);
+
+        position->positionId = market->marketId();  // same as market id (only if no hedging)
+        position->refOrderId = order->refId;
+        position->direction = order->direction;
+        position->marketId = order->marketId;
+        position->created = executed;
+
+        // register the position
+        m_virtualPositions[position->positionId] = position;
+    }
+
+    // keep it but order would be deleted just after
+    order->positionId = position->positionId;
+
+    position->quantity = order->orderQuantity;  // fully-filled
+    position->updated = executed;
+
+    // local position data
+    position->local.entryPrice = execPrice;
+    position->local.entryQty = order->orderQuantity;  // 100% entry
+
     PositionSignal openPositionSignal(PositionSignal::OPENED);
     openPositionSignal.direction = order->direction;
     openPositionSignal.marketId = order->marketId;
-    openPositionSignal.created = handler()->timestamp();
-    openPositionSignal.updated = handler()->timestamp();
+    openPositionSignal.created = executed;
+    openPositionSignal.updated = executed;
     openPositionSignal.refOrderId = order->refId;
     openPositionSignal.positionId = position->positionId;
     // openPositionSignal.commission @todo
 
-    // entry traded
+    // entry fully traded
     openPositionSignal.avgPrice = execPrice;
     openPositionSignal.execPrice = execPrice;
     openPositionSignal.filled = order->orderQuantity;
@@ -102,12 +212,277 @@ void LocalConnector::_execIndMarginOrder(Order *order, const Market *market,
     OrderSignal deletedOrderSignal(OrderSignal::DELETED);
     deletedOrderSignal.direction = order->direction;
     deletedOrderSignal.marketId = order->marketId;
-    deletedOrderSignal.executed = handler()->timestamp();
+    deletedOrderSignal.executed = executed;
     deletedOrderSignal.orderId = order->orderId;
     deletedOrderSignal.refId = order->refId;
     deletedOrderSignal.orderType = order->orderType;
     deletedOrderSignal.flags = order->flags;
     // @todo do we set cumulative, avg and completed here ?
 
-    strategy->onOrderSignal(deletedOrderSignal);*/
+    strategy->onOrderSignal(deletedOrderSignal);
+
+    return Order::RET_OK;
+}
+
+o3d::Int32 LocalConnector::_indMarginIncreasePosition(Order *order, Position *position, const Market *market,
+                                                      o3d::Double openExecPrice)
+{
+    Strategy *strategy = order->strategy;
+    if (strategy == nullptr) {
+        return Order::RET_ERROR;
+    }
+
+    if (order == nullptr) {
+        return Order::RET_ERROR;
+    }
+
+    if (position == nullptr) {
+        return Order::RET_ERROR;
+    }
+
+    // execution price at open
+    const o3d::Double execPrice = openExecPrice;
+    if (execPrice <= 0.0) {
+        return Order::RET_ERROR;
+    }
+
+    const o3d::Double executed = handler()->timestamp();
+
+    OrderSignal openOrderSignal(OrderSignal::OPENED);
+    openOrderSignal.direction = order->direction;
+    openOrderSignal.marketId = order->marketId;
+    openOrderSignal.created = executed;
+    openOrderSignal.orderId = order->orderId;
+    openOrderSignal.refId = order->refId;
+    openOrderSignal.orderType = order->orderType;
+    openOrderSignal.flags = order->flags;
+
+    // market id for margin @todo for hedging
+    openOrderSignal.positionId = market->marketId();
+
+    // order is accepted
+    strategy->onOrderSignal(openOrderSignal);
+
+    order->executed = executed;
+    order->execPrice = execPrice;
+    order->avgPrice = execPrice;
+    order->filled = order->orderQuantity;
+    order->cumulativeFilled = order->orderQuantity;
+
+    OrderSignal tradedOrderSignal(OrderSignal::TRADED);
+    tradedOrderSignal.direction = order->direction;
+    tradedOrderSignal.marketId = order->marketId;
+    tradedOrderSignal.executed = executed;
+    tradedOrderSignal.orderId = order->orderId;
+    tradedOrderSignal.refId = order->refId;
+    tradedOrderSignal.orderType = order->orderType;
+    tradedOrderSignal.flags = order->flags;
+
+    tradedOrderSignal.avgPrice = execPrice;
+    tradedOrderSignal.execPrice = execPrice;
+    tradedOrderSignal.filled = order->orderQuantity;
+    tradedOrderSignal.cumulativeFilled = order->orderQuantity;
+    tradedOrderSignal.completed = true;
+
+    // @todo compute quote transacted
+    // tradedOrderSignal.quoteTransacted =
+    // @todo commission fees and its currency
+
+    strategy->onOrderSignal(tradedOrderSignal);
+
+    PositionSignal updatedPositionSignal(PositionSignal::DELETED);
+
+    position->updated = executed;
+
+    position->avgPrice = (position->avgPrice * position->quantity + execPrice * order->orderQuantity) / (
+                             position->quantity + order->orderQuantity);
+    position->quantity = market->adjustQty(position->quantity + order->orderQuantity);
+
+    // exit size and qty does not change
+    position->local.entryPrice = position->avgPrice;
+    position->local.entryQty = position->quantity;
+
+    updatedPositionSignal.direction = order->direction;
+    updatedPositionSignal.marketId = order->marketId;
+    updatedPositionSignal.created = position->created;
+    updatedPositionSignal.updated = executed;
+    updatedPositionSignal.refOrderId = order->refId;
+    updatedPositionSignal.positionId = position->positionId;
+    // openPositionSignal.commission @todo
+
+    // exit traded
+    updatedPositionSignal.avgPrice = execPrice;
+    updatedPositionSignal.execPrice = execPrice;
+    updatedPositionSignal.filled = order->orderQuantity;
+    updatedPositionSignal.cumulativeFilled = order->orderQuantity;
+
+    strategy->onPositionSignal(updatedPositionSignal);
+
+    OrderSignal deletedOrderSignal(OrderSignal::DELETED);
+    deletedOrderSignal.direction = order->direction;
+    deletedOrderSignal.marketId = order->marketId;
+    deletedOrderSignal.executed = executed;
+    deletedOrderSignal.orderId = order->orderId;
+    deletedOrderSignal.refId = order->refId;
+    deletedOrderSignal.orderType = order->orderType;
+    deletedOrderSignal.flags = order->flags;
+    // @todo do we set cumulative, avg and completed here ?
+
+    strategy->onOrderSignal(deletedOrderSignal);
+
+    return Order::RET_ERROR;
+}
+
+o3d::Int32 LocalConnector::_indMarginClosePosition(Order *order, Position *position, const Market *market,
+                                                   o3d::Double closeExecPrice)
+{
+    Strategy *strategy = order->strategy;
+    if (strategy == nullptr) {
+        return Order::RET_ERROR;
+    }
+
+    if (order == nullptr) {
+        return Order::RET_ERROR;
+    }
+
+    if (position == nullptr) {
+        return Order::RET_ERROR;
+    }
+
+    // execution price at close
+    const o3d::Double execPrice = closeExecPrice;
+    if (execPrice <= 0.0) {
+        return Order::RET_ERROR;
+    }
+
+    const o3d::Double executed = handler()->timestamp();
+
+    OrderSignal openOrderSignal(OrderSignal::OPENED);
+    openOrderSignal.direction = order->direction;
+    openOrderSignal.marketId = order->marketId;
+    openOrderSignal.created = executed;
+    openOrderSignal.orderId = order->orderId;
+    openOrderSignal.refId = order->refId;
+    openOrderSignal.orderType = order->orderType;
+    openOrderSignal.flags = order->flags;
+
+    // market id for margin @todo for hedging
+    openOrderSignal.positionId = market->marketId();
+
+    // order is accepted
+    strategy->onOrderSignal(openOrderSignal);
+
+    order->executed = executed;
+    order->execPrice = execPrice;
+    order->avgPrice = execPrice;
+    order->filled = order->orderQuantity;
+    order->cumulativeFilled = order->orderQuantity;
+
+    OrderSignal tradedOrderSignal(OrderSignal::TRADED);
+    tradedOrderSignal.direction = order->direction;
+    tradedOrderSignal.marketId = order->marketId;
+    tradedOrderSignal.executed = executed;
+    tradedOrderSignal.orderId = order->orderId;
+    tradedOrderSignal.refId = order->refId;
+    tradedOrderSignal.orderType = order->orderType;
+    tradedOrderSignal.flags = order->flags;
+
+    tradedOrderSignal.avgPrice = execPrice;
+    tradedOrderSignal.execPrice = execPrice;
+    tradedOrderSignal.filled = order->orderQuantity;
+    tradedOrderSignal.cumulativeFilled = order->orderQuantity;
+    tradedOrderSignal.completed = true;
+
+    // @todo compute quote transacted
+    // tradedOrderSignal.quoteTransacted =
+    // @todo commission fees and its currency
+
+    strategy->onOrderSignal(tradedOrderSignal);
+
+    PositionSignal updatedPositionSignal(PositionSignal::DELETED);
+
+    position->updated = executed;
+
+    position->local.exitPrice = (position->local.exitPrice * position->local.exitQty +
+                                 order->orderQuantity * execPrice) / (position->local.exitQty + order->orderQuantity);
+    position->local.exitQty = market->adjustQty(position->local.exitPrice + order->orderQuantity);
+
+    // @todo check qty, compute avgPrice, execPrice, entryPrice, entryQty, exitPrice, exitQty
+    if (position->quantity > order->orderQuantity) {
+        position->quantity = market->adjustQty(position->quantity - order->orderQuantity);
+    } else {
+        position->quantity = 0.0;  // closed mean 0
+    }
+
+    // entry price does not change
+    position->local.entryQty = position->quantity;
+
+    updatedPositionSignal.direction = order->direction;
+    updatedPositionSignal.marketId = order->marketId;
+    updatedPositionSignal.created = position->created;
+    updatedPositionSignal.updated = executed;
+    updatedPositionSignal.refOrderId = order->refId;
+    updatedPositionSignal.positionId = position->positionId;
+    // openPositionSignal.commission @todo
+
+    // exit traded
+    updatedPositionSignal.avgPrice = execPrice;
+    updatedPositionSignal.execPrice = execPrice;
+    updatedPositionSignal.filled = order->orderQuantity;
+    updatedPositionSignal.cumulativeFilled = order->orderQuantity;
+
+    strategy->onPositionSignal(updatedPositionSignal);
+
+    OrderSignal deletedOrderSignal(OrderSignal::DELETED);
+    deletedOrderSignal.direction = order->direction;
+    deletedOrderSignal.marketId = order->marketId;
+    deletedOrderSignal.executed = executed;
+    deletedOrderSignal.orderId = order->orderId;
+    deletedOrderSignal.refId = order->refId;
+    deletedOrderSignal.orderType = order->orderType;
+    deletedOrderSignal.flags = order->flags;
+    // @todo do we set cumulative, avg and completed here ?
+
+    strategy->onOrderSignal(deletedOrderSignal);
+
+    return Order::RET_ERROR;
+}
+
+o3d::Int32 LocalConnector::_indMarginReversePosition(Order *order, Position *position, const Market *market,
+                                                     o3d::Double closeExecPrice)
+{
+    if (order->closeOnly() || order->reduceOnly()) {
+        // cannot reverse the position then simply close it
+        return _indMarginClosePosition(order, position, market, closeExecPrice);
+    }
+
+    Strategy *strategy = order->strategy;
+    if (strategy == nullptr) {
+        return Order::RET_ERROR;
+    }
+
+    if (order == nullptr) {
+        return Order::RET_ERROR;
+    }
+
+    if (position == nullptr) {
+        return Order::RET_ERROR;
+    }
+
+    // execution price at close
+    const o3d::Double execPrice = closeExecPrice;
+    if (execPrice <= 0.0) {
+        return Order::RET_ERROR;
+    }
+
+    o3d::Double executed = handler()->timestamp();
+
+    // first compute the reduced part for profit and loss
+
+    o3d::Double oppositeQty = o3d::abs(position->quantity - order->orderQuantity);
+
+    position->quantity = market->adjustQty(oppositeQty);
+
+    // @todo
+    return Order::RET_ERROR;
 }

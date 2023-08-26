@@ -18,11 +18,13 @@ namespace siis {
  * @date 2019-03-17
  * Some CEX only offers a unique position per market, without hedging neither individual position management.
  * In that case this trade model is prefered.
- * @todo case where error during cancel an order (entry, previous stop or limit)
+ * If hedging is supported and desired there must be two distinct position (1 long, 1 short with differents symbols).
  * Fees are generally taken from equity and generally no commissions.
  * Pnl is reduced from fees rates.
- * @todo distinct limit and stop (per order) qty and exec qty, and distincts fees, from them
- * recompute exit state qty and fees
+ * @todo case where error during cancel an order (entry, previous stop or limit)
+ * @todo relative exit price/qty/fee computation and update global members on trade signal (or position deleted signal)
+ * @todo as in Python version modify, cancel, remove, close method must check previous order just after canceled it
+ * in case of a realized qty (and signal not received before).
  */
 class SIIS_API IndMarginTrade : public Trade
 {
