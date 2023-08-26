@@ -325,7 +325,7 @@ o3d::Int32 LocalConnector::createOrder(Order *order)
             // excepted for spot, need a position opened signal
             if (strategy->tradeType() != Trade::TYPE_ASSET) {
                 if (strategy->tradeType() == Trade::TYPE_POSITION) {
-                    // with the some order as order id for a position
+                    // with the same order as order id for a position
                     openOrderSignal.positionId = order->orderId;
                 } else {
                     // or market id for margin
@@ -359,6 +359,7 @@ o3d::Int32 LocalConnector::createOrder(Order *order)
 
             if (order->closeOnly() || order->reduceOnly()) {
                 // only for margin and indivisible margin, need a position updated or deleted signal
+                // for position use modifyPosition or closePosition
                 if (strategy->tradeType() == Trade::TYPE_MARGIN || strategy->tradeType() == Trade::TYPE_IND_MARGIN) {
                     PositionSignal updatedPositionSignal(PositionSignal::DELETED);
 
@@ -431,7 +432,7 @@ o3d::Int32 LocalConnector::createOrder(Order *order)
                         // always a new position with the same order as order id for a position
                         position = traderProxy()->newPosition(strategy);
 
-                        position->positionId = order->orderId;
+                        position->positionId = order->orderId;   // same as order id
                         position->refOrderId = order->refId;
                         position->direction = order->direction;
                         position->marketId = order->marketId;
@@ -455,7 +456,7 @@ o3d::Int32 LocalConnector::createOrder(Order *order)
                         } else {
                             position = traderProxy()->newPosition(strategy);
 
-                            position->positionId = market->marketId();
+                            position->positionId = market->marketId();  // same as market id (only if no hedging)
                             position->refOrderId = order->refId;
                             position->direction = order->direction;
                             position->marketId = order->marketId;
@@ -467,6 +468,12 @@ o3d::Int32 LocalConnector::createOrder(Order *order)
 
                         m_mutex.unlock();
                     }
+
+                    order->positionId = position->positionId;
+
+                    // local position data
+                    position->local.entryPrice = execPrice;
+                    position->local.entryQty = order->orderQuantity;  // 100% entry
 
                     PositionSignal openPositionSignal(PositionSignal::OPENED);
                     openPositionSignal.direction = order->direction;
@@ -531,8 +538,9 @@ o3d::Int32 LocalConnector::createOrder(Order *order)
             m_mutex.unlock();
 
             strategy->onOrderSignal(openOrderSignal);
+
+            return Order::RET_OK;
         }
-        return Order::RET_OK;
     } else {
         return Order::RET_UNREACHABLE_SERVICE;
     }

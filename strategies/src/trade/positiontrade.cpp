@@ -76,9 +76,6 @@ void PositionTrade::open(Strategy *strategy,
 
     o3d::Int32 ret = traderProxy()->createOrder(entryOrder);
     if (ret == Order::RET_OK) {
-        // defines here but could be retrieved by a position signal
-        m_entryOrderId = entryOrder->orderId;
-        m_positionId = entryOrder->orderId;
     } else {
         m_entryState = STATE_REJECTED;
         m_stats.entryOrderType = Order::ORDER_UNDEFINED;
@@ -229,6 +226,7 @@ void PositionTrade::close(TradeStats::ExitReason reason)
 
         o3d::Int32 ret = traderProxy()->closePosition(m_positionId, m_direction, m_positionQuantity, true, 0.0);
         if (ret == Order::RET_OK) {
+            // m_positionId = "";
         } else {
             m_closing = false;
             if (m_positionStopPrice > 0.0) {
@@ -646,7 +644,6 @@ o3d::Bool PositionTrade::isTargetPosition(const o3d::String &positionId, const o
     }
 
     if (refId.isValid() && refId == m_entryRefId) {
-    printf("totot\n");
         return true;
     }
 
