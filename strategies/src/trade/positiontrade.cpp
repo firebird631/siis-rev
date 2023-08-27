@@ -69,6 +69,7 @@ void PositionTrade::open(Strategy *strategy,
     entryOrder->orderQuantity = quantity;
     entryOrder->orderType = orderType;
     entryOrder->orderPrice = orderPrice;
+    entryOrder->setMargin();
     entryOrder->setHedging();
 
     m_entryRefId = entryOrder->refId;

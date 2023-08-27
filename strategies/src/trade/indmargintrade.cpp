@@ -59,6 +59,7 @@ void IndMarginTrade::open(Strategy *strategy,
     entryOrder->orderQuantity = quantity;
     entryOrder->orderType = orderType;
     entryOrder->orderPrice = orderPrice;
+    entryOrder->setMargin();
 
     m_entry.refId = entryOrder->refId;
     m_stats.entryOrderType = entryOrder->orderType;
@@ -198,6 +199,7 @@ void IndMarginTrade::modifyTakeProfit(o3d::Double price, ModifierType mod)
 
             limitOrder->orderType = Order::ORDER_LIMIT;
             limitOrder->orderPrice = price;
+            limitOrder->setMargin();
             limitOrder->setReduceOnly();
 
             m_limit.refId = limitOrder->refId;
@@ -246,6 +248,7 @@ void IndMarginTrade::modifyStopLoss(o3d::Double price, ModifierType mod)
 
             stopOrder->orderType = Order::ORDER_MARKET;
             stopOrder->orderPrice = price;
+            stopOrder->setMargin();
             stopOrder->setReduceOnly();
 
             m_stop.refId = stopOrder->refId;
@@ -303,6 +306,7 @@ void IndMarginTrade::close(TradeStats::ExitReason reason)
     stopOrder->direction = -m_direction;
     stopOrder->orderQuantity = remaining_qty;
     stopOrder->orderType = Order::ORDER_MARKET;
+    stopOrder->setMargin();
     stopOrder->setReduceOnly();
 
     m_stop.refId = stopOrder->refId;
@@ -328,13 +332,11 @@ void IndMarginTrade::process(o3d::Double timestamp)
 
             if (m_direction > 0) {
                 if (closeExecPrice <= m_stopLossPrice) {
-                printf("SL\n");
                     close(TradeStats::REASON_STOP_LOSS_MARKET);
                     return;
                 }
             } else if (m_direction < 0) {
                 if (closeExecPrice >= m_stopLossPrice) {
-                printf("SL\n");
                     close(TradeStats::REASON_STOP_LOSS_MARKET);
                     return;
                 }
@@ -346,13 +348,11 @@ void IndMarginTrade::process(o3d::Double timestamp)
 
             if (m_direction > 0) {
                 if (closeExecPrice >= m_takeProfitPrice) {
-                printf("TP\n");
                     close(TradeStats::REASON_TAKE_PROFIT_MARKET);
                     return;
                 }
             } else if (m_direction < 0) {
                 if (closeExecPrice <= m_takeProfitPrice) {
-                printf("TP\n");
                     close(TradeStats::REASON_TAKE_PROFIT_MARKET);
                     return;
                 }
