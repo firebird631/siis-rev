@@ -320,6 +320,27 @@ public:
     virtual void close(TradeStats::ExitReason reason) = 0;
 
     //
+    // capacities
+    //
+
+    /**
+     * @brief hasStopOrder Overrides, must return true if the trade have a broker side stop order,
+     * else local trigger stop.
+     */
+    virtual o3d::Bool hasStopOrder() const;
+
+    /**
+     * @brief hasLimitOrder Overrides, must return true if the trade have a broker side limit order,
+     * else local take-profit stop
+     */
+    virtual o3d::Bool hasLimitOrder() const;
+
+    /**
+     * @brief supportBothOrder Overrides, must return true if the trader support stop and limit order at the same time
+     */
+    virtual o3d::Bool supportBothOrder() const;
+
+    //
     // processing states
     //
 
@@ -453,6 +474,21 @@ public:
     o3d::Double exitFeesRate() const;
 
     /**
+     * @brief marginFeesRate Return the applied margin rounds fees rate.
+     */
+    o3d::Double marginFeesRate() const;
+
+    /**
+     * @brief totalFees Return entry + exit + margin fees.
+     */
+    o3d::Double totalFees() const;
+
+    /**
+     * @brief totalFeesRate Return the applied total entry + exit + margin rounds fees rate.
+     */
+    o3d::Double totalFeesRate() const;
+
+    /**
      * @brief estimateExitFeesRate Estimate the exit fees rate that will be applied.
      * It depends of the type of the exit order. Default use taker fees.
      */
@@ -462,6 +498,18 @@ public:
      * @brief deltaPrice Return the delta price from the entry to the last price.
      */
     o3d::Double deltaPrice() const;
+
+    /**
+     * @brief canModifyStopOrder According to time minimal delay between two changes check.
+     * @param timeout Default 10 seconds, must be optimal to avoid API call saturation.
+     */
+    virtual o3d::Bool canModifyStopOrder(o3d::Double timeout = 10.0) const;
+
+    /**
+     * @brief canModifyLimitOrder According to time minimal delay between two changes check.
+     * @param timeout Default 10 seconds, must be optimal to avoid API call saturation.
+     */
+    virtual o3d::Bool canModifyLimitOrder(o3d::Double timeout = 10.0) const;
 
     /**
      * @brief stateToStr Return a string of the state of the trade

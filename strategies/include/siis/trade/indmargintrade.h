@@ -56,6 +56,14 @@ public:
     virtual void close(TradeStats::ExitReason reason) override;
 
     //
+    // capacities
+    //
+
+    virtual o3d::Bool hasStopOrder() const override;
+    virtual o3d::Bool hasLimitOrder() const override;
+    virtual o3d::Bool supportBothOrder() const override;
+
+    //
     // processing states
     //
 
@@ -191,6 +199,12 @@ private:
     Limit m_limit;
 
     void updateRealizedPnl();
+
+    o3d::Double _updateExitQty(const OrderSignal &signal, o3d::Double cumulatedQty);
+    o3d::Double _updateExitFeesAndQty(const OrderSignal &signal, o3d::Double cumulatedFees, o3d::Double cumulatedQty,
+                                      o3d::Double prevOrderExec, Order::OrderType orderType);
+    State _updateExitState(const OrderSignal &signal);
+    void _updateExitStats(const OrderSignal &signal);
 };
 
 } // namespace siis

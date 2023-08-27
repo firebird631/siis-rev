@@ -38,6 +38,21 @@ void MarginTrade::init(o3d::Double timeframe)
     m_positionId = "";
 }
 
+o3d::Bool MarginTrade::hasStopOrder() const
+{
+    return m_stop.orderId.isValid();
+}
+
+o3d::Bool MarginTrade::hasLimitOrder() const
+{
+    return m_limit.orderId.isValid();
+}
+
+o3d::Bool MarginTrade::supportBothOrder() const
+{
+    return true;
+}
+
 void MarginTrade::open(Strategy *strategy,
         o3d::Int32 direction,
         Order::OrderType orderType,

@@ -158,7 +158,10 @@ o3d::Int32 LocalConnector::_indMarginOpenPosition(Order* order, const Market *ma
 
     // compute quote transacted @todo
     // tradedOrderSignal.quoteTransacted =
+
     // commission fees and its currency @todo
+    // tradedOrderSignal.cumulativeCommissionAmount = tradedOrderSignal.FEE_UNDEFINED;
+    // tradedOrderSignal.commissionAmount = tradedOrderSignal.FEE_UNDEFINED;
 
     strategy->onOrderSignal(tradedOrderSignal);
 
@@ -288,7 +291,10 @@ o3d::Int32 LocalConnector::_indMarginIncreasePosition(Order *order, Position *po
 
     // @todo compute quote transacted
     // tradedOrderSignal.quoteTransacted =
-    // @todo commission fees and its currency
+
+    // commission fees and its currency @todo
+    // tradedOrderSignal.cumulativeCommissionAmount = tradedOrderSignal.FEE_UNDEFINED;
+    // tradedOrderSignal.commissionAmount = tradedOrderSignal.FEE_UNDEFINED;
 
     strategy->onOrderSignal(tradedOrderSignal);
 
@@ -398,7 +404,10 @@ o3d::Int32 LocalConnector::_indMarginClosePosition(Order *order, Position *posit
 
     // @todo compute quote transacted
     // tradedOrderSignal.quoteTransacted =
-    // @todo commission fees and its currency
+
+    // commission fees and its currency @todo
+    tradedOrderSignal.cumulativeCommissionAmount = tradedOrderSignal.FEE_UNDEFINED;
+    tradedOrderSignal.commissionAmount = tradedOrderSignal.FEE_UNDEFINED;
 
     strategy->onOrderSignal(tradedOrderSignal);
 
@@ -519,7 +528,10 @@ o3d::Int32 LocalConnector::_indMarginReversePosition(Order *order, Position *pos
 
     // @todo compute quote transacted
     // tradedOrderSignal.quoteTransacted =
-    // @todo commission fees and its currency
+
+    // commission fees and its currency @todo
+    // tradedOrderSignal.cumulativeCommissionAmount = tradedOrderSignal.FEE_UNDEFINED;
+    // tradedOrderSignal.commissionAmount = tradedOrderSignal.FEE_UNDEFINED;
 
     strategy->onOrderSignal(tradedOrderSignal);
 

@@ -381,7 +381,7 @@ void Pullback::orderEntry(
     if (trade) {
         m_tradeManager->addTrade(trade);
 
-        o3d::Double quantity = 1.0;  // @todo
+        o3d::Double quantity = 10000.0;  // @todo
 
         // query open
         trade->open(this, direction, orderType, price, quantity, takeProfitPrice, stopLossPrice);

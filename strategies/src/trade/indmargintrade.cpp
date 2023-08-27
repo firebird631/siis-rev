@@ -81,9 +81,7 @@ void IndMarginTrade::remove()
     if (m_entry.hasOrder()) {
         o3d::Int32 ret = traderProxy()->cancelOrder(m_entry.orderId);
         if (ret == Order::RET_OK) {
-            m_entry.orderId = "";
-            m_entry.refId = "";
-
+            m_entry.clear();
             m_entry.state = STATE_CANCELED;
         } else {
 
@@ -93,9 +91,7 @@ void IndMarginTrade::remove()
     if (m_stop.hasOrder()) {
         o3d::Int32 ret = traderProxy()->cancelOrder(m_stop.orderId);
         if (ret == Order::RET_OK) {
-            m_stop.orderId = "";
-            m_stop.refId = "";
-
+            m_stop.clear();
             m_stop.state = STATE_CANCELED;
         } else {
 
@@ -105,9 +101,7 @@ void IndMarginTrade::remove()
     if (m_limit.hasOrder()) {
         o3d::Int32 ret = traderProxy()->cancelOrder(m_limit.orderId);
         if (ret == Order::RET_OK) {
-            m_limit.orderId = "";
-            m_limit.refId = "";
-
+            m_limit.clear();
             m_limit.state = STATE_CANCELED;
         } else {
 
@@ -121,9 +115,7 @@ void IndMarginTrade::cancelOpen()
         if (m_entry.hasOrder()) {
             o3d::Int32 ret = traderProxy()->cancelOrder(m_entry.orderId);
             if (ret == Order::RET_OK) {
-                m_entry.orderId = "";
-                m_entry.refId = "";
-
+                m_entry.clear();
                 m_entry.state = STATE_CANCELED;
             } else {
 
@@ -145,9 +137,7 @@ void IndMarginTrade::cancelClose()
     if (m_stop.hasOrder()) {
         o3d::Int32 ret = traderProxy()->cancelOrder(m_stop.orderId);
         if (ret == Order::RET_OK) {
-            m_stop.orderId = "";
-            m_stop.refId = "";
-
+            m_stop.clear();
             m_stop.state = STATE_CANCELED;
         } else {
 
@@ -157,9 +147,7 @@ void IndMarginTrade::cancelClose()
     if (m_limit.hasOrder()) {
         o3d::Int32 ret = traderProxy()->cancelOrder(m_limit.orderId);
         if (ret == Order::RET_OK) {
-            m_limit.orderId = "";
-            m_limit.refId = "";
-
+            m_limit.clear();
             m_limit.state = STATE_CANCELED;
         } else {
 
@@ -180,9 +168,7 @@ void IndMarginTrade::modifyTakeProfit(o3d::Double price, ModifierType mod)
 
         o3d::Int32 ret = traderProxy()->cancelOrder(m_limit.orderId);
         if (ret == Order::RET_OK) {
-            m_limit.orderId = "";
-            m_limit.refId = "";
-
+            m_limit.clear();
             m_limit.state = STATE_CANCELED;
         } else {
 
@@ -203,12 +189,15 @@ void IndMarginTrade::modifyTakeProfit(o3d::Double price, ModifierType mod)
             limitOrder->setReduceOnly();
 
             m_limit.refId = limitOrder->refId;
+            m_limit.orderedQty = limitOrder->orderQuantity;
+
             m_stats.stopOrderType = limitOrder->orderType;
 
             o3d::Int32 ret = traderProxy()->createOrder(limitOrder);            
             if (ret == Order::RET_OK) {
             } else {
                 m_stats.stopOrderType = Order::ORDER_UNDEFINED;
+                m_limit.clear();
             }
         }
     }
@@ -229,9 +218,7 @@ void IndMarginTrade::modifyStopLoss(o3d::Double price, ModifierType mod)
 
         o3d::Int32 ret = traderProxy()->cancelOrder(m_stop.orderId);
         if (ret == Order::RET_OK) {
-            m_stop.orderId = "";
-            m_stop.refId = "";
-
+            m_stop.clear();
             m_stop.state = STATE_CANCELED;
         } else {
 
@@ -252,12 +239,15 @@ void IndMarginTrade::modifyStopLoss(o3d::Double price, ModifierType mod)
             stopOrder->setReduceOnly();
 
             m_stop.refId = stopOrder->refId;
+            m_stop.orderedQty = stopOrder->orderQuantity;
+
             m_stats.stopOrderType = stopOrder->orderType;
 
             o3d::Int32 ret = traderProxy()->createOrder(stopOrder);
             if (ret == Order::RET_OK) {
             } else {
                 m_stats.stopOrderType = Order::ORDER_UNDEFINED;
+                m_stop.clear();
             }
         }
     }
@@ -279,9 +269,7 @@ void IndMarginTrade::close(TradeStats::ExitReason reason)
     if (m_stop.hasOrder()) {
         o3d::Int32 ret = traderProxy()->cancelOrder(m_stop.orderId);
         if (ret == Order::RET_OK) {
-            m_stop.orderId = "";
-            m_stop.refId = "";
-
+            m_stop.clear();
             m_stop.state = STATE_CANCELED;
         } else {
 
@@ -291,9 +279,7 @@ void IndMarginTrade::close(TradeStats::ExitReason reason)
     if (m_limit.hasOrder()) {
         o3d::Int32 ret = traderProxy()->cancelOrder(m_limit.orderId);
         if (ret == Order::RET_OK) {
-            m_limit.orderId = "";
-            m_limit.refId = "";
-
+            m_limit.clear();
             m_limit.state = STATE_CANCELED;
         } else {
 
@@ -310,15 +296,32 @@ void IndMarginTrade::close(TradeStats::ExitReason reason)
     stopOrder->setReduceOnly();
 
     m_stop.refId = stopOrder->refId;
+    m_stop.orderedQty = stopOrder->orderQuantity;
     m_stop.closing = true;
+
     m_stats.stopOrderType = stopOrder->orderType;
 
     o3d::Int32 ret = traderProxy()->createOrder(stopOrder);
     if (ret == Order::RET_OK) {
     } else {
-        m_stop.closing = false;
         m_stats.stopOrderType = Order::ORDER_UNDEFINED;
+        m_stop.clear();
     }
+}
+
+o3d::Bool IndMarginTrade::hasStopOrder() const
+{
+    return m_stop.orderId.isValid();
+}
+
+o3d::Bool IndMarginTrade::hasLimitOrder() const
+{
+    return m_limit.orderId.isValid();
+}
+
+o3d::Bool IndMarginTrade::supportBothOrder() const
+{
+    return true;
 }
 
 void IndMarginTrade::process(o3d::Double timestamp)
@@ -417,25 +420,26 @@ void IndMarginTrade::orderSignal(const OrderSignal &signal)
         }
 
         if (signal.event == signal.OPENED) {
-            m_openTimeStamp = signal.executed;
-
-            m_entry.state = STATE_OPENED;
+            if (m_entry.state == STATE_NEW) {
+                m_entry.state = STATE_OPENED;
+            }
+            if (!m_openTimeStamp && signal.execPrice > 0.0) {
+                m_openTimeStamp = signal.executed;
+            }
         } else if (signal.event == signal.REJECTED) {
-            m_entry.orderId = "";
-            m_entry.refId = "";
-
+            m_entry.clear();
             m_entry.state = STATE_REJECTED;
+
         } else if (signal.event == signal.DELETED) {
-            m_entry.orderId = "";
-            m_entry.refId = "";
+            m_entry.clear();
 
         } else if (signal.event == signal.CANCELED) {
-            m_entry.orderId = "";
-            m_entry.refId = "";
-
+            m_entry.clear();
             m_entry.state = STATE_CANCELED;
+
         } else if (signal.event == signal.UPDATED) {
-            // no supported
+            // not supported
+
         } else if (signal.event == signal.TRADED) {
             // computed relative qty (because there is a signle entry order no need of a relative variable)
             o3d::Double filled = 0.0;
@@ -490,7 +494,7 @@ void IndMarginTrade::orderSignal(const OrderSignal &signal)
                     // no information, try to detect it
                     if (m_stats.entryOrderType == Order::ORDER_LIMIT) {
                         // @todo only if execution price is equal or better, then order price (depends on direction)
-                        // or if post-only
+                        // or if post-only is defined
                         maker = true;
                     } else {
                         maker = false;
@@ -537,69 +541,54 @@ void IndMarginTrade::orderSignal(const OrderSignal &signal)
         if (signal.event == signal.OPENED) {
             if (m_limit.state == STATE_NEW) {
                 m_limit.state = STATE_OPENED;
-                if (!m_exitTimeStamp) {
-                    m_exitTimeStamp = signal.executed;
-                }
+            }
+            if (!m_exitTimeStamp && signal.executed > 0.0) {
+                m_exitTimeStamp = signal.executed;
             }
         } else if (signal.event == signal.REJECTED) {
-            m_limit.orderId = "";
-            m_limit.refId = "";
-
+            m_limit.clear();
             m_limit.state = STATE_REJECTED;
-        } else if (signal.event == signal.DELETED) {
-            m_limit.orderId = "";
-            m_limit.refId = "";
 
+        } else if (signal.event == signal.DELETED) {
+            m_limit.clear();
             // @todo qty, avg entry price, timestamp...
             // m_limit.state = STATE_DELETED;
+
         } else if (signal.event == signal.CANCELED) {
-            m_limit.orderId = "";
-            m_limit.refId = "";
-
+            m_limit.clear();
             m_limit.state = STATE_CANCELED;
+
         } else if (signal.event == signal.UPDATED) {
-            // no supported
+            // not supported
+
         } else if (signal.event == signal.TRADED) {
-            if (signal.cumulativeFilled > 0.0) {
-                m_filledExitQuantity = signal.cumulativeFilled;
-            } else if (signal.filled > 0.0) {
-                m_filledExitQuantity += signal.filled;
+            // qty
+            o3d::Double prevLimitOrderExec = m_limit.executed;
+            o3d::Double filled = _updateExitQty(signal, m_limit.executed);
+
+            // cumulative filled exit qty, update trade qty and order related qty
+            if (filled > 0.0) {
+                m_limit.executed = strategy()->market()->adjustQty(m_limit.executed + filled);
             }
 
-            if (signal.avgPrice > 0.0) {
-                m_exitPrice = signal.avgPrice;
-            } else if (signal.execPrice > 0.0) {
-                // @todo avg
-                m_exitPrice = signal.execPrice;
+            // fees/commissions
+            o3d::Double filledCommission = _updateExitFeesAndQty(signal, m_limit.fees, m_limit.executed,
+                                                                 prevLimitOrderExec, m_stats.takeProfitOrderType);
+
+            if (filledCommission != 0.0) {
+                m_limit.fees += filledCommission;
             }
 
-            if (m_stats.firstRealizedExitTimestamp <= 0.0) {
-                m_stats.firstRealizedExitTimestamp = signal.executed;
-            }
-            m_stats.lastRealizedExitTimestamp = signal.executed;
+            // state
+            m_limit.state = _updateExitState(signal);
 
-            // realized pnl
-            updateRealizedPnl();
-
-            if (m_filledEntryQuantity >= m_orderQuantity || signal.completed) {
-                m_limit.state = STATE_FILLED;
-            } else {
-                m_limit.state = STATE_PARTIALLY_FILLED;
+            // order relative executed qty reached ordered qty or completed : reset limit order state
+            if (m_limit.executed >= m_limit.orderedQty || signal.completed) {
+                m_limit.clear();
             }
 
-            // exit fees
-            o3d::Bool maker = false;  // signal.maker == 1
-
-            if (1) {  // signal.maker < 0) {
-                // no information, try to detect it
-                if (m_stats.takeProfitOrderType == Order::ORDER_LIMIT) {
-                    // @todo only if execution price is equal or better, then order price (depends on direction)
-                    maker = true;
-                }
-            }
-
-            m_stats.exitFees = (maker ? strategy()->market()->makerFee().rate : strategy()->market()->takerFee().rate) * (
-                                    m_exitPrice * m_filledExitQuantity);
+            // stats
+            _updateExitStats(signal);
         }
 
     //
@@ -616,69 +605,54 @@ void IndMarginTrade::orderSignal(const OrderSignal &signal)
         if (signal.event == signal.OPENED) {
             if (m_stop.state == STATE_NEW) {
                 m_stop.state = STATE_OPENED;
-                if (!m_exitTimeStamp) {
-                    m_exitTimeStamp = signal.executed;
-                }
+            }
+            if (!m_exitTimeStamp && signal.executed > 0.0) {
+                m_exitTimeStamp = signal.executed;
             }
         } else if (signal.event == signal.REJECTED) {
-            m_stop.orderId = "";
-            m_stop.refId = "";
-
+            m_stop.clear();
             m_stop.state = STATE_REJECTED;
-        } else if (signal.event == signal.DELETED) {
-            m_stop.orderId = "";
-            m_stop.refId = "";
 
+        } else if (signal.event == signal.DELETED) {
+            m_stop.clear();
             // @todo qty, avg entry price, timestamp...
             // m_stop.state = STATE_DELETED;
+
         } else if (signal.event == signal.CANCELED) {
-            m_stop.orderId = "";
-            m_stop.refId = "";
-
+            m_stop.clear();
             m_stop.state = STATE_CANCELED;
+
         } else if (signal.event == signal.UPDATED) {
-            // no supported
+            // not supported
+
         } else if (signal.event == signal.TRADED) {
-            if (signal.cumulativeFilled > 0.0) {
-                m_filledExitQuantity = signal.cumulativeFilled;
-            } else if (signal.filled > 0.0) {
-                m_filledExitQuantity += signal.filled;
+            // qty
+            o3d::Double prevStopOrderExec = m_stop.executed;
+            o3d::Double filled = _updateExitQty(signal, m_stop.executed);
+
+            // cumulative filled exit qty, update trade qty and order related qty
+            if (filled > 0.0) {
+                m_stop.executed = strategy()->market()->adjustQty(m_stop.executed + filled);
             }
 
-            if (signal.avgPrice > 0.0) {
-                m_exitPrice = signal.avgPrice;
-            } else if (signal.execPrice > 0.0) {
-                // @todo avg
-                m_exitPrice = signal.execPrice;
+            // fees/commissions
+            o3d::Double filledCommission = _updateExitFeesAndQty(signal, m_stop.fees, m_stop.executed,
+                                                                 prevStopOrderExec, m_stats.stopOrderType);
+
+            if (filledCommission != 0.0) {
+                m_stop.fees += filledCommission;
             }
 
-            if (m_stats.firstRealizedExitTimestamp <= 0.0) {
-                m_stats.firstRealizedExitTimestamp = signal.executed;
-            }
-            m_stats.lastRealizedExitTimestamp = signal.executed;
+            // state
+            m_stop.state = _updateExitState(signal);
 
-            // realized pnl
-            updateRealizedPnl();
-
-            if (m_filledEntryQuantity >= m_orderQuantity || signal.completed) {
-                m_stop.state = STATE_FILLED;
-            } else {
-                m_stop.state = STATE_PARTIALLY_FILLED;
+            // order relative executed qty reached ordered qty or completed : reset limit order state
+            if (m_stop.executed >= m_stop.orderedQty || signal.completed) {
+                m_stop.clear();
             }
 
-            // exit fees
-            o3d::Bool maker = false;  // signal.maker == 1
-
-            if (1) {  // signal.maker < 0) {
-                // no information, try to detect it
-                if (m_stats.stopOrderType == Order::ORDER_LIMIT) {
-                    // @todo only if execution price is equal or better, then order price (depends on direction)
-                    maker = true;
-                }
-            }
-
-            m_stats.exitFees = (maker ? strategy()->market()->makerFee().rate : strategy()->market()->takerFee().rate) * (
-                                    m_exitPrice * m_filledExitQuantity);
+            // stats
+            _updateExitStats(signal);
         }
     }
 }
@@ -759,26 +733,20 @@ void IndMarginTrade::updateStats(o3d::Double lastPrice, o3d::Double timestamp)
     Trade::updateStats(lastPrice, timestamp);
 
     if (isActive()) {
-//                last_price = instrument.close_exec_price(self.direction)
-//            if last_price <= 0:
-//                return
+        // @todo
+//        last_price = instrument.close_exec_price(self.direction)
+//        if last_price <= 0:
+//            return
 
-//            upnl = 0.0  # unrealized PNL
-//            rpnl = 0.0  # realized PNL
+//        // non realized quantity
+//        nrq = self.e - self.x
 
-//            # non realized quantity
-//            nrq = self.e - self.x
+//        u_pnl = instrument.compute_pnl(nrq, self.dir, self.aep, last_price)
+//        r_pnl = instrument.compute_pnl(self.x, self.dir, self.aep, self.axp)
 
-//            if self.dir > 0:
-//                upnl = (last_price - self.aep) * nrq * instrument.contract_size
-//                rpnl = (self.axp - self.aep) * self.x * instrument.contract_size
-//            elif self.dir < 0:
-//                upnl = (self.aep - last_price) * nrq * instrument.contract_size
-//                rpnl = (self.aep - self.axp) * self.x * instrument.contract_size
-
-//            # including fees and realized profit and loss
-//            self._stats['unrealized-profit-loss'] = instrument.adjust_quote(
-//                upnl + rpnl - self._stats['entry-fees'] - self._stats['exit-fees'])
+//        // including fees and realized profit and loss
+//        self._stats['unrealized-profit-loss'] = instrument.adjust_settlement(
+//            u_pnl + r_pnl - self._stats['entry-fees'] - self._stats['exit-fees'] - self._stats['margin-fees'])
     }
 }
 
@@ -794,6 +762,139 @@ void IndMarginTrade::loads(const o3d::Variadic &trade)
 
 void IndMarginTrade::updateRealizedPnl()
 {
-    m_profitLossRate = m_direction * ((m_exitPrice * m_filledExitQuantity) - (m_entryPrice * m_filledExitQuantity)) /
-                       (m_entryPrice * m_filledExitQuantity);
+    // over exit qty because it as a ratio proportional to entry and not exit qty
+    m_profitLossRate = m_direction * (m_exitPrice * m_filledExitQuantity - m_entryPrice * m_filledExitQuantity) /
+                       (m_entryPrice * m_filledEntryQuantity);
+}
+
+o3d::Double IndMarginTrade::_updateExitQty(const OrderSignal &signal, o3d::Double cumulatedQty)
+{
+    o3d::Double _filled = 0.0;
+
+    // either we have 'filled' component (partial qty) or completed or both
+    if (signal.cumulativeFilled > 0.0 && signal.cumulativeFilled > cumulatedQty) {
+        // compute filled qty since last signal
+        _filled = signal.cumulativeFilled - cumulatedQty;
+    } else if (signal.filled > 0.0) {
+        // relative data field
+        _filled = signal.filled;
+    }
+
+    if (signal.avgPrice > 0.0) {
+        // recompute profit-loss
+        // m_profitLossRate = m_direction * (signal.avgPrice - m_entryPrice) / m_entryPrice;
+
+        // in that case we have avg-price already computed but not sufficient in case of multiple orders for exit
+        // m_exitPrice = signal.avgPrice;
+        m_exitPrice = strategy()->market()->adjustPrice(
+                          m_exitPrice * m_filledExitQuantity) + (signal.avgPrice * _filled) / (
+                          m_filledExitQuantity + _filled);
+
+    } else if (signal.execPrice > 0.0) {
+        // increase/decrease profit/loss (over entry executed quantity)
+        // m_profitLossRate += m_direction * (signal.execPrice * _filled - m_entryPrice * _filled) / (
+        //                         m_entryPrice * m_filledEntryQuantity);
+
+        // compute the average exit price
+        m_exitPrice = strategy()->market()->adjustPrice(
+                          m_exitPrice * m_filledExitQuantity) + (signal.execPrice * _filled) / (
+                          m_filledExitQuantity + _filled);
+    }
+
+    if (_filled > 0.0) {
+        // update realized exit qty
+        m_filledExitQuantity = strategy()->market()->adjustQty(m_filledExitQuantity + _filled);
+
+        // and realized PNL
+        if (m_entryPrice > 0.0 && m_filledEntryQuantity > 0.0) {
+            m_profitLossRate = m_direction * (m_exitPrice * m_filledExitQuantity -
+                m_entryPrice * m_filledExitQuantity) / (m_entryPrice * m_filledEntryQuantity);
+        }
+    }
+
+    return _filled;
+}
+
+o3d::Double IndMarginTrade::_updateExitFeesAndQty(const OrderSignal &signal,
+                                                  o3d::Double cumulatedFees, o3d::Double cumulatedQty,
+                                                  o3d::Double prevOrderExec, Order::OrderType orderType)
+{
+    // filled fees/commissions
+    o3d::Double _filledCommission = 0.0;
+
+    if (signal.cumulativeCommissionAmount == signal.FEE_UNDEFINED && signal.commissionAmount == signal.FEE_UNDEFINED) {
+        // no value but have an order execution then compute locally
+        if (cumulatedQty > prevOrderExec) {
+            // compute from instrument details
+            o3d::Bool maker = signal.maker > 0;
+
+            if (signal.maker < 0) {
+                // no information, try to detect it
+                if (m_stats.entryOrderType == Order::ORDER_LIMIT) {
+                    // @todo only if execution price is equal or better, then order price (depends on direction)
+                    // or if post-only is defined
+                    maker = true;
+                } else {
+                    maker = false;
+                }
+            }
+
+            // proportionate to filled qty m_stats.notionalValue is proportionate to m_filledEntryQuantity)
+            o3d::Double _filledQtyRate = m_filledEntryQuantity > 0 ? (cumulatedQty - prevOrderExec) /
+                                                                        m_filledEntryQuantity : 0;
+
+            _filledCommission = (_filledQtyRate * m_stats.notionalValue) * (m_exitPrice / m_entryPrice) * (maker ?
+                strategy()->market()->makerFee().rate : strategy()->market()->takerFee().rate);
+
+            if (prevOrderExec == 0.0) {
+                // for initial fill add the commission fee
+                _filledCommission += maker ? strategy()->market()->makerFee().commission :
+                                         strategy()->market()->takerFee().commission;
+            }
+        }
+    } else if (signal.cumulativeCommissionAmount != signal.FEE_UNDEFINED && signal.cumulativeCommissionAmount != 0.0 &&
+               signal.cumulativeCommissionAmount != cumulatedFees) {
+        // compute filled commission amount since last signal
+        _filledCommission = signal.cumulativeCommissionAmount - cumulatedFees;
+
+    } else if (signal.commissionAmount != signal.FEE_UNDEFINED && signal.commissionAmount != 0.0) {
+        // relative data field
+        _filledCommission = signal.commissionAmount;
+    }
+
+    // realized fees : in cumulated amount or computed from filled quantity and trade execution
+    if (_filledCommission != 0.0) {
+        m_stats.exitFees += _filledCommission;
+    }
+
+    return _filledCommission;
+}
+
+Trade::State IndMarginTrade::_updateExitState(const OrderSignal &signal)
+{
+    if (m_entry.state == STATE_FILLED) {
+        if (m_filledExitQuantity > m_filledEntryQuantity || signal.completed) {
+            // entry fully-filled : exit fully-filled or exit quantity reach entry quantity
+            return STATE_FILLED;
+        } else {
+            // entry fully-filled : exit quantity not reached entry quantity
+            return STATE_PARTIALLY_FILLED;
+        }
+    } else {
+        if (m_entry.orderId.isValid() && m_filledEntryQuantity < m_orderQuantity) {
+            // entry order still exists and entry quantity not reached order entry quantity
+            return STATE_PARTIALLY_FILLED;
+        } else {
+            // or there is no longer entry order then we have fully filled the exit
+            return STATE_FILLED;
+        }
+    }
+}
+
+void IndMarginTrade::_updateExitStats(const OrderSignal &signal)
+{
+    if (m_stats.firstRealizedExitTimestamp <= 0.0) {
+        m_stats.firstRealizedExitTimestamp = signal.executed;
+    }
+    m_stats.lastRealizedExitTimestamp = signal.executed;
 }

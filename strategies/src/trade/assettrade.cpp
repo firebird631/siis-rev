@@ -31,6 +31,22 @@ void AssetTrade::init(o3d::Double timeframe)
     Trade::init(timeframe);
 }
 
+o3d::Bool AssetTrade::hasStopOrder() const
+{
+    return false;  // m_stop.orderId.isValid();
+}
+
+o3d::Bool AssetTrade::hasLimitOrder() const
+{
+    return false;  // m_limit.orderId.isValid();
+}
+
+o3d::Bool AssetTrade::supportBothOrder() const
+{
+    // could if OCO but not implemented
+    return false;
+}
+
 void AssetTrade::open(Strategy *strategy,
         o3d::Int32 direction, Order::OrderType orderType,
         o3d::Double orderPrice,

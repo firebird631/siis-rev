@@ -8,10 +8,11 @@ Urgent
 Prioritaire
 ===========
 
+- IndMarginTrade::updateStats complete PNL
 - pour les XxxxPositionSignal.refOrderId met on orderId or refOrderId ?
 
 - taille des trades
-- notional-value des trades
+- notional-value pour margin trade, position trade, asset trade
 
 - gestion des statistiques par account (paper trader local)
 - verifier/fixer les size sur connectormessagereceivetickaggreged.cpp

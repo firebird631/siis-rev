@@ -67,6 +67,21 @@ void Trade::init(o3d::Double timeframe)
     m_stats.init();
 }
 
+o3d::Bool Trade::hasStopOrder() const
+{
+    return false;
+}
+
+o3d::Bool Trade::hasLimitOrder() const
+{
+    return false;
+}
+
+o3d::Bool Trade::supportBothOrder() const
+{
+    return false;
+}
+
 o3d::Bool Trade::isDirty() const
 {
     return m_dirty;
@@ -170,8 +185,8 @@ o3d::Double Trade::estimateStopLossRate() const
 
 o3d::Double Trade::entryFeesRate() const
 {
-    if (m_entryPrice > 0.0 && m_filledEntryQuantity > 0.0) {
-        return m_stats.entryFees / (m_entryPrice * m_filledEntryQuantity);
+    if (m_stats.entryFees != 0.0 && m_stats.notionalValue > 0.0) {
+        return m_stats.entryFees / m_stats.notionalValue;
     }
 
     return 0.0;
@@ -179,8 +194,33 @@ o3d::Double Trade::entryFeesRate() const
 
 o3d::Double Trade::exitFeesRate() const
 {
-    if (m_exitPrice > 0.0 && m_filledExitQuantity > 0.0) {
-        return m_stats.exitFees / (m_exitPrice * m_filledExitQuantity);
+    if (m_stats.exitFees != 0.0 && m_stats.notionalValue > 0.0) {
+        return m_stats.exitFees / m_stats.notionalValue;
+    }
+
+    return 0.0;
+}
+
+o3d::Double Trade::marginFeesRate() const
+{
+    if (m_stats.marginFees != 0.0 && m_stats.notionalValue > 0.0) {
+        return m_stats.marginFees / m_stats.notionalValue;
+    }
+
+    return 0.0;
+}
+
+o3d::Double Trade::totalFees() const
+{
+    return m_stats.entryFees + m_stats.exitFees + m_stats.marginFees;
+}
+
+o3d::Double Trade::totalFeesRate() const
+{
+    o3d::Double _totalFees = totalFees();
+
+    if (_totalFees != 0 && m_stats.notionalValue > 0.0) {
+        return _totalFees / m_stats.notionalValue;
     }
 
     return 0.0;
@@ -212,6 +252,18 @@ o3d::Double Trade::deltaPrice() const
     }
 
     return 0.0;
+}
+
+o3d::Bool Trade::canModifyStopOrder(o3d::Double timeout) const
+{
+    // @todo
+    return true;
+}
+
+o3d::Bool Trade::canModifyLimitOrder(o3d::Double timeout) const
+{
+    // @todo
+    return true;
 }
 
 void Trade::addOperation(TradeOperation *tradeOp)
@@ -254,6 +306,7 @@ void Trade::updateStats(o3d::Double lastPrice, o3d::Double timestamp)
 void TradeStats::loads()
 {
     // @todo
+    // plus specializations
 }
 
 void TradeStats::dumps() const
@@ -276,4 +329,6 @@ void TradeStats::dumps() const
 //            'entry-fees': 0.0,
 //            'exit-fees': 0.0,
 //            'margin-fees': 0.0
+
+    // plus specializations
 }

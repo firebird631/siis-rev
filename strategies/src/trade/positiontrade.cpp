@@ -48,6 +48,21 @@ void PositionTrade::init(o3d::Double timeframe)
     m_positionId = "";
 }
 
+o3d::Bool PositionTrade::hasStopOrder() const
+{
+    return m_positionStopPrice > 0.0;
+}
+
+o3d::Bool PositionTrade::hasLimitOrder() const
+{
+    return m_positionLimitPrice > 0.0;
+}
+
+o3d::Bool PositionTrade::supportBothOrder() const
+{
+    return true;
+}
+
 void PositionTrade::open(Strategy *strategy,
         o3d::Int32 direction,
         Order::OrderType orderType,

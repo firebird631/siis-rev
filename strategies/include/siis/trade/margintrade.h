@@ -29,6 +29,14 @@ public:
     virtual void init(o3d::Double timeframe) override;
 
     //
+    // capacities
+    //
+
+    virtual o3d::Bool hasStopOrder() const override;
+    virtual o3d::Bool hasLimitOrder() const override;
+    virtual o3d::Bool supportBothOrder() const override;
+
+    //
     // processing
     //
 
