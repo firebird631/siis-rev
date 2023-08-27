@@ -3,7 +3,6 @@ Urgent
 
 - log rotate ou a minima taille max
 - exit-fee doit être multiplié par le raw PNL
-- local trader doit executer les LIMIT et STOP orders au moins pour l'entrée
 
 
 Prioritaire
@@ -13,13 +12,9 @@ Prioritaire
 
 - taille des trades
 - notional-value des trades
-- inverse perpetual contract position computation
 
-- attention aux trades, orders, positions non libérés à la fin si pas cloturé (coté trader proxy et local trader)
-
-- gestion limit et stop order sur le local trader (mais attention, très lié à la gestion des xxxtrades)
 - gestion des statistiques par account (paper trader local)
-- fixer les size sur connectormessagereceivetickaggreged.cpp
+- verifier/fixer les size sur connectormessagereceivetickaggreged.cpp
 
 - events to REDIS
   - trades entry, update, exit
@@ -29,9 +24,7 @@ Prioritaire
   - ...
 
 - ind margin trade
-  - position events
-
-- position trade
+  - position delete events (in case of external close/liq)
 
 - signaux :
   - order create, canceled, deleted, traded (partially, completed), error
@@ -86,9 +79,6 @@ Secondaire
     - order create, update, delete
     - position update, close
     - binance spot, kraken spot, bitmex futures, ig CFD
-
-- position trade
-  - open, close, remove, modify tp, modify sl, order events, position events
 
 - live handler
 

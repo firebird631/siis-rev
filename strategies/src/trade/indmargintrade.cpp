@@ -328,11 +328,13 @@ void IndMarginTrade::process(o3d::Double timestamp)
 
             if (m_direction > 0) {
                 if (closeExecPrice <= m_stopLossPrice) {
+                printf("SL\n");
                     close(TradeStats::REASON_STOP_LOSS_MARKET);
                     return;
                 }
             } else if (m_direction < 0) {
                 if (closeExecPrice >= m_stopLossPrice) {
+                printf("SL\n");
                     close(TradeStats::REASON_STOP_LOSS_MARKET);
                     return;
                 }
@@ -344,11 +346,13 @@ void IndMarginTrade::process(o3d::Double timestamp)
 
             if (m_direction > 0) {
                 if (closeExecPrice >= m_takeProfitPrice) {
+                printf("TP\n");
                     close(TradeStats::REASON_TAKE_PROFIT_MARKET);
                     return;
                 }
             } else if (m_direction < 0) {
                 if (closeExecPrice <= m_takeProfitPrice) {
+                printf("TP\n");
                     close(TradeStats::REASON_TAKE_PROFIT_MARKET);
                     return;
                 }
