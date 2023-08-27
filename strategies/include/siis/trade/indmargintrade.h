@@ -107,10 +107,17 @@ private:
         o3d::CString orderId;
         o3d::CString refId;
 
-        o3d::Double executed = 0.0;
+        o3d::Double executed = 0.0;   //!< executed timestamp
 
         void reset() {
             state = STATE_UNDEFINED;
+            orderId = "";
+            refId = "";
+            executed = 0.0;
+        }
+
+        void clear() {
+            // reset any values except the state
             orderId = "";
             refId = "";
             executed = 0.0;
@@ -140,6 +147,15 @@ private:
             fees = 0.0;
         }
 
+        void clear() {
+            EntryExit::clear();
+
+            closing = false;
+
+            orderedQty = 0.0;
+            fees = 0.0;
+        }
+
         o3d::Bool closing = false;
         o3d::Double orderedQty = 0.0;  //!< ordered qty
         o3d::Double fees = 0.0;        //! order relative fees
@@ -152,6 +168,13 @@ private:
     {
         void reset() {
             EntryExit::reset();
+
+            orderedQty = 0.0;
+            fees = 0.0;
+        }
+
+        void clear() {
+            EntryExit::clear();
 
             orderedQty = 0.0;
             fees = 0.0;

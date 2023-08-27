@@ -20,6 +20,7 @@ Trade::Trade(TraderProxy *proxy, Type type, o3d::Double timeframe) :
     m_timeframe(timeframe),
     m_timestamp(0.0),
     m_direction(0),
+    m_dirty(false),
     m_expiry(0.0),
     m_entryTimeout(0.0),
     m_openTimeStamp(0.0),
@@ -48,6 +49,7 @@ void Trade::init(o3d::Double timeframe)
     m_timeframe = timeframe;
     m_timestamp = 0.0;
     m_direction = 0;
+    m_dirty = false;
     m_expiry = 0.0;
     m_entryTimeout = 0.0;
     m_openTimeStamp = 0.0;
@@ -63,6 +65,11 @@ void Trade::init(o3d::Double timeframe)
     m_profitLossRate = 0.0;
 
     m_stats.init();
+}
+
+o3d::Bool Trade::isDirty() const
+{
+    return m_dirty;
 }
 
 o3d::Bool Trade::canDelete() const

@@ -324,6 +324,11 @@ public:
     //
 
     /**
+     * @brief isDirty Internal dirty state.
+     */
+    o3d::Bool isDirty() const;
+
+    /**
      * @brief canDelete Is the trade can be deleted.
      * Either the trade is completed, or rejected, or in a state meaning the trade manager of the strategy can
      * delete it.
@@ -525,6 +530,8 @@ protected:
     o3d::Double m_timestamp;      //!< trade entry order creation timestamp
 
     o3d::Int32 m_direction;
+
+    o3d::Bool m_dirty;             //!< true when entry qty increase meaning exit orders must be updated
 
     o3d::Double m_expiry;          //!< max life duration of the trade
     o3d::Double m_entryTimeout;    //!< max life duration of the entry order to be filled or partially

@@ -103,6 +103,13 @@ private:
             executed = 0.0;
         }
 
+        void clear() {
+            // reset any values except the state
+            orderId = "";
+            refId = "";
+            executed = 0.0;
+        }
+
         inline o3d::Bool hasOrder() const {
             return orderId.isValid() || refId.isValid();
         }
@@ -127,6 +134,13 @@ private:
             fees = 0.0;
         }
 
+        void clear() {
+            EntryExit::clear();
+
+            orderedQty = 0.0;
+            fees = 0.0;
+        }
+
         o3d::Bool closing = false;
         o3d::Double orderedQty = 0.0;  //!< ordered qty
         o3d::Double fees = 0.0;        //! order relative fees
@@ -139,6 +153,13 @@ private:
     {
         void reset() {
             EntryExit::reset();
+
+            orderedQty = 0.0;
+            fees = 0.0;
+        }
+
+        void clear() {
+            EntryExit::clear();
 
             orderedQty = 0.0;
             fees = 0.0;

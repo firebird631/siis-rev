@@ -64,6 +64,7 @@ public:
     static constexpr o3d::Double TIMESTAMP_UNDEFINED = -1.0;
     static constexpr o3d::Double PRICE_UNDEFINED = -1.0;
     static constexpr o3d::Double QUANTITY_UNDEFINED = -1.0;
+    static constexpr o3d::Double FEE_UNDEFINED = O3D_MIN_DOUBLE;
     static constexpr o3d::Double RATE_UNDEFINED = O3D_MIN_DOUBLE;
     static constexpr o3d::Int8 FLAG_UNDEFINED = -1;
     static constexpr o3d::Int8 VALUE_UNDEFINED = -1;
@@ -106,7 +107,9 @@ public:
         filled(QUANTITY_UNDEFINED),
         cumulativeFilled(QUANTITY_UNDEFINED),
         quoteTransacted(QUANTITY_UNDEFINED),
-        commissionAmount(QUANTITY_UNDEFINED)
+        commissionAmount(FEE_UNDEFINED),
+        cumulativeCommissionAmount(FEE_UNDEFINED),
+        maker(VALUE_UNDEFINED)
     {
     }
 
@@ -136,8 +139,10 @@ public:
         filled = QUANTITY_UNDEFINED;
         cumulativeFilled = QUANTITY_UNDEFINED;
         quoteTransacted = QUANTITY_UNDEFINED;
-        commissionAmount = QUANTITY_UNDEFINED;
+        commissionAmount = FEE_UNDEFINED;
+        cumulativeCommissionAmount = FEE_UNDEFINED;
         commissionAsset = "";
+        maker = VALUE_UNDEFINED;
     }
 
     inline void defineFlag(o3d::Int8 v) { flags = flags < 0 ? v : flags | v; }
@@ -192,7 +197,10 @@ public:
     o3d::Double quoteTransacted;
 
     o3d::Double commissionAmount;
+    o3d::Double cumulativeCommissionAmount;
     o3d::CString commissionAsset;
+
+    o3d::Int8 maker;        //!< maker or taker fee (-1 if not defined)
 };
 
 } // namespace siis

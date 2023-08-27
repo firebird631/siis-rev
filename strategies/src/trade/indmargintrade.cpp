@@ -405,6 +405,10 @@ o3d::Bool IndMarginTrade::isClosed() const
 
 void IndMarginTrade::orderSignal(const OrderSignal &signal)
 {
+    //
+    // entry
+    //
+
     if ((signal.orderId.isValid() && signal.orderId == m_entry.orderId) ||
         (signal.refId.isValid() && signal.refId == m_entry.refId)) {
 
@@ -433,44 +437,96 @@ void IndMarginTrade::orderSignal(const OrderSignal &signal)
         } else if (signal.event == signal.UPDATED) {
             // no supported
         } else if (signal.event == signal.TRADED) {
+            // computed relative qty (because there is a signle entry order no need of a relative variable)
+            o3d::Double filled = 0.0;
+
             if (signal.cumulativeFilled > 0.0) {
-                m_filledEntryQuantity = signal.cumulativeFilled;
+                filled = signal.cumulativeFilled - m_filledEntryQuantity;
             } else if (signal.filled > 0.0) {
-                m_filledEntryQuantity += signal.filled;
+                filled = signal.filled;
             }
 
             if (signal.avgPrice > 0.0) {
+                // in that case we have avg-price already computed
                 m_entryPrice = signal.avgPrice;
             } else if (signal.execPrice > 0.0) {
-                // @todo avg
-                m_entryPrice = signal.execPrice;
+                // compute the average entry price
+                m_entryPrice = strategy()->market()->adjustPrice((m_entryPrice * m_filledEntryQuantity +
+                    signal.execPrice * filled) / (m_filledEntryQuantity + filled));
+            } else {
+                m_entryPrice = m_orderPrice;
             }
 
-            if (m_stats.firstRealizedEntryTimestamp <= 0.0) {
-                m_stats.firstRealizedEntryTimestamp = signal.executed;
+            // cumulative filled entry qty
+            if (signal.cumulativeFilled > 0.0) {
+                m_filledEntryQuantity = signal.cumulativeFilled;
+            } else if (filled > 0.0) {
+                m_filledEntryQuantity = strategy()->market()->adjustQty(m_filledEntryQuantity + filled);
             }
-            m_stats.lastRealizedEntryTimestamp = signal.executed;
 
+            if (filled > 0.0) {
+                // probably need to update exit orders
+                m_dirty = true;
+
+                // update notional value of the position
+                m_stats.notionalValue = strategy()->market()->effectiveCost(m_filledEntryQuantity, m_entryPrice);
+            }
+
+            // realized fees : in cumulated or compute from filled quantity and trade execution
+            if (signal.cumulativeCommissionAmount != signal.FEE_UNDEFINED &&
+                signal.cumulativeCommissionAmount != 0.0 &&
+                signal.cumulativeCommissionAmount != m_stats.entryFees) {
+
+                m_stats.entryFees = signal.cumulativeCommissionAmount;
+
+            } else if (signal.commissionAmount != signal.FEE_UNDEFINED && signal.commissionAmount != 0.0) {
+                m_stats.entryFees += signal.commissionAmount;
+
+            } else if (filled > 0.0) {
+                // update entry fees
+                o3d::Bool maker = signal.maker > 0;
+
+                if (signal.maker < 0) {
+                    // no information, try to detect it
+                    if (m_stats.entryOrderType == Order::ORDER_LIMIT) {
+                        // @todo only if execution price is equal or better, then order price (depends on direction)
+                        // or if post-only
+                        maker = true;
+                    } else {
+                        maker = false;
+                    }
+                }
+
+                // recompute entry-fees proportionate to notional-value
+                m_stats.entryFees = m_stats.notionalValue * (maker ? strategy()->market()->makerFee().rate :
+                                                                 strategy()->market()->takerFee().rate);
+
+                // plus the initial commission fee
+                m_stats.entryFees += maker ? strategy()->market()->makerFee().commission :
+                                         strategy()->market()->takerFee().commission;
+            }
+
+            // state
             if (m_filledEntryQuantity >= m_orderQuantity || signal.completed) {
                 m_entry.state = STATE_FILLED;
+
+                // bitmex does not send ORDER_DELETED signal, cleanup here
+                m_entry.clear();
             } else {
                 m_entry.state = STATE_PARTIALLY_FILLED;
             }
 
-            // update entry fees
-            o3d::Bool maker = false;  // signal.maker == 1
-
-            if (1) {  // signal.maker < 0) {
-                // no information, try to detect it
-                if (m_stats.entryOrderType == Order::ORDER_LIMIT) {
-                    // @todo only if execution price is equal or better, then order price (depends on direction)
-                    maker = true;
-                }
+            // stats
+            if (m_stats.firstRealizedEntryTimestamp <= 0.0) {
+                m_stats.firstRealizedEntryTimestamp = signal.executed;
             }
-
-            m_stats.entryFees = (maker ? strategy()->market()->makerFee().rate : strategy()->market()->takerFee().rate) * (
-                                    m_entryPrice * m_filledEntryQuantity);
+            m_stats.lastRealizedEntryTimestamp = signal.executed;
         }
+
+    //
+    // limit
+    //
+
     } else if ((signal.orderId.isValid() && signal.orderId == m_limit.orderId) ||
         (signal.refId.isValid() && signal.refId == m_limit.refId)) {
 
@@ -545,6 +601,11 @@ void IndMarginTrade::orderSignal(const OrderSignal &signal)
             m_stats.exitFees = (maker ? strategy()->market()->makerFee().rate : strategy()->market()->takerFee().rate) * (
                                     m_exitPrice * m_filledExitQuantity);
         }
+
+    //
+    // stop
+    //
+
     } else if ((signal.orderId.isValid() && signal.orderId == m_stop.orderId) ||
         (signal.refId.isValid() && signal.refId == m_stop.refId)) {
 

@@ -172,9 +172,9 @@ void ConnectorMessageOrderSignal::initSizeReturn()
 	ConnectorMessageCore::initSizeReturn();
 
 	// event, ...
-    m_size_return += static_cast<o3d::Int32>(sizeof(o3d::Int8)) * 5;
+    m_size_return += static_cast<o3d::Int32>(sizeof(o3d::Int8)) * 6;
 	// timestamp, ..
-    m_size_return += static_cast<o3d::Int32>(sizeof(o3d::Double)) * 13;
+    m_size_return += static_cast<o3d::Int32>(sizeof(o3d::Double)) * 14;
 	// string, ...
     m_size_return += static_cast<o3d::Int32>(sizeof(o3d::Int32)) * 7;
 }
@@ -183,7 +183,7 @@ void ConnectorMessageOrderSignal::read(zmq::message_t *message)
 {
 	ConnectorMessageCore::read(message);
 
-//	o3d::deletePtr(m_signal);
+    // o3d::deletePtr(m_signal);
 	OrderSignal::Event event = static_cast<OrderSignal::Event>(readInt8());
 	m_signal = new OrderSignal(event);
 
@@ -221,7 +221,10 @@ void ConnectorMessageOrderSignal::read(zmq::message_t *message)
 	m_signal->quoteTransacted = readDouble();
 
 	m_signal->commissionAmount = readDouble();
+    m_signal->cumulativeCommissionAmount = readDouble();
     m_signal->commissionAsset = readCString();
+
+    m_signal->maker = readInt8();
 }
 
 ///////////////////////////////////////////////////////////////////
