@@ -40,12 +40,12 @@ void MarginTrade::init(o3d::Double timeframe)
 
 o3d::Bool MarginTrade::hasStopOrder() const
 {
-    return m_stop.orderId.isValid();
+    return m_stop.hasOrder();
 }
 
 o3d::Bool MarginTrade::hasLimitOrder() const
 {
-    return m_limit.orderId.isValid();
+    return m_limit.hasOrder();
 }
 
 o3d::Bool MarginTrade::supportBothOrder() const

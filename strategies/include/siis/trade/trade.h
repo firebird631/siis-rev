@@ -46,6 +46,8 @@ public:
         REASON_MARKET_TIMEOUT = 8        //!< closed (in profit or in loss) after a timeout
     };
 
+    o3d::Double modifiedTimestamp;
+
     o3d::Double bestPrice;
     o3d::Double bestPriceTimestamp;
 
@@ -73,6 +75,7 @@ public:
     ExitReason exitReason;
 
     TradeStats() :
+        modifiedTimestamp(0.0),
         bestPrice(0.0),
         bestPriceTimestamp(0.0),
         worstPrice(0.0),
@@ -96,6 +99,7 @@ public:
 
     void init()
     {
+        modifiedTimestamp = 0.0;
         bestPrice = 0.0;
         bestPriceTimestamp = 0.0;
         worstPrice = 0.0;
@@ -500,16 +504,12 @@ public:
     o3d::Double deltaPrice() const;
 
     /**
-     * @brief canModifyStopOrder According to time minimal delay between two changes check.
+     * @brief canModify Each call to modify an order related to trade update a timestamp. This timestamp is compared
+     * to current one and a timeout minimal delay to wait between the strategy is allowed to modify again this trade.
+     * Strategy must implement by itself a call to this check else there is no limitation by default.
      * @param timeout Default 10 seconds, must be optimal to avoid API call saturation.
      */
-    virtual o3d::Bool canModifyStopOrder(o3d::Double timeout = 10.0) const;
-
-    /**
-     * @brief canModifyLimitOrder According to time minimal delay between two changes check.
-     * @param timeout Default 10 seconds, must be optimal to avoid API call saturation.
-     */
-    virtual o3d::Bool canModifyLimitOrder(o3d::Double timeout = 10.0) const;
+    o3d::Bool canModify(o3d::Double timeout = 10.0) const;
 
     /**
      * @brief stateToStr Return a string of the state of the trade
@@ -554,16 +554,24 @@ public:
     void removeOperation(o3d::Int32 id);
 
     /**
+     * @brief operations List all pending/peristants operations (const version)
+     */
+    const std::list<TradeOperation*>& operations() const { return m_operations; }
+
+    /**
      * @brief operations List all pending/peristants operations
      */
-    // const std::list<TradeOperation*> operations() const { return m_operations; }
+    std::list<TradeOperation*>& operations() { return m_operations; }
 
     /**
      * @brief cleanupOperations Regenerate the list of operations by removing the finished operations.
      */
     void cleanupOperations();
 
-    // o3d::Bool hasOperations() { return !m_operations.empty(); }
+    /**
+     * @brief hasOperations True if ther is some pending or not fully completed operation on this trade.
+     */
+    o3d::Bool hasOperations() { return !m_operations.empty(); }
 
 protected:
 
@@ -601,8 +609,9 @@ protected:
 
     o3d::Double m_profitLossRate;
 
-    // std::list<TradeOperation> m_operations;
-    TradeStats m_stats;
+    TradeStats m_stats;            //!< extra information usefull for management and reporting
+
+    std::list<TradeOperation*> m_operations;   //!< optional list of trading operation (like step-stop-loss)
 };
 
 } // namespace siis

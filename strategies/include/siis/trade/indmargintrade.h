@@ -115,20 +115,20 @@ private:
         o3d::CString orderId;
         o3d::CString refId;
 
-        o3d::Double executed = 0.0;   //!< executed timestamp
+        o3d::Double execQty = 0.0;   //!< executed qty
 
         void reset() {
             state = STATE_UNDEFINED;
             orderId = "";
             refId = "";
-            executed = 0.0;
+            execQty = 0.0;
         }
 
         void clear() {
             // reset any values except the state
             orderId = "";
             refId = "";
-            executed = 0.0;
+            execQty = 0.0;
         }
 
         inline o3d::Bool hasOrder() const {

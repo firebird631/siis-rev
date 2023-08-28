@@ -45,6 +45,11 @@ Prioritaire
 Secondaire
 ==========
 
+- ajouter trade operation (step stop loss)
+- ajouter trading region (range, channel)
+
+- trade loads/dumps
+
 - tout comme la version Python mettre un timestamp sur les modification des trades (sl/tp) pour éviter de saturer
   l'API en cas de call successifs
 
@@ -125,6 +130,3 @@ Pas important
   - open, close, remove, modify tp, modify sl, order events, position events
 
 - learning / trainer / optimizer
-
-- stdtrademanager : pourrait avoir deux hashmap orderId et orderRefId pour retrouver plus rapidement le trade associé
-  - mais demande un insert/remove et de garder les hashmap à jour

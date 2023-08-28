@@ -6,6 +6,7 @@
  */
 
 #include "siis/trade/trade.h"
+#include "siis/trade/tradeoperation.h"
 #include "siis/utils/common.h"
 #include "siis/strategy.h"
 #include "siis/handler.h"
@@ -254,26 +255,24 @@ o3d::Double Trade::deltaPrice() const
     return 0.0;
 }
 
-o3d::Bool Trade::canModifyStopOrder(o3d::Double timeout) const
+o3d::Bool Trade::canModify(o3d::Double timeout) const
 {
-    // @todo
-    return true;
-}
-
-o3d::Bool Trade::canModifyLimitOrder(o3d::Double timeout) const
-{
-    // @todo
     return true;
 }
 
 void Trade::addOperation(TradeOperation *tradeOp)
 {
-
+    m_operations.push_back(tradeOp);
 }
 
 void Trade::removeOperation(o3d::Int32 id)
 {
-
+    for (auto it = m_operations.begin(); it != m_operations.end(); ++it) {
+        if ((*it)->id() == id) {
+            m_operations.erase(it);
+            return;
+        }
+    }
 }
 
 void Trade::updateStats(o3d::Double lastPrice, o3d::Double timestamp)
@@ -311,6 +310,7 @@ void TradeStats::loads()
 
 void TradeStats::dumps() const
 {
+//            'modified-timestamp': modifiedTimestamp
 //            'best-price': 0.0,
 //            'best-timestamp': 0.0,
 //            'worst-price': 0.0,

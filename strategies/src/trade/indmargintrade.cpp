@@ -311,12 +311,12 @@ void IndMarginTrade::close(TradeStats::ExitReason reason)
 
 o3d::Bool IndMarginTrade::hasStopOrder() const
 {
-    return m_stop.orderId.isValid();
+    return m_stop.hasOrder();
 }
 
 o3d::Bool IndMarginTrade::hasLimitOrder() const
 {
-    return m_limit.orderId.isValid();
+    return m_limit.hasOrder();
 }
 
 o3d::Bool IndMarginTrade::supportBothOrder() const
@@ -563,16 +563,16 @@ void IndMarginTrade::orderSignal(const OrderSignal &signal)
 
         } else if (signal.event == signal.TRADED) {
             // qty
-            o3d::Double prevLimitOrderExec = m_limit.executed;
-            o3d::Double filled = _updateExitQty(signal, m_limit.executed);
+            o3d::Double prevLimitOrderExec = m_limit.execQty;
+            o3d::Double filled = _updateExitQty(signal, m_limit.execQty);
 
             // cumulative filled exit qty, update trade qty and order related qty
             if (filled > 0.0) {
-                m_limit.executed = strategy()->market()->adjustQty(m_limit.executed + filled);
+                m_limit.execQty = strategy()->market()->adjustQty(m_limit.execQty + filled);
             }
 
             // fees/commissions
-            o3d::Double filledCommission = _updateExitFeesAndQty(signal, m_limit.fees, m_limit.executed,
+            o3d::Double filledCommission = _updateExitFeesAndQty(signal, m_limit.fees, m_limit.execQty,
                                                                  prevLimitOrderExec, m_stats.takeProfitOrderType);
 
             if (filledCommission != 0.0) {
@@ -583,7 +583,7 @@ void IndMarginTrade::orderSignal(const OrderSignal &signal)
             m_limit.state = _updateExitState(signal);
 
             // order relative executed qty reached ordered qty or completed : reset limit order state
-            if (m_limit.executed >= m_limit.orderedQty || signal.completed) {
+            if (m_limit.execQty >= m_limit.orderedQty || signal.completed) {
                 m_limit.clear();
             }
 
@@ -627,16 +627,16 @@ void IndMarginTrade::orderSignal(const OrderSignal &signal)
 
         } else if (signal.event == signal.TRADED) {
             // qty
-            o3d::Double prevStopOrderExec = m_stop.executed;
-            o3d::Double filled = _updateExitQty(signal, m_stop.executed);
+            o3d::Double prevStopOrderExec = m_stop.execQty;
+            o3d::Double filled = _updateExitQty(signal, m_stop.execQty);
 
             // cumulative filled exit qty, update trade qty and order related qty
             if (filled > 0.0) {
-                m_stop.executed = strategy()->market()->adjustQty(m_stop.executed + filled);
+                m_stop.execQty = strategy()->market()->adjustQty(m_stop.execQty + filled);
             }
 
             // fees/commissions
-            o3d::Double filledCommission = _updateExitFeesAndQty(signal, m_stop.fees, m_stop.executed,
+            o3d::Double filledCommission = _updateExitFeesAndQty(signal, m_stop.fees, m_stop.execQty,
                                                                  prevStopOrderExec, m_stats.stopOrderType);
 
             if (filledCommission != 0.0) {
@@ -647,7 +647,7 @@ void IndMarginTrade::orderSignal(const OrderSignal &signal)
             m_stop.state = _updateExitState(signal);
 
             // order relative executed qty reached ordered qty or completed : reset limit order state
-            if (m_stop.executed >= m_stop.orderedQty || signal.completed) {
+            if (m_stop.execQty >= m_stop.orderedQty || signal.completed) {
                 m_stop.clear();
             }
 

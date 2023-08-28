@@ -24,7 +24,18 @@ class SIIS_API TradeOperation
 {
 public:
 
-    // @todo step stop-loss
+    TradeOperation();
+    virtual ~TradeOperation();
+
+    void setId(o3d::Int32 id) { m_id = id; }
+    o3d::Int32 id() const { return m_id; }
+
+    // @todo step stop-loss operation
+
+protected:
+
+    o3d::Int32 m_id;
+    o3d::Int32 m_type;
 };
 
 } // namespace siis

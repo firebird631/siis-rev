@@ -8,3 +8,15 @@
 #include "siis/trade/tradeoperation.h"
 
 using namespace siis;
+
+TradeOperation::TradeOperation() :
+    m_id(0),
+    m_type(0)
+{
+
+}
+
+TradeOperation::~TradeOperation()
+{
+
+}
