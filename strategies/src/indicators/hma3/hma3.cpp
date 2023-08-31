@@ -48,6 +48,11 @@ void Hma3::setConf(IndicatorConfig conf)
     }
 }
 
+void Hma3::setLength(o3d::Int32 len)
+{
+    m_len = len;
+}
+
 void Hma3::compute(o3d::Double timestamp, const DataArray &price)
 {
     // this version is 2x fast than below

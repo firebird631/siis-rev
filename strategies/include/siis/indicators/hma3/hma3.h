@@ -34,6 +34,8 @@ public:
 
     o3d::Int32 len() const { return m_len; }
 
+    void setLength(o3d::Int32 len);
+
     const DataArray& hma3() const { return m_hma3; }
 
     o3d::Double last() const { return m_last; }

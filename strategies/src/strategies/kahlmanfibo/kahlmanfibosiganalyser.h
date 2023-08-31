@@ -48,6 +48,9 @@ public:
 
 private:
 
+    o3d::Double m_gain;
+    o3d::Bool m_kahlman;
+
     Donchian m_donchian;
 
     Hma m_hma;
@@ -57,6 +60,12 @@ private:
     o3d::Int32 m_sig;
 
     o3d::Int32 m_confirmation;
+
+    DataArray m_kHma;
+    DataArray m_kHma3;
+
+    void kahlmanHma();
+    void kahlmanHma3();
 };
 
 } // namespace siis
