@@ -13,8 +13,12 @@ static Price::Method methodFromString(const o3d::String &method)
 {
     if (method == "CLOSE" || method == "close") {
         return Price::PRICE_CLOSE;
-    } else if (method == "HLC" || method == "hlc") {
+    } else if (method == "OHLC" || method == "ohlc" || method == "OHLC4" || method == "ohlc4") {
+        return Price::PRICE_OHLC;
+    } else if (method == "HLC" || method == "hlc" || method == "HLC3" || method == "hlc3") {
         return Price::PRICE_HLC;
+    } else if (method == "HL" || method == "hl" || method == "HL2"  || method == "hl2") {
+        return Price::PRICE_HL;
     } else {
         return Price::PRICE_CLOSE;
     }
@@ -160,6 +164,33 @@ void Price::compute(const OhlcCircular &ohlc)
             m_close[i] = cur->close();
 
             m_price[i] = (m_open[i] + m_high[i] + m_low[i] + m_close[i]) * forth;
+
+            m_min = o3d::min(m_min, m_price[i]);
+            m_max = o3d::max(m_max, m_price[i]);
+
+            ++i;
+        }
+
+        if (size > 1 && cur && cur->timestamp() > m_lastClosedTimestamp) {
+            m_consolidated = true;
+            m_lastClosedTimestamp = cur->timestamp();
+        }
+    } else if (m_method == PRICE_HL) {
+        // timestamp, timeframe, open, high, low, close, volume, ended
+        o3d::Int32 i = 0;
+        const Ohlc *cur;
+        const o3d::Double half = 0.5;
+
+        for (auto cit = ohlc.cbegin(); cit != ohlc.cend(); ++cit) {
+            cur = *cit;
+
+            m_timestamp[i] = cur->timestamp();
+            m_open[i] = cur->open();
+            m_high[i] = cur->high();
+            m_low[i] = cur->low();
+            m_close[i] = cur->close();
+
+            m_price[i] = (m_high[i] + m_low[i]) * half;
 
             m_min = o3d::min(m_min, m_price[i]);
             m_max = o3d::max(m_max, m_price[i]);

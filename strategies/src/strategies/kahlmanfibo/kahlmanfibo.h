@@ -27,7 +27,6 @@
 
 namespace siis {
 
-class KahlmanFiboTrendAnalyser;
 class KahlmanFiboSigAnalyser;
 class KahlmanFiboConfAnalyser;
 
@@ -71,7 +70,6 @@ private:
     std::vector<Analyser*> m_analysers;
     StdTradeManager *m_tradeManager;
 
-    KahlmanFiboTrendAnalyser *m_trendAnalyser;
     KahlmanFiboSigAnalyser *m_sigAnalyser;
     KahlmanFiboConfAnalyser *m_confAnalyser;
 

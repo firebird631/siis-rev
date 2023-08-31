@@ -157,6 +157,7 @@ include/siis/indicators/ema/ema.h
 include/siis/indicators/hma/hma.h
 include/siis/indicators/hma/hma.h
 include/siis/indicators/hma/hma.h
+include/siis/indicators/hma3/hma3.h
 include/siis/indicators/indicator.h
 include/siis/indicators/indicator.h
 include/siis/indicators/indicator.h
@@ -541,6 +542,7 @@ src/indicators/hma/hma.cpp
 src/indicators/hma/hma.cpp
 src/indicators/hma/hma.cpp
 src/indicators/hma/hma.cpp
+src/indicators/hma3/hma3.cpp
 src/indicators/macd/macd.cpp
 src/indicators/macd/macd.cpp
 src/indicators/macd/macd.cpp
@@ -709,7 +711,6 @@ src/strategies/kahlmanfibo/kahlmanfiboconfanalyser.h
 src/strategies/kahlmanfibo/kahlmanfiboparameters.h
 src/strategies/kahlmanfibo/kahlmanfibosiganalyser.cpp
 src/strategies/kahlmanfibo/kahlmanfibosiganalyser.h
-src/strategies/kahlmanfibo/kahlmanfibotrendanalyser.cpp
 src/strategies/kahlmanfibo/kahlmanfibotrendanalyser.h
 src/strategies/maadx/CMakeLists.txt
 src/strategies/maadx/README

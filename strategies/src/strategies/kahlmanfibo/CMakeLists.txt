@@ -2,7 +2,6 @@ set(LIB_NAME kahlmanfibo)
 
 set(STRATEGY_CXX
     kahlmanfibo.cpp
-    kahlmanfibotrendanalyser.cpp
     kahlmanfiboconfanalyser.cpp
     kahlmanfibosiganalyser.cpp)
 

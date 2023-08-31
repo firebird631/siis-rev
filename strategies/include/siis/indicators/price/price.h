@@ -29,7 +29,8 @@ public:
     enum Method {
         PRICE_CLOSE = 0,  //!< Close only
         PRICE_HLC = 1,    //!< (H+L+C) / 3
-        PRICE_OHLC = 2    //!< (O+H+L+C) / 4
+        PRICE_OHLC = 2,    //!< (O+H+L+C) / 4
+        PRICE_HL = 3      //!< (H+L) / 2
     };
 
     Price(const o3d::String &name, o3d::Double timeframe, Method method=PRICE_CLOSE);

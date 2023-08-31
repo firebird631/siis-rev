@@ -71,6 +71,7 @@ set(STRATEGY_LIB_CXX
     indicators/dmi/dmi.cpp
     indicators/ema/ema.cpp
     indicators/hma/hma.cpp
+    indicators/hma3/hma3.cpp
     indicators/macd/macd.cpp
     indicators/mama/mama.cpp
     indicators/mmt/mmt.cpp
