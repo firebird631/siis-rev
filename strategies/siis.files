@@ -704,6 +704,7 @@ src/strategies/indicealpha/iaparameters.h
 src/strategies/indicealpha/indicealpha.cpp
 src/strategies/indicealpha/indicealpha.h
 src/strategies/kahlmanfibo/CMakeLists.txt
+src/strategies/kahlmanfibo/README
 src/strategies/kahlmanfibo/kahlmanfibo.cpp
 src/strategies/kahlmanfibo/kahlmanfibo.h
 src/strategies/kahlmanfibo/kahlmanfiboconfanalyser.cpp

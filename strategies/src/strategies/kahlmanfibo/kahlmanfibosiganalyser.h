@@ -51,6 +51,8 @@ private:
     o3d::Double m_gain;
     o3d::Bool m_kahlman;
 
+    o3d::Double m_trendTimestamp;   //!< timestamp when the trend changes occured
+
     Donchian m_donchian;
 
     Hma m_hma;
@@ -59,6 +61,8 @@ private:
     o3d::Int32 m_trend;
     o3d::Int32 m_sig;
 
+    o3d::Int32 m_dfTrend;  //!< donchian + fibo trend (0 mean range)
+
     o3d::Int32 m_confirmation;
 
     DataArray m_kHma;
@@ -66,6 +70,8 @@ private:
 
     void kahlmanHma();
     void kahlmanHma3();
+
+    void donchianFibo();
 };
 
 } // namespace siis
