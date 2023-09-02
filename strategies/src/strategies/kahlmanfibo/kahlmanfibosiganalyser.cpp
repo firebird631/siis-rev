@@ -10,6 +10,7 @@
 #include "siis/config/strategyconfig.h"
 
 #include <o3d/core/math.h>
+#include <cmath>
 
 using namespace siis;
 
@@ -24,6 +25,7 @@ KahlmanFiboSigAnalyser::KahlmanFiboSigAnalyser(
     m_gain(0.7),  // step 0.01 min 0.0001
     m_kahlman(false),
     m_trendTimestamp(0.0),
+    m_sigTimestamp(0.0),
     m_donchian("donchian", timeframe),
     m_hma("hma", timeframe),
     m_hma3("hma3", timeframe),
@@ -83,7 +85,7 @@ TradeSignal KahlmanFiboSigAnalyser::compute(o3d::Double timestamp, o3d::Double l
         o3d::Int32 prevTrend = m_trend;
 
         if (m_kahlman) {
-            // it reduce the lag and then improve matchin with the donchian+fibo based signal
+            // it reduces the lag and then improve matching with the donchian+fibo based signal
             kahlmanHma();
             kahlmanHma3();
 
@@ -122,7 +124,7 @@ TradeSignal KahlmanFiboSigAnalyser::compute(o3d::Double timestamp, o3d::Double l
         }
 
         // donchian fibo testing
-        donchianFibo();
+        donchianFibo(timestamp);
     }
 
     return signal;
@@ -152,17 +154,31 @@ o3d::Double KahlmanFiboSigAnalyser::stopLoss(o3d::Double lossScale, o3d::Double 
 
 void KahlmanFiboSigAnalyser::kahlmanHma()
 {
+    // only interested in compute the last and previous value
     const o3d::Double G2_sqrt = o3d::Math::sqrt(m_gain*2);
 
-    if (m_kHma.getSize() != m_hma.hma().getSize()) {
-        m_kHma.setSize(m_hma.hma().getSize());
-    }
-
     // on a donc les DataArray : kf, nz(kf[1], x), dk, dk*G2_sqrt, velo => m_kHma
+//    if (m_kHma.getSize() != m_hma.hma().getSize()) {
+//        m_kHma.setSize(m_hma.hma().getSize());
+//        m_kHma3.setSize(m_hma.hma().getSize());
+//    }
 
-    // @todo
-    //    kf = 0.0   // array size hma a 0
-    //    dk = m_hma.hma() - nz(kf[1], x)    // nz set kf[n-1], a la valeur de x[n] si x[n] > 0
+    const size_t LAST = 1;
+    const size_t PREV = 0;
+
+    o3d::Double kf[2] = {0.0, 0.0};
+    o3d::Double nzKf[2] = {0.0, 0.0};
+    o3d::Double dk[2] = {0.0, 0.0};
+    o3d::Double smooth[2] = {0.0, 0.0};
+    o3d::Double kfG[2] = {0.0, 0.0};
+    o3d::Double velo[2] = {0.0, 0.0};
+
+    dk[PREV] = m_hma.prev() - price().prev();
+    dk[LAST] = m_hma.last() - std::isnan(dk[PREV]) ? price().last() : dk[PREV];
+
+    // kahlman(g, x) ->
+    //    kf = 0.0   // array size hma at 0
+    //    dk = m_hma.hma() - nz(kf[1], x)
     //    smooth = nz(kf[1],x)+dk*sqrt(m_gain*2)  // on a encore le meme terme,
     //    velo = 0.0
     //    velo := nz(velo[1],0) + (m_gain*dk)
@@ -189,7 +205,7 @@ void KahlmanFiboSigAnalyser::kahlmanHma3()
     //    m_kHma3 := smooth+velo
 }
 
-void KahlmanFiboSigAnalyser::donchianFibo()
+void KahlmanFiboSigAnalyser::donchianFibo(o3d::Double timestamp)
 {
     const size_t LAST = 1;
     const size_t PREV = 0;
@@ -213,48 +229,48 @@ void KahlmanFiboSigAnalyser::donchianFibo()
 
     // highest fib
     hiFib[PREV] = (m_donchian.prevUpper() - dist[PREV]) * 0.236;
-    hiFib[LAST] = (m_donchian.prevUpper() - dist[LAST]) * 0.236;
+    hiFib[LAST] = (m_donchian.lastUpper() - dist[LAST]) * 0.236;
 
     // center high fib
     // centerHiFib[PREV] = (m_donchian.prevUpper() - dist[PREV]) * 0.382;
-    // centerHiFib[LAST] = (m_donchian.prevUpper() - dist[LAST]) * 0.382;
+    // centerHiFib[LAST] = (m_donchian.lastUpper() - dist[LAST]) * 0.382;
 
     // center low fib
     // centerLoFib[PREV] = (m_donchian.prevUpper() - dist[PREV]) * 0.618;
-    // centerLoFib[LAST] = (m_donchian.prevUpper() - dist[LAST]) * 0.618;
+    // centerLoFib[LAST] = (m_donchian.lastUpper() - dist[LAST]) * 0.618;
 
     // lowest fib
     loFib[PREV] = (m_donchian.prevUpper() - dist[PREV]) * 0.764;
-    loFib[LAST] = (m_donchian.prevUpper() - dist[LAST]) * 0.764;
+    loFib[LAST] = (m_donchian.lastUpper() - dist[LAST]) * 0.764;
 
-    // close cross over hi fib level : market enters up trend
+    // close cross over hi fib level : market enters uptrend
     o3d::Bool evUpIn = false;
     if (price().close().prev() < hiFib[PREV] && price().close().last() > hiFib[LAST]) {
         evUpIn = true;
     }
 
-    // close cross under hi fib level : market leaves up trend
+    // close cross under hi fib level : market leaves uptrend
     o3d::Int32 evUpOut = false;
     if (price().close().prev() > hiFib[PREV] && price().close().last() < hiFib[LAST]) {
         evUpOut = true;
     }
 
-    // market enters down trend
+    // market enters down-trend
     o3d::Bool evDnIn = false;
     if (price().close().prev() > loFib[PREV] && price().close().last() < loFib[LAST]) {
         evDnIn = true;
     }
 
-    // market leaves down trend
+    // market leaves down-trend
     o3d::Bool evDnOut = false;
     if (price().close().prev() < loFib[PREV] && price().close().last() > loFib[LAST]) {
         evDnOut = true;
     }
 
-    // mean up trend
     o3d::Int32 upTrend = false;
     o3d::Int32 dnTrend = false;
 
+    // mean up trend
     if (evUpIn && !evUpOut) {
         upTrend = true;
         m_dfTrend = 1;
@@ -275,11 +291,58 @@ void KahlmanFiboSigAnalyser::donchianFibo()
     // evDnOut -> green cross -> buy
     if (evUpOut) {
         m_sig = -1;
+        m_sigTimestamp = timestamp;
         printf("donchian fibo short\n");
     } else if (evDnOut) {
         m_sig = 1;
+        m_sigTimestamp = timestamp;
         printf("donchian fibo long\n");
     } else {
         m_sig = 0;
     }
+}
+
+KahlmanFiboSigAnalyser::KahlmanFilter::KahlmanFilter(o3d::Int32 len, o3d::Double gain) :
+    m_len(len),
+    m_gain(gain),
+    m_g2Sqrt(0.0),
+    m_prev(0.0),
+    m_last(0.0),
+    m_lastTimestamp(0.0)
+{
+    m_gain = gain;
+    m_g2Sqrt = o3d::Math::sqrt(gain*2.0);
+
+    resize(len);
+}
+
+void KahlmanFiboSigAnalyser::KahlmanFilter::resize(o3d::Int32 len)
+{
+    if (len != m_kf.getSize()) {
+        m_len = len;
+
+        m_kf.setSize(len);
+        m_dk.setSize(len);
+        m_smooth.setSize(len);
+        m_velo.setSize(len);
+    }
+}
+
+void KahlmanFiboSigAnalyser::KahlmanFilter::compute(o3d::Double timestamp, const DataArray &price)
+{
+    m_prev = m_last;
+
+    if (m_len != price.getSize()) {
+        resize(price.getSize());
+    }
+
+    for (o3d::Int32 i = 0; i < m_len; ++i) {
+        m_dk[i] = price[i] - (i == 0 || std::isnan(m_kf[i-1]) ? price[i] : m_kf[i-1]);
+        m_smooth[i] = (i == 0 || std::isnan(m_kf[i-1]) ? price[i] : m_kf[i-1]) + m_dk[i] * m_g2Sqrt;
+        m_velo[i] = (i == 0 || std::isnan(m_velo[i-1]) ? 0.0 : m_velo[i-1]) + (m_gain * m_dk[i]);
+        m_kf[i] = m_smooth[i] + m_velo[i];
+    }
+
+    m_last = m_kf.last();
+    m_lastTimestamp = timestamp;
 }

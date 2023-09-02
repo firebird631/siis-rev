@@ -48,10 +48,44 @@ public:
 
 private:
 
+    class KahlmanFilter
+    {
+    public:
+
+        KahlmanFilter(o3d::Int32 len, o3d::Double gain = 0.7);
+
+        void resize(o3d::Int32 len);
+        void compute(o3d::Double timestamp, const DataArray &price);
+
+        o3d::Int32 len() const { return m_len; }
+
+        const DataArray& kf() const { return m_kf; }
+
+        o3d::Double prev() const { return m_prev; }
+        o3d::Double last() const { return m_last; }
+
+    private:
+
+        o3d::Int32 m_len;
+        o3d::Double m_gain;
+        o3d::Double m_g2Sqrt;
+
+        DataArray m_kf;
+        DataArray m_dk;
+        DataArray m_smooth;
+        DataArray m_velo;
+
+        o3d::Double m_prev;
+        o3d::Double m_last;
+
+        o3d::Double m_lastTimestamp;  //!< last compute timestamp
+    };
+
     o3d::Double m_gain;
     o3d::Bool m_kahlman;
 
     o3d::Double m_trendTimestamp;   //!< timestamp when the trend changes occured
+    o3d::Double m_sigTimestamp;     //!< timestamp when a long/short sig occured
 
     Donchian m_donchian;
 
@@ -71,7 +105,7 @@ private:
     void kahlmanHma();
     void kahlmanHma3();
 
-    void donchianFibo();
+    void donchianFibo(o3d::Double timestamp);
 };
 
 } // namespace siis

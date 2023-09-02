@@ -46,8 +46,8 @@ static const char* KahlmanFiboParameters = R"JSON(
             "timeframe": "5m",
             "sub-timeframe": "1m",
             "mode": "sig",
-            "depth": 30,
-            "history": 30,
+            "depth": 50,
+            "history": 50,
             "indicators": {
                 "price": {"method": "HL"},
                 "donchian": {"len": 24},
