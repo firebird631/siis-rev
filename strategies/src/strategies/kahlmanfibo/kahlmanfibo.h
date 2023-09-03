@@ -82,7 +82,11 @@ private:
 
     o3d::Double m_targetScale;
     o3d::Double m_riskReward;
-    o3d::Double m_minProfit;
+    o3d::Double m_minProfit;     //!< should be per context
+    o3d::Bool m_useKahlman;
+
+    o3d::Int32 m_maxWide;   //!< should be per context
+    o3d::Bool m_oneWay;     //!< should be per context
 
     Entry m_entry;
     StopLoss m_stopLoss;

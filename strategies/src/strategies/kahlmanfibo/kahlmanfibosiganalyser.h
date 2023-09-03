@@ -41,6 +41,8 @@ public:
     virtual void terminate() override;
     virtual TradeSignal compute(o3d::Double timestamp, o3d::Double lastTimestamp) override;
 
+    void setUseKahlman(o3d::Bool use);
+
     inline o3d::Int32 sig() const { return m_sig; }
     inline o3d::Int32 sigTimestamp() const { return m_sigTimestamp; }
 

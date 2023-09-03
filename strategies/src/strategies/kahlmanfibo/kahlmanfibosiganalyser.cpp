@@ -130,6 +130,11 @@ TradeSignal KahlmanFiboSigAnalyser::compute(o3d::Double timestamp, o3d::Double l
     return signal;
 }
 
+void KahlmanFiboSigAnalyser::setUseKahlman(o3d::Bool use)
+{
+    m_kahlman = use;
+}
+
 o3d::Double KahlmanFiboSigAnalyser::takeProfit(o3d::Double profitScale) const
 {
 //    if (m_trend > 0) {

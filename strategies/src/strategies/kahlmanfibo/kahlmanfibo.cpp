@@ -45,7 +45,10 @@ KahlmanFibo::KahlmanFibo(Handler *handler, const o3d::String &identifier) :
     m_lastSignal(0, 0),
     m_targetScale(1.0),
     m_riskReward(1.0),
-    m_minProfit(0.0)
+    m_minProfit(0.0),
+    m_useKahlman(false),
+    m_maxWide(5),
+    m_oneWay(false)
 {
 
 }
@@ -74,6 +77,8 @@ void KahlmanFibo::init(Config *config)
 
     initBasicsParameters(conf);
 
+    m_useKahlman = conf.root().get("kahlman", false).asBool();
+
     if (conf.root().isMember("timeframes")) {
         Json::Value timeframes = conf.root().get("timeframes", Json::Value());
         for (auto it = timeframes.begin(); it != timeframes.end(); ++it) {
@@ -97,6 +102,7 @@ void KahlmanFibo::init(Config *config)
 
                 m_analysers.push_back(a);
                 m_sigAnalyser = static_cast<KahlmanFiboSigAnalyser*>(a);
+                m_sigAnalyser->setUseKahlman(m_useKahlman);
             } else if (mode == "conf") {
                 Analyser *a = new KahlmanFiboConfAnalyser(this, tf, subTf, depth, history, Price::PRICE_CLOSE);
                 a->init(AnalyserConfig(timeframe));
@@ -121,6 +127,10 @@ void KahlmanFibo::init(Config *config)
             // sig
             if (context.isMember("sig")) {
                 Json::Value sig = context.get("sig", Json::Value());
+
+                // might be for the context
+                m_maxWide = sig.get("max-wide", 5).asInt();
+                m_oneWay = sig.get("one-way", false).asBool();
             }
 
             // conf
@@ -388,8 +398,21 @@ TradeSignal KahlmanFibo::computeSignal(o3d::Double timestamp)
         m_lastTrendTimestamp = m_sigAnalyser->trendTimestamp();
     }
 
+    if (m_oneWay) {
+        // allow only a signal after trend started else bi-way
+        if (m_lastSig != 0 and m_lastSig == m_lastTrend) {
+            if (m_lastSigTimestamp < m_lastTrendTimestamp) {
+                if (m_lastTrendTimestamp - m_lastSigTimestamp >= m_sigAnalyser->timeframe()) {
+                    // reset sig only but keep trend
+                    m_lastSig = 0;
+                    m_lastSigTimestamp = 0.0;
+                }
+            }
+        }
+    }
+
     // reset if not converge quickly
-    if (o3d::abs(m_lastTrendTimestamp - m_lastSigTimestamp) < 5 * m_sigAnalyser->timeframe()) {
+    if (o3d::abs(m_lastTrendTimestamp - m_lastSigTimestamp) < m_maxWide * m_sigAnalyser->timeframe()) {
         if (m_lastSig != 0 && m_lastSig == m_lastTrend) {
             if (m_lastSig > 0) {
                 if (m_confAnalyser->confirmation() > 0) {

@@ -25,13 +25,14 @@ static const char* KahlmanFiboParameters = R"JSON(
     "trade-delay": 30,
     "need-update": false,
     "trade-type": "ind-margin",
+    "kahlman": false,
     "contexts": {
         "kf-5m-1m": {
             "mode": "trade",
             "method": "standard",
             "max-trades": 3,
             "min-profit": 0.5,
-            "sig": {"type": "hma+donchian", "timeframe": "5m"},
+            "sig": {"type": "hma+donchian", "timeframe": "5m", "max-wide": 5, "one-way": false},
             "confirm": {"type": "candle", "timeframe": "1m", "risk-reward": 1.0, "target-scale": 10.0},
             "entry": {"type": "last", "timeframe": "5m", "depth": 1, "orientation": "up", "timeout": "1h"},
             "take-profit": {"type": "fixed-pct", "distance": "1.25%", "timeframe": "5m", "depth": 1, "orientation": "up"},
