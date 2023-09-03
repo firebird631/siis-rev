@@ -32,7 +32,9 @@ KahlmanFiboSigAnalyser::KahlmanFiboSigAnalyser(
     m_trend(0),
     m_sig(0),
     m_dfTrend(0),
-    m_confirmation(0)
+    m_confirmation(0),
+    m_kHma(22),
+    m_kHma3(11)
 {
 
 }
@@ -45,10 +47,8 @@ KahlmanFiboSigAnalyser::~KahlmanFiboSigAnalyser()
 void KahlmanFiboSigAnalyser::init(AnalyserConfig conf)
 {
     configureIndictor(conf, "hma", m_hma);
+    configureIndictor(conf, "hma3", m_hma3);  // might be half len of hma
     configureIndictor(conf, "donchian", m_donchian);
-
-    // half len of the configured HMA
-    m_hma3.setLength(m_hma.len() / 2);
 
     m_confirmation = 0;
     m_trend = 0;
@@ -86,8 +86,8 @@ TradeSignal KahlmanFiboSigAnalyser::compute(o3d::Double timestamp, o3d::Double l
 
         if (m_kahlman) {
             // it reduces the lag and then improve matching with the donchian+fibo based signal
-            kahlmanHma();
-            kahlmanHma3();
+            m_kHma.compute(timestamp, m_hma.hma());
+            m_kHma3.compute(timestamp, m_hma3.hma3());
 
             m_trend = m_kHma3.last() > m_kHma.last() ? 1 : -1;
 
@@ -152,59 +152,6 @@ o3d::Double KahlmanFiboSigAnalyser::stopLoss(o3d::Double lossScale, o3d::Double 
     return 0.0;
 }
 
-void KahlmanFiboSigAnalyser::kahlmanHma()
-{
-    // only interested in compute the last and previous value
-    const o3d::Double G2_sqrt = o3d::Math::sqrt(m_gain*2);
-
-    // on a donc les DataArray : kf, nz(kf[1], x), dk, dk*G2_sqrt, velo => m_kHma
-//    if (m_kHma.getSize() != m_hma.hma().getSize()) {
-//        m_kHma.setSize(m_hma.hma().getSize());
-//        m_kHma3.setSize(m_hma.hma().getSize());
-//    }
-
-    const size_t LAST = 1;
-    const size_t PREV = 0;
-
-    o3d::Double kf[2] = {0.0, 0.0};
-    o3d::Double nzKf[2] = {0.0, 0.0};
-    o3d::Double dk[2] = {0.0, 0.0};
-    o3d::Double smooth[2] = {0.0, 0.0};
-    o3d::Double kfG[2] = {0.0, 0.0};
-    o3d::Double velo[2] = {0.0, 0.0};
-
-    dk[PREV] = m_hma.prev() - price().prev();
-    dk[LAST] = m_hma.last() - std::isnan(dk[PREV]) ? price().last() : dk[PREV];
-
-    // kahlman(g, x) ->
-    //    kf = 0.0   // array size hma at 0
-    //    dk = m_hma.hma() - nz(kf[1], x)
-    //    smooth = nz(kf[1],x)+dk*sqrt(m_gain*2)  // on a encore le meme terme,
-    //    velo = 0.0
-    //    velo := nz(velo[1],0) + (m_gain*dk)
-    //    m_kHma := smooth+velo
-}
-
-void KahlmanFiboSigAnalyser::kahlmanHma3()
-{
-    const o3d::Double G2_sqrt = o3d::Math::sqrt(m_gain*2);
-
-    if (m_kHma3.getSize() != m_hma3.hma3().getSize()) {
-        m_kHma3.setSize(m_hma3.hma3().getSize());
-    }
-
-    // on a donc les DataArray : kf, nz(kf[1], x), dk, dk*G2_sqrt, velo => m_kHma3
-    // reuse the temporary data arrays
-
-    // @todo
-    //    kf = 0.0   // array size hma3 a 0
-    //    dk = m_hma.hma() - nz(kf[1], x)    // nz set kf[n-1], a la valeur de x[n] si x[n] > 0
-    //    smooth = nz(kf[1],x)+dk*sqrt(m_gain*2)  // on a encore le meme terme,
-    //    velo = 0.0   // array size hma3 a 0
-    //    velo := nz(velo[1],0) + (m_gain*dk)
-    //    m_kHma3 := smooth+velo
-}
-
 void KahlmanFiboSigAnalyser::donchianFibo(o3d::Double timestamp)
 {
     const size_t LAST = 1;
@@ -224,24 +171,24 @@ void KahlmanFiboSigAnalyser::donchianFibo(o3d::Double timestamp)
     dist[LAST] = m_donchian.lastUpper() - m_donchian.lastLower();
 
     // median of the channel
-    med[PREV] = (m_donchian.prevUpper() + m_donchian.prevLower()) * 0.5;
-    med[LAST] = (m_donchian.lastUpper() + m_donchian.lastLower()) * 0.5;
+    med[PREV] = m_donchian.prevUpper() + m_donchian.prevLower() * 0.5;
+    med[LAST] = m_donchian.lastUpper() + m_donchian.lastLower() * 0.5;
 
     // highest fib
-    hiFib[PREV] = (m_donchian.prevUpper() - dist[PREV]) * 0.236;
-    hiFib[LAST] = (m_donchian.lastUpper() - dist[LAST]) * 0.236;
+    hiFib[PREV] = m_donchian.prevUpper() - dist[PREV] * 0.236;
+    hiFib[LAST] = m_donchian.lastUpper() - dist[LAST] * 0.236;
 
     // center high fib
-    // centerHiFib[PREV] = (m_donchian.prevUpper() - dist[PREV]) * 0.382;
-    // centerHiFib[LAST] = (m_donchian.lastUpper() - dist[LAST]) * 0.382;
+    // centerHiFib[PREV] = m_donchian.prevUpper() - dist[PREV] * 0.382;
+    // centerHiFib[LAST] = m_donchian.lastUpper() - dist[LAST] * 0.382;
 
     // center low fib
-    // centerLoFib[PREV] = (m_donchian.prevUpper() - dist[PREV]) * 0.618;
-    // centerLoFib[LAST] = (m_donchian.lastUpper() - dist[LAST]) * 0.618;
+    // centerLoFib[PREV] = m_donchian.prevUpper() - dist[PREV] * 0.618;
+    // centerLoFib[LAST] = m_donchian.lastUpper() - dist[LAST] * 0.618;
 
     // lowest fib
-    loFib[PREV] = (m_donchian.prevUpper() - dist[PREV]) * 0.764;
-    loFib[LAST] = (m_donchian.lastUpper() - dist[LAST]) * 0.764;
+    loFib[PREV] = m_donchian.prevUpper() - dist[PREV] * 0.764;
+    loFib[LAST] = m_donchian.lastUpper() - dist[LAST] * 0.764;
 
     // close cross over hi fib level : market enters uptrend
     o3d::Bool evUpIn = false;

@@ -51,7 +51,8 @@ static const char* KahlmanFiboParameters = R"JSON(
             "indicators": {
                 "price": {"method": "HL"},
                 "donchian": {"len": 24},
-                "hma": {"len": 22}
+                "hma": {"len": 22},
+                "hma3": {"len": 11}
             }
         },
         "1min": {

@@ -99,8 +99,8 @@ private:
 
     o3d::Int32 m_confirmation;
 
-    DataArray m_kHma;
-    DataArray m_kHma3;
+    KahlmanFilter m_kHma;
+    KahlmanFilter m_kHma3;
 
     void kahlmanHma();
     void kahlmanHma3();
