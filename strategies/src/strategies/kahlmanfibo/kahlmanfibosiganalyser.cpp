@@ -132,10 +132,16 @@ TradeSignal KahlmanFiboSigAnalyser::compute(o3d::Double timestamp, o3d::Double l
 
 o3d::Double KahlmanFiboSigAnalyser::takeProfit(o3d::Double profitScale) const
 {
+//    if (m_trend > 0) {
+//        return price().close().last() + profitScale * (m_donchian.lastUpper() - m_donchian.lastLower());
+//    } else if (m_trend < 0) {
+//        return price().close().last() - profitScale * (m_donchian.lastUpper() - m_donchian.lastLower());
+//    }
+
     if (m_trend > 0) {
-        return price().close().last() + profitScale * (m_donchian.lastUpper() - m_donchian.lastLower());
+        return m_donchian.lastUpper();
     } else if (m_trend < 0) {
-        return price().close().last() - profitScale * (m_donchian.lastUpper() - m_donchian.lastLower());
+        return m_donchian.lastLower();
     }
 
     return 0.0;
@@ -143,10 +149,16 @@ o3d::Double KahlmanFiboSigAnalyser::takeProfit(o3d::Double profitScale) const
 
 o3d::Double KahlmanFiboSigAnalyser::stopLoss(o3d::Double lossScale, o3d::Double riskReward) const
 {
+//    if (m_trend > 0) {
+//        return price().close().last() - riskReward * lossScale * (m_donchian.lastUpper() - m_donchian.lastLower());
+//    } else if (m_trend < 0) {
+//        return price().close().last() + riskReward * lossScale * (m_donchian.lastUpper() - m_donchian.lastLower());
+//    }
+
     if (m_trend > 0) {
-        return price().close().last() - riskReward * lossScale * (m_donchian.lastUpper() - m_donchian.lastLower());
+        return m_donchian.lastLower() - o3d::abs(m_hma.last() - m_hma3.last());
     } else if (m_trend < 0) {
-        return price().close().last() + riskReward * lossScale * (m_donchian.lastUpper() - m_donchian.lastLower());
+        return m_donchian.lastUpper() + o3d::abs(m_hma.last() - m_hma3.last());
     }
 
     return 0.0;
