@@ -149,6 +149,12 @@ o3d::Double KahlmanFiboSigAnalyser::takeProfit(o3d::Double profitScale) const
         return m_donchian.lastLower();
     }
 
+//    if (m_trend > 0) {
+//        return m_donchian.lastUpper() - (m_donchian.lastUpper() - m_donchian.lastLower()) * 0.236;
+//    } else if (m_trend < 0) {
+//        return m_donchian.lastUpper() - (m_donchian.lastUpper() - m_donchian.lastLower()) * 0.764;
+//    }
+
     return 0.0;
 }
 
@@ -161,9 +167,9 @@ o3d::Double KahlmanFiboSigAnalyser::stopLoss(o3d::Double lossScale, o3d::Double 
 //    }
 
     if (m_trend > 0) {
-        return m_donchian.lastLower() - o3d::abs(m_hma.last() - m_hma3.last());
+        return m_donchian.lastLower() - o3d::abs(m_hma.last() - m_hma3.last()) * lossScale;
     } else if (m_trend < 0) {
-        return m_donchian.lastUpper() + o3d::abs(m_hma.last() - m_hma3.last());
+        return m_donchian.lastUpper() + o3d::abs(m_hma.last() - m_hma3.last()) * lossScale;
     }
 
     return 0.0;
