@@ -73,6 +73,11 @@ private:
     KahlmanFiboSigAnalyser *m_sigAnalyser;
     KahlmanFiboConfAnalyser *m_confAnalyser;
 
+    o3d::Double m_lastSig;
+    o3d::Double m_lastSigTimestamp;
+    o3d::Double m_lastTrend;
+    o3d::Double m_lastTrendTimestamp;
+
     TradeSignal m_lastSignal;
 
     o3d::Double m_targetScale;
@@ -94,7 +99,7 @@ private:
 
     void orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price);
 
-    TradeSignal computeSignal(o3d::Double timestamp) const;
+    TradeSignal computeSignal(o3d::Double timestamp);
 };
 
 } // namespace siis

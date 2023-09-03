@@ -42,6 +42,10 @@ public:
     virtual TradeSignal compute(o3d::Double timestamp, o3d::Double lastTimestamp) override;
 
     inline o3d::Int32 sig() const { return m_sig; }
+    inline o3d::Int32 sigTimestamp() const { return m_sigTimestamp; }
+
+    inline o3d::Int32 trend() const { return m_trend; }
+    inline o3d::Int32 trendTimestamp() const { return m_trendTimestamp; }
 
     o3d::Double takeProfit(o3d::Double profitScale) const;
     o3d::Double stopLoss(o3d::Double lossScale, o3d::Double riskReward) const;

@@ -23,7 +23,7 @@ KahlmanFiboSigAnalyser::KahlmanFiboSigAnalyser(
             Price::Method priceMethod) :
     StdAnalyser(strategy, timeframe, subTimeframe, depth, history, priceMethod),
     m_gain(0.7),  // step 0.01 min 0.0001
-    m_kahlman(false),
+    m_kahlman(true),
     m_trendTimestamp(0.0),
     m_sigTimestamp(0.0),
     m_donchian("donchian", timeframe),
@@ -239,11 +239,11 @@ void KahlmanFiboSigAnalyser::donchianFibo(o3d::Double timestamp)
     if (evUpOut) {
         m_sig = -1;
         m_sigTimestamp = timestamp;
-        printf("donchian fibo short\n");
+        // printf("donchian fibo short\n");
     } else if (evDnOut) {
         m_sig = 1;
         m_sigTimestamp = timestamp;
-        printf("donchian fibo long\n");
+        // printf("donchian fibo long\n");
     } else {
         m_sig = 0;
     }

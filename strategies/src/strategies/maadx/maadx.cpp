@@ -386,7 +386,7 @@ void MaAdx::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price)
     }
 }
 
-TradeSignal MaAdx::computeSignal(o3d::Double timestamp) const
+TradeSignal MaAdx::computeSignal(o3d::Double timestamp)
 {
     TradeSignal signal(m_sigAnalyser->timeframe(), timestamp);
 

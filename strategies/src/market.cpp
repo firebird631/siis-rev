@@ -33,7 +33,9 @@ Market::Market(const o3d::CString &marketId,
     m_priceFilter(),
     m_qtyFilter(),
     m_notionalFilter(),
-    m_ticks(512)
+    m_ticks(512),
+    m_timezone(0.0),
+    m_sessionOffset(0.0)
 {
     m_base.symbol = baseSymbol;
     m_quote.symbol = quoteSymbol;
@@ -256,6 +258,26 @@ void Market::setMarginFactor(o3d::Double marginFactor)
     if (marginFactor > 0) {
         m_marginFactor = marginFactor;
     }
+}
+
+void Market::setTimezone(o3d::Double tz)
+{
+    m_timezone = tz;
+}
+
+void Market::setSessionOffset(o3d::Double offset)
+{
+    m_sessionOffset = offset;
+}
+
+void Market::addTradingSession(o3d::Int8 dayOfWeek, o3d::Double fromTime, o3d::Double toTime)
+{
+    TradingSession tradeingSession;
+    tradeingSession.dayOfWeek = dayOfWeek;
+    tradeingSession.fromTime = fromTime;
+    tradeingSession.toTime = toTime;
+
+    m_tradingSessions.push_back(tradeingSession);
 }
 
 o3d::Double Market::adjustPrice(o3d::Double price) const
@@ -524,4 +546,3 @@ o3d::Double Market::computePnl(o3d::Double qty, o3d::Int32 direction,
         return qty * (m_lotSize * m_contractSize) * direction * (lastPrice - initialPrice);
     }
 }
-

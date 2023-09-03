@@ -10,6 +10,7 @@
 
 #include "base.h"
 #include "constants.h"
+#include "tradingsession.h"
 
 #include <cmath>
 
@@ -234,6 +235,27 @@ public:
      */
     o3d::Int32 orderCaps() const { return m_orderCaps; }
 
+    /**
+     * @brief timezone Market timezone.
+     */
+    o3d::Double timezone() const { return m_timezone; }
+
+    /**
+     * @brief sessionOffset Market trading sessions offset.
+     * @return
+     */
+    o3d::Double sessionOffset() const { return m_sessionOffset; }
+
+    /**
+     * @brief hasTradingSessions True if one or more trading sessions are defined.
+     */
+    o3d::Bool hasTradingSessions() const { return m_tradingSessions.size() > 0; }
+
+    /**
+     * @brief tradingSessions Empty vector where each tuple is three values for day of week, hour of day, minute of day.
+     */
+    const std::vector<TradingSession> tradingSessions() const { return m_tradingSessions; }
+
     //
     // setters/update
     //
@@ -282,6 +304,10 @@ public:
     void setNotionalFilter(o3d::Double min, o3d::Double max, o3d::Double step);
 
     void setMarginFactor(o3d::Double marginFactor);
+
+    void setTimezone(o3d::Double tz);
+    void setSessionOffset(o3d::Double offset);
+    void addTradingSession(o3d::Int8 dayOfWeek, o3d::Double fromTime, o3d::Double toTime);
 
     //
     // helpers
@@ -482,6 +508,12 @@ private:
 
     TickArray m_ticks;
     OhlcArray m_ohlcs[Ohlc::NUM_TYPE];  //!< last ohlcs buffers (one per type but single source timeframe)
+
+    o3d::Double m_timezone;        //!< market timezone UTC+N
+    o3d::Double m_sessionOffset;   //!< day session offset from 00:00 in seconds
+
+    //! allowed trading session (empty mean anytime) else must be explicit. each session is a TradingSession model.
+    std::vector<TradingSession> m_tradingSessions;
 };
 
 } // namespace siis

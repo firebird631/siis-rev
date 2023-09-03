@@ -1,6 +1,8 @@
 Urgent
 ======
 
+- trading session depuis config
+- check trading session
 - log rotate ou a minima taille max
 - exit-fee doit être multiplié par le raw PNL
 

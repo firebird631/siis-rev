@@ -99,7 +99,7 @@ private:
 
     void orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price);
 
-    TradeSignal computeSignal(o3d::Double timestamp) const;
+    TradeSignal computeSignal(o3d::Double timestamp);
 };
 
 } // namespace siis

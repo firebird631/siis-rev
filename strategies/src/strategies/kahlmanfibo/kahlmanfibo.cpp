@@ -38,6 +38,10 @@ KahlmanFibo::KahlmanFibo(Handler *handler, const o3d::String &identifier) :
     Strategy(handler, identifier),
     m_sigAnalyser(nullptr),
     m_confAnalyser(nullptr),
+    m_lastSig(0),
+    m_lastSigTimestamp(0.0),
+    m_lastTrend(0),
+    m_lastTrendTimestamp(0.0),
     m_lastSignal(0, 0),
     m_targetScale(1.0),
     m_riskReward(1.0),
@@ -369,13 +373,25 @@ void KahlmanFibo::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double pri
     }
 }
 
-TradeSignal KahlmanFibo::computeSignal(o3d::Double timestamp) const
+TradeSignal KahlmanFibo::computeSignal(o3d::Double timestamp)
 {
     TradeSignal signal(m_sigAnalyser->timeframe(), timestamp);
-/*
-    if (m_trendAnalyser->trend() > 0) {
-        if (m_sigAnalyser->adx() > m_adxSig) {
-            if (m_sigAnalyser->sig() > 0 && m_sigAnalyser->adx() <= ADX_MAX) {
+
+    // sig then trend or trend then sig
+    if (m_sigAnalyser->sig() != 0) {
+        m_lastSig = m_sigAnalyser->sig();
+        m_lastSigTimestamp = m_sigAnalyser->sigTimestamp();
+    }
+
+    if (m_sigAnalyser->trend() != 0) {
+        m_lastTrend = m_sigAnalyser->trend();
+        m_lastTrendTimestamp = m_sigAnalyser->trendTimestamp();
+    }
+
+    // reset if not converge quickly
+    if (o3d::abs(m_lastTrendTimestamp - m_lastSigTimestamp) < 5 * m_sigAnalyser->timeframe()) {
+        if (m_lastSig != 0 && m_lastSig == m_lastTrend) {
+            if (m_lastSig > 0) {
                 if (m_confAnalyser->confirmation() > 0) {
                     // keep only one signal per timeframe
                     if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
@@ -389,11 +405,7 @@ TradeSignal KahlmanFibo::computeSignal(o3d::Double timestamp) const
                         signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_targetScale, m_riskReward));
                     }
                 }
-            }
-        }
-    } else if (m_trendAnalyser->trend() < 0) {
-        if (m_sigAnalyser->adx() > m_adxSig) {
-            if (m_sigAnalyser->sig() < 0 && m_sigAnalyser->adx() <= ADX_MAX) {
+            } else if (m_lastSig < 0) {
                 if (m_confAnalyser->confirmation() < 0) {
                     // keep only one signal per timeframe
                     if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
@@ -409,8 +421,17 @@ TradeSignal KahlmanFibo::computeSignal(o3d::Double timestamp) const
                 }
             }
         }
+    } else {
+        if (m_lastSig != 0 && m_lastSig == m_lastTrend) {
+            // reset
+            m_lastSig = 0;
+            m_lastSigTimestamp = 0.0;
+
+            m_lastTrend = 0;
+            m_lastTrendTimestamp = 0.0;
+        }
     }
-*/
+
     if (signal.valid()) {
         m_stopLoss.updateSignal(signal);
     }

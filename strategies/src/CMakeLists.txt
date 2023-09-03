@@ -12,6 +12,7 @@ set(STRATEGY_LIB_CXX
     position.cpp
     strategy.cpp
     terminal.cpp
+    tradingsession.cpp
     worker.cpp
     analysers/analyser.cpp
     analysers/stdanalyser.cpp

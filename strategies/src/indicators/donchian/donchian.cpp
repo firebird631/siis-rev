@@ -50,6 +50,11 @@ void Donchian::setConf(IndicatorConfig conf)
 
 void Donchian::compute(o3d::Double timestamp, const DataArray &high, const DataArray &low)
 {
+    o3d::Int32 lb = lookback();
+    if (high.getSize() <= lb) {
+        return;
+    }
+
     if (high.getSize() <= 0) {
         return;
     }
@@ -59,15 +64,16 @@ void Donchian::compute(o3d::Double timestamp, const DataArray &high, const DataA
 
     if (m_upper.getSize() != high.getSize()) {
         m_upper.setSize(high.getSize());
+        m_lower.setSize(high.getSize());
     }
 
     int b, n;
-    TA_RetCode res = ::TA_MAX(0, high.getSize()-1, high.getData(), m_len, &b, &n, m_upper.getData());
+    TA_RetCode res = ::TA_MAX(0, high.getSize()-1, high.getData(), m_len, &b, &n, m_upper.getData()+lb);
     if (res != TA_SUCCESS) {
         O3D_WARNING(siis::taErrorToStr(res));
     }
 
-    res = ::TA_MIN(0, low.getSize()-1, low.getData(), m_len, &b, &n, m_lower.getData());
+    res = ::TA_MIN(0, low.getSize()-1, low.getData(), m_len, &b, &n, m_lower.getData()+lb);
     if (res != TA_SUCCESS) {
         O3D_WARNING(siis::taErrorToStr(res));
     }
@@ -81,5 +87,5 @@ void Donchian::compute(o3d::Double timestamp, const DataArray &high, const DataA
 
 o3d::Int32 Donchian::lookback() const
 {
-    return 0;
+    return ::TA_MAX_Lookback(m_len);  // m_len -1;
 }

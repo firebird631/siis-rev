@@ -271,6 +271,7 @@ include/siis/trade/trademanager.h
 include/siis/trade/tradeoperation.h
 include/siis/trade/tradesignal.h
 include/siis/trade/tradesignal.h
+include/siis/tradingsession.h
 include/siis/utils/candlegen.h
 include/siis/utils/common.h
 include/siis/utils/common.h
@@ -781,6 +782,7 @@ src/trade/trade.cpp
 src/trade/trade.cpp
 src/trade/trade.cpp
 src/trade/tradeoperation.cpp
+src/tradingsession.cpp
 src/utils/candlegen.cpp
 src/utils/common.cpp
 src/utils/common.cpp
