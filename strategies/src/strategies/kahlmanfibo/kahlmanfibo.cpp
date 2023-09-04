@@ -43,8 +43,8 @@ KahlmanFibo::KahlmanFibo(Handler *handler, const o3d::String &identifier) :
     m_lastTrend(0),
     m_lastTrendTimestamp(0.0),
     m_lastSignal(0, 0),
-    m_targetScale(1.0),
-    m_riskReward(1.0),
+    m_profitScale(1.0),
+    m_riskScale(1.0),
     m_minProfit(0.0),
     m_useKahlman(false),
     m_maxWide(5),
@@ -137,8 +137,8 @@ void KahlmanFibo::init(Config *config)
             if (context.isMember("confirm")) {
                 Json::Value confirm = context.get("confirm", Json::Value());
 
-                m_targetScale = confirm.get("target-scale", Json::Value()).asDouble();
-                m_riskReward = confirm.get("risk-reward", Json::Value()).asDouble();
+                m_profitScale = confirm.get("profit-scale", Json::Value()).asDouble();
+                m_riskScale = confirm.get("risk-scale", Json::Value()).asDouble();
             }
 
             // entry-exits
@@ -424,8 +424,8 @@ TradeSignal KahlmanFibo::computeSignal(o3d::Double timestamp)
                         m_entry.updateSignal(signal, market());
                         // signal.setPrice(m_confAnalyser->lastPrice());
 
-                        signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_targetScale));
-                        signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_targetScale, m_riskReward));
+                        signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_profitScale));
+                        signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_riskScale));
                     }
                 }
             } else if (m_lastSig < 0 && m_sigAnalyser->trend() < 0) {
@@ -438,8 +438,8 @@ TradeSignal KahlmanFibo::computeSignal(o3d::Double timestamp)
                         m_entry.updateSignal(signal, market());
                         // signal.setPrice(m_confAnalyser->lastPrice());
 
-                        signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_targetScale));
-                        signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_targetScale, m_riskReward));
+                        signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_profitScale));
+                        signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_riskScale));
                     }
                 }
             }

@@ -47,8 +47,10 @@ KahlmanFiboSigAnalyser::~KahlmanFiboSigAnalyser()
 void KahlmanFiboSigAnalyser::init(AnalyserConfig conf)
 {
     configureIndictor(conf, "hma", m_hma);
-    configureIndictor(conf, "hma3", m_hma3);  // might be half len of hma
+    // configureIndictor(conf, "hma3", m_hma3);  // might be half len of hma
     configureIndictor(conf, "donchian", m_donchian);
+
+    m_hma3.setLength(m_hma.len() / 2);
 
     m_confirmation = 0;
     m_trend = 0;
@@ -144,9 +146,9 @@ o3d::Double KahlmanFiboSigAnalyser::takeProfit(o3d::Double profitScale) const
 //    }
 
     if (m_trend > 0) {
-        return m_donchian.lastUpper();
+        return m_donchian.lastUpper() - profitScale;
     } else if (m_trend < 0) {
-        return m_donchian.lastLower();
+        return m_donchian.lastLower() + profitScale;
     }
 
 //    if (m_trend > 0) {
@@ -158,7 +160,7 @@ o3d::Double KahlmanFiboSigAnalyser::takeProfit(o3d::Double profitScale) const
     return 0.0;
 }
 
-o3d::Double KahlmanFiboSigAnalyser::stopLoss(o3d::Double lossScale, o3d::Double riskReward) const
+o3d::Double KahlmanFiboSigAnalyser::stopLoss(o3d::Double lossScale) const
 {
 //    if (m_trend > 0) {
 //        return price().close().last() - riskReward * lossScale * (m_donchian.lastUpper() - m_donchian.lastLower());

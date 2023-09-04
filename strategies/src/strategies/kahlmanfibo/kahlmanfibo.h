@@ -80,8 +80,8 @@ private:
 
     TradeSignal m_lastSignal;
 
-    o3d::Double m_targetScale;
-    o3d::Double m_riskReward;
+    o3d::Double m_profitScale;
+    o3d::Double m_riskScale;
     o3d::Double m_minProfit;     //!< should be per context
     o3d::Bool m_useKahlman;
 

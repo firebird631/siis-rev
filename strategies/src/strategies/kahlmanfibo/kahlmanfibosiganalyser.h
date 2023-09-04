@@ -50,7 +50,7 @@ public:
     inline o3d::Int32 trendTimestamp() const { return m_trendTimestamp; }
 
     o3d::Double takeProfit(o3d::Double profitScale) const;
-    o3d::Double stopLoss(o3d::Double lossScale, o3d::Double riskReward) const;
+    o3d::Double stopLoss(o3d::Double lossScale) const;
 
 private:
 
