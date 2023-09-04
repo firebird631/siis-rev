@@ -414,7 +414,7 @@ TradeSignal KahlmanFibo::computeSignal(o3d::Double timestamp)
     // reset if not converge quickly
     if (o3d::abs(m_lastTrendTimestamp - m_lastSigTimestamp) < m_maxWide * m_sigAnalyser->timeframe()) {
         if (m_lastSig != 0 && m_lastSig == m_lastTrend) {
-            if (m_lastSig > 0) {
+            if (m_lastSig > 0 && m_sigAnalyser->trend() > 0) {
                 if (m_confAnalyser->confirmation() > 0) {
                     // keep only one signal per timeframe
                     if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
@@ -428,7 +428,7 @@ TradeSignal KahlmanFibo::computeSignal(o3d::Double timestamp)
                         signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_targetScale, m_riskReward));
                     }
                 }
-            } else if (m_lastSig < 0) {
+            } else if (m_lastSig < 0 && m_sigAnalyser->trend() < 0) {
                 if (m_confAnalyser->confirmation() < 0) {
                     // keep only one signal per timeframe
                     if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
