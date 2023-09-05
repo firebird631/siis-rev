@@ -323,9 +323,9 @@ void Pullback::compute(o3d::Double timestamp)
             doOrder = false;
         }
 
-        if (signal.estimateTakeProfitRate() < m_minProfit) {
-            doOrder = false;
-        }
+//        if (signal.estimateTakeProfitRate() < m_minProfit) {
+//            doOrder = false;
+//        }
 
         if (m_tradeManager->numTrades() >= maxTrades() && numClosed < 1) {
             doOrder = false;
@@ -541,6 +541,10 @@ TradeSignal Pullback::computeSignal(o3d::Double timestamp)
         m_integrateDirection = 0;
 
         m_stopLoss.updateSignal(signal);
+
+        if (m_minProfit > 0.0 && signal.estimateTakeProfitRate() < m_minProfit) {
+            signal.reset();
+        }
     }
 
     return signal;

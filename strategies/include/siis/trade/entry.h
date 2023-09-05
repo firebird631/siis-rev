@@ -29,6 +29,12 @@ public:
     void init(const Market *market, ContextConfig &conf);
 
     void updateSignal(TradeSignal &signal, const Market *market) const;
+
+    o3d::Bool checkMaxSpread(const Market *market) const;
+
+private:
+
+    o3d::Double m_maxSpread;
 };
 
 } // namespace siis

@@ -15,7 +15,8 @@
 using namespace siis;
 
 Entry::Entry() :
-    EntryExit()
+    EntryExit(),
+    m_maxSpread(0.0)
 {
 
 }
@@ -71,6 +72,25 @@ void Entry::init(const Market *market, ContextConfig &conf)
     } else {
         m_adjustPolicy = ADJ_NONE;
     }
+
+    if (entryConfig.data().isMember("max-spread")) {
+        Json::Value maxSpread = entryConfig.data().get("max-spread", Json::Value());
+        if (maxSpread.isNumeric()) {
+            m_maxSpread = maxSpread.asDouble();
+        } else if (maxSpread.isString()) {
+            o3d::String value = maxSpread.asCString();
+
+            if (value.endsWith("pip")) {
+                value.trimRight("pip");
+                m_maxSpread = value.toDouble() * market->onePipMean();
+            } else if (value.endsWith("pips")) {
+                value.trimRight("pips");
+                value = value.toDouble() * market->onePipMean();
+            } else {
+                m_maxSpread = value.toDouble();
+            }
+        }
+    }
 }
 
 void Entry::updateSignal(TradeSignal &signal, const Market *market) const
@@ -116,4 +136,13 @@ void Entry::updateSignal(TradeSignal &signal, const Market *market) const
             signal.setEntryPrice(market->ask() + m_distance);
         }
     }
+}
+
+o3d::Bool Entry::checkMaxSpread(const Market *market) const
+{
+    if (m_maxSpread > 0.0) {
+        return market->spread() <= m_maxSpread;
+    }
+
+    return true;
 }

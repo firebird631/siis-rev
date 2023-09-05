@@ -308,9 +308,10 @@ void HmaMa::compute(o3d::Double timestamp)
 
         o3d::Bool doOrder = true;
 
-        if (signal.estimateTakeProfitRate() < m_minProfit) {
-            doOrder = false;
-        }
+        // done at signal process before be generated
+//        if (signal.estimateTakeProfitRate() < m_minProfit) {
+//            doOrder = false;
+//        }
 
         if (m_tradeManager->numTrades() >= maxTrades() && numClosed < 1) {
             doOrder = false;
@@ -407,8 +408,11 @@ TradeSignal HmaMa::computeSignal(o3d::Double timestamp)
     // @todo
 
     if (signal.valid()) {
-
         m_stopLoss.updateSignal(signal);
+
+        if (m_minProfit > 0.0 && signal.estimateTakeProfitRate() < m_minProfit) {
+            signal.reset();
+        }
     }
 
     return signal;

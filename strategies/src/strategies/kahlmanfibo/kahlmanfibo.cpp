@@ -310,9 +310,9 @@ void KahlmanFibo::compute(o3d::Double timestamp)
             doOrder = false;
         }
 
-        if (signal.estimateTakeProfitRate() < m_minProfit) {
-            doOrder = false;
-        }
+//        if (signal.estimateTakeProfitRate() < m_minProfit) {
+//            doOrder = false;
+//        }
 
         if (m_tradeManager->numTrades() >= maxTrades() && numClosed < 1) {
             doOrder = false;
@@ -471,6 +471,16 @@ TradeSignal KahlmanFibo::computeSignal(o3d::Double timestamp)
 
     if (signal.valid()) {
         m_stopLoss.updateSignal(signal);
+
+        if (!m_entry.checkMaxSpread(market())) {
+            // cancel signal because of non typical spread
+            signal.reset();
+        }
+
+        if (m_minProfit > 0.0 && signal.estimateTakeProfitRate() < m_minProfit) {
+            // not enought profit
+            signal.reset();
+        }
     }
 
     return signal;
