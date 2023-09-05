@@ -3,7 +3,8 @@ set(LIB_NAME kahlmanfibo)
 set(STRATEGY_CXX
     kahlmanfibo.cpp
     kahlmanfiboconfanalyser.cpp
-    kahlmanfibosiganalyser.cpp)
+    kahlmanfibosiganalyser.cpp
+    kahlmanfibotrendanalyser.cpp)
 
 set(LIBRARY_OUTPUT_PATH ../../../strategies)
 

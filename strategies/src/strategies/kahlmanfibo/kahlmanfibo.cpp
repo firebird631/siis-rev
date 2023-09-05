@@ -17,6 +17,7 @@
 #include "siis/database/tradedb.h"
 #include "siis/database/ohlcdb.h"
 
+#include "kahlmanfibotrendanalyser.h"
 #include "kahlmanfibosiganalyser.h"
 #include "kahlmanfiboconfanalyser.h"
 
@@ -36,6 +37,7 @@ SIIS_PLUGIN_API siis::Strategy* siisStrategy(Handler *handler, const o3d::String
 
 KahlmanFibo::KahlmanFibo(Handler *handler, const o3d::String &identifier) :
     Strategy(handler, identifier),
+    m_trendAnalyser(nullptr),
     m_sigAnalyser(nullptr),
     m_confAnalyser(nullptr),
     m_lastSig(0),
@@ -96,8 +98,15 @@ void KahlmanFibo::init(Config *config)
                 continue;
             }
 
-            if (mode == "sig") {
-                Analyser *a = new KahlmanFiboSigAnalyser(this, tf, subTf, depth, history, Price::PRICE_CLOSE);
+            if (mode == "trend") {
+                Analyser *a = new KahlmanFiboTrendAnalyser(this, tf, subTf, depth, history, Price::PRICE_HL);
+                a->init(AnalyserConfig(timeframe));
+
+                m_analysers.push_back(a);
+                m_trendAnalyser = static_cast<KahlmanFiboTrendAnalyser*>(a);
+                m_trendAnalyser->setUseKahlman(m_useKahlman);
+            } else if (mode == "sig") {
+                Analyser *a = new KahlmanFiboSigAnalyser(this, tf, subTf, depth, history, Price::PRICE_HL);
                 a->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(a);
@@ -358,11 +367,16 @@ void KahlmanFibo::orderEntry(
         // query open
         trade->open(this, direction, orderType, price, quantity, takeProfitPrice, stopLossPrice);
 
-        o3d::String msg = o3d::String("#{0} {1} at {2} sl={3} tp={4} q={5}").arg(trade->id())
-                          .arg(direction > 0 ? "long" : "short").arg(formatPrice(price))
-                          .arg(formatPrice(stopLossPrice)).arg(formatPrice(takeProfitPrice))
-                          .arg(quantity);
-        log(timeframe, "order-entry", msg);
+        o3d::String msg = o3d::String("#{0} {1} at {2} sl={3} tp={4} q={5} {6}%/{7}%")
+                          .arg(trade->id())
+                          .arg(direction > 0 ? "LONG" : "SHORT")
+                          .arg(market()->formatPrice(price))
+                          .arg(market()->formatPrice(stopLossPrice))
+                          .arg(market()->formatPrice(takeProfitPrice))
+                          .arg(market()->formatQty(quantity))
+                          .arg(trade->estimateTakeProfitRate() * 100, 2)
+                          .arg(trade->estimateStopLossRate() * 100, 2);
+        log(timeframe, "trade-entry", msg);
     }
 }
 
@@ -414,7 +428,7 @@ TradeSignal KahlmanFibo::computeSignal(o3d::Double timestamp)
     // reset if not converge quickly
     if (o3d::abs(m_lastTrendTimestamp - m_lastSigTimestamp) < m_maxWide * m_sigAnalyser->timeframe()) {
         if (m_lastSig != 0 && m_lastSig == m_lastTrend) {
-            if (m_lastSig > 0 && m_sigAnalyser->trend() > 0) {
+            if (m_lastSig > 0 && m_sigAnalyser->trend() > 0 && confirmTrend(1)) { // && market()->last() < m_sigAnalyser->lastHiFib()) {
                 if (m_confAnalyser->confirmation() > 0) {
                     // keep only one signal per timeframe
                     if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
@@ -424,11 +438,11 @@ TradeSignal KahlmanFibo::computeSignal(o3d::Double timestamp)
                         m_entry.updateSignal(signal, market());
                         // signal.setPrice(m_confAnalyser->lastPrice());
 
-                        signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_profitScale));
+                        signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_profitScale * market()->onePipMean()));
                         signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_riskScale));
                     }
                 }
-            } else if (m_lastSig < 0 && m_sigAnalyser->trend() < 0) {
+            } else if (m_lastSig < 0 && m_sigAnalyser->trend() < 0 && confirmTrend(-1)) { // && market()->last() > m_sigAnalyser->lastLoFib()) {
                 if (m_confAnalyser->confirmation() < 0) {
                     // keep only one signal per timeframe
                     if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
@@ -438,7 +452,7 @@ TradeSignal KahlmanFibo::computeSignal(o3d::Double timestamp)
                         m_entry.updateSignal(signal, market());
                         // signal.setPrice(m_confAnalyser->lastPrice());
 
-                        signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_profitScale));
+                        signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_profitScale * market()->onePipMean()));
                         signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_riskScale));
                     }
                 }
@@ -460,4 +474,13 @@ TradeSignal KahlmanFibo::computeSignal(o3d::Double timestamp)
     }
 
     return signal;
+}
+
+o3d::Bool KahlmanFibo::confirmTrend(o3d::Int32 dir) const
+{
+    if (m_trendAnalyser) {
+        return m_trendAnalyser->trend() != 0 && dir == m_trendAnalyser->trend();
+    }
+
+    return true;
 }

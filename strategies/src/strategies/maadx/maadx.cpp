@@ -361,11 +361,16 @@ void MaAdx::orderEntry(
         // query open
         trade->open(this, direction, orderType, price, quantity, takeProfitPrice, stopLossPrice);
 
-        o3d::String msg = o3d::String("#{0} {1} at {2} sl={3} tp={4} q={5}").arg(trade->id())
-                          .arg(direction > 0 ? "long" : "short").arg(formatPrice(price))
-                          .arg(formatPrice(stopLossPrice)).arg(formatPrice(takeProfitPrice))
-                          .arg(quantity);
-        log(timeframe, "order-entry", msg);
+        o3d::String msg = o3d::String("#{0} {1} at {2} sl={3} tp={4} q={5} {6}%/{7}%")
+                          .arg(trade->id())
+                          .arg(direction > 0 ? "LONG" : "SHORT")
+                          .arg(market()->formatPrice(price))
+                          .arg(market()->formatPrice(stopLossPrice))
+                          .arg(market()->formatPrice(takeProfitPrice))
+                          .arg(market()->formatQty(quantity))
+                          .arg(trade->estimateTakeProfitRate() * 100, 2)
+                          .arg(trade->estimateStopLossRate() * 100, 2);
+        log(timeframe, "trade-entry", msg);
     }
 }
 

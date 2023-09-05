@@ -34,7 +34,9 @@ KahlmanFiboSigAnalyser::KahlmanFiboSigAnalyser(
     m_dfTrend(0),
     m_confirmation(0),
     m_kHma(22),
-    m_kHma3(11)
+    m_kHma3(11),
+    m_lastHiFib(0.0),
+    m_lastLoFib(0.0)
 {
 
 }
@@ -259,6 +261,9 @@ void KahlmanFiboSigAnalyser::donchianFibo(o3d::Double timestamp)
         m_dfTrend = 0;
     }
 
+    m_lastHiFib = hiFib[LAST];
+    m_lastLoFib = loFib[LAST];
+
     // evUpOut -> red cross -> sell
     // evDnOut -> green cross -> buy
     if (evUpOut) {
@@ -271,6 +276,7 @@ void KahlmanFiboSigAnalyser::donchianFibo(o3d::Double timestamp)
         // printf("donchian fibo long\n");
     } else {
         m_sig = 0;
+        m_sigTimestamp = 0.0;
     }
 }
 

@@ -27,6 +27,7 @@
 
 namespace siis {
 
+class KahlmanFiboTrendAnalyser;
 class KahlmanFiboSigAnalyser;
 class KahlmanFiboConfAnalyser;
 
@@ -70,6 +71,7 @@ private:
     std::vector<Analyser*> m_analysers;
     StdTradeManager *m_tradeManager;
 
+    KahlmanFiboTrendAnalyser *m_trendAnalyser;
     KahlmanFiboSigAnalyser *m_sigAnalyser;
     KahlmanFiboConfAnalyser *m_confAnalyser;
 
@@ -104,6 +106,8 @@ private:
     void orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price);
 
     TradeSignal computeSignal(o3d::Double timestamp);
+
+    o3d::Bool confirmTrend(o3d::Int32 dir) const;
 };
 
 } // namespace siis
