@@ -79,7 +79,6 @@ void Entry::init(const Market *market, ContextConfig &conf)
             m_maxSpread = maxSpread.asDouble();
         } else if (maxSpread.isString()) {
             o3d::String value = maxSpread.asCString();
-
             if (value.endsWith("pip")) {
                 value.trimRight("pip");
                 m_maxSpread = value.toDouble() * market->onePipMean();

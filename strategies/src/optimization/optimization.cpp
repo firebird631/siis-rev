@@ -98,6 +98,7 @@ void Optimization::init(
         Market *market = new Market(mc->marketId, mc->marketId, "", "");  // @todo fetch market from DB if exists
 
         Strategy *strategy = collection->build(this, config->getStrategy(), config->getStrategyIdentifier());
+        strategy->setMarket(market);
         strategy->init(config);
 
         // Supervisor *supervisor = collection->builder(this, config->getStrategy(), config->getStrategyIdentifier());
@@ -108,7 +109,6 @@ void Optimization::init(
         // elt.optimizer = optimizer;
         elt.market = market;
 
-        strategy->setMarket(market);
         strategy->prepareMarketData(m_connector, m_database, m_fromTs, m_toTs);
         strategy->finalizeMarketData(m_connector, m_database);
 

@@ -12,6 +12,7 @@ Prioritaire
 
 - IndMarginTrade::updateStats complete PNL
 - pour les XxxxPositionSignal.refOrderId met on orderId or refOrderId ?
+- per market overrides in dot format
 
 - taille des trades
 - notional-value pour margin trade, position trade, asset trade

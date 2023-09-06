@@ -111,13 +111,13 @@ void Backtest::init(
         Market *market = new Market(mc->marketId, mc->marketId, "", "");  // @todo fetch market from DB if exists
 
         Strategy *strategy = collection->build(this, config->getStrategy(), config->getStrategyIdentifier());
+        strategy->setMarket(market);
         strategy->init(config);
 
         StrategyElt elt;
         elt.strategy = strategy;
         elt.market = market;
 
-        strategy->setMarket(market);
         strategy->prepareMarketData(m_connector, m_database, m_fromTs, m_toTs);
         strategy->finalizeMarketData(m_connector, m_database);
 
