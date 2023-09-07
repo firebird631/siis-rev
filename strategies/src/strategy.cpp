@@ -35,7 +35,8 @@ Strategy::Strategy(Handler *handler, const o3d::String &identifier) :
     m_maxTrades(1),
     m_tradeDelay(0.0),
     m_needUpdate(false),
-    m_tradeType(Trade::TYPE_ASSET)
+    m_tradeType(Trade::TYPE_ASSET),
+    m_baseQuantity(1.0)
 {
     m_properties["name"] = "undefined";
     m_properties["author"] = "undefined";
@@ -114,6 +115,11 @@ const std::list<DataSource> Strategy::getDataSources() const
 void Strategy::setMarket(Market *market)
 {
     m_market = market;
+}
+
+void Strategy::setBaseQuantity(o3d::Double qty)
+{
+    m_baseQuantity = qty;
 }
 
 o3d::String Strategy::property(const o3d::String &propName) const

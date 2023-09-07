@@ -89,6 +89,16 @@ public:
      */
     void setMarket(Market *market);
 
+    /**
+     * @brief setBaseQuantity Set per trade base quantity.
+     */
+    void setBaseQuantity(o3d::Double qty);
+
+    /**
+     * @brief baseQuantity Get traded base quantity (could be different for a context).
+     */
+    o3d::Double baseQuantity() const { return m_baseQuantity; }
+
     //
     // preparing
     //
@@ -334,6 +344,8 @@ private:
     o3d::Double m_baseTimeframe;
 
     Trade::Type m_tradeType;
+
+    o3d::Double m_baseQuantity;
 };
 
 } // namespace siis

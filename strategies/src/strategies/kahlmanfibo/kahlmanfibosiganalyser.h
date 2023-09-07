@@ -51,6 +51,7 @@ public:
 
     inline o3d::Double lastLoFib() const { return m_lastHiFib; }
     inline o3d::Double lastHiFib() const { return m_lastLoFib; }
+    inline o3d::Double lastMed() const { return m_lastMid; }
 
     o3d::Double takeProfit(o3d::Double profitScale) const;
     o3d::Double stopLoss(o3d::Double lossScale) const;
@@ -113,6 +114,7 @@ private:
 
     o3d::Double m_lastHiFib;
     o3d::Double m_lastLoFib;
+    o3d::Double m_lastMid;
 
     void kahlmanHma();
     void kahlmanHma3();

@@ -36,7 +36,8 @@ KahlmanFiboSigAnalyser::KahlmanFiboSigAnalyser(
     m_kHma(22),
     m_kHma3(11),
     m_lastHiFib(0.0),
-    m_lastLoFib(0.0)
+    m_lastLoFib(0.0),
+    m_lastMid(0.0)
 {
 
 }
@@ -263,6 +264,7 @@ void KahlmanFiboSigAnalyser::donchianFibo(o3d::Double timestamp)
 
     m_lastHiFib = hiFib[LAST];
     m_lastLoFib = loFib[LAST];
+    m_lastMid = med[LAST];
 
     // evUpOut -> red cross -> sell
     // evDnOut -> green cross -> buy

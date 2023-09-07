@@ -94,17 +94,20 @@ void StdTradeManager::process(o3d::Double timestamp)
     }
 
     for (Trade *trade : removedTrades) {
-        o3d::Double pips = trade->direction() * (trade->exitPrice() - trade->entryPrice()) /
-                           strategy()->market()->onePipMean();
+        if (trade->exitPrice() > 0.0) {
+            // log only if realized
+            o3d::Double pips = trade->direction() * (trade->exitPrice() - trade->entryPrice()) /
+                               strategy()->market()->onePipMean();
 
-        o3d::String msg = o3d::String("#{0} {1} exit at p={2} pl={3}% ({4}pips) {5}")
-                          .arg(trade->id())
-                          .arg(trade->direction() > 0 ? "LONG" : "SHORT")
-                          .arg(trade->strategy()->market()->formatPrice(trade->exitPrice()))
-                          .arg(trade->profitLossRate()*100.0, 2)
-                          .arg(pips, 1)
-                          .arg(trade->profitLossRate() > 0 ? "WIN" : "LOSS");
-        m_strategy->log(trade->tf(), "trade-exit", msg);
+            o3d::String msg = o3d::String("#{0} {1} exit at p={2} pl={3}% ({4}pips) {5}")
+                                  .arg(trade->id())
+                                  .arg(trade->direction() > 0 ? "LONG" : "SHORT")
+                                  .arg(trade->strategy()->market()->formatPrice(trade->exitPrice()))
+                                  .arg(trade->profitLossRate()*100.0, 2)
+                                  .arg(pips, 1)
+                                  .arg(trade->profitLossRate() > 0 ? "WIN" : "LOSS");
+            m_strategy->log(trade->tf(), "trade-exit", msg);
+        }
 
         m_trades.remove(trade);
 

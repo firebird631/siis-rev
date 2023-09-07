@@ -365,7 +365,7 @@ void KahlmanFibo::orderEntry(
 
         m_tradeManager->addTrade(trade);
 
-        o3d::Double quantity = 1.0;  // @todo
+        o3d::Double quantity = baseQuantity();
 
         // query open
         trade->open(this, direction, orderType, price, quantity, takeProfitPrice, stopLossPrice);
@@ -415,6 +415,19 @@ TradeSignal KahlmanFibo::computeSignal(o3d::Double timestamp)
         m_lastTrendTimestamp = m_sigAnalyser->trendTimestamp();
     }
 
+    // sig cancellation after donchian mid
+    if (m_lastSig > 0) {
+        if (m_sigAnalyser->lastPrice() < m_sigAnalyser->lastMed()) {
+            m_lastSig = 0;
+            m_lastSigTimestamp = 0.0;
+        }
+    } else if (m_lastSig < 0) {
+        if (m_sigAnalyser->lastPrice() > m_sigAnalyser->lastMed()) {
+            m_lastSig = 0;
+            m_lastSigTimestamp = 0.0;
+        }
+    }
+
     if (m_oneWay) {
         // allow only a signal after trend started else bi-way
         if (m_lastSig != 0 and m_lastSig == m_lastTrend) {
@@ -438,12 +451,7 @@ TradeSignal KahlmanFibo::computeSignal(o3d::Double timestamp)
                         signal.setEntry();
                         signal.setLong();
 
-                        if (m_entry.distanceType() == DIST_CUSTOM) {
-                            signal.setPrice(market()->last() - 5 * market()->onePipMean());
-                            signal.setOrderType(Order::ORDER_LIMIT);
-                        } else {
-                            m_entry.updateSignal(signal, market());
-                        }
+                        m_entry.updateSignal(signal, market());
 
                         signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_profitScale * market()->onePipMean()));
                         signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_riskScale));
@@ -456,12 +464,7 @@ TradeSignal KahlmanFibo::computeSignal(o3d::Double timestamp)
                         signal.setEntry();
                         signal.setShort();
 
-                        if (m_entry.distanceType() == DIST_CUSTOM) {
-                            signal.setPrice(market()->last() + 5 * market()->onePipMean());
-                            signal.setOrderType(Order::ORDER_LIMIT);
-                        } else {
-                            m_entry.updateSignal(signal, market());
-                        }
+                        m_entry.updateSignal(signal, market());
 
                         signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_profitScale * market()->onePipMean()));
                         signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_riskScale));
