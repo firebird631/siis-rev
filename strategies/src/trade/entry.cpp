@@ -90,6 +90,11 @@ void Entry::init(const Market *market, ContextConfig &conf)
             }
         }
     }
+
+    if (entryConfig.data().isMember("timeout")) {
+        o3d::String timeout = entryConfig.data().get("timeout", Json::Value()).asCString();
+        m_timeout = timeframeFromStr(timeout);
+    }
 }
 
 void Entry::updateSignal(TradeSignal &signal, const Market *market) const

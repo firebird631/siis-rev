@@ -80,6 +80,11 @@ void StdTradeManager::process(o3d::Double timestamp)
         // statistics update
         trade->updateStats(m_strategy->market()->last(), timestamp);
 
+        // manage entry expiration
+        if (trade->isEntryTimeout(timestamp)) {
+            trade->cancelOpen();
+        }
+
         // purge closed or canceled trades
         if (trade->canDelete()) {
             removedTrades.push_back(trade);

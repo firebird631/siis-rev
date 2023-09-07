@@ -203,6 +203,11 @@ public:
      */
     void reset() { init(0.0); }
 
+    /**
+     * @brief setEntryTimeout Define an entry timeout (max duration of the open order) in seconds.
+     */
+    void setEntryTimeout(o3d::Double t) { m_entryTimeout = t; }
+
     //
     // getters
     //

@@ -111,7 +111,6 @@ o3d::Bool Trade::isEntryTimeout(o3d::Double timestamp, o3d::Double timeout) cons
     if (timeout <= 0.0) {
         timeout = m_entryTimeout;
     }
-
     if (timestamp > 0.0 && timeout > 0.0) {
         return isOpened() && m_openTimeStamp > 0.0  && timestamp - m_openTimeStamp > timeout;
     }

@@ -32,8 +32,11 @@ public:
 
     o3d::Bool checkMaxSpread(const Market *market) const;
 
+    o3d::Double timeout() const { return m_timeout; }
+
 private:
 
+    o3d::Double m_timeout;    //!< max entry timeout
     o3d::Double m_maxSpread;
 };
 

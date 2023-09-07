@@ -46,6 +46,12 @@ public:
      */
     o3d::Bool consolidated() const { return m_timeframe > 0.0 ? m_consolidated : true; }
 
+    o3d::Double distance() const { return m_distance; }
+    DistanceType distanceType() const { return m_distanceType; }
+    AdjustPolicy adjustPolicy() const { return m_adjustPolicy; }
+
+    o3d::Double lastClosedTimestamp() const { return m_lastClosedTimestamp; }
+
 protected:
 
     o3d::Double m_timeframe;

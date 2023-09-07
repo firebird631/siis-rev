@@ -360,6 +360,9 @@ void KahlmanFibo::orderEntry(
 {
     Trade* trade = handler()->traderProxy()->createTrade(market(), tradeType(), timeframe);
     if (trade) {
+        // from entry but works only in single context
+        trade->setEntryTimeout(m_entry.timeout());
+
         m_tradeManager->addTrade(trade);
 
         o3d::Double quantity = 1.0;  // @todo
@@ -435,8 +438,12 @@ TradeSignal KahlmanFibo::computeSignal(o3d::Double timestamp)
                         signal.setEntry();
                         signal.setLong();
 
-                        m_entry.updateSignal(signal, market());
-                        // signal.setPrice(m_confAnalyser->lastPrice());
+                        if (m_entry.distanceType() == DIST_CUSTOM) {
+                            signal.setPrice(market()->last() - 5 * market()->onePipMean());
+                            signal.setOrderType(Order::ORDER_LIMIT);
+                        } else {
+                            m_entry.updateSignal(signal, market());
+                        }
 
                         signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_profitScale * market()->onePipMean()));
                         signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_riskScale));
@@ -449,8 +456,12 @@ TradeSignal KahlmanFibo::computeSignal(o3d::Double timestamp)
                         signal.setEntry();
                         signal.setShort();
 
-                        m_entry.updateSignal(signal, market());
-                        // signal.setPrice(m_confAnalyser->lastPrice());
+                        if (m_entry.distanceType() == DIST_CUSTOM) {
+                            signal.setPrice(market()->last() + 5 * market()->onePipMean());
+                            signal.setOrderType(Order::ORDER_LIMIT);
+                        } else {
+                            m_entry.updateSignal(signal, market());
+                        }
 
                         signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_profitScale * market()->onePipMean()));
                         signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_riskScale));
@@ -471,6 +482,8 @@ TradeSignal KahlmanFibo::computeSignal(o3d::Double timestamp)
 
     if (signal.valid()) {
         m_stopLoss.updateSignal(signal);
+
+        signal.setEntryTimeout(m_entry.timeout());
 
         if (!m_entry.checkMaxSpread(market())) {
             // cancel signal because of non typical spread

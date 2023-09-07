@@ -132,8 +132,6 @@ o3d::Int32 LocalConnector::_createPosition(Order *order, const Market *market, o
         return Order::RET_ERROR;
     }
 
-    // the order is normally in opened state
-
     // position and order id are the same
     position->positionId = order->orderId;
     position->refOrderId = order->refId;

@@ -41,7 +41,8 @@ public:
         m_limitPrice(0),
         m_stopPrice(0),
         m_stopLossPrice(0),
-        m_takeProfitPrice(0)
+        m_takeProfitPrice(0),
+        m_entryTimeout(0.0)
     {
     }
 
@@ -55,7 +56,8 @@ public:
         m_limitPrice(dup.m_limitPrice),
         m_stopPrice(dup.m_stopPrice),
         m_stopLossPrice(dup.m_stopLossPrice),
-        m_takeProfitPrice(dup.m_takeProfitPrice)
+        m_takeProfitPrice(dup.m_takeProfitPrice),
+        m_entryTimeout(dup.m_entryTimeout)
     {
     }
 
@@ -71,6 +73,7 @@ public:
         m_stopPrice = dup.m_stopPrice;
         m_stopLossPrice = dup.m_stopLossPrice;
         m_takeProfitPrice = dup.m_takeProfitPrice;
+        m_entryTimeout = dup.m_entryTimeout;
 
         return *this;
     }
@@ -88,6 +91,7 @@ public:
         m_stopPrice = 0.0;
         m_stopLossPrice = 0.0;
         m_takeProfitPrice = 0.0;
+        m_entryTimeout = 0.0;
     }
 
     Type type() const { return m_type; }
@@ -145,6 +149,9 @@ public:
     void setTakeProfitPrice(o3d::Double p) { m_takeProfitPrice = p; }
     void setTakeProfit(o3d::Double p) { m_takeProfitPrice = p; }
     void setLimit(o3d::Double p) { m_takeProfitPrice = p; }
+
+    o3d::Double entryTimeout() const { return m_entryTimeout; }
+    void setEntryTimeout(o3d::Double t) { m_entryTimeout = t; }
 
     o3d::Double estimateTakeProfitRate() const {
         if (m_price > 0.0 && m_takeProfitPrice > 0.0) {
@@ -206,6 +213,8 @@ private:
     o3d::Double m_stopPrice;        //!< if stop entry or stop-limit entry
     o3d::Double m_stopLossPrice;    //!< to set up an initial stop-loss price
     o3d::Double m_takeProfitPrice;  //!< to set up an initial take-profit price
+
+    o3d::Double m_entryTimeout;     //!< entry limit or stop max timeout
 
     // std::list<Condition*> m_conditions;
 };
