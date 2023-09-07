@@ -50,6 +50,9 @@ public:
     o3d::Int32 takeProfitInGain = 0;
 
     o3d::Int32 prevDir = 0;
+
+    o3d::Double dailyStartTimestamp = 0.0;
+    o3d::Double dailyPerformance = 0.0;
 };
 
 /**

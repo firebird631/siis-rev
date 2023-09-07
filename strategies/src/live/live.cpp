@@ -247,12 +247,13 @@ Cache *Live::cache()
     return m_cache;
 }
 
-void Live::log(o3d::Double timeframe, const o3d::String &marketId, const o3d::String &channel, const o3d::String &msg)
+void Live::log(o3d::Double timeframe, const o3d::String &marketId, const o3d::String &channel,
+               const o3d::String &msg, o3d::System::MessageLevel type)
 {
     // @todo throught the monitor send a log message
     // m_monitor.log(timestamp(), timeframe, marketId, channel, msg);
     m_displayer->display(channel, o3d::String("{0}:{1}:{2} : {3}").arg(timestamp())
-                         .arg(siis::timeframeToStr(timeframe)).arg(marketId).arg(msg));
+                         .arg(siis::timeframeToStr(timeframe)).arg(marketId).arg(msg), type);
 }
 
 o3d::Int32 Live::run(void *)

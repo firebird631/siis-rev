@@ -216,7 +216,8 @@ public:
      * @param channel Mapped name of the channel.
      * @param msg Message content.
      */
-    void log(o3d::Double timeframe, const o3d::String &channel, const o3d::String &msg);
+    void log(o3d::Double timeframe, const o3d::String &channel, const o3d::String &msg,
+                     o3d::System::MessageLevel type = o3d::System::MSG_INFO);
 
     //
     // accessors

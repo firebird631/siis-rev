@@ -146,9 +146,10 @@ void Strategy::process(o3d::Double timestamp)
     m_processing = false;
 }
 
-void Strategy::log(o3d::Double timeframe, const o3d::String &channel, const o3d::String &msg)
+void Strategy::log(o3d::Double timeframe, const o3d::String &channel, const o3d::String &msg,
+                   o3d::System::MessageLevel type)
 {
-    m_handler->log(timeframe, m_market->marketId(), channel, msg);
+    m_handler->log(timeframe, m_market->marketId(), channel, msg, type);
 }
 
 void Strategy::addClosedTrade(Trade *trade)
@@ -214,6 +215,25 @@ void Strategy::addClosedTrade(Trade *trade)
 
             m_stats.best = o3d::max(m_stats.best, rpnl);
             m_stats.worst = o3d::min(m_stats.worst, rpnl);
+
+            // reset each EOD
+            if (m_stats.dailyStartTimestamp == 0.0) {
+                m_stats.dailyStartTimestamp = baseTime(lastTimestamp(), TF_DAY);
+            }
+
+            if (lastTimestamp() - m_stats.dailyStartTimestamp >= TF_DAY) {
+                m_stats.dailyStartTimestamp = baseTime(lastTimestamp(), TF_DAY);
+
+                o3d::String msg = o3d::String("Daily performance {0}% on a partial of {1}%")
+                                      .arg(m_stats.dailyPerformance * 100, 2)
+                                      .arg(m_stats.performance * 100, 2);
+
+                log(TF_DAY, "daily-report", msg, o3d::System::MSG_CRITICAL);
+
+                m_stats.dailyPerformance = 0.0;
+            }
+
+            m_stats.dailyPerformance += rpnl;
         }
     }
 }

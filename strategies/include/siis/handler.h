@@ -150,7 +150,8 @@ public:
     virtual void log(o3d::Double timeframe,
                      const o3d::String &marketId,
                      const o3d::String &channel,
-                     const o3d::String &msg) = 0;
+                     const o3d::String &msg,
+                     o3d::System::MessageLevel type = o3d::System::MSG_INFO) = 0;
 };
 
 } // namespace siis
