@@ -46,12 +46,17 @@ public:
     inline o3d::Int32 sig() const { return m_sig; }
     inline o3d::Double sigTimestamp() const { return m_sigTimestamp; }
 
+    inline o3d::Int32 hardSig() const { return m_hardSig; }
+
     inline o3d::Int32 trend() const { return m_trend; }
     inline o3d::Double trendTimestamp() const { return m_trendTimestamp; }
 
     inline o3d::Double lastLoFib() const { return m_lastHiFib; }
     inline o3d::Double lastHiFib() const { return m_lastLoFib; }
     inline o3d::Double lastMed() const { return m_lastMid; }
+
+    inline o3d::Double lastkHma() const { return m_kHma.last(); }
+    inline o3d::Double lastkHma3() const { return m_kHma3.last(); }
 
     o3d::Double takeProfit(o3d::Double profitScale) const;
     o3d::Double stopLoss(o3d::Double lossScale) const;
@@ -104,6 +109,8 @@ private:
 
     o3d::Int32 m_trend;
     o3d::Int32 m_sig;
+
+    o3d::Int32 m_hardSig;
 
     o3d::Int32 m_dfTrend;  //!< donchian + fibo trend (0 mean range)
 

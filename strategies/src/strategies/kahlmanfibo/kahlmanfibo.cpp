@@ -403,7 +403,7 @@ void KahlmanFibo::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double pri
 TradeSignal KahlmanFibo::computeSignal(o3d::Double timestamp)
 {
     TradeSignal signal(m_sigAnalyser->timeframe(), timestamp);
-
+/*
     // sig then trend or trend then sig
     if (m_sigAnalyser->sig() != 0) {
         m_lastSig = m_sigAnalyser->sig();
@@ -414,15 +414,61 @@ TradeSignal KahlmanFibo::computeSignal(o3d::Double timestamp)
         m_lastTrend = m_sigAnalyser->trend();
         m_lastTrendTimestamp = m_sigAnalyser->trendTimestamp();
     }
+*/
+    if (m_sigAnalyser->hardSig() > 0) {
+        // keep only one signal per timeframe
+        if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
+            m_lastSig = m_sigAnalyser->hardSig();
+            m_lastSigTimestamp = m_sigAnalyser->sigTimestamp();
+        }
+    } else if (m_sigAnalyser->hardSig() < 0) {
+        // keep only one signal per timeframe
+        if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
+            m_lastSig = m_sigAnalyser->hardSig();
+            m_lastSigTimestamp = m_sigAnalyser->sigTimestamp();
+        }
+    }
 
+    if (m_lastSig > 0 && m_confAnalyser->confirmation() > 0 && m_trendAnalyser->trend() > 0) {
+        signal.setEntry();
+        signal.setLong();
+
+        m_entry.updateSignal(signal, market());
+
+        signal.setTakeProfitPrice(signal.signalPrice() * 1.0010 + m_profitScale * market()->onePipMean());
+        signal.setStopLossPrice(signal.signalPrice() * (1 - .0007) - m_riskScale * market()->onePipMean());
+
+        //signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_profitScale * market()->onePipMean()));
+        //signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_riskScale));
+
+        m_lastSig = 0;
+        m_lastSigTimestamp = 0.0;
+
+    } else if (m_lastSig < 0 && m_confAnalyser->confirmation() > 0 && m_trendAnalyser->trend() < 0) {
+        signal.setEntry();
+        signal.setShort();
+
+        m_entry.updateSignal(signal, market());
+
+        signal.setTakeProfitPrice(signal.signalPrice() * (1 - .0010) + m_profitScale * market()->onePipMean());
+        signal.setStopLossPrice(signal.signalPrice() * 1.0007 + m_riskScale * market()->onePipMean());
+
+//            signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_profitScale * market()->onePipMean()));
+//            signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_riskScale));
+
+        m_lastSig = 0;
+        m_lastSigTimestamp = 0.0;
+    }
+
+/*
     // sig cancellation after donchian mid
     if (m_lastSig > 0) {
-        if (m_sigAnalyser->lastPrice() < m_sigAnalyser->lastMed()) {
+        if (m_sigAnalyser->lastPrice() > m_sigAnalyser->lastMed()) {
             m_lastSig = 0;
             m_lastSigTimestamp = 0.0;
         }
     } else if (m_lastSig < 0) {
-        if (m_sigAnalyser->lastPrice() > m_sigAnalyser->lastMed()) {
+        if (m_sigAnalyser->lastPrice() < m_sigAnalyser->lastMed()) {
             m_lastSig = 0;
             m_lastSigTimestamp = 0.0;
         }
@@ -482,7 +528,7 @@ TradeSignal KahlmanFibo::computeSignal(o3d::Double timestamp)
             m_lastTrendTimestamp = 0.0;
         }
     }
-
+*/
     if (signal.valid()) {
         m_stopLoss.updateSignal(signal);
 

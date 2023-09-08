@@ -31,6 +31,7 @@ KahlmanFiboSigAnalyser::KahlmanFiboSigAnalyser(
     m_hma3("hma3", timeframe),
     m_trend(0),
     m_sig(0),
+    m_hardSig(0),
     m_dfTrend(0),
     m_confirmation(0),
     m_kHma(22),
@@ -50,10 +51,10 @@ KahlmanFiboSigAnalyser::~KahlmanFiboSigAnalyser()
 void KahlmanFiboSigAnalyser::init(AnalyserConfig conf)
 {
     configureIndictor(conf, "hma", m_hma);
-    // configureIndictor(conf, "hma3", m_hma3);  // might be half len of hma
+    configureIndictor(conf, "hma3", m_hma3);  // might be half len of hma
     configureIndictor(conf, "donchian", m_donchian);
 
-    m_hma3.setLength(m_hma.len() / 2);
+    // m_hma3.setLength(m_hma.len() / 2);
 
     m_confirmation = 0;
     m_trend = 0;
@@ -106,6 +107,36 @@ TradeSignal KahlmanFiboSigAnalyser::compute(o3d::Double timestamp, o3d::Double l
                 m_trend = -1;
                 m_trendTimestamp = timestamp;
             }*/
+
+            m_hardSig = 0;
+
+            if (price().consolidated()) {
+                if (m_kHma3.prev() < m_kHma.prev() && m_kHma3.last() > m_kHma.last()) {
+                    if (price().close().last() > m_kHma3.last()) {
+                        m_hardSig = 1;
+                    }
+                } else if (m_kHma3.prev() > m_kHma.prev() && m_kHma3.last() < m_kHma.last()) {
+                    if (price().close().last() < m_kHma3.last()) {
+                        m_hardSig = -1;
+                    }
+                }
+            }
+/*
+            if (price().consolidated()) {
+                if (lastkHma3() > lastkHma()) {
+                    if (price().close().prev() < m_kHma3.prev() && price().close().last() > m_kHma3.last()) {
+                        m_hardSig = 1;
+                    } else if (price().close().prev() > m_kHma.prev() && price().close().last() < m_kHma.last()) {
+                        m_hardSig = -1;
+                    }
+                } else if (lastkHma3() < lastkHma()) {
+                    if (price().close().prev() > m_kHma3.prev() && price().close().last() < m_kHma3.last()) {
+                        m_hardSig = -1;
+                    } else if (price().close().prev() < m_kHma.prev() && price().close().last() > m_kHma.last()) {
+                        m_hardSig = 1;
+                    }
+                }
+            }*/
         } else {
             m_trend = m_hma3.last() > m_hma.last() ? 1 : -1;
 
@@ -128,7 +159,7 @@ TradeSignal KahlmanFiboSigAnalyser::compute(o3d::Double timestamp, o3d::Double l
             m_trendTimestamp = timestamp;
         }
 
-        // donchian fibo testing
+         // donchian fibo testing
         donchianFibo(timestamp);
     }
 

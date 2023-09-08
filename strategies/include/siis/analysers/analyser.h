@@ -80,7 +80,7 @@ public:
     virtual o3d::Bool isNeedUpdate(o3d::Double timestamp) const;
 
     /**
-     * @brief lastPrice Last updated price.
+     * @brief lastPrice Last updated price (last close price).
      */
     virtual o3d::Double lastPrice() const = 0;
 
