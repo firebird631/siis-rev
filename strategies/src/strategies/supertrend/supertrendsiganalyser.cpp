@@ -62,7 +62,7 @@ TradeSignal SuperTrendSigAnalyser::compute(o3d::Double timestamp, o3d::Double la
 {
     TradeSignal signal(timeframe(), timestamp);
 
-    if (1) {  // price().consolidated()) {
+    if (price().consolidated()) {
         // compute only at close
         m_hma.compute(timestamp, price().price());   // compute on HL2 price
         m_hma3.compute(timestamp, price().close());  // compute on close price
@@ -100,8 +100,6 @@ TradeSignal SuperTrendSigAnalyser::compute(o3d::Double timestamp, o3d::Double la
                 m_trend = -1;
                 m_trendTimestamp = timestamp;
             }*/
-
-            // maybee donchian based indicator can m_trend = 0 if range is detected
         }
 
         if (prevTrend != m_trend) {
@@ -126,4 +124,21 @@ o3d::Double SuperTrendSigAnalyser::takeProfit(o3d::Int32 direction, o3d::Double 
 o3d::Double SuperTrendSigAnalyser::stopLoss(o3d::Int32 direction, o3d::Double riskScale, o3d::Double onePipMeans) const
 {
     return m_superTrend.last() - direction * riskScale * onePipMeans;
+}
+
+o3d::Double SuperTrendSigAnalyser::dynamicStopLoss(o3d::Int32 direction,
+                                                   o3d::Double curStopLoss,
+                                                   o3d::Double distance) const
+{
+    if (m_superTrend.position() != direction) {
+        return 0.0;
+    }
+
+    if (direction > 0) {
+        return o3d::max(m_superTrend.last() * (1.0 - distance), curStopLoss);
+    } else if (direction < 0) {
+        return o3d::min(m_superTrend.last() * (1.0 + distance), curStopLoss);
+    }
+
+    return 0.0;
 }

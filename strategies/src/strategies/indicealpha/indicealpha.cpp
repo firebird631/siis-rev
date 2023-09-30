@@ -264,7 +264,7 @@ void IndiceAlpha::orderEntry(
     if (trade) {
         m_tradeManager->addTrade(trade);
 
-        o3d::Double quantity = 1.0;  // @todo
+        o3d::Double quantity = baseQuantity();
 
         // query open
         trade->open(this, direction, orderType, price, quantity, stopPrice, limitPrice);

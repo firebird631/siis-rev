@@ -323,39 +323,28 @@ void SuperTrendStrat::finalize(o3d::Double timestamp)
 void SuperTrendStrat::updateTrade(Trade *trade)
 {
     if (trade) {
-        m_breakeven.updateΤrade(handler()->timestamp(), lastTimestamp(), trade);
-        m_dynamicStopLoss.updateΤrade(handler()->timestamp(), lastTimestamp(), trade);
+        // m_breakeven.updateΤrade(handler()->timestamp(), lastTimestamp(), trade);
+        // m_dynamicStopLoss.updateΤrade(handler()->timestamp(), lastTimestamp(), trade);
 
         // custom dynamic stop-loss
-        if (m_dynamicStopLoss.adjustPolicy() == ADJ_CUSTOM) {
-            // @todo
+        if (m_dynamicStopLoss.priceType() == PRICE_CUSTOM) {
+            // last stop must be at minimal defined distance
+            if (!m_dynamicStopLoss.checkMinDistance(trade)) {
+                return;
+            }
 
-            /* close_exec_price = strategy_trader.instrument.close_exec_price(trade.dir)
+            // @todo could update once consolidated
 
-        # last stop must be at minimal defined distance
-        if trade.context.dynamic_stop_loss.percentile_distance_from_stop_price(
-                trade, close_exec_price) < trade.context.dynamic_stop_loss.distance:
-            return
+            o3d::Double newStopPrice = m_sigAnalyser->dynamicStopLoss(
+                trade->direction(), trade->stopLossPrice(), m_dynamicStopLoss.distance());
 
-        new_stop_price = 0.0
+            if (newStopPrice > 0.0) {
+                newStopPrice = market()->adjustPrice(newStopPrice);
 
-        if trade.context.dynamic_stop_loss.type == self.PRICE_CUSTOM and self.sig_tf.supertrend.position == trade.direction:
-            new_stop_price = self.sig_tf.supertrend.last
-
-            if trade.direction > 0:
-                new_stop_price *= 1.0 - self.dynamic_stop_loss.distance
-                new_stop_price = max(new_stop_price, trade.stop_loss)
-            elif trade.direction < 0:
-                new_stop_price *= 1.0 + self.dynamic_stop_loss.distance
-                new_stop_price = min(new_stop_price, trade.stop_loss)
-
-        if new_stop_price > 0.0 and new_stop_price != trade.stop_loss:
-            new_stop_price = strategy_trader.instrument.adjust_price(new_stop_price)
-            try:
-                strategy_trader.trade_modify_stop_loss(trade, new_stop_price, trade.support_both_order())
-            except Exception as e:
-                logger.error(repr(e))
-                */
+                if (newStopPrice != trade->stopLossPrice()) {
+                    trade->modifyStopLoss(newStopPrice, Trade::MOD_PREVIOUS);
+                }
+            }
         }
     }
 }
@@ -385,7 +374,7 @@ void SuperTrendStrat::orderEntry(
     if (trade) {
         m_tradeManager->addTrade(trade);
 
-        o3d::Double quantity = 1.0;  // @todo
+        o3d::Double quantity = baseQuantity();
 
         // query open
         trade->open(this, direction, orderType, price, quantity, takeProfitPrice, stopLossPrice);
@@ -431,7 +420,7 @@ TradeSignal SuperTrendStrat::computeSignal(o3d::Double timestamp)
     }
 
     if (sig > 0) {
-        if (m_confAnalyser->confirmation() > 0) {
+        if (1){//m_confAnalyser->confirmation() > 0) {
             // keep only one signal per timeframe
             if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
                 signal.setEntry();
@@ -445,7 +434,7 @@ TradeSignal SuperTrendStrat::computeSignal(o3d::Double timestamp)
             }
         }
     } else if (sig < 0) {
-        if (m_confAnalyser->confirmation() < 0) {
+        if (1){//m_confAnalyser->confirmation() < 0) {
             // keep only one signal per timeframe
             if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
                 signal.setEntry();

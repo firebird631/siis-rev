@@ -366,7 +366,7 @@ void MaIchimoku::orderEntry(
     if (trade) {
         m_tradeManager->addTrade(trade);
 
-        o3d::Double quantity = 1.0;  // @todo
+        o3d::Double quantity = baseQuantity();
 
         // query open @todo order type
         trade->open(this, direction, orderType, price, quantity, takeProfitPrice, stopLossPrice);

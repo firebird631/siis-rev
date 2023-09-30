@@ -62,7 +62,7 @@ TradeSignal SuperTrendTrendAnalyser::compute(o3d::Double timestamp, o3d::Double 
 {
     TradeSignal signal(timeframe(), timestamp);
 
-    if (1) {  // price().consolidated()) {
+    if (price().consolidated()) {
         // compute only at close
         m_hma.compute(timestamp, price().price());   // compute on HL2 price
         m_hma3.compute(timestamp, price().close());  // compute on close price
@@ -100,8 +100,6 @@ TradeSignal SuperTrendTrendAnalyser::compute(o3d::Double timestamp, o3d::Double 
                 m_trend = -1;
                 m_trendTimestamp = timestamp;
             }*/
-
-            // maybee donchian based indicator can m_trend = 0 if range is detected
         }
 
         if (prevTrend != m_trend) {

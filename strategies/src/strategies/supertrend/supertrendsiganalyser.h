@@ -52,6 +52,8 @@ public:
     o3d::Double takeProfit(o3d::Int32 direction, o3d::Double profitScale) const;
     o3d::Double stopLoss(o3d::Int32 direction, o3d::Double riskScale, o3d::Double onePipMeans) const;
 
+    o3d::Double dynamicStopLoss(o3d::Int32 direction, o3d::Double curStopLoss, o3d::Double distance) const;
+
 private:
 
     o3d::Double m_gain;

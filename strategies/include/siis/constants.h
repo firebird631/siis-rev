@@ -57,16 +57,24 @@ enum MAType {
 };
 
 /**
+ * @brief Price type for trade policy like entry, breakeven, dynamic-stop-loss and such mores.
+ */
+enum PriceType {
+    PRICE_NONE = 0,
+    PRICE_CUSTOM = 1,       //!< price is custom by design
+    PRICE_FIXED = 2,        //!< price is in a fixed distance from the entry (pips are is converted in percentil)
+    PRICE_LAST = 3,         //!< entry at market price
+    PRICE_BEST1 = 4,        //!< entry on limit (maker if possible) using the first ticker best price
+    PRICE_BEST2 = 5         //!< entry on limit (maker if possible) using the first ticker best price plus a spread
+};
+
+/**
  * @brief Distance type for trade policy like breakeven, dynamic-stop-loss and such mores.
  */
 enum DistanceType {
     DIST_NONE = 0,
-    DIST_CUSTOM = 1,       //!< distance is a custom by design
-    DIST_PERCENTIL = 2,    //!< distance is in percentil from the entry (pips are is converted in percentil)
-    DIST_PRICE = 3,        //!< distance is in a fixed price delta
-    DIST_LAST = 4,         //!< entry at market price
-    DIST_BEST1 = 5,        //!< entry on limit (maker if possible) using the first ticker best price
-    DIST_BEST2 = 6         //!< entry on limit (maker if possible) using the first ticker best price plus a spread
+    DIST_PERCENTIL = 1,    //!< distance is in percentil from the entry (pips are is converted in percentil)
+    DIST_PRICE = 2         //!< distance is in a fixed price delta
 };
 
 /**

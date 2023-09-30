@@ -28,9 +28,13 @@ public:
 
     void updateΤrade(o3d::Double timestamp, o3d::Double lastTimestamp, Trade *trade) const;
 
+    o3d::Bool checkMinDistance(Trade *trade) const;
+
 private:
 
     o3d::Double m_breakevenDistance;
+
+    PriceType m_breakevenPriceType;
     DistanceType m_breakevenDistanceType;
 };
 

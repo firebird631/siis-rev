@@ -14,6 +14,7 @@
 using namespace siis;
 
 EntryExit::EntryExit() :
+    m_priceType(PRICE_NONE),
     m_timeframe(0.0),
     m_distance(0.0),
     m_distanceType(DIST_NONE),
@@ -28,12 +29,14 @@ void EntryExit::init(const Market *market, const EntryExitConfig &conf)
 {
     if (conf.data().isMember("type")) {
         o3d::String type = conf.data().get("type", Json::Value()).asCString();
-        if (type == "fixed-pct") {
-            m_distanceType = DIST_PERCENTIL;
+        if (type == "fixed") {
+            m_priceType = PRICE_FIXED;
+        } else if (type == "fixed-pct") {
+            m_priceType = PRICE_FIXED;
         } else if (type == "fixed-dist") {
-            m_distanceType = DIST_PRICE;
+            m_priceType = PRICE_FIXED;
         } else if (type == "custom") {
-            m_distanceType = DIST_CUSTOM;
+            m_priceType = PRICE_CUSTOM;
         }
     }
 
@@ -47,18 +50,22 @@ void EntryExit::init(const Market *market, const EntryExitConfig &conf)
         if (distance.endsWith("%")) {
             distance.trimRight('%');
             m_distance = distance.toDouble() * 0.01;
+            m_distanceType = DIST_PERCENTIL;
         } else if (distance.endsWith("pip")) {
             distance.trimRight("pip");
             m_distance = distance.toDouble() * market->onePipMean();
+            m_distanceType = DIST_PRICE;
         } else if (distance.endsWith("pips")) {
             distance.trimRight("pips");
             m_distance = distance.toDouble() * market->onePipMean();
+            m_distanceType = DIST_PRICE;
         } else {
             m_distance = distance.toDouble();
+            m_distanceType = DIST_PRICE;
         }
     }
 
-    if (m_distanceType == DIST_CUSTOM) {
+    if (m_priceType == PRICE_CUSTOM) {
         m_adjustPolicy = ADJ_CUSTOM;
     } else if (m_timeframe > 0.0 && m_distance > 0.0) {
         m_adjustPolicy = ADJ_CLOSE;

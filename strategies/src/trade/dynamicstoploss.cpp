@@ -15,6 +15,7 @@ using namespace siis;
 DynamicStopLoss::DynamicStopLoss() :
     EntryExit(),
     m_breakevenDistance(0.0),
+    m_breakevenPriceType(PRICE_NONE),
     m_breakevenDistanceType(DIST_NONE)
 {
 
@@ -28,12 +29,14 @@ void DynamicStopLoss::init(const Market *market, const ContextConfig &conf)
     BreakevenConfig breakevenConfig = conf.breakeven();
     if (breakevenConfig.data().isMember("type")) {
         o3d::String type = breakevenConfig.data().get("type", Json::Value()).asCString();
-        if (type == "fixed-pct") {
-            m_breakevenDistanceType = DIST_PERCENTIL;
+        if (type == "fixed") {
+            m_breakevenPriceType = PRICE_FIXED;
+        } else if (type == "fixed-pct") {
+            m_breakevenPriceType = PRICE_FIXED;
         } else if (type == "fixed-dist") {
-            m_breakevenDistanceType = DIST_PRICE;
+            m_breakevenPriceType = PRICE_FIXED;
         } else if (type == "custom") {
-            m_breakevenDistanceType = DIST_CUSTOM;
+            m_breakevenPriceType = PRICE_CUSTOM;
         }
     }
 
@@ -43,14 +46,18 @@ void DynamicStopLoss::init(const Market *market, const ContextConfig &conf)
             if (distance.endsWith("%")) {
                 distance.trimRight('%');
                 m_breakevenDistance = distance.toDouble() * 0.01;
+                m_breakevenDistanceType = DIST_PERCENTIL;
             } else if (distance.endsWith("pip")) {
                 distance.trimRight("pip");
                 m_breakevenDistance = distance.toDouble() * market->onePipMean();
+                m_breakevenDistanceType = DIST_PRICE;
             } else if (distance.endsWith("pips")) {
                 distance.trimRight("pips");
                 m_breakevenDistance = distance.toDouble() * market->onePipMean();
+                m_breakevenDistanceType = DIST_PRICE;
             } else {
                 m_breakevenDistance = distance.toDouble();
+                m_breakevenDistanceType = DIST_PRICE;
             }
         }
     }
@@ -194,4 +201,23 @@ void DynamicStopLoss::updateΤrade(o3d::Double timestamp, o3d::Double lastTimest
     } else if (m_adjustPolicy == ADJ_CUSTOM) {
         // custom method from strategy
     }
+}
+
+o3d::Bool DynamicStopLoss::checkMinDistance(Trade *trade) const
+{
+    if (m_distanceType == DIST_PERCENTIL) {
+            o3d::Double closeExecPrice = trade->strategy()->market()->closeExecPrice(trade->direction());
+
+        if (distanceFromPercentile(trade, closeExecPrice) > m_distance) {
+            return true;
+        }
+    } else if (m_distanceType == DIST_PRICE) {
+        o3d::Double closeExecPrice = trade->strategy()->market()->closeExecPrice(trade->direction());
+
+        if (distanceFromPrice(trade, closeExecPrice) >= m_distance) {
+            return true;
+        }
+    }
+
+    return false;
 }

@@ -48,13 +48,16 @@ public:
 
     o3d::Double distance() const { return m_distance; }
     DistanceType distanceType() const { return m_distanceType; }
+
+    PriceType priceType() const { return m_priceType; }
     AdjustPolicy adjustPolicy() const { return m_adjustPolicy; }
 
     o3d::Double lastClosedTimestamp() const { return m_lastClosedTimestamp; }
 
 protected:
 
-    o3d::Double m_timeframe;
+    PriceType m_priceType;
+    o3d::Double m_timeframe;  
 
     o3d::Double m_distance;   //! distance in percent or pip or value
     DistanceType m_distanceType;
