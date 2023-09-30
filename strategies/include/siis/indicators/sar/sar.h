@@ -40,7 +40,6 @@ public:
 
     /**
      * @brief compute Compute a SAR.
-     * @param price A close or any other array of price.
      */
     void compute(o3d::Double timestamp, const DataArray &high, const DataArray &low);
 

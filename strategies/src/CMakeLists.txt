@@ -80,6 +80,7 @@ set(STRATEGY_LIB_CXX
     indicators/pivotpoint/pivotpoint.cpp
     indicators/rsi/rsi.cpp
     indicators/sar/sar.cpp
+    indicators/supertrend/supertrend.cpp
     indicators/sinewave/sinewave.cpp
     indicators/sma/sma.cpp
     indicators/stoch/stoch.cpp

@@ -10,6 +10,8 @@ Urgent
 Prioritaire
 ===========
 
+- TickBarBase => RangeBar, RangeBarGenerator
+
 - IndMarginTrade::updateStats complete PNL
 - pour les XxxxPositionSignal.refOrderId met on orderId or refOrderId ?
 - per market overrides in dot format

@@ -11,6 +11,8 @@
 #include <ta-lib/ta_func.h>
 #include <limits>
 
+#include <cmath>
+
 using namespace siis;
 using o3d::Debug;
 using o3d::Logger;
@@ -122,6 +124,32 @@ DataArray &DataArray::nan(o3d::Int32 len)
 
     for (o3d::Int32 i = 0; i < l; ++i) {
         m_data[i] = std::numeric_limits<double>::quiet_NaN();  // o3d::Limits<o3d::Double>::nan()
+    }
+
+    return *this;
+}
+
+DataArray &DataArray::zeroNan(o3d::Int32 len)
+{
+    o3d::Int32 l = len >= 0 ? len : getSize();
+
+    for (o3d::Int32 i = 0; i < l; ++i) {
+         if (std::isnan(m_data[i])) {
+            m_data[i] = 0.0;
+         }
+    }
+
+    return *this;
+}
+
+DataArray &DataArray::defaultNan(o3d::Int32 len, o3d::Double v)
+{
+    o3d::Int32 l = len >= 0 ? len : getSize();
+
+    for (o3d::Int32 i = 0; i < l; ++i) {
+         if (std::isnan(m_data[i])) {
+            m_data[i] = v;
+         }
     }
 
     return *this;

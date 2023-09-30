@@ -54,8 +54,30 @@ public:
     DataArray operator* (o3d::Double scale);
     DataArray operator/ (const DataArray &a);
 
+    /**
+     * @brief zero Make all values set to zero
+     * @param len Use this len in place of array len if greater than 0.
+     */
     DataArray& zero(o3d::Int32 len=-1);
+
+    /**
+     * @brief nan Make all values set to NaN.
+     * @param len Use this len in place of array len if greater than 0.
+     */
     DataArray& nan(o3d::Int32 len=-1);
+
+    /**
+     * @brief zeroNan Replace any nan value by zero.
+     * @param len Use this len in place of array len if greater than 0.
+     */
+    DataArray& zeroNan(o3d::Int32 len=-1);
+
+    /**
+     * @brief defaultNan Replace any nan value by given default value.
+     * @param len Use this len in place of array len if greater than 0.
+     * @param v Default value.
+     */
+    DataArray& defaultNan(o3d::Int32 len, o3d::Double v);
 
     DataArray& mult(const DataArray &a, const DataArray &b);
     DataArray& mult(const DataArray &a, o3d::Double scale);
