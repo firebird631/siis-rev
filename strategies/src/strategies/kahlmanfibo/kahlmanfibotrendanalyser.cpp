@@ -28,8 +28,8 @@ KahlmanFiboTrendAnalyser::KahlmanFiboTrendAnalyser(
     m_hma("hma", timeframe),
     m_hma3("hma3", timeframe),
     m_trend(0),
-    m_kHma(22),
-    m_kHma3(11)
+    m_kHma("kHma", timeframe, 22),
+    m_kHma3("kHma3", timeframe, 11)
 {
 
 }
@@ -45,6 +45,9 @@ void KahlmanFiboTrendAnalyser::init(AnalyserConfig conf)
     // configureIndictor(conf, "hma3", m_hma3);  // might be half len of hma
 
     m_hma3.setLength(m_hma.len() / 2);
+
+    // m_kHma.setLength(22);
+    // m_kHma3.setLength(11);
 
     m_trend = 0;
 
@@ -113,49 +116,4 @@ TradeSignal KahlmanFiboTrendAnalyser::compute(o3d::Double timestamp, o3d::Double
 void KahlmanFiboTrendAnalyser::setUseKahlman(o3d::Bool use)
 {
     m_kahlman = use;
-}
-
-KahlmanFiboTrendAnalyser::KahlmanFilter::KahlmanFilter(o3d::Int32 len, o3d::Double gain) :
-    m_len(len),
-    m_gain(gain),
-    m_g2Sqrt(0.0),
-    m_prev(0.0),
-    m_last(0.0),
-    m_lastTimestamp(0.0)
-{
-    m_gain = gain;
-    m_g2Sqrt = o3d::Math::sqrt(gain*2.0);
-
-    resize(len);
-}
-
-void KahlmanFiboTrendAnalyser::KahlmanFilter::resize(o3d::Int32 len)
-{
-    if (len != m_kf.getSize()) {
-        m_len = len;
-
-        m_kf.setSize(len);
-        m_dk.setSize(len);
-        m_smooth.setSize(len);
-        m_velo.setSize(len);
-    }
-}
-
-void KahlmanFiboTrendAnalyser::KahlmanFilter::compute(o3d::Double timestamp, const DataArray &price)
-{
-    m_prev = m_last;
-
-    if (m_len != price.getSize()) {
-        resize(price.getSize());
-    }
-
-    for (o3d::Int32 i = 0; i < m_len; ++i) {
-        m_dk[i] = price[i] - (i == 0 || std::isnan(m_kf[i-1]) ? price[i] : m_kf[i-1]);
-        m_smooth[i] = (i == 0 || std::isnan(m_kf[i-1]) ? price[i] : m_kf[i-1]) + m_dk[i] * m_g2Sqrt;
-        m_velo[i] = (i == 0 || std::isnan(m_velo[i-1]) ? 0.0 : m_velo[i-1]) + (m_gain * m_dk[i]);
-        m_kf[i] = m_smooth[i] + m_velo[i];
-    }
-
-    m_last = m_kf.last();
-    m_lastTimestamp = timestamp;
 }
