@@ -266,6 +266,7 @@ include/siis/trade/positiontrade.h
 include/siis/trade/stdtrademanager.h
 include/siis/trade/stdtrademanager.h
 include/siis/trade/stoploss.h
+include/siis/trade/takeprofit.h
 include/siis/trade/trade.h
 include/siis/trade/trade.h
 include/siis/trade/trademanager.h
@@ -805,6 +806,7 @@ src/trade/stdtrademanager.cpp
 src/trade/stdtrademanager.cpp
 src/trade/stdtrademanager.cpp
 src/trade/stoploss.cpp
+src/trade/takeprofit.cpp
 src/trade/trade.cpp
 src/trade/trade.cpp
 src/trade/trade.cpp

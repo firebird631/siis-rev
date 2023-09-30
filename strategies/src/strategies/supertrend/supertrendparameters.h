@@ -25,6 +25,7 @@ static const char* SuperTrendParameters = R"JSON(
     "trade-delay": 30,
     "need-update": false,
     "trade-type": "ind-margin",
+    "kahlman": false,
     "contexts": {
         "st-5m-1m": {
             "mode": "trade",
@@ -35,7 +36,7 @@ static const char* SuperTrendParameters = R"JSON(
             "confirm": {"type": "candle", "timeframe": "1m", "risk-reward": 0.0, "profit-scale": 0.0},
             "entry": {"type": "last", "timeframe": "5m", "timeout": "1h"},
             "take-profit": {"type": "fixed-pct", "distance": "1.25%", "timeframe": "1m"},
-            "stop-loss": {"type": "fixed-pct", "distance": "0.75%", "timeframe": "1m"}
+            "stop-loss": {"type": "fixed-pct", "distance": "0.75%", "timeframe": "1m"},
             "breakeven": {"type": "fixed-pct", "timeframe": "5m", "distance": "1.0%"},
             "dynamic-stop-loss": {"type": "custom", "distance": "0.01%", "timeframe": "5m"}
         }

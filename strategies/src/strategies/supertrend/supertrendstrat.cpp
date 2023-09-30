@@ -58,7 +58,7 @@ void SuperTrendStrat::init(Config *config)
     Strategy::init(config);
 
     // author defined strategy properties details
-    setProperty("name", "maadx");
+    setProperty("name", "supertrend");
     setProperty("author", "Frederic SCHERMA (frederic.scherma@gmail.com)");
     setProperty("date", "2023-09-30");
     setProperty("revision", "1");
@@ -143,7 +143,7 @@ void SuperTrendStrat::init(Config *config)
             // entry-exits
             m_entry.init(market(), ctxConfig);
             m_stopLoss.init(market(), ctxConfig);
-            // m_takeProfit.init(market(), ctxConfig);
+            m_takeProfit.init(market(), ctxConfig);
             m_breakeven.init(market(), ctxConfig);
             m_dynamicStopLoss.init(market(), ctxConfig);
             // m_dynamicTakeProfit.init(market(), ctxConfig);
@@ -329,6 +329,33 @@ void SuperTrendStrat::updateTrade(Trade *trade)
         // custom dynamic stop-loss
         if (m_dynamicStopLoss.adjustPolicy() == ADJ_CUSTOM) {
             // @todo
+
+            /* close_exec_price = strategy_trader.instrument.close_exec_price(trade.dir)
+
+        # last stop must be at minimal defined distance
+        if trade.context.dynamic_stop_loss.percentile_distance_from_stop_price(
+                trade, close_exec_price) < trade.context.dynamic_stop_loss.distance:
+            return
+
+        new_stop_price = 0.0
+
+        if trade.context.dynamic_stop_loss.type == self.PRICE_CUSTOM and self.sig_tf.supertrend.position == trade.direction:
+            new_stop_price = self.sig_tf.supertrend.last
+
+            if trade.direction > 0:
+                new_stop_price *= 1.0 - self.dynamic_stop_loss.distance
+                new_stop_price = max(new_stop_price, trade.stop_loss)
+            elif trade.direction < 0:
+                new_stop_price *= 1.0 + self.dynamic_stop_loss.distance
+                new_stop_price = min(new_stop_price, trade.stop_loss)
+
+        if new_stop_price > 0.0 and new_stop_price != trade.stop_loss:
+            new_stop_price = strategy_trader.instrument.adjust_price(new_stop_price)
+            try:
+                strategy_trader.trade_modify_stop_loss(trade, new_stop_price, trade.support_both_order())
+            except Exception as e:
+                logger.error(repr(e))
+                */
         }
     }
 }
@@ -396,45 +423,43 @@ void SuperTrendStrat::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double
 TradeSignal SuperTrendStrat::computeSignal(o3d::Double timestamp)
 {
     TradeSignal signal(m_sigAnalyser->timeframe(), timestamp);
-/*
-    if (m_trendAnalyser->trend() > 0) {
-        if (m_sigAnalyser->adx() > m_adxSig) {
-            if (m_sigAnalyser->sig() > 0 && m_sigAnalyser->adx() <= ADX_MAX) {
-                if (m_confAnalyser->confirmation() > 0) {
-                    // keep only one signal per timeframe
-                    if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
-                        signal.setEntry();
-                        signal.setLong();
 
-                        m_entry.updateSignal(signal, market());
-                        // signal.setPrice(m_confAnalyser->lastPrice());
+    o3d::Int32 sig = m_sigAnalyser->sig();
 
-                        signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_targetScale));
-                        signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_targetScale, m_riskReward));
-                    }
-                }
+    if (sig != 0) {
+        // printf("%i\n", sig);
+    }
+
+    if (sig > 0) {
+        if (m_confAnalyser->confirmation() > 0) {
+            // keep only one signal per timeframe
+            if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
+                signal.setEntry();
+                signal.setLong();
+
+                m_entry.updateSignal(signal, market());
+                // signal.setPrice(m_confAnalyser->lastPrice());
+
+                signal.setTakeProfitPrice(signal.price() * (1.0 + m_takeProfit.distance()) + m_profitScale * market()->onePipMean());
+                signal.setStopLossPrice(m_sigAnalyser->stopLoss(1, m_riskScale, market()->onePipMean()));
             }
         }
-    } else if (m_trendAnalyser->trend() < 0) {
-        if (m_sigAnalyser->adx() > m_adxSig) {
-            if (m_sigAnalyser->sig() < 0 && m_sigAnalyser->adx() <= ADX_MAX) {
-                if (m_confAnalyser->confirmation() < 0) {
-                    // keep only one signal per timeframe
-                    if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
-                        signal.setEntry();
-                        signal.setShort();
+    } else if (sig < 0) {
+        if (m_confAnalyser->confirmation() < 0) {
+            // keep only one signal per timeframe
+            if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
+                signal.setEntry();
+                signal.setShort();
 
-                        m_entry.updateSignal(signal, market());
-                        // signal.setPrice(m_confAnalyser->lastPrice());
+                m_entry.updateSignal(signal, market());
+                // signal.setPrice(m_confAnalyser->lastPrice());
 
-                        signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_targetScale));
-                        signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_targetScale, m_riskReward));
-                    }
-                }
+                signal.setTakeProfitPrice(signal.price() * (1.0 - m_takeProfit.distance()) - m_profitScale * market()->onePipMean());
+                signal.setStopLossPrice(m_sigAnalyser->stopLoss(-1, m_riskScale, market()->onePipMean()));
             }
         }
     }
-*/
+
     if (signal.valid()) {
         m_stopLoss.updateSignal(signal);
 

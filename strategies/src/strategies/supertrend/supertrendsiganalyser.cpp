@@ -26,8 +26,8 @@ SuperTrendSigAnalyser::SuperTrendSigAnalyser(
     m_hma3("hma3", timeframe),
     m_superTrend("supertrend", timeframe),
     m_trend(0),
-    m_kHma(22),
-    m_kHma3(11)
+    m_kHma("kHma", timeframe, 22),
+    m_kHma3("kHma3", timeframe, 11)
 {
 
 }
@@ -44,6 +44,9 @@ void SuperTrendSigAnalyser::init(AnalyserConfig conf)
 
     m_hma3.setLength(m_hma.len() / 2);
     configureIndictor(conf, "supertrend", m_superTrend);
+
+    // m_kHma.setLength(22);
+    // m_kHma3.setLength(11);
 
     m_trend = 0;
 
@@ -108,4 +111,19 @@ TradeSignal SuperTrendSigAnalyser::compute(o3d::Double timestamp, o3d::Double la
     }
 
     return signal;
+}
+
+o3d::Int32 SuperTrendSigAnalyser::sig() const
+{
+    return m_superTrend.positionChange();
+}
+
+o3d::Double SuperTrendSigAnalyser::takeProfit(o3d::Int32 direction, o3d::Double profitScale) const
+{
+    return 0.0;
+}
+
+o3d::Double SuperTrendSigAnalyser::stopLoss(o3d::Int32 direction, o3d::Double riskScale, o3d::Double onePipMeans) const
+{
+    return m_superTrend.last() - direction * riskScale * onePipMeans;
 }

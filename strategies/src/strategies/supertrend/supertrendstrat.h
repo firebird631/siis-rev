@@ -21,6 +21,7 @@
 #include "siis/trade/stdtrademanager.h"
 
 #include "siis/trade/entry.h"
+#include "siis/trade/takeprofit.h"
 #include "siis/trade/stoploss.h"
 #include "siis/trade/breakeven.h"
 #include "siis/trade/dynamicstoploss.h"
@@ -68,8 +69,6 @@ public:
 
 private:
 
-    static constexpr o3d::Double ADX_MAX = 75.0;
-
     std::vector<Analyser*> m_analysers;
     StdTradeManager *m_tradeManager;
 
@@ -84,6 +83,7 @@ private:
     o3d::Double m_minProfit;
 
     Entry m_entry;
+    TakeProfit m_takeProfit;
     StopLoss m_stopLoss;
     Breakeven m_breakeven;
     DynamicStopLoss m_dynamicStopLoss;

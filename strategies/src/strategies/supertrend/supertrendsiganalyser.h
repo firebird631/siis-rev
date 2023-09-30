@@ -12,6 +12,7 @@
 
 #include "siis/indicators/hma/hma.h"
 #include "siis/indicators/hma3/hma3.h"
+#include "siis/indicators/kahlmanfilter/kahlmanfilter.h"
 #include "siis/indicators/supertrend/supertrend.h"
 
 namespace siis {
@@ -46,40 +47,12 @@ public:
     inline o3d::Int32 trend() const { return m_trend; }
     inline o3d::Double trendTimestamp() const { return m_trendTimestamp; }
 
+    o3d::Int32 sig() const;
+
+    o3d::Double takeProfit(o3d::Int32 direction, o3d::Double profitScale) const;
+    o3d::Double stopLoss(o3d::Int32 direction, o3d::Double riskScale, o3d::Double onePipMeans) const;
+
 private:
-
-    class KahlmanFilter
-    {
-    public:
-
-        KahlmanFilter(o3d::Int32 len, o3d::Double gain = 0.7);
-
-        void resize(o3d::Int32 len);
-        void compute(o3d::Double timestamp, const DataArray &price);
-
-        o3d::Int32 len() const { return m_len; }
-
-        const DataArray& kf() const { return m_kf; }
-
-        o3d::Double prev() const { return m_prev; }
-        o3d::Double last() const { return m_last; }
-
-    private:
-
-        o3d::Int32 m_len;
-        o3d::Double m_gain;
-        o3d::Double m_g2Sqrt;
-
-        DataArray m_kf;
-        DataArray m_dk;
-        DataArray m_smooth;
-        DataArray m_velo;
-
-        o3d::Double m_prev;
-        o3d::Double m_last;
-
-        o3d::Double m_lastTimestamp;  //!< last compute timestamp
-    };
 
     o3d::Double m_gain;
     o3d::Bool m_kahlman;

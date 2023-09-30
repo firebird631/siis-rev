@@ -26,8 +26,8 @@ SuperTrendTrendAnalyser::SuperTrendTrendAnalyser(
     m_hma3("hma3", timeframe),
     m_superTrend("supertrend", timeframe),
     m_trend(0),
-    m_kHma(22),
-    m_kHma3(11)
+    m_kHma("kHma", timeframe, 22),
+    m_kHma3("kHma3", timeframe, 11)
 {
 
 }
@@ -44,6 +44,9 @@ void SuperTrendTrendAnalyser::init(AnalyserConfig conf)
 
     m_hma3.setLength(m_hma.len() / 2);
     configureIndictor(conf, "supertrend", m_superTrend);
+
+    // m_kHma.setLength(22);
+    // m_kHma3.setLength(11);
 
     m_trend = 0;
 
