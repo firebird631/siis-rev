@@ -163,6 +163,7 @@ include/siis/indicators/indicator.h
 include/siis/indicators/indicator.h
 include/siis/indicators/indicator.h
 include/siis/indicators/indicator.h
+include/siis/indicators/kahlmanfilter/kahlmanfilter.h
 include/siis/indicators/macd/macd.h
 include/siis/indicators/macd/macd.h
 include/siis/indicators/macd/macd.h
@@ -545,6 +546,7 @@ src/indicators/hma/hma.cpp
 src/indicators/hma/hma.cpp
 src/indicators/hma/hma.cpp
 src/indicators/hma3/hma3.cpp
+src/indicators/kahlmanfilter/kahlmanfilter.cpp
 src/indicators/macd/macd.cpp
 src/indicators/macd/macd.cpp
 src/indicators/macd/macd.cpp
