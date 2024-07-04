@@ -17,11 +17,16 @@ It is mainly developped in C++, using TA-lib and Tensorflow. The connectors are 
 but C++ version will be done later. What is important is to have an engine and a strategy in C++,
 to have best backtesting performance, low CPU usage and lower latency in live.
 
-The Web client is planned too, developped in ReactJS.
+Any devoted help and supports are welcome.
 
-This project is in far from to be usable, lot of work, any help will be appreciate,
-and for now I mainly work on the prototype Python version.
+You can eventually contact me if you want my assistance to develop your strategy and help you for backtesting.
 
+Disclaimers
+-----------
+
+I have no commercials interests with any trading platforms, exchanges or prop-firms.
+Please does not fork this project. So many peoples fork for nothing, consider star and eventually
+submit pull requests.
 
 Features and TODO list
 ----------------------
@@ -107,7 +112,6 @@ If this project helped you out feel free to donate.
 * ETH (ERC20): 0xc2fc512df6ac6b5e2bd23873dc7df4c56bcdc214
 * XRP: rNxp4h8apvRis6mJf9Sh8C6iRxfrDWN7AV / memo 313602045
 
-
 Installation
 ------------
 
@@ -169,7 +173,6 @@ Eventually to exit of the environment :
 deactivate
 ```
 
-
 ### Database ###
 
 Prefers the PostgreSQL database server. For now SiiS does not bulk data insert, the performance
@@ -180,12 +183,10 @@ in these files describe a possible way to install them.
 
 The PostgreSQL support will be the priority. MySQL is postponed.
 
-
 ### Cache ###
 
 Redis is used for communication and data cache. You need then a configured Redis server.
 The default configuration will suffise.
-
 
 Configuration
 -------------
@@ -208,23 +209,19 @@ The directory will contains 4 sub-directories:
 
 Follow the instructions from the file strategies/README.md.
 
-
 #### <.siis/>config/connectors/ ####
 
 Follow the instructions from the file connectors/README.md.
-
 
 Running connectors
 ------------------
 
 Follow the instructions from the file connectors/README.md.
 
-
 Running strategies
 ------------------
 
 Follow the instructions from the file strategies/README.md.
-
 
 About data storage
 ------------------
@@ -255,7 +252,6 @@ Where it is more problematic its with IG broker, where it's impossible to get hi
 For this case I realize the backtesting using other dataset. Else you have to run without interuption a connector during many month to have
 all the ticks.
 
-
 Troubles
 --------
 
@@ -263,7 +259,6 @@ Fetching historical data is slow : It depends of the exchance and the timeframe.
 be more patient, this is due to theirs API limitations.
 
 Please understands than I develop this project during my free time, and for free, only your donations could help me.
-
 
 Disclaimer
 ----------
