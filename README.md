@@ -1,16 +1,16 @@
-SIIS Strategy/Scalper Indicator Information System Revisited
-============================================================
+SiiS Revolution : Self Investor Income System Revolution
+========================================================
 
 Abstract
 --------
 
-SiiS Revisited is a autotrading bot for forex, indices and crypto currencies markets.
+SiiS Revolution is a autotrading bot for Forex, Indices and Cryptocurrencies markets.
 It support machine-learning supervisors, and genetic algorithm optimizers.
 It also support semi-automated trading in way to manage your entry and exits
 with more possibilities than an exchanges allow.
 
 This version is in development, most of the features are not implemented at this time.
-Please look at the [github:siis](https://github.com/dream-overflow/siis) for my previous project,
+Please look at the [github:siis](https://github.com/firebird631/siis) for my previous project,
 still in developpment, because I use it for now, until the new version will be more advanced, and I can prototype with.
 
 It is mainly developped in C++, using TA-lib and Tensorflow. The connectors are developped in Python3,
@@ -36,10 +36,12 @@ Features and TODO list
     * HitBTC (planned)
     * IB (planned)
     * IG (Python WIP, C++ planned)
+    * Rithmic(TM) (planned)
 * Some others source of prices/volumes data fetchers
-   * HistData (only to import manually downloaded files)
-   * AlphaVantage (WIP)
-   * Tiingo (WIP)
+    * HistData (only to import manually downloaded files)
+    * AlphaVantage (WIP)
+    * Tiingo (WIP)
+    * Dukascopy (planned)
 * Distinct instance per account/broker connector
 	* Individual configuration
     * Connection with API key (open-source you can check than yours API keys are safe with SiiS)
@@ -102,7 +104,8 @@ interested in participating seriously into this project.
 If this project helped you out feel free to donate.
 
 * BTC: 1GVdwcVrvvbqBgzNMii6tGNhTYnGvsJZFE
-* ETH: 0xd9cbda09703cdd4df9aeabf63f23be8da19ca9bf
+* ETH (ERC20): 0xc2fc512df6ac6b5e2bd23873dc7df4c56bcdc214
+* XRP: rNxp4h8apvRis6mJf9Sh8C6iRxfrDWN7AV / memo 313602045
 
 
 Installation
