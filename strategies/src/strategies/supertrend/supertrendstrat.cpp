@@ -352,13 +352,14 @@ void SuperTrendStrat::updateTrade(Trade *trade)
 void SuperTrendStrat::updateStats()
 {
     o3d::Double performance = 0.0;
+    o3d::Double drawDownRate = 0.0;
     o3d::Double drawDown = 0.0;
     o3d::Int32 pending = 0;
     o3d::Int32 actives = 0;
 
-    m_tradeManager->computePerformance(performance, drawDown, pending, actives);
+    m_tradeManager->computePerformance(performance, drawDownRate, drawDown, pending, actives);
 
-    setActiveStats(performance, drawDown, pending, actives);
+    setActiveStats(performance, drawDownRate, drawDown, pending, actives);
 }
 
 void SuperTrendStrat::orderEntry(

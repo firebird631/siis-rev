@@ -49,6 +49,9 @@ public:
     o3d::Double distance() const { return m_distance; }
     DistanceType distanceType() const { return m_distanceType; }
 
+    o3d::Double offset() const { return m_offset; }
+    DistanceType offsetType() const { return m_offsetType; }
+
     PriceType priceType() const { return m_priceType; }
     AdjustPolicy adjustPolicy() const { return m_adjustPolicy; }
 
@@ -62,6 +65,9 @@ protected:
     o3d::Double m_distance;   //! distance in percent or pip or value
     DistanceType m_distanceType;
     AdjustPolicy m_adjustPolicy;
+
+    o3d::Double m_offset;     //! offset in percent or pip or value
+    DistanceType m_offsetType;
 
     o3d::Bool m_consolidated;
     o3d::Double m_lastClosedTimestamp;

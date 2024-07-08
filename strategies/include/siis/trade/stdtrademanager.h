@@ -61,10 +61,10 @@ public:
     const Trade* findTrade(o3d::Double timeframe) const;
 
     void computePerformance(o3d::Double &performance,
+                            o3d::Double &drawDownRate,
                             o3d::Double &drawDown,
                             o3d::Int32 &pending,
                             o3d::Int32 &actives) const;
-
 
     o3d::Int32 closeAll();
     o3d::Int32 closeAllByDirection(o3d::Int32 dir);

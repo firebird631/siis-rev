@@ -19,6 +19,8 @@ EntryExit::EntryExit() :
     m_distance(0.0),
     m_distanceType(DIST_NONE),
     m_adjustPolicy(ADJ_NONE),
+    m_offset(0.0),
+    m_offsetType(DIST_NONE),
     m_consolidated(false),
     m_lastClosedTimestamp(0.0)
 {
@@ -73,6 +75,26 @@ void EntryExit::init(const Market *market, const EntryExitConfig &conf)
         m_adjustPolicy = ADJ_PRICE;
     } else {
         m_adjustPolicy = ADJ_NONE;
+    }
+
+    if (conf.data().isMember("offset")) {
+        o3d::String offset = conf.data().get("offset", Json::Value()).asCString();
+        if (offset.endsWith("%")) {
+            offset.trimRight('%');
+            m_offset = offset.toDouble() * 0.01;
+            m_offsetType = DIST_PERCENTIL;
+        } else if (offset.endsWith("pip")) {
+            offset.trimRight("pip");
+            m_offset = offset.toDouble() * market->onePipMean();
+            m_offsetType = DIST_PRICE;
+        } else if (offset.endsWith("pips")) {
+            offset.trimRight("pips");
+            m_offset = offset.toDouble() * market->onePipMean();
+            m_offsetType = DIST_PRICE;
+        } else {
+            m_offset = offset.toDouble();
+            m_offsetType = DIST_PRICE;
+        }
     }
 }
 

@@ -35,7 +35,8 @@ public:
     o3d::Double worst = 0.0;  //! in percentiles
     o3d::Double best = 0.0;   //! in percentiles
 
-    o3d::Double maxDrawDown = 0.0;  //! in percentile
+    o3d::Double maxDrawDownRate = 0.0;  //! in percentile
+    o3d::Double maxDrawDown = 0.0;      //! in currency
 
     o3d::Int32 succeedTrades = 0;
     o3d::Int32 failedTrades = 0;
@@ -74,7 +75,8 @@ public:
     o3d::Double worst = 0.0;  //! in percentiles
     o3d::Double best = 0.0;   //! in percentiles
 
-    o3d::Double maxDrawDown = 0.0;  //! in percentile
+    o3d::Double maxDrawDownRate = 0.0;  //! in percentile
+    o3d::Double maxDrawDown = 0.0;      //! in currency
 
     o3d::Int32 succeedTrades = 0;
     o3d::Int32 failedTrades = 0;
@@ -87,6 +89,8 @@ public:
     o3d::Int32 takeProfitInLoss = 0;
     o3d::Int32 stopLossInGain = 0;
     o3d::Int32 takeProfitInGain = 0;
+
+    // @todo others stats
 
     void reset();
     void add(const Statistics &stats);
@@ -103,7 +107,9 @@ public:
     o3d::Double timestamp = 0.0;
     o3d::Double equity = 0.0;
     o3d::Double profitLoss = 0.0;
-    o3d::Double drawDown = 0.0;  //! in percentile of equity
+
+    o3d::Double drawDownRate = 0.0;  //! in percentile of equity
+    o3d::Double drawDown = 0.0;      //! in currency
 };
 
 class SIIS_API AccountStatistics
@@ -112,8 +118,10 @@ public:
 
     o3d::Double initialEquity = 0.0;
     o3d::Double finalEquity = 0.0;
-    o3d::Double maxDrawDown = 0.0;  //! in percentile of equity
     o3d::Double profitLoss = 0.0;
+
+    o3d::Double maxDrawDownRate = 0.0;  //! in percentile of equity
+    o3d::Double maxDrawDown = 0.0;      //! in currency
 
     std::vector<AccountSample> samples;  //! per day sample of the state of the account
 };

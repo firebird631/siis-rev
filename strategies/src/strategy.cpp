@@ -93,6 +93,7 @@ void Strategy::initBasicsParameters(StrategyConfig &conf)
 }
 
 void Strategy::setActiveStats(o3d::Double performance,
+                              o3d::Double drawDownRate,
                               o3d::Double drawDown,
                               o3d::Int32 pending,
                               o3d::Int32 actives)
@@ -101,6 +102,10 @@ void Strategy::setActiveStats(o3d::Double performance,
     m_stats.openTrades = pending;
 
     m_stats.unrealizedPerformance = performance;
+
+    if (drawDownRate > m_stats.maxDrawDownRate) {
+        m_stats.maxDrawDownRate = drawDownRate;
+    }
 
     if (drawDown > m_stats.maxDrawDown) {
         m_stats.maxDrawDown = drawDown;

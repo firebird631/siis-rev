@@ -3,12 +3,27 @@ Urgent
 
 - trading session depuis config
 - check trading session
+
 - log rotate ou a minima taille max
 - exit-fee doit être multiplié par le raw PNL
 
 
 Prioritaire
 ===========
+
+- Implementer offset sur breakeven.
+
+- GlobalStatistics & trade statistics :
+  - per trade MAE (worst), MTE (best), ETD (best return), entry, exit and total efficiency
+  - avg entry, exit and total efficiency, mae, mte, etd, trade
+  - ratio any trade, avg win/avg loss, avg # of trade per day, avg time in market
+  - estimated profit per month
+  - longest flat period
+  - num traded days
+  - max time to recover
+  - sharpe ratio
+  - sortino ratio
+  - ulcer index
 
 - TickBarBase => RangeBar, RangeBarGenerator
 

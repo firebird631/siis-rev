@@ -308,6 +308,7 @@ protected:
     void initBasicsParameters(StrategyConfig &conf);
 
     void setActiveStats(o3d::Double performance,
+                        o3d::Double drawDownRate,
                         o3d::Double drawDown,
                         o3d::Int32 pending,
                         o3d::Int32 actives);

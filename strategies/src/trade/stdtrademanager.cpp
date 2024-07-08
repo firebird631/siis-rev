@@ -270,6 +270,7 @@ const Trade *StdTradeManager::findTrade(o3d::Double timeframe) const
 
 void StdTradeManager::computePerformance(
         o3d::Double &performance,
+        o3d::Double &drawDownRate,
         o3d::Double &drawDown,
         o3d::Int32 &pending,
         o3d::Int32 &actives) const
@@ -277,6 +278,7 @@ void StdTradeManager::computePerformance(
     o3d::Bool drawDownByPercentage = true;
 
     performance = 0.0;
+    drawDownRate = 0.0;
     drawDown = 0.0;
     pending = 0;
     actives = 0;
@@ -296,17 +298,21 @@ void StdTradeManager::computePerformance(
 
     if (drawDownByPercentage) {
         if (performance < 0.0) {
-            drawDown = -performance;
+            drawDownRate = -performance;
         }
     } else {
         if (drawDown < 0.0) {
             o3d::Double freeMargin = strategy()->handler()->traderProxy()->freeMargin();
             if (freeMargin > 0.0) {
-                drawDown = -drawDown / freeMargin;
+                drawDownRate = -drawDown / freeMargin;
             }
         } else {
-            drawDown = 0.0;
+            drawDownRate = 0.0;
         }
+    }
+
+    if (drawDown < 0.0) {
+        drawDown = -drawDown;
     }
 
     m_mutex.unlock();

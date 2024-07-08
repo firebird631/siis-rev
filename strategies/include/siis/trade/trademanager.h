@@ -88,10 +88,11 @@ public:
     const Trade* findTrade(o3d::Double timeframe) const { return T::findTrade(timeframe); }
 
     void computePerformance(o3d::Double &performance,
+                            o3d::Double &drawDownRate,
                             o3d::Double &drawDown,
                             o3d::Int32 &pending,
                             o3d::Int32 &actives) const {
-        return T::computePerformance(performance, drawDown, pending, actives);
+        return T::computePerformance(performance, drawDownRate, drawDown, pending, actives);
     }
 
     /**

@@ -130,13 +130,17 @@ protected:
         o3d::Double usedBalance = 0.0;
         o3d::Double profitLoss = 0.0;
         o3d::Double assetProfitLoss = 0.0;
-        o3d::Double drawDown = 0.0;
-        o3d::Double maxDrawDown = 0.0;
+
+        o3d::Double drawDownRate = 0.0;  //!< in percentile
+        o3d::Double drawDown = 0.0;      //!< in currency
+
+        o3d::Double maxDrawDownRate = 0.0;   //!< in percentile
+        o3d::Double maxDrawDown = 0.0;       //!< in currency
 
         o3d::CString currency = "USD";
         o3d::Int32 precision = 2;
 
-        std::vector<AccountSample> samples;  //! per day sample of the state of the account
+        std::vector<AccountSample> samples;  //!< per day sample of the state of the account
         o3d::CStringMap<VirtualAsset> assets;
 
         o3d::Double updateBalance() const;

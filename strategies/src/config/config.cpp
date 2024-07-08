@@ -711,14 +711,15 @@ void Config::overwriteLearningFile(const GlobalStatistics &global, const Account
                 s.append(sample.timestamp);
                 s.append(sample.equity);
                 s.append(sample.profitLoss);
-                s.append(sample.drawDown);
+                s.append(sample.drawDownRate);
 
                 samples.append(s);
             }
 
-            // @todo format equity and pnl according to account currency precision
+            // @todo format equity, pnl and max-draw-down according to account currency precision
             root["performance"] = o3d::String::print("%.2f%%", global.performance * 100).toAscii().getData();
-            root["max-draw-down"] = o3d::String::print("%.2f%%", global.maxDrawDown * 100).toAscii().getData();
+            root["max-draw-down-rate"] = o3d::String::print("%.2f%%", global.maxDrawDownRate * 100).toAscii().getData();
+            root["max-draw-down"] = o3d::String::print("%.2f", global.maxDrawDownRate).toAscii().getData();
             // root["initial-equity"] = o3d::String::print("%.2f", account.initialEquity).toAscii().getData();
             root["final-equity"] = o3d::String::print("%.2f", account.finalEquity).toAscii().getData();
             root["stats-samples"] = samples;

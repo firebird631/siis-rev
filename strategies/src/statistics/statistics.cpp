@@ -21,6 +21,7 @@ void GlobalStatistics::reset()
     worst = 0.0;
     best = 0.0;
 
+    maxDrawDownRate = 0.0;
     maxDrawDown = 0.0;
 
     succeedTrades = 0;
@@ -47,7 +48,8 @@ void GlobalStatistics::add(const Statistics &stats)
     worst = o3d::min(stats.worst, worst);
     best = o3d::max(stats.best, best);
 
-    // not correct because it will need an instant from all concurents strategies
+    // not correct because it will need an instant from all concurents running strategies
+    maxDrawDownRate = o3d::max(stats.maxDrawDownRate, maxDrawDownRate);
     maxDrawDown = o3d::max(stats.maxDrawDown, maxDrawDown);
 
     succeedTrades += stats.succeedTrades;

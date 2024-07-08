@@ -697,12 +697,19 @@ o3d::Double LocalConnector::VirtualAccountData::updateBalance() const
 void LocalConnector::VirtualAccountData::updateDrawDown()
 {
     if (balance > 0 && profitLoss > 0) {
-        o3d::Double dd = (profitLoss + assetProfitLoss) / balance;
+        o3d::Double ddRate = (profitLoss + assetProfitLoss) / balance;
+        if (ddRate < 0.0) {
+            drawDownRate = -ddRate;
+            maxDrawDownRate = o3d::max(maxDrawDownRate, drawDownRate);
+        }
+
+        o3d::Double dd = profitLoss + assetProfitLoss;
         if (dd < 0.0) {
             drawDown = -dd;
             maxDrawDown = o3d::max(maxDrawDown, drawDown);
         }
     } else {
+        drawDownRate = 0.0;
         drawDown = 0.0;
     }
 }

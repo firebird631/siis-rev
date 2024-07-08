@@ -189,7 +189,7 @@ void Backtest::terminate(Config *config)
          .arg((globalStats.failedTrades > 0) ? (static_cast<o3d::Double>(globalStats.succeedTrades)/globalStats.failedTrades) : 1.0, 2)
          .arg(globalStats.best*100, 2).arg(globalStats.worst*100, 2).arg(globalStats.maxAdjacentWin).arg(globalStats.maxAdjacentLoss));
 
-    INFO("results", o3d::String("Max draw-down {0}%.").arg(globalStats.maxDrawDown*100, 2));
+    INFO("results", o3d::String("Max draw-down {0} ({1}%).").arg(globalStats.maxDrawDown, 2).arg(globalStats.maxDrawDownRate*100, 2));
 
     // delete before primary connector
     if (m_traderProxy) {
