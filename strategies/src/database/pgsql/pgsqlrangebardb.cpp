@@ -14,27 +14,27 @@ PgSqlRangeBarDb::PgSqlRangeBarDb(siis::PgSql *db) :
     m_db(db)
 {
     m_db->db()->registerQuery("get-last-range-bar",
-                              R"SQL(SELECT timestamp, duration, open, high, low, close, volume FROM ohlc
+                              R"SQL(SELECT timestamp, duration, open, high, low, close, volume FROM range_bar
                                 WHERE broker_id = $1 AND market_id = $2 AND size = $3 ORDER BY timestamp DESC LIMIT 1)SQL");
 
     m_db->db()->registerQuery("get-range-bar",
-                              R"SQL(SELECT timestamp, duration, open, high, low, close, volume FROM ohlc
+                              R"SQL(SELECT timestamp, duration, open, high, low, close, volume FROM range_bar
                                 WHERE broker_id = $1 AND market_id = $2 AND size = $3 AND timestamp = $4)SQL");
 
     m_db->db()->registerQuery("get-array-from-to-range-bar",
-                              R"SQL(SELECT timestamp, duration, open, high, low, close, volume FROM ohlc
+                              R"SQL(SELECT timestamp, duration, open, high, low, close, volume FROM range_bar
                                 WHERE broker_id = $1 AND market_id = $2 AND size = $3 AND timestamp >= $4 AND timestamp <= $5 ORDER BY timestamp ASC)SQL");
 
     m_db->db()->registerQuery("get-array-last-range-bar",
-                              R"SQL(SELECT timestamp, duration, open, high, low, close, volume FROM ohlc
+                              R"SQL(SELECT timestamp, duration, open, high, low, close, volume FROM range_bar
                                 WHERE broker_id = $1 AND market_id = $2 AND size = $3 ORDER BY timestamp DESC LIMIT $4)SQL");
 
     m_db->db()->registerQuery("get-array-last-to-range-bar",
-                              R"SQL(SELECT timestamp, duration, open, high, low, close, volume FROM ohlc
+                              R"SQL(SELECT timestamp, duration, open, high, low, close, volume FROM range_bar
                                 WHERE broker_id = $1 AND market_id = $2 AND size = $3 AND timestamp <= $4 ORDER BY timestamp DESC LIMIT $5)SQL");
 
     m_db->db()->registerQuery("get-array-from-range-bar",
-                              R"SQL(SELECT timestamp, duration, open, high, low, close, volume FROM ohlc
+                              R"SQL(SELECT timestamp, duration, open, high, low, close, volume FROM range_bar
                                 WHERE broker_id = $1 AND market_id = $2 AND size = $3 AND timestamp >= $4 ORDER BY timestamp ASC)SQL");
 }
 
@@ -86,7 +86,7 @@ o3d::Bool PgSqlRangeBarDb::fetchOhlc(const o3d::String &brokerId,
 
     out.setVolume(query->getOut("volume").toDouble());
 
-    if (out.absHeight() >= static_cast<o3d::Double>(barSize)) {
+    if (out.height() >= static_cast<o3d::Double>(barSize)) {
         out.setConsolidated();
     }
 
@@ -133,7 +133,7 @@ o3d::Int32 PgSqlRangeBarDb::fetchOhlcArrayFromTo(const o3d::String &brokerId,
 
         ohlc.setVolume(query->getOut("volume").toDouble());
 
-        if (ohlc.absHeight() >= static_cast<o3d::Double>(barSize)) {
+        if (ohlc.height() >= static_cast<o3d::Double>(barSize)) {
             ohlc.setConsolidated();
         }
 
@@ -187,7 +187,7 @@ o3d::Int32 PgSqlRangeBarDb::fetchOhlcArrayLast(const o3d::String &brokerId,
 
         ohlc.setVolume(query->getOut("volume").toDouble());
 
-        if (ohlc.absHeight() >= static_cast<o3d::Double>(barSize)) {
+        if (ohlc.height() >= static_cast<o3d::Double>(barSize)) {
             ohlc.setConsolidated();
         }
 
@@ -246,7 +246,7 @@ o3d::Int32 PgSqlRangeBarDb::fetchOhlcArrayLastTo(const o3d::String &brokerId,
 
         ohlc.setVolume(query->getOut("volume").toDouble());
 
-        if (ohlc.absHeight() >= static_cast<o3d::Double>(barSize)) {
+        if (ohlc.height() >= static_cast<o3d::Double>(barSize)) {
             ohlc.setConsolidated();
         }
 
@@ -301,7 +301,7 @@ o3d::Int32 PgSqlRangeBarDb::fetchOhlcArrayFrom(const o3d::String &brokerId,
 
         ohlc.setVolume(query->getOut("volume").toDouble());
 
-        if (ohlc.absHeight() >= static_cast<o3d::Double>(barSize)) {
+        if (ohlc.height() >= static_cast<o3d::Double>(barSize)) {
             ohlc.setConsolidated();
         }
 
@@ -349,7 +349,7 @@ o3d::Bool PgSqlRangeBarDb::getLastOhlc(
 
     out.setVolume(query->getOut("volume").toDouble());
 
-    if (out.absHeight() >= static_cast<o3d::Double>(barSize)) {
+    if (out.height() >= static_cast<o3d::Double>(barSize)) {
         out.setConsolidated();
     }
 

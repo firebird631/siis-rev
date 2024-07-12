@@ -447,7 +447,7 @@ public:
 
     /**
      * @brief lastOhlc Return the last received array of OHLC for a specified type (mid, bid or ask) for reads.
-     * @param ohlcType Mid, bid or ask.
+     * @param ohlcType Last, mid, bid or ask.
      */
     const OhlcArray& lastOhlc(Ohlc::Type ohlcType) { return m_ohlcs[ohlcType]; }
 
@@ -458,7 +458,7 @@ public:
 
     /**
      * @brief swapOhlc Get the OHLC buffer fro writting from the handler/connector or any other original source.
-     * @param ohlcType Mid, bid or ask.
+     * @param ohlcType Last, mid, bid or ask.
      */
     OhlcArray& getOhlcBuffer(Ohlc::Type ohlcType) { return m_ohlcs[ohlcType]; }
 

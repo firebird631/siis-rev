@@ -33,9 +33,10 @@ class SIIS_API Ohlc
 public:
 
     enum Type {
-        TYPE_MID = 0,
-        TYPE_BID = 1,
-        TYPE_ASK = 2,
+        TYPE_LAST = 0,
+        TYPE_MID = 1,
+        TYPE_BID = 2,
+        TYPE_ASK = 3,
         MAX_TYPE = TYPE_ASK
     };
 
@@ -136,7 +137,6 @@ public:
     inline o3d::Bool e() const { return D[7] != 0.0; }
 
     inline o3d::Double height() const { return D[3] - D[4]; }
-    inline o3d::Double absHeight() const { return o3d::abs(D[4] - D[3]); }
 
     inline void setTimestamp(o3d::Double timestamp) { D[0] = timestamp; }
 

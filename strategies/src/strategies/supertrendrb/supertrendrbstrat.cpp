@@ -15,7 +15,7 @@
 #include "siis/connector/connector.h"
 #include "siis/database/database.h"
 #include "siis/database/tradedb.h"
-#include "siis/database/ohlcdb.h"
+#include "siis/database/rangebardb.h"
 
 #include "supertrendrbtrendanalyser.h"
 #include "supertrendrbsiganalyser.h"
@@ -179,50 +179,44 @@ void SuperTrendRbStrat::terminate(Connector *connector, Database *db)
 
 void SuperTrendRbStrat::prepareMarketData(Connector *connector, Database *db, o3d::Double fromTs, o3d::Double toTs)
 {
-    // not timeframe based OHLC, but will support range bar later
-//    Ohlc::Type ohlcType = Ohlc::TYPE_MID;
+    Ohlc::Type ohlcType = Ohlc::TYPE_MID;
 
-//    for (Analyser *analyser : m_analysers) {
-//        // history might be >= depth but in case of...
-//        o3d::Int32 depth = o3d::max(analyser->history(), analyser->depth());
-//        if (depth <= 0) {
-//            continue;
-//        }
+    for (Analyser *analyser : m_analysers) {
+        // history might be >= depth but in case of...
+        o3d::Int32 depth = o3d::max(analyser->history(), analyser->depth());
+        if (depth <= 0) {
+            continue;
+        }
 
-//        o3d::Int32 k = 0;
+        o3d::Int32 k = 0;
 
-//        o3d::Double srcTs = fromTs - 1.0 - analyser->barSize() * depth;
-//        o3d::Double dstTs = fromTs - 1.0;
-//        o3d::Int32 lastN = 0;
+        o3d::Double srcTs = 0.0;  //!< range-bar are not linear then source timestamp cannot be determined
+        o3d::Double dstTs = fromTs - 1.0;
+        o3d::Int32 lastN = 0;
 
-//        adjustOhlcFetchRange(depth, srcTs, dstTs, lastN);
+        adjustOhlcFetchRange(depth, srcTs, dstTs, lastN);
 
-//        if (lastN > 0) {
-//            k = handler()->database()->ohlc()->fetchOhlcArrayLastTo(
-//                    analyser->strategy()->brokerId(), market()->marketId(), analyser->timeframe(),
-//                    lastN, dstTs,
-//                    market()->getOhlcBuffer(ohlcType));
-//        } else {
-//            k = handler()->database()->ohlc()->fetchOhlcArrayFromTo(
-//                    analyser->strategy()->brokerId(), market()->marketId(), analyser->timeframe(),
-//                    srcTs, dstTs,
-//                    market()->getOhlcBuffer(ohlcType));
-//        }
+        if (lastN > 0) {
+            k = handler()->database()->rangeBar()->fetchOhlcArrayLastTo(
+                    analyser->strategy()->brokerId(), market()->marketId(), analyser->barSize(),
+                    lastN, dstTs,
+                    market()->getOhlcBuffer(ohlcType));
+        }
 
-//        if (k > 0) {
-//            o3d::Int32 lastN = market()->getOhlcBuffer(ohlcType).getSize() - 1;
+        if (k > 0) {
+            o3d::Int32 lastN = market()->getOhlcBuffer(ohlcType).getSize() - 1;
 
-//            o3d::String msg = o3d::String("Retrieved {0}/{1} OHLCs with most recent at {2}").arg(k).arg(depth)
-//                              .arg(timestampToStr(market()->getOhlcBuffer(ohlcType).get(lastN)->timestamp()));
+            o3d::String msg = o3d::String("Retrieved {0}/{1} range-bars with most recent at {2}").arg(k).arg(depth)
+                              .arg(timestampToStr(market()->getOhlcBuffer(ohlcType).get(lastN)->timestamp()));
 
-//            log(analyser->timeframe(), "init", msg);
+            log(analyser->timeframe(), "init", msg);
 
-//            analyser->onOhlcUpdate(toTs, analyser->timeframe(), market()->getOhlcBuffer(ohlcType));
-//        } else {
-//            o3d::String msg = o3d::String("No OHLCs founds (0/{0})").arg(depth);
-//            log(analyser->timeframe(), "init", msg);
-//        }
-//    }
+            analyser->onOhlcUpdate(toTs, analyser->timeframe(), market()->getOhlcBuffer(ohlcType));
+        } else {
+            o3d::String msg = o3d::String("No range-bars founds (0/{0})").arg(depth);
+            log(analyser->timeframe(), "init", msg);
+        }
+    }
 
     setMarketDataPrepared();
 }

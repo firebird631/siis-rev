@@ -1,12 +1,12 @@
 /**
- * @brief SiiS strategy range-bar generator.
- * @copyright Copyright (C) 2024 SiiS
+ * @brief SiiS strategy reversal-bar generator.
+ * @copyright Copyright (C) 2014 SiiS
  * @author Frederic SCHERMA (frederic.scherma@gmail.com)
  * @date 2024-07-12
  */
 
-#ifndef SIIS_RANGEOHLCGEN_H
-#define SIIS_RANGEOHLCGEN_H
+#ifndef SIIS_REVERSALOHLCGEN_H
+#define SIIS_REVERSALOHLCGEN_H
 
 #include "../ohlc.h"
 #include "../tick.h"
@@ -17,23 +17,25 @@
 namespace siis {
 
 /**
- * @brief Generator OHLC for a specific size and scale of range-bar
+ * @brief Generator OHLC for a specific size, reversal and scale of reversal-bar
  * @author Frederic Scherma
- * @date 2024-04-12
+ * @date 2024-07-12
  * The current, non consolidated OHLC is kept as the last ohlc of the out array.
  * It can generate from a tick series or from a lower timeframe (multiple of).
  */
-class SIIS_API RangeOhlcGen
+class SIIS_API ReversalOhlcGen
 {
 public:
 
-    RangeOhlcGen(o3d::Int32 barSize, o3d::Double tickScale=1.0, Ohlc::Type ohlcType=Ohlc::TYPE_MID);
-    ~RangeOhlcGen();
+    ReversalOhlcGen(o3d::Int32 barSize, o3d::Int32 reversalSize, o3d::Double tickScale=1.0,
+                    Ohlc::Type ohlcType=Ohlc::TYPE_MID);
+    ~ReversalOhlcGen();
 
     o3d::Double lastTimestamp() const { return m_lastTimestamp; }
     o3d::UInt32 numLastConsumed() const { return m_numLastConsumed; }
 
     o3d::Int32 barSize() const { return m_barSize; }
+    o3d::Int32 reversalSize() const { return m_reversalSize; }
     o3d::Double tickScale() const { return m_tickScale; }
 
     /**
@@ -66,6 +68,7 @@ public:
 private:
 
     o3d::Int32 m_barSize;
+    o3d::Int32 m_reversalSize;
     o3d::Double m_tickScale;
 
     Ohlc::Type m_ohlcType;
@@ -78,6 +81,8 @@ private:
 
     Ohlc *m_curOhlc;
 
+    o3d::Int32 m_reversing;
+
     /**
      * @brief adjustPrice Adjust the price according to the precision.
      */
@@ -86,4 +91,4 @@ private:
 
 } // namespace siis
 
-#endif // SIIS_RANGEOHLCGEN_H
+#endif // SIIS_REVERSALOHLCGEN_H

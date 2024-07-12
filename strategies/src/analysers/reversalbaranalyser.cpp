@@ -1,24 +1,25 @@
 /**
- * @brief SiiS strategy analyser for a range-bar series
+ * @brief SiiS strategy analyser for a reversal-bar series
  * @copyright Copyright (C) 2024 SiiS
  * @author Frederic SCHERMA (frederic.scherma@gmail.com)
  * @date 2024-07-12
  */
 
-#include "siis/analysers/rangebaranalyser.h"
+#include "siis/analysers/reversalbaranalyser.h"
 #include "siis/market.h"
 #include "siis/strategy.h"
 
 using namespace siis;
 
-RangeBarAnalyser::RangeBarAnalyser(Strategy *strategy,
+ReversalBarAnalyser::ReversalBarAnalyser(Strategy *strategy,
         o3d::Int32 rangeSize,
+        o3d::Int32 reversalSize,
         o3d::Int32 depth,
         o3d::Int32 history,
         Price::Method priceMethod,
         o3d::Double tickScale) :
     Analyser(strategy, rangeSize, 0.0, 0.0, depth, history),
-    m_ohlcGen(rangeSize, tickScale),
+    m_ohlcGen(rangeSize, reversalSize, tickScale),
     m_ohlc(depth),
     m_price("price", 0.0, priceMethod),
     m_volume("volume", 0.0)
@@ -26,12 +27,12 @@ RangeBarAnalyser::RangeBarAnalyser(Strategy *strategy,
 
 }
 
-RangeBarAnalyser::~RangeBarAnalyser()
+ReversalBarAnalyser::~ReversalBarAnalyser()
 {
 
 }
 
-void RangeBarAnalyser::init(AnalyserConfig /*conf*/)
+void ReversalBarAnalyser::init(AnalyserConfig /*conf*/)
 {
     o3d::Int32 pricePrecision = strategy()->market()->precisionPrice();
     if (pricePrecision == 0) {
@@ -46,23 +47,23 @@ void RangeBarAnalyser::init(AnalyserConfig /*conf*/)
     m_ohlcGen.init(pricePrecision, tickSize);
 }
 
-void RangeBarAnalyser::prepare(o3d::Double timestamp)
+void ReversalBarAnalyser::prepare(o3d::Double timestamp)
 {
 
 }
 
-void RangeBarAnalyser::onTickUpdate(o3d::Double timestamp, const TickArray &ticks)
+void ReversalBarAnalyser::onTickUpdate(o3d::Double timestamp, const TickArray &ticks)
 {
     // generate the ohlc from the last market update
     m_ohlcGen.genFromTicks(ticks, m_ohlc);
 }
 
-void RangeBarAnalyser::onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe, const OhlcArray &ohlc)
+void ReversalBarAnalyser::onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe, const OhlcArray &ohlc)
 {
     /* not supported */
 }
 
-o3d::Bool RangeBarAnalyser::process(o3d::Double timestamp, o3d::Double lastTimestamp)
+o3d::Bool ReversalBarAnalyser::process(o3d::Double timestamp, o3d::Double lastTimestamp)
 {
     o3d::Int32 n = m_ohlc.size();
 
@@ -109,7 +110,7 @@ o3d::Bool RangeBarAnalyser::process(o3d::Double timestamp, o3d::Double lastTimes
     }
 }
 
-o3d::Double RangeBarAnalyser::lastPrice() const
+o3d::Double ReversalBarAnalyser::lastPrice() const
 {
     return m_price.close().last();
 }

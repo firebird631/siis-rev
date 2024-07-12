@@ -16,6 +16,7 @@ set(STRATEGY_LIB_CXX
     worker.cpp
     analysers/analyser.cpp
     analysers/rangebaranalyser.cpp
+    analysers/reversalbaranalyser.cpp
     analysers/timeframebaranalyser.cpp
     backtest/backtest.cpp
     cache/cache.cpp
@@ -120,6 +121,7 @@ set(STRATEGY_LIB_CXX
     monitor/redismonitor.cpp
     utils/common.cpp
     utils/rangeohlcgen.cpp
+    utils/reversalohlcgen.cpp
     utils/timeframeohlcgen.cpp)
 
 #add_definitions(-fPIC)

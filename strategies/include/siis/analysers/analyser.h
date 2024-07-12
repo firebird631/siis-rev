@@ -58,7 +58,7 @@ public:
     virtual void onTickUpdate(o3d::Double timestamp, const TickArray &ticks) = 0;
 
     /**
-     * @brief onTickUpdate On new ohlc are received, update the price/volume data to be ready for the next process.
+     * @brief onOhlcUpdate On new ohlc are received, update the price/volume data to be ready for the next process.
      * @param timestamp Current timestamp.
      */
     virtual void onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe, const OhlcArray &ohlc) = 0;

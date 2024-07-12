@@ -20,8 +20,7 @@ namespace siis {
  * @brief Strategy analyser for a timeframe bar serie.
  * @author Frederic Scherma
  * @date 2019-03-16
- * Standard implementation works on a specific timeframe, on the last price and volume data coming
- * from the market OHLC.
+ * Compute a bar serie for a specific timefram and process different indicators and more.
  * Price and volume indicators are implemented and only the compute method has to be overrided.
  */
 class SIIS_API TimeframeBarAnalyser : public Analyser

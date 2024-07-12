@@ -30,7 +30,13 @@ o3d::UInt32 TimeframeOhlcGen::genFromTicks(const TickArray &ticks, OhlcCircular 
     o3d::UInt32 n = 0;
     m_numLastConsumed = 0;
 
-    if (m_ohlcType == Ohlc::TYPE_MID) {
+    if (m_ohlcType == Ohlc::TYPE_LAST) {
+        for (o3d::Int32 i = 0; i < ticks.getSize(); ++i) {
+            if (updateFromTickLast(ticks.get(i), out)) {
+                n += 1;
+            }
+        }
+    } else if (m_ohlcType == Ohlc::TYPE_MID) {
         for (o3d::Int32 i = 0; i < ticks.getSize(); ++i) {
             if (updateFromTickMid(ticks.get(i), out)) {
                 n += 1;
@@ -58,7 +64,13 @@ o3d::UInt32 TimeframeOhlcGen::genFromOhlc(const OhlcArray &ohlc, OhlcCircular &o
     o3d::UInt32 n = 0;
     m_numLastConsumed = 0;
 
-    if (m_ohlcType == Ohlc::TYPE_MID) {
+    if (m_ohlcType == Ohlc::TYPE_LAST) {
+        for (o3d::Int32 i = 0; i < ohlc.getSize(); ++i) {
+            if (updateFromOhlcLast(ohlc.get(i), out)) {
+                n += 1;
+            }
+        }
+    } else if (m_ohlcType == Ohlc::TYPE_MID) {
         for (o3d::Int32 i = 0; i < ohlc.getSize(); ++i) {
             if (updateFromOhlcMid(ohlc.get(i), out)) {
                 n += 1;
@@ -94,6 +106,54 @@ o3d::Bool TimeframeOhlcGen::valid() const
     } else {
         return false;
     }
+}
+
+o3d::Bool TimeframeOhlcGen::updateFromTickLast(const Tick *tick, OhlcCircular &out)
+{
+    o3d::Bool isNew = false;
+
+    if (tick->timestamp() <= m_lastTimestamp) {
+        // already done (but what if two consecutives ticks have the same exact timestamp ?)
+        return false;
+    }
+
+    // compute the middle price
+    const o3d::Double price = tick->last();
+
+    if (m_curOhlc && !m_curOhlc->consolidated() && (tick->timestamp() >= m_curOhlc->timestamp() + m_toTf)) {
+        // need to close the current ohlc
+        m_curOhlc->setConsolidated();
+        m_curOhlc = nullptr;
+    }
+
+    if (!m_curOhlc) {
+        o3d::Double curBaseTime = baseTime(tick->timestamp());
+
+        // have a new ohlc, and init a new one as current
+        isNew = true;
+        m_curOhlc = out.writeElt();
+
+        m_curOhlc->setTimestamp(curBaseTime);
+        m_curOhlc->setTimeframe(m_toTf);
+
+        // all OHLC from the current price
+        m_curOhlc->setOhlc(price);
+    }
+
+    // update volumes
+    m_curOhlc->setVolume(m_curOhlc->volume() + tick->volume());
+
+    // bid high/low
+    m_curOhlc->setH(o3d::max(m_curOhlc->h(), price));
+    m_curOhlc->setL(o3d::min(m_curOhlc->l(), price));
+
+    // potential close
+    m_curOhlc->setC(price);
+
+    // keep last timestamp
+    m_lastTimestamp = tick->timestamp();
+
+    return isNew;
 }
 
 o3d::Bool TimeframeOhlcGen::updateFromTickMid(const Tick *tick, OhlcCircular &out)
@@ -238,6 +298,15 @@ o3d::Bool TimeframeOhlcGen::updateFromTickAsk(const Tick *tick, OhlcCircular &ou
 
     // keep last timestamp
     m_lastTimestamp = tick->timestamp();
+
+    return isNew;
+}
+
+o3d::Bool TimeframeOhlcGen::updateFromOhlcLast(const Ohlc *ohlc, OhlcCircular &out)
+{
+    o3d::Bool isNew = false;
+
+    // @todo
 
     return isNew;
 }

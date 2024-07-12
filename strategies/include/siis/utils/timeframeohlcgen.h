@@ -68,9 +68,11 @@ public:
      */
     o3d::Bool updateFromOhlcMid(const Ohlc *ohlc, OhlcCircular &out);
 
+    o3d::Bool updateFromTickLast(const Tick *tick, OhlcCircular &out);
     o3d::Bool updateFromTickBid(const Tick *tick, OhlcCircular &out);
     o3d::Bool updateFromTickAsk(const Tick *tick, OhlcCircular &out);
 
+    o3d::Bool updateFromOhlcLast(const Ohlc *ohlc, OhlcCircular &out);
     o3d::Bool updateFromOhlcBid(const Ohlc *ohlc, OhlcCircular &out);
     o3d::Bool updateFromOhlcAsk(const Ohlc *ohlc, OhlcCircular &out);
 

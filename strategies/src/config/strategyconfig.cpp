@@ -330,7 +330,7 @@ o3d::Int32 StrategyConfig::barSizeAsInt(Json::Value &parent, const o3d::String &
     if (parent.get(key.toUtf8().getData(), 0.0).isDouble() || parent.get(key.toUtf8().getData(), 0).isIntegral()) {
         return static_cast<o3d::Int32>(parent.get(key.toUtf8().getData(), 0).asInt64());
     } else if (parent.get(key.toUtf8().getData(), "").isString()) {
-        return static_cast<o3d::Int32>(parent.get(key.toUtf8().getData(), "0").asInt64());
+        return o3d::String(parent.get(key.toUtf8().getData(), "0").asString().c_str()).toInt32();
     } else {
         return 0;
     }

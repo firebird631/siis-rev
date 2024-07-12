@@ -13,6 +13,7 @@ configure.sh
 include/siis/analysers/analyser.h
 include/siis/analysers/analyser.h
 include/siis/analysers/rangebaranalyser.h
+include/siis/analysers/reversalbaranalyser.h
 include/siis/analysers/stdanalyser.h
 include/siis/analysers/timeframebaranalyser.h
 include/siis/asset.h
@@ -286,6 +287,7 @@ include/siis/utils/math.h
 include/siis/utils/math.h
 include/siis/utils/ohlcgen.h
 include/siis/utils/rangeohlcgen.h
+include/siis/utils/reversalohlcgen.h
 include/siis/utils/timeframeohlcgen.h
 include/siis/worker.h
 include/siis/worker.h
@@ -300,6 +302,7 @@ src/analysers/analyser.cpp
 src/analysers/analyser.cpp
 src/analysers/analyser.cpp
 src/analysers/rangebaranalyser.cpp
+src/analysers/reversalbaranalyser.cpp
 src/analysers/stdanalyser.cpp
 src/analysers/stdanalyser.cpp
 src/analysers/timeframebaranalyser.cpp
@@ -829,6 +832,7 @@ src/utils/common.cpp
 src/utils/ohlcgen.cpp
 src/utils/ohlcgen.cpp
 src/utils/rangeohlcgen.cpp
+src/utils/reversalohlcgen.cpp
 src/utils/timeframeohlcgen.cpp
 src/worker.cpp
 src/worker.cpp
