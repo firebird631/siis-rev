@@ -8,7 +8,7 @@
 #ifndef SIIS_SUPERTRENDCONFANALYSER_H
 #define SIIS_SUPERTRENDCONFANALYSER_H
 
-#include "siis/analysers/stdanalyser.h"
+#include "siis/analysers/timeframebaranalyser.h"
 
 #include "siis/indicators/hma/hma.h"
 #include "siis/indicators/hma3/hma3.h"
@@ -23,7 +23,7 @@ namespace siis {
  * @date 2023-09-30
  * Confirmation analyser
  */
-class SIIS_API SuperTrendConfAnalyser : public StdAnalyser
+class SIIS_API SuperTrendConfAnalyser : public TimeframeBarAnalyser
 {
 public:
 

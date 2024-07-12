@@ -8,7 +8,7 @@
 #ifndef SIIS_PULLBACKSRANALYSER_H
 #define SIIS_PULLBACKSRANALYSER_H
 
-#include "siis/analysers/stdanalyser.h"
+#include "siis/analysers/timeframebaranalyser.h"
 
 #include "siis/indicators/pivotpoint/pivotpoint.h"
 
@@ -20,7 +20,7 @@ namespace siis {
  * @date 2023-04-24
  * Support/resistance analyser
  */
-class SIIS_API PullbackSRAnalyser : public StdAnalyser
+class SIIS_API PullbackSRAnalyser : public TimeframeBarAnalyser
 {
 public:
 

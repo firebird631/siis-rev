@@ -5,11 +5,11 @@
  * @date 2019-03-07
  */
 
-#include "siis/utils/ohlcgen.h"
+#include "siis/utils/timeframeohlcgen.h"
 
 using namespace siis;
 
-OhlcGen::OhlcGen(o3d::Double fromTf, o3d::Double toTf, Ohlc::Type ohlcType) :
+TimeframeOhlcGen::TimeframeOhlcGen(o3d::Double fromTf, o3d::Double toTf, Ohlc::Type ohlcType) :
     m_fromTf(fromTf),
     m_toTf(toTf),
     m_ohlcType(ohlcType),
@@ -20,12 +20,12 @@ OhlcGen::OhlcGen(o3d::Double fromTf, o3d::Double toTf, Ohlc::Type ohlcType) :
     O3D_ASSERT((fromTf == 0.0) || (fromTf > 0 && static_cast<o3d::Int32>(toTf) % static_cast<o3d::Int32>(fromTf) == 0));
 }
 
-OhlcGen::~OhlcGen()
+TimeframeOhlcGen::~TimeframeOhlcGen()
 {
 
 }
 
-o3d::UInt32 OhlcGen::genFromTicks(const TickArray &ticks, OhlcCircular &out)
+o3d::UInt32 TimeframeOhlcGen::genFromTicks(const TickArray &ticks, OhlcCircular &out)
 {
     o3d::UInt32 n = 0;
     m_numLastConsumed = 0;
@@ -53,7 +53,7 @@ o3d::UInt32 OhlcGen::genFromTicks(const TickArray &ticks, OhlcCircular &out)
     return n;
 }
 
-o3d::UInt32 OhlcGen::genFromOhlc(const OhlcArray &ohlc, OhlcCircular &out)
+o3d::UInt32 TimeframeOhlcGen::genFromOhlc(const OhlcArray &ohlc, OhlcCircular &out)
 {
     o3d::UInt32 n = 0;
     m_numLastConsumed = 0;
@@ -81,7 +81,7 @@ o3d::UInt32 OhlcGen::genFromOhlc(const OhlcArray &ohlc, OhlcCircular &out)
     return n;
 }
 
-o3d::Bool OhlcGen::valid() const
+o3d::Bool TimeframeOhlcGen::valid() const
 {
     if (m_fromTf == 0.0) {
         if (m_toTf <= 0.0) {
@@ -96,7 +96,7 @@ o3d::Bool OhlcGen::valid() const
     }
 }
 
-o3d::Bool OhlcGen::updateFromTickMid(const Tick *tick, OhlcCircular &out)
+o3d::Bool TimeframeOhlcGen::updateFromTickMid(const Tick *tick, OhlcCircular &out)
 {
     o3d::Bool isNew = false;
 
@@ -144,7 +144,7 @@ o3d::Bool OhlcGen::updateFromTickMid(const Tick *tick, OhlcCircular &out)
     return isNew;
 }
 
-o3d::Bool OhlcGen::updateFromTickBid(const Tick *tick, OhlcCircular &out)
+o3d::Bool TimeframeOhlcGen::updateFromTickBid(const Tick *tick, OhlcCircular &out)
 {
     o3d::Bool isNew = false;
 
@@ -174,6 +174,7 @@ o3d::Bool OhlcGen::updateFromTickBid(const Tick *tick, OhlcCircular &out)
 
         // all OHLC from the current price
         m_curOhlc->setOhlc(price, price, price, price);
+        m_curOhlc->setVolume(0.0);
     }
 
     // update volumes
@@ -192,7 +193,7 @@ o3d::Bool OhlcGen::updateFromTickBid(const Tick *tick, OhlcCircular &out)
     return isNew;
 }
 
-o3d::Bool OhlcGen::updateFromTickAsk(const Tick *tick, OhlcCircular &out)
+o3d::Bool TimeframeOhlcGen::updateFromTickAsk(const Tick *tick, OhlcCircular &out)
 {
     o3d::Bool isNew = false;
 
@@ -222,6 +223,7 @@ o3d::Bool OhlcGen::updateFromTickAsk(const Tick *tick, OhlcCircular &out)
 
         // all OHLC from the current price
         m_curOhlc->setOhlc(price, price, price, price);
+        m_curOhlc->setVolume(0.0);
     }
 
     // update volumes
@@ -240,23 +242,29 @@ o3d::Bool OhlcGen::updateFromTickAsk(const Tick *tick, OhlcCircular &out)
     return isNew;
 }
 
-o3d::Bool OhlcGen::updateFromOhlcMid(const Ohlc *ohlc, OhlcCircular &out)
+o3d::Bool TimeframeOhlcGen::updateFromOhlcMid(const Ohlc *ohlc, OhlcCircular &out)
 {
     o3d::Bool isNew = false;
+
+    // @todo
 
     return isNew;
 }
 
-o3d::Bool OhlcGen::updateFromOhlcBid(const Ohlc *ohlc, OhlcCircular &out)
+o3d::Bool TimeframeOhlcGen::updateFromOhlcBid(const Ohlc *ohlc, OhlcCircular &out)
 {
     o3d::Bool isNew = false;
+
+    // @todo
 
     return isNew;
 }
 
-o3d::Bool OhlcGen::updateFromOhlcAsk(const Ohlc *ohlc, OhlcCircular &out)
+o3d::Bool TimeframeOhlcGen::updateFromOhlcAsk(const Ohlc *ohlc, OhlcCircular &out)
 {
     o3d::Bool isNew = false;
+
+    // @todo
 
     return isNew;
 }

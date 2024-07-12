@@ -21,7 +21,7 @@ KahlmanFiboSigAnalyser::KahlmanFiboSigAnalyser(
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod) :
-    StdAnalyser(strategy, timeframe, subTimeframe, depth, history, priceMethod),
+    TimeframeBarAnalyser(strategy, timeframe, subTimeframe, depth, history, priceMethod),
     m_gain(0.7),  // step 0.01 min 0.0001
     m_kahlman(true),
     m_trendTimestamp(0.0),
@@ -63,7 +63,7 @@ void KahlmanFiboSigAnalyser::init(AnalyserConfig conf)
     m_trend = 0;
     m_sig = 0;
 
-    StdAnalyser::init(conf);
+    TimeframeBarAnalyser::init(conf);
 }
 
 void KahlmanFiboSigAnalyser::terminate()

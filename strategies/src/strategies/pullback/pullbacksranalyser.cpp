@@ -18,7 +18,7 @@ PullbackSRAnalyser::PullbackSRAnalyser(
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod) :
-    StdAnalyser(strategy, timeframe, subTimeframe, depth, history, priceMethod),
+    TimeframeBarAnalyser(strategy, timeframe, subTimeframe, depth, history, priceMethod),
     m_pivotpoint("pivotpoint", timeframe),
     m_breakoutDirection(0),
     m_breakoutPrice(0.0),
@@ -36,7 +36,7 @@ void PullbackSRAnalyser::init(AnalyserConfig conf)
 {
     configureIndictor(conf, "pivotpoint", m_pivotpoint);
 
-    StdAnalyser::init(conf);
+    TimeframeBarAnalyser::init(conf);
 
     m_breakoutDirection = 0;
     m_breakoutPrice = 0.0;

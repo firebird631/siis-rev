@@ -8,7 +8,7 @@
 #ifndef SIIS_MAADXCONFANALYSER_H
 #define SIIS_MAADXCONFANALYSER_H
 
-#include "siis/analysers/stdanalyser.h"
+#include "siis/analysers/timeframebaranalyser.h"
 
 #include "siis/indicators/hma/hma.h"
 #include "siis/indicators/adx/adx.h"
@@ -22,7 +22,7 @@ namespace siis {
  * @date 2023-04-24
  * Confirmation analyser
  */
-class SIIS_API MaAdxConfAnalyser : public StdAnalyser
+class SIIS_API MaAdxConfAnalyser : public TimeframeBarAnalyser
 {
 public:
 

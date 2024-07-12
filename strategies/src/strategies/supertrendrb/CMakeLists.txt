@@ -1,7 +1,7 @@
 set(LIB_NAME supertrendrb)
 
 set(STRATEGY_CXX
-    supertrendrb.cpp
+    supertrendrbstrat.cpp
     supertrendrbtrendanalyser.cpp
     supertrendrbconfanalyser.cpp
     supertrendrbsiganalyser.cpp)

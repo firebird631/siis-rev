@@ -319,9 +319,20 @@ o3d::Double StrategyConfig::timeframeAsDouble(Json::Value &parent, const o3d::St
     if (parent.get(key.toUtf8().getData(), 0.0).isDouble() || parent.get(key.toUtf8().getData(), 0).isIntegral()) {
         return parent.get(key.toUtf8().getData(), 0.0).asDouble();
     } else if (parent.get(key.toUtf8().getData(), "").isString()) {
-        return siis::timeframeFromStr(parent.get(key.toUtf8().getData(), "").asString().c_str());
+        return siis::timeframeFromStr(parent.get(key.toUtf8().getData(), "0").asString().c_str());
     } else {
         return 0.0;
+    }
+}
+
+o3d::Int32 StrategyConfig::barSizeAsInt(Json::Value &parent, const o3d::String &key) const
+{
+    if (parent.get(key.toUtf8().getData(), 0.0).isDouble() || parent.get(key.toUtf8().getData(), 0).isIntegral()) {
+        return static_cast<o3d::Int32>(parent.get(key.toUtf8().getData(), 0).asInt64());
+    } else if (parent.get(key.toUtf8().getData(), "").isString()) {
+        return static_cast<o3d::Int32>(parent.get(key.toUtf8().getData(), "0").asInt64());
+    } else {
+        return 0;
     }
 }
 

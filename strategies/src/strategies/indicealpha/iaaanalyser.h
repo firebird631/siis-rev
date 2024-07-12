@@ -8,7 +8,7 @@
 #ifndef SIIS_IAAANALYSER_H
 #define SIIS_IAAANALYSER_H
 
-#include "siis/analysers/stdanalyser.h"
+#include "siis/analysers/timeframebaranalyser.h"
 
 #include "siis/indicators/atr/atr.h"
 #include "siis/indicators/sma/sma.h"
@@ -24,7 +24,7 @@ namespace siis {
  * @date 2019-06-03
  * Prefered for common timeframe from 3m to 4h.
  */
-class SIIS_API IaAAnalyser : public StdAnalyser
+class SIIS_API IaAAnalyser : public TimeframeBarAnalyser
 {
 public:
 

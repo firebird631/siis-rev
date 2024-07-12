@@ -8,7 +8,7 @@
 #ifndef SIIS_PULLBACKBBANALYSER_H
 #define SIIS_PULLBACKBBANALYSER_H
 
-#include "siis/analysers/stdanalyser.h"
+#include "siis/analysers/timeframebaranalyser.h"
 
 #include "siis/indicators/bbands/bbands.h"
 
@@ -20,7 +20,7 @@ namespace siis {
  * @date 2023-05-09
  * Bollinger analyser
  */
-class SIIS_API PullbackBBAnalyser : public StdAnalyser
+class SIIS_API PullbackBBAnalyser : public TimeframeBarAnalyser
 {
 public:
 

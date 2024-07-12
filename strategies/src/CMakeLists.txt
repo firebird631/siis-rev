@@ -15,7 +15,8 @@ set(STRATEGY_LIB_CXX
     tradingsession.cpp
     worker.cpp
     analysers/analyser.cpp
-    analysers/stdanalyser.cpp
+    analysers/rangebaranalyser.cpp
+    analysers/timeframebaranalyser.cpp
     backtest/backtest.cpp
     cache/cache.cpp
     cache/redis/rediscache.cpp
@@ -50,16 +51,19 @@ set(STRATEGY_LIB_CXX
     database/marketdb.cpp
     database/ohlcdb.cpp
     database/ohlcstream.cpp
+    database/rangebardb.cpp
     database/tickstream.cpp
     database/tradedb.cpp
     database/mysql/mysql.cpp
     database/mysql/mysqltradedb.cpp
     database/mysql/mysqlmarketdb.cpp
     database/mysql/mysqlohlcdb.cpp
+    database/mysql/mysqlrangebardb.cpp
     database/pgsql/pgsql.cpp
     database/pgsql/pgsqltradedb.cpp
     database/pgsql/pgsqlmarketdb.cpp
     database/pgsql/pgsqlohlcdb.cpp
+    database/pgsql/pgsqlrangebardb.cpp
     display/displayer.cpp
     display/ncursesdisplayer.cpp
     display/ttydisplayer.cpp
@@ -115,7 +119,8 @@ set(STRATEGY_LIB_CXX
     monitor/monitor.cpp
     monitor/redismonitor.cpp
     utils/common.cpp
-    utils/ohlcgen.cpp)
+    utils/rangeohlcgen.cpp
+    utils/timeframeohlcgen.cpp)
 
 #add_definitions(-fPIC)
 

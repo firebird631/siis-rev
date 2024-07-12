@@ -8,7 +8,7 @@
 #ifndef SIIS_IABANALYSER_H
 #define SIIS_IABANALYSER_H
 
-#include "siis/analysers/stdanalyser.h"
+#include "siis/analysers/timeframebaranalyser.h"
 
 #include "siis/indicators/atr/atr.h"
 #include "siis/indicators/sma/sma.h"
@@ -24,7 +24,7 @@ namespace siis {
  * @date 2019-06-03
  * Prefered for faster timeframe like 1m. Does not include td9 because its useless at fastest timeframes.
  */
-class SIIS_API IaBAnalyser : public StdAnalyser
+class SIIS_API IaBAnalyser : public TimeframeBarAnalyser
 {
 public:
 

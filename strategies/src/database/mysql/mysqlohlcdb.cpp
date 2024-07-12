@@ -33,8 +33,8 @@ const siis::Database *MySqlOhlcDb::db() const
 
 o3d::Bool MySqlOhlcDb::fetchOhlc(const o3d::String &brokerId,
                                  const o3d::String &marketId,
-                                 o3d::Float timeframe,
-                                 o3d::Float timestamp,
+                                 o3d::Double timeframe,
+                                 o3d::Double timestamp,
                                  Ohlc &out)
 {
     return false;
@@ -42,7 +42,7 @@ o3d::Bool MySqlOhlcDb::fetchOhlc(const o3d::String &brokerId,
 
 o3d::Int32 MySqlOhlcDb::fetchOhlcArrayFromTo(const o3d::String &brokerId,
                                        const o3d::String &marketId,
-                                       o3d::Float timeframe,
+                                       o3d::Double timeframe,
                                        o3d::Double from,
                                        o3d::Double to,
                                        OhlcArray &out)
@@ -52,7 +52,7 @@ o3d::Int32 MySqlOhlcDb::fetchOhlcArrayFromTo(const o3d::String &brokerId,
 
 o3d::Int32 MySqlOhlcDb::fetchOhlcArrayLast(const o3d::String &brokerId,
                                        const o3d::String &marketId,
-                                       o3d::Float timeframe,
+                                       o3d::Double timeframe,
                                        o3d::Int32 lastN,
                                        OhlcArray &out)
 {
@@ -61,7 +61,7 @@ o3d::Int32 MySqlOhlcDb::fetchOhlcArrayLast(const o3d::String &brokerId,
 
 o3d::Int32 MySqlOhlcDb::fetchOhlcArrayLastTo(const o3d::String &brokerId,
                                        const o3d::String &marketId,
-                                       o3d::Float timeframe,
+                                       o3d::Double timeframe,
                                        o3d::Int32 lastN,
                                        o3d::Double to,
                                        OhlcArray &out)
@@ -71,7 +71,7 @@ o3d::Int32 MySqlOhlcDb::fetchOhlcArrayLastTo(const o3d::String &brokerId,
 
 o3d::Int32 MySqlOhlcDb::fetchOhlcArrayFrom(const o3d::String &brokerId,
                                        const o3d::String &marketId,
-                                       o3d::Float timeframe,
+                                       o3d::Double timeframe,
                                        o3d::Double from,
                                        OhlcArray &out)
 {
@@ -80,7 +80,7 @@ o3d::Int32 MySqlOhlcDb::fetchOhlcArrayFrom(const o3d::String &brokerId,
 
 o3d::Bool MySqlOhlcDb::getLastOhlc(const o3d::String &brokerId,
                                    const o3d::String &marketId,
-                                   o3d::Float timeframe,
+                                   o3d::Double timeframe,
                                    Ohlc &out)
 {
     return false;

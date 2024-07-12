@@ -5,19 +5,19 @@
  * @date 2019-03-05
  */
 
-#include "siis/analysers/stdanalyser.h"
+#include "siis/analysers/timeframebaranalyser.h"
 #include "siis/market.h"
 #include "siis/strategy.h"
 
 using namespace siis;
 
-StdAnalyser::StdAnalyser(Strategy *strategy,
+TimeframeBarAnalyser::TimeframeBarAnalyser(Strategy *strategy,
         o3d::Double timeframe,
         o3d::Double subTimeframe,
         o3d::Int32 depth,
         o3d::Int32 history,
         Price::Method priceMethod) :
-    Analyser(strategy, timeframe, subTimeframe, depth, history),
+    Analyser(strategy, timeframe, subTimeframe, 0, depth, history),
     m_ohlcGen(subTimeframe, timeframe),
     m_ohlc(depth),
     m_price("price", timeframe, priceMethod),
@@ -26,28 +26,28 @@ StdAnalyser::StdAnalyser(Strategy *strategy,
 
 }
 
-StdAnalyser::~StdAnalyser()
+TimeframeBarAnalyser::~TimeframeBarAnalyser()
 {
 
 }
 
-void StdAnalyser::init(AnalyserConfig /*conf*/)
+void TimeframeBarAnalyser::init(AnalyserConfig /*conf*/)
 {
 
 }
 
-void StdAnalyser::prepare(o3d::Double timestamp)
+void TimeframeBarAnalyser::prepare(o3d::Double timestamp)
 {
 
 }
 
-void StdAnalyser::onTickUpdate(o3d::Double timestamp, const TickArray &ticks)
+void TimeframeBarAnalyser::onTickUpdate(o3d::Double timestamp, const TickArray &ticks)
 {
     // generate the ohlc from the last market update
     m_ohlcGen.genFromTicks(ticks, m_ohlc);
 }
 
-void StdAnalyser::onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe, const OhlcArray &ohlc)
+void TimeframeBarAnalyser::onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe, const OhlcArray &ohlc)
 {
     if (timeframe == m_ohlcGen.fromTimeframe()) {
         m_ohlcGen.genFromOhlc(ohlc, m_ohlc);
@@ -59,7 +59,7 @@ void StdAnalyser::onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe, con
     }
 }
 
-o3d::Bool StdAnalyser::process(o3d::Double timestamp, o3d::Double lastTimestamp)
+o3d::Bool TimeframeBarAnalyser::process(o3d::Double timestamp, o3d::Double lastTimestamp)
 {
     o3d::Int32 n = m_ohlc.size();
 
@@ -119,7 +119,7 @@ o3d::Bool StdAnalyser::process(o3d::Double timestamp, o3d::Double lastTimestamp)
     }
 }
 
-o3d::Double StdAnalyser::lastPrice() const
+o3d::Double TimeframeBarAnalyser::lastPrice() const
 {
     return m_price.close().last();
 }

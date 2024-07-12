@@ -36,6 +36,7 @@ Database::Database() :
     m_thread(this),
     m_running(false),
     m_ohlc(nullptr),
+    m_rangeBar(nullptr),
     m_market(nullptr),
     m_trade(nullptr)
 {
@@ -62,6 +63,11 @@ void Database::stop()
 OhlcDb *Database::ohlc()
 {
     return m_ohlc;
+}
+
+RangeBarDb *Database::rangeBar()
+{
+    return m_rangeBar;
 }
 
 MarketDb *Database::market()

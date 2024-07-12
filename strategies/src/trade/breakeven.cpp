@@ -30,58 +30,31 @@ void Breakeven::updateΤrade(o3d::Double timestamp, o3d::Double lastTimestamp, T
         return;
     }
 
-    // @todo implement offset
-
-    if (m_adjustPolicy == ADJ_PRICE) {
-        // price change at anytime
+    if ((m_adjustPolicy == ADJ_PRICE) || (m_adjustPolicy == ADJ_CLOSE && m_consolidated)) {
+        // price change at anytime using ADJ_PRICE policy or only on consolidation using ADJ_CLOSE policy
         if (m_distanceType == DIST_PERCENTIL) {
             if (trade->direction() > 0) {
                 if (trade->estimateProfitLossRate() > m_distance && trade->stopLossPrice() < trade->entryPrice()) {
-                    trade->modifyStopLoss(trade->entryPrice() + trade->strategy()->market()->spread(), Trade::MOD_PREVIOUS);
+                    modifyTradeStopLossPriceWithOffset(trade);
                 }
             } else if (trade->direction() < 0) {
                 if (trade->estimateProfitLossRate() > m_distance && trade->stopLossPrice() > trade->entryPrice()) {
-                    trade->modifyStopLoss(trade->entryPrice() - trade->strategy()->market()->spread(), Trade::MOD_PREVIOUS);
+                    modifyTradeStopLossPriceWithOffset(trade);
                 }
             }
         } else if (m_distanceType == DIST_PRICE) {
             if (trade->direction() > 0) {
                 if (trade->deltaPrice() >= m_distance && trade->stopLossPrice() < trade->entryPrice()) {
-                    trade->modifyStopLoss(trade->entryPrice() + trade->strategy()->market()->spread(), Trade::MOD_PREVIOUS);
+                    modifyTradeStopLossPriceWithOffset(trade);
                 }
             } else if (trade->direction() < 0) {
                 if (trade->deltaPrice() <= -m_distance && trade->stopLossPrice() > trade->entryPrice()) {
-                    trade->modifyStopLoss(trade->entryPrice() - trade->strategy()->market()->spread(), Trade::MOD_PREVIOUS);
-                }
-            }
-        }
-    } else if (m_adjustPolicy == ADJ_CLOSE) {
-        // price change at a close
-        if (m_consolidated) {
-            if (m_distanceType == DIST_PERCENTIL) {
-                if (trade->direction() > 0) {
-                    if (trade->estimateProfitLossRate() > m_distance && trade->stopLossPrice() < trade->entryPrice()) {
-                        trade->modifyStopLoss(trade->entryPrice() + trade->strategy()->market()->spread(), Trade::MOD_PREVIOUS);
-                    }
-                } else if (trade->direction() < 0) {
-                    if (trade->estimateProfitLossRate() > m_distance && trade->stopLossPrice() > trade->entryPrice()) {
-                        trade->modifyStopLoss(trade->entryPrice() - trade->strategy()->market()->spread(), Trade::MOD_PREVIOUS);
-                    }
-                }
-            } else if (m_distanceType == DIST_PRICE) {
-                if (trade->direction() > 0) {
-                    if (trade->deltaPrice() >= m_distance && trade->stopLossPrice() < trade->entryPrice()) {
-                        trade->modifyStopLoss(trade->entryPrice() + trade->strategy()->market()->spread(), Trade::MOD_PREVIOUS);
-                    }
-                } else if (trade->direction() < 0) {
-                    if (trade->deltaPrice() <= -m_distance && trade->stopLossPrice() > trade->entryPrice()) {
-                        trade->modifyStopLoss(trade->entryPrice() - trade->strategy()->market()->spread(), Trade::MOD_PREVIOUS);
-                    }
+                    modifyTradeStopLossPriceWithOffset(trade);
                 }
             }
         }
     } else if (m_adjustPolicy == ADJ_CUSTOM) {
-        // custom method from strategy
+        // custom method from strategy, nothing to do here
     }
 }
 
@@ -94,4 +67,26 @@ o3d::Double Breakeven::breakevenTiggerPrice(o3d::Double price, o3d::Int32 direct
     }
 
     return 0.0;
+}
+
+void Breakeven::modifyTradeStopLossPriceWithOffset(Trade *trade) const
+{
+    if (m_offset == 0.0) {
+        // same price in both cases
+        trade->modifyStopLoss(trade->entryPrice(), Trade::MOD_PREVIOUS);
+    } else {
+        if (m_offsetType == DIST_PERCENTIL) {
+            if (trade->direction() > 0) {
+                trade->modifyStopLoss(trade->entryPrice() * (1.0 + m_offset), Trade::MOD_PREVIOUS);
+            } else if (trade->direction() < 0) {
+                trade->modifyStopLoss(trade->entryPrice() * (1.0 - m_offset), Trade::MOD_PREVIOUS);
+            }
+        } else if (m_offsetType == DIST_PRICE) {
+            if (trade->direction() > 0) {
+                trade->modifyStopLoss(trade->entryPrice() + m_offset, Trade::MOD_PREVIOUS);
+            } else if (trade->direction() < 0) {
+                trade->modifyStopLoss(trade->entryPrice() - m_offset, Trade::MOD_PREVIOUS);
+            }
+        }
+    }
 }

@@ -712,6 +712,7 @@ void Config::overwriteLearningFile(const GlobalStatistics &global, const Account
                 s.append(sample.equity);
                 s.append(sample.profitLoss);
                 s.append(sample.drawDownRate);
+                s.append(sample.drawDown);
 
                 samples.append(s);
             }
@@ -719,7 +720,7 @@ void Config::overwriteLearningFile(const GlobalStatistics &global, const Account
             // @todo format equity, pnl and max-draw-down according to account currency precision
             root["performance"] = o3d::String::print("%.2f%%", global.performance * 100).toAscii().getData();
             root["max-draw-down-rate"] = o3d::String::print("%.2f%%", global.maxDrawDownRate * 100).toAscii().getData();
-            root["max-draw-down"] = o3d::String::print("%.2f", global.maxDrawDownRate).toAscii().getData();
+            root["max-draw-down"] = o3d::String::print("%.2f", global.maxDrawDown).toAscii().getData();
             // root["initial-equity"] = o3d::String::print("%.2f", account.initialEquity).toAscii().getData();
             root["final-equity"] = o3d::String::print("%.2f", account.finalEquity).toAscii().getData();
             root["stats-samples"] = samples;
@@ -743,6 +744,8 @@ void Config::overwriteLearningFile(const GlobalStatistics &global, const Account
 
             root["max-loss-series"] = global.maxAdjacentLoss;
             root["max-win-series"] = global.maxAdjacentWin;
+
+            // @todo add others stats
 
             parser.save(m_learningPath.getFullPathName(), m_learningFilename);
         }

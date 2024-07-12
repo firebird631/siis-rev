@@ -23,8 +23,10 @@ namespace siis {
  * @brief SiiS strategy bid or mid or ask OHLC model and array.
  * @author Frederic Scherma
  * @date 2019-03-07
- * It contain 8 double values arranged : timestamp, timeframe, open, high, low, close, volume, ended.
- * Data are 16 bytes memory aligned.
+ * It contain 8 double values arranged : timestamp, timeframe/duration, open, high, low, close, volume, ended.
+ * It is used for temporal bar (aka 5m, 1h...) and non temporal bar (tick, range, reversal, renvko).
+ * Duration is a synonym for timeframe but it is a more convenient term for a non-temporal bar.
+ * @note Data are 16 bytes memory aligned.
  */
 class SIIS_API Ohlc
 {
@@ -110,6 +112,7 @@ public:
     inline o3d::Double ts() const { return D[0]; }
 
     inline o3d::Double timeframe() const { return D[1]; }
+    inline o3d::Double duration() const { return D[1]; }
     inline o3d::Double tf() const { return D[1]; }
 
     inline o3d::Double open() const { return D[2]; }
@@ -133,9 +136,12 @@ public:
     inline o3d::Bool e() const { return D[7] != 0.0; }
 
     inline o3d::Double height() const { return D[3] - D[4]; }
+    inline o3d::Double absHeight() const { return o3d::abs(D[4] - D[3]); }
 
-    inline void setTimestamp(o3d::Double ts) { D[0] = ts; }
-    inline void setTimeframe(o3d::Double tf) { D[1] = tf; }
+    inline void setTimestamp(o3d::Double timestamp) { D[0] = timestamp; }
+
+    inline void setTimeframe(o3d::Double timeframe) { D[1] = timeframe; }
+    inline void setDuration(o3d::Double duration) { D[1] = duration; }
 
     inline void setOhlc(o3d::Double o) { D[2] = D[3] = D[4] = D[5] = o; }
 

@@ -8,7 +8,7 @@
 #ifndef SIIS_MAADXTRENDANALYSER_H
 #define SIIS_MAADXTRENDANALYSER_H
 
-#include "siis/analysers/stdanalyser.h"
+#include "siis/analysers/timeframebaranalyser.h"
 
 #include "siis/indicators/hma/hma.h"
 
@@ -22,7 +22,7 @@ namespace siis {
  * Trend analyser
  * @note It is important that price method is HLC.
  */
-class SIIS_API MaAdxTrendAnalyser : public StdAnalyser
+class SIIS_API MaAdxTrendAnalyser : public TimeframeBarAnalyser
 {
 public:
 

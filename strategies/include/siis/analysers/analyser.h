@@ -29,7 +29,10 @@ class SIIS_API Analyser
 {
 public:
 
-    Analyser(Strategy *strategy, o3d::Double timeframe, o3d::Double subTimeframe, o3d::Int32 depth, o3d::Int32 history);
+    Analyser(Strategy *strategy, o3d::Double timeframe, o3d::Double subTimeframe,
+             o3d::Int32 barSize,
+             o3d::Int32 depth, o3d::Int32 history);
+
     virtual ~Analyser();
 
     /**
@@ -93,6 +96,8 @@ public:
     o3d::Double subTimeframe() const { return m_subTimeFrame; }
     o3d::Double subTf() const { return m_subTimeFrame; }
 
+    o3d::Double barSize() const { return m_barSize; }
+
     o3d::Int32 depth() const { return m_depth; }
     o3d::Int32 history() const { return m_history; }
 
@@ -120,8 +125,10 @@ private:
 
     Strategy *m_strategy;
 
-    o3d::Double m_timeframe;
+    o3d::Double m_timeframe;     //!< timeframe or bar size
     o3d::Double m_subTimeFrame;
+
+    o3d::Int32 m_barSize;        //!< bar size or timeframe
 
     o3d::Int32 m_depth;
     o3d::Int32 m_history;

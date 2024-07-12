@@ -18,7 +18,7 @@ MaAdxSigAnalyser::MaAdxSigAnalyser(
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod) :
-    StdAnalyser(strategy, timeframe, subTimeframe, depth, history, priceMethod),
+    TimeframeBarAnalyser(strategy, timeframe, subTimeframe, depth, history, priceMethod),
     m_fast_h_ma("fast_h_ma", timeframe),
     m_fast_m_ma("fast_m_ma", timeframe),
     m_fast_l_ma("sfast_l_ma", timeframe),
@@ -47,7 +47,7 @@ void MaAdxSigAnalyser::init(AnalyserConfig conf)
     m_trend = 0;
     m_sig = 0;
 
-    StdAnalyser::init(conf);
+    TimeframeBarAnalyser::init(conf);
 }
 
 void MaAdxSigAnalyser::terminate()

@@ -32,36 +32,36 @@ public:
 
     virtual o3d::Bool fetchOhlc(
             const o3d::String &brokerId, const o3d::String &marketId,
-            o3d::Float timeframe, o3d::Float timestamp,
+            o3d::Double timeframe, o3d::Double timestamp,
             Ohlc &out) override;
 
     virtual o3d::Int32 fetchOhlcArrayFromTo(
             const o3d::String &brokerId, const o3d::String &marketId,
-            o3d::Float timeframe,
+            o3d::Double timeframe,
             o3d::Double from, o3d::Double to,
             OhlcArray &out) override;
 
     virtual o3d::Int32 fetchOhlcArrayLast(
             const o3d::String &brokerId, const o3d::String &marketId,
-            o3d::Float timeframe,
+            o3d::Double timeframe,
             o3d::Int32 lastN,
             OhlcArray &out) override;
 
     virtual o3d::Int32 fetchOhlcArrayLastTo(
             const o3d::String &brokerId, const o3d::String &marketId,
-            o3d::Float timeframe,
+            o3d::Double timeframe,
             o3d::Int32 lastN,
             o3d::Double to,
             OhlcArray &out) override;
 
     virtual o3d::Int32 fetchOhlcArrayFrom(
             const o3d::String &brokerId, const o3d::String &marketId,
-            o3d::Float timeframe,
+            o3d::Double timeframe,
             o3d::Double from,
             OhlcArray &out) override;
 
     virtual o3d::Bool getLastOhlc(const o3d::String &brokerId, const o3d::String &marketId,
-            o3d::Float timeframe, Ohlc &out) override;
+            o3d::Double timeframe, Ohlc &out) override;
 
     // virtual void storeOhlc(const o3d::String &brokerId, const o3d::String &marketId, const Ohlc &ohlc) override;
 

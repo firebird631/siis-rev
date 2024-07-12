@@ -32,6 +32,10 @@ public:
      * @brief breakevenTiggerPrice According to the method, return the trigger price to set trade at breakeven.
      */
     o3d::Double breakevenTiggerPrice(o3d::Double price, o3d::Int32 direction) const;
+
+protected:
+
+    void modifyTradeStopLossPriceWithOffset(Trade *trade) const;
 };
 
 } // namespace siis

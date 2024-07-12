@@ -18,7 +18,7 @@ MaAdxTrendAnalyser::MaAdxTrendAnalyser(
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod) :
-    StdAnalyser(strategy, timeframe, subTimeframe, depth, history, priceMethod),
+    TimeframeBarAnalyser(strategy, timeframe, subTimeframe, depth, history, priceMethod),
     m_slow_h_ma("slow_h_ma", timeframe),
     m_slow_m_ma("slow_m_ma", timeframe),
     m_slow_l_ma("slow_l_ma", timeframe),
@@ -40,7 +40,7 @@ void MaAdxTrendAnalyser::init(AnalyserConfig conf)
 
     m_trend = 0;
 
-    StdAnalyser::init(conf);
+    TimeframeBarAnalyser::init(conf);
 }
 
 void MaAdxTrendAnalyser::terminate()

@@ -17,6 +17,7 @@
 namespace siis {
 
 class OhlcDb;
+class RangeBarDb;
 class MarketDb;
 class TradeDb;
 
@@ -48,6 +49,7 @@ public:
     void stop();
 
     OhlcDb* ohlc();
+    RangeBarDb* rangeBar();
     MarketDb* market();
     TradeDb* trade();
 
@@ -59,6 +61,7 @@ protected:
     o3d::Bool m_running;
 
     OhlcDb *m_ohlc;
+    RangeBarDb *m_rangeBar;
     MarketDb *m_market;
     TradeDb *m_trade;
 };

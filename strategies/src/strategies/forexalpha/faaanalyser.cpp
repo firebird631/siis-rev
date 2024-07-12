@@ -18,7 +18,7 @@ FaAAnalyser::FaAAnalyser(
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod) :
-    StdAnalyser(strategy, timeframe, subTimeframe, depth, history, priceMethod),
+    TimeframeBarAnalyser(strategy, timeframe, subTimeframe, depth, history, priceMethod),
     m_atr("atr", timeframe),
     m_sma("sma", timeframe),
     m_ema("ema", timeframe),
@@ -41,7 +41,7 @@ void FaAAnalyser::init(AnalyserConfig conf)
     configureIndictor(conf, "rsi", m_rsi);
     configureIndictor(conf, "td9", m_td9);
 
-    StdAnalyser::init(conf);
+    TimeframeBarAnalyser::init(conf);
 }
 
 void FaAAnalyser::terminate()

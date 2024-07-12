@@ -8,7 +8,7 @@
 #ifndef SIIS_MAADXSIGANALYSER_H
 #define SIIS_MAADXSIGANALYSER_H
 
-#include "siis/analysers/stdanalyser.h"
+#include "siis/analysers/timeframebaranalyser.h"
 
 #include "siis/indicators/hma/hma.h"
 #include "siis/indicators/adx/adx.h"
@@ -23,7 +23,7 @@ namespace siis {
  * Signal analyser
  * @note It is important that price method is HLC.
  */
-class SIIS_API MaAdxSigAnalyser : public StdAnalyser
+class SIIS_API MaAdxSigAnalyser : public TimeframeBarAnalyser
 {
 public:
 

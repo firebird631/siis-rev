@@ -5,8 +5,8 @@
  * @date 2019-03-07
  */
 
-#ifndef SIIS_CANDLEGEN_H
-#define SIIS_CANDLEGEN_H
+#ifndef SIIS_TIMEFRAMEOHLCGEN_H
+#define SIIS_TIMEFRAMEOHLCGEN_H
 
 #include "../ohlc.h"
 #include "../tick.h"
@@ -17,17 +17,18 @@
 namespace siis {
 
 /**
- * @brief Ohlc generator from a compatible sub timeframe ohlc or directly from ticks array.
+ * @brief Generator OHLC for a specific fixed timeframe.
  * @author Frederic Scherma
  * @date 2019-03-07
- * The current, non consolidated ohlc is kept as the last ohlc of the out array.
+ * The current, non consolidated OHLC is kept as the last ohlc of the out array.
+ * It can generate from a tick series or from a lower timeframe (multiple of).
  */
-class SIIS_API OhlcGen
+class SIIS_API TimeframeOhlcGen
 {
 public:
 
-    OhlcGen(o3d::Double fromTimeframe, o3d::Double toTimeframe, Ohlc::Type ohlcType=Ohlc::TYPE_MID);
-    ~OhlcGen();
+    TimeframeOhlcGen(o3d::Double fromTimeframe, o3d::Double toTimeframe, Ohlc::Type ohlcType=Ohlc::TYPE_MID);
+    ~TimeframeOhlcGen();
 
     o3d::Double fromTimeframe() const { return m_fromTf; }
     o3d::Double toTimeframe() const { return m_toTf; }
@@ -87,4 +88,4 @@ private:
 
 } // namespace siis
 
-#endif // SIIS_CANDLEGEN_H
+#endif // SIIS_TIMEFRAMEOHLCGEN_H

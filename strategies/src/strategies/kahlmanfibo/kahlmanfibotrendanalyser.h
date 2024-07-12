@@ -8,7 +8,7 @@
 #ifndef SIIS_KAHLMANFIBOTRENDANALYSER_H
 #define SIIS_KAHLMANFIBOTRENDANALYSER_H
 
-#include "siis/analysers/stdanalyser.h"
+#include "siis/analysers/timeframebaranalyser.h"
 
 #include "siis/indicators/hma/hma.h"
 #include "siis/indicators/hma3/hma3.h"
@@ -24,7 +24,7 @@ namespace siis {
  * Signal analyser
  * @note It is important that price method is HLC.
  */
-class SIIS_API KahlmanFiboTrendAnalyser : public StdAnalyser
+class SIIS_API KahlmanFiboTrendAnalyser : public TimeframeBarAnalyser
 {
 public:
 

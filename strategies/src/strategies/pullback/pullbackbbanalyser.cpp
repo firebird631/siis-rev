@@ -18,7 +18,7 @@ PullbackBBAnalyser::PullbackBBAnalyser(
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod) :
-    StdAnalyser(strategy, timeframe, subTimeframe, depth, history, priceMethod),
+    TimeframeBarAnalyser(strategy, timeframe, subTimeframe, depth, history, priceMethod),
     m_bollinger("bollinger", timeframe),
     m_breakout(0),
     m_integrate(0),
@@ -39,7 +39,7 @@ void PullbackBBAnalyser::init(AnalyserConfig conf)
     m_breakout = 0;
     m_integrate = 0;
 
-    StdAnalyser::init(conf);
+    TimeframeBarAnalyser::init(conf);
 }
 
 void PullbackBBAnalyser::terminate()

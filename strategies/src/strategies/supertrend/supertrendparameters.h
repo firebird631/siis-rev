@@ -35,10 +35,10 @@ static const char* SuperTrendParameters = R"JSON(
             "sig": {"type": "supertrend", "timeframe": "5m"},
             "confirm": {"type": "candle", "timeframe": "1m", "risk-reward": 0.0, "profit-scale": 0.0},
             "entry": {"type": "last", "timeframe": "5m", "timeout": "1h"},
-            "take-profit": {"type": "fixed", "distance": "1.25%", "timeframe": "1m"},
-            "stop-loss": {"type": "fixed", "distance": "0.75%", "timeframe": "1m"},
+            "take-profit": {"type": "fixed", "timeframe": "1m", "distance": "1.25%"},
+            "stop-loss": {"type": "fixed", "timeframe": "1m", "distance": "0.75%"},
             "breakeven": {"type": "fixed", "timeframe": "5m", "distance": "1.0%"},
-            "dynamic-stop-loss": {"type": "custom", "distance": "0.01%", "timeframe": "5m"}
+            "dynamic-stop-loss": {"type": "custom", "timeframe": "5m", "distance": "0.01%"}
         }
     },
     "timeframes": {

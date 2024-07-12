@@ -8,7 +8,7 @@
 #ifndef SIIS_KAHLMANFIBOCONFANALYSER_H
 #define SIIS_KAHLMANFIBOCONFANALYSER_H
 
-#include "siis/analysers/stdanalyser.h"
+#include "siis/analysers/timeframebaranalyser.h"
 
 namespace siis {
 
@@ -18,7 +18,7 @@ namespace siis {
  * @date 2023-08-31
  * Confirmation analyser
  */
-class SIIS_API KahlmanFiboConfAnalyser : public StdAnalyser
+class SIIS_API KahlmanFiboConfAnalyser : public TimeframeBarAnalyser
 {
 public:
 

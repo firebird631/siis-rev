@@ -11,6 +11,7 @@
 #include <o3d/mysql/mysqldb.h>
 
 #include "mysqlohlcdb.h"
+#include "mysqlrangebardb.h"
 #include "mysqlmarketdb.h"
 #include "mysqltradedb.h"
 
@@ -32,6 +33,7 @@ siis::MySql::MySql(
 //    m_db->registerQuery("fetch-market", "");
 //    m_db->registerQuery("fetch-trades", "");
 //    m_db->registerQuery("fetch-candles", "");
+//    m_db->registerQuery("fetch-range-bar", "");
 //    m_db->registerQuery("store-trade", "");
 }
 
@@ -44,6 +46,7 @@ void MySql::init()
 {
     if (m_db) {
         m_ohlc = new MySqlOhlcDb(this);
+        m_rangeBar = new MySqlRangeBarDb(this);
         m_market = new MySqlMarketDb(this);
         m_trade = new MySqlTradeDb(this);
     }
@@ -53,6 +56,7 @@ void siis::MySql::terminate()
 {
     if (m_db) {
         o3d::deletePtr(m_ohlc);
+        o3d::deletePtr(m_rangeBar);
         o3d::deletePtr(m_market);
         o3d::deletePtr(m_trade);
 

@@ -283,6 +283,7 @@ public:
     //
 
     o3d::Double timeframeAsDouble(Json::Value &parent, const o3d::String &key) const;
+    o3d::Int32 barSizeAsInt(Json::Value &parent, const o3d::String &key) const;
 
 private:
 

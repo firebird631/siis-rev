@@ -15,6 +15,7 @@
 #include <arpa/inet.h>
 
 #include "pgsqlohlcdb.h"
+#include "pgsqlrangebardb.h"
 #include "pgsqlmarketdb.h"
 #include "pgsqltradedb.h"
 
@@ -42,6 +43,7 @@ void siis::PgSql::init()
 {
     if (m_db) {
         m_ohlc = new PgSqlOhlcDb(this);
+        m_rangeBar = new PgSqlRangeBarDb(this);
         m_market = new PgSqlMarketDb(this);
         m_trade = new PgSqlTradeDb(this);
     }
@@ -51,6 +53,7 @@ void siis::PgSql::terminate()
 {
     if (m_db) {
         o3d::deletePtr(m_ohlc);
+        o3d::deletePtr(m_rangeBar);
         o3d::deletePtr(m_market);
         o3d::deletePtr(m_trade);
 

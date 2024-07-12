@@ -18,7 +18,7 @@ KahlmanFiboConfAnalyser::KahlmanFiboConfAnalyser(
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod) :
-    StdAnalyser(strategy, timeframe, subTimeframe, depth, history, priceMethod),
+    TimeframeBarAnalyser(strategy, timeframe, subTimeframe, depth, history, priceMethod),
     m_confirmation(0)
 {
 
@@ -31,7 +31,7 @@ KahlmanFiboConfAnalyser::~KahlmanFiboConfAnalyser()
 
 void KahlmanFiboConfAnalyser::init(AnalyserConfig conf)
 {
-    StdAnalyser::init(conf);
+    TimeframeBarAnalyser::init(conf);
 
     m_confirmation = 0;
 }

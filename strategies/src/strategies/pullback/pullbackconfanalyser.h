@@ -8,7 +8,7 @@
 #ifndef SIIS_PULLBACKCONFANALYSER_H
 #define SIIS_PULLBACKCONFANALYSER_H
 
-#include "siis/analysers/stdanalyser.h"
+#include "siis/analysers/timeframebaranalyser.h"
 
 #include "siis/indicators/hma/hma.h"
 #include "siis/indicators/adx/adx.h"
@@ -22,7 +22,7 @@ namespace siis {
  * @date 2023-05-09
  * Confirmation analyser
  */
-class SIIS_API PullbackConfAnalyser : public StdAnalyser
+class SIIS_API PullbackConfAnalyser : public TimeframeBarAnalyser
 {
 public:
 

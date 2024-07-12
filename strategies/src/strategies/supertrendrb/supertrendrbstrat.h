@@ -1,12 +1,12 @@
 /**
- * @brief SiiS strategy SuperTrend.
+ * @brief SiiS strategy SuperTrend range-bar.
  * @copyright Copyright (C) 2023 SiiS
  * @author Frederic SCHERMA (frederic.scherma@gmail.com)
  * @date 2023-09-30
  */
 
-#ifndef SIIS_SUPERTREND_STRAT_H
-#define SIIS_SUPERTREND_STRAT_H
+#ifndef SIIS_SUPERTRENDRB_STRAT_H
+#define SIIS_SUPERTRENDRB_STRAT_H
 
 #include "siis/base.h"
 #include "siis/strategy.h"
@@ -28,21 +28,21 @@
 
 namespace siis {
 
-class SuperTrendTrendAnalyser;
-class SuperTrendSigAnalyser;
-class SuperTrendConfAnalyser;
+class SuperTrendRbTrendAnalyser;
+class SuperTrendRbSigAnalyser;
+class SuperTrendRbConfAnalyser;
 
 /**
- * @brief Strategy SuperTrend.
+ * @brief Strategy SuperTrend range-bar.
  * @author Frederic Scherma
  * @date 2023-09-30
  */
-class SIIS_PLUGIN_API SuperTrendStrat : public Strategy
+class SIIS_PLUGIN_API SuperTrendRbStrat : public Strategy
 {
 public:
 
-    SuperTrendStrat(Handler *handler, const o3d::String &identifier);
-    virtual ~SuperTrendStrat() override;
+    SuperTrendRbStrat(Handler *handler, const o3d::String &identifier);
+    virtual ~SuperTrendRbStrat() override;
 
     virtual void init(Config *config) override;
     virtual void terminate(Connector *connector, Database *db) override;
@@ -72,9 +72,9 @@ private:
     std::vector<Analyser*> m_analysers;
     StdTradeManager *m_tradeManager;
 
-    SuperTrendTrendAnalyser *m_trendAnalyser;
-    SuperTrendSigAnalyser *m_sigAnalyser;
-    SuperTrendConfAnalyser *m_confAnalyser;
+    SuperTrendRbTrendAnalyser *m_trendAnalyser;
+    SuperTrendRbSigAnalyser *m_sigAnalyser;
+    SuperTrendRbConfAnalyser *m_confAnalyser;
 
     TradeSignal m_lastSignal;
 
@@ -89,7 +89,7 @@ private:
     DynamicStopLoss m_dynamicStopLoss;
 
     void orderEntry(o3d::Double timestamp,
-                    o3d::Double timeframe,
+                    o3d::Int32 barSize,
                     o3d::Int32 direction,
                     Order::OrderType orderType,
                     o3d::Double price,
@@ -103,4 +103,4 @@ private:
 
 } // namespace siis
 
-#endif // SIIS_SUPERTREND_STRAT_H
+#endif // SIIS_SUPERTRENDRB_STRAT_H

@@ -146,8 +146,8 @@ void DynamicStopLoss::updateΤrade(o3d::Double timestamp, o3d::Double lastTimest
         }
     }
 
-    if (m_adjustPolicy == ADJ_PRICE) {
-        // price change at anytime
+    if ((m_adjustPolicy == ADJ_PRICE) || (m_adjustPolicy == ADJ_CLOSE && m_consolidated)) {
+        // price change at anytime using ADJ_PRICE policy or only on consolidation using ADJ_CLOSE policy
         if (m_distanceType == DIST_PERCENTIL) {
             o3d::Double closeExecPrice = trade->strategy()->market()->closeExecPrice(trade->direction());
 
@@ -171,35 +171,8 @@ void DynamicStopLoss::updateΤrade(o3d::Double timestamp, o3d::Double lastTimest
                 }
             }
         }
-    } else if (m_adjustPolicy == ADJ_CLOSE) {
-        // price change at a close
-        if (m_consolidated) {
-            if (m_distanceType == DIST_PERCENTIL) {
-                o3d::Double closeExecPrice = trade->strategy()->market()->closeExecPrice(trade->direction());
-
-                if (distanceFromPercentile(trade, closeExecPrice) > m_distance) {
-                    o3d::Double newStopLossPrice = computeStopLossPriceFixedDistancePercentile(
-                                                       trade, m_distance, closeExecPrice);
-
-                    if (newStopLossPrice > 0.0) {
-                        trade->modifyStopLoss(newStopLossPrice, Trade::MOD_PREVIOUS);
-                    }
-                }
-            } else if (m_distanceType == DIST_PRICE) {
-                o3d::Double closeExecPrice = trade->strategy()->market()->closeExecPrice(trade->direction());
-
-                if (distanceFromPrice(trade, closeExecPrice) >= m_distance) {
-                    o3d::Double newStopLossPrice = computeStopLossPriceFixedDistancePrice(
-                                                       trade, m_distance, closeExecPrice);
-
-                    if (newStopLossPrice > 0.0) {
-                        trade->modifyStopLoss(newStopLossPrice, Trade::MOD_PREVIOUS);
-                    }
-                }
-            }
-        }
     } else if (m_adjustPolicy == ADJ_CUSTOM) {
-        // custom method from strategy
+        // custom method from strategy, nothing to do here
     }
 }
 

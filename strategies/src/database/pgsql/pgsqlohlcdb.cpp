@@ -55,8 +55,8 @@ const Database *PgSqlOhlcDb::db() const
 
 o3d::Bool PgSqlOhlcDb::fetchOhlc(const o3d::String &brokerId,
                                  const o3d::String &marketId,
-                                 o3d::Float timeframe,
-                                 o3d::Float timestamp,
+                                 o3d::Double timeframe,
+                                 o3d::Double timestamp,
                                  Ohlc &out)
 {
     o3d::DbQuery *query = m_db->db()->findQuery("get-ohlc");
@@ -97,7 +97,7 @@ o3d::Bool PgSqlOhlcDb::fetchOhlc(const o3d::String &brokerId,
 
 o3d::Int32 PgSqlOhlcDb::fetchOhlcArrayFromTo(const o3d::String &brokerId,
                                        const o3d::String &marketId,
-                                       o3d::Float timeframe,
+                                       o3d::Double timeframe,
                                        o3d::Double from,
                                        o3d::Double to,
                                        OhlcArray &out)
@@ -151,7 +151,7 @@ o3d::Int32 PgSqlOhlcDb::fetchOhlcArrayFromTo(const o3d::String &brokerId,
 
 o3d::Int32 PgSqlOhlcDb::fetchOhlcArrayLast(const o3d::String &brokerId,
                                        const o3d::String &marketId,
-                                       o3d::Float timeframe,
+                                       o3d::Double timeframe,
                                        o3d::Int32 lastN,
                                        OhlcArray &out)
 {
@@ -211,7 +211,7 @@ o3d::Int32 PgSqlOhlcDb::fetchOhlcArrayLast(const o3d::String &brokerId,
 
 o3d::Int32 PgSqlOhlcDb::fetchOhlcArrayLastTo(const o3d::String &brokerId,
                                        const o3d::String &marketId,
-                                       o3d::Float timeframe,
+                                       o3d::Double timeframe,
                                        o3d::Int32 lastN,
                                        o3d::Double to,
                                        OhlcArray &out)
@@ -272,7 +272,7 @@ o3d::Int32 PgSqlOhlcDb::fetchOhlcArrayLastTo(const o3d::String &brokerId,
 
 o3d::Int32 PgSqlOhlcDb::fetchOhlcArrayFrom(const o3d::String &brokerId,
                                        const o3d::String &marketId,
-                                        o3d::Float timeframe,
+                                        o3d::Double timeframe,
                                         o3d::Double from,
                                         OhlcArray &out)
 {
@@ -325,7 +325,7 @@ o3d::Int32 PgSqlOhlcDb::fetchOhlcArrayFrom(const o3d::String &brokerId,
 o3d::Bool PgSqlOhlcDb::getLastOhlc(
         const o3d::String &brokerId,
         const o3d::String &marketId,
-        o3d::Float timeframe,
+        o3d::Double timeframe,
         Ohlc &out)
 {
     o3d::DbQuery *query = m_db->db()->findQuery("get-last-ohlc");

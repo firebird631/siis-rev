@@ -1,4 +1,0 @@
-#ifndef SUPERTRENDRB_H
-#define SUPERTRENDRB_H
-
-#endif // SUPERTRENDRB_H
