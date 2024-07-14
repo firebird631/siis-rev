@@ -17,7 +17,7 @@ RangeBarAnalyser::RangeBarAnalyser(Strategy *strategy,
         o3d::Int32 history,
         Price::Method priceMethod,
         o3d::Double tickScale) :
-    Analyser(strategy, rangeSize, 0.0, 0.0, depth, history),
+    Analyser(strategy, rangeSize, 0.0, depth, history),
     m_ohlcGen(rangeSize, tickScale),
     m_ohlc(depth),
     m_price("price", 0.0, priceMethod),

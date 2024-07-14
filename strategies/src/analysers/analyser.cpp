@@ -12,13 +12,11 @@ using namespace siis;
 
 Analyser::Analyser(Strategy *strategy,
         o3d::Double timeframe,
-        o3d::Double subTimeframe,
         o3d::Int32 barSize,
         o3d::Int32 depth,
         o3d::Int32 history) :
     m_strategy(strategy),
     m_timeframe(timeframe),
-    m_subTimeFrame(subTimeframe),
     m_barSize(barSize),
     m_depth(depth),
     m_history(history),

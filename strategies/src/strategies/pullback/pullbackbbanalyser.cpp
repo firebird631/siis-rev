@@ -14,11 +14,11 @@ using namespace siis;
 PullbackBBAnalyser::PullbackBBAnalyser(
             Strategy *strategy,
             o3d::Double timeframe,
-            o3d::Double subTimeframe,
+            o3d::Double sourceTimeframe,
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod) :
-    TimeframeBarAnalyser(strategy, timeframe, subTimeframe, depth, history, priceMethod),
+    TimeframeBarAnalyser(strategy, timeframe, sourceTimeframe, depth, history, priceMethod),
     m_bollinger("bollinger", timeframe),
     m_breakout(0),
     m_integrate(0),

@@ -81,7 +81,6 @@ void MaIchimoku::init(Config *config)
             o3d::String mode = timeframe.get("mode", "").asString().c_str();
 
             o3d::Double tf = conf.timeframeAsDouble(timeframe, "timeframe");
-            o3d::Double subTf = conf.timeframeAsDouble(timeframe, "sub-timeframe");
 
             o3d::Int32 depth = timeframe.get("depth", 0).asInt();
             o3d::Int32 history = timeframe.get("history", 0).asInt();
@@ -91,19 +90,19 @@ void MaIchimoku::init(Config *config)
             }
 
 //            if (mode == "sr") {
-//                Analyser *a = new PullbackSRAnalyser(this, tf, subTf, depth, history, Price::PRICE_CLOSE);
+//                Analyser *a = new PullbackSRAnalyser(this, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
 //                a->init(AnalyserConfig(timeframe));
 
 //                m_analysers.push_back(a);
 //                m_srAnalyser = static_cast<PullbackSRAnalyser*>(a);
 //            } else if (mode == "bollinger") {
-//                Analyser *a = new PullbackBBAnalyser(this, tf, subTf, depth, history, Price::PRICE_CLOSE);
+//                Analyser *a = new PullbackBBAnalyser(this, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
 //                a->init(AnalyserConfig(timeframe));
 
 //                m_analysers.push_back(a);
 //                m_bbAnalyser = static_cast<PullbackBBAnalyser*>(a);
 //            } else if (mode == "conf") {
-//                Analyser *a = new PullbackConfAnalyser(this, tf, subTf, depth, history, Price::PRICE_CLOSE);
+//                Analyser *a = new PullbackConfAnalyser(this, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
 //                a->init(AnalyserConfig(timeframe));
 
 //                m_analysers.push_back(a);

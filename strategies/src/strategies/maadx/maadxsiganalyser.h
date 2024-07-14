@@ -30,7 +30,7 @@ public:
     MaAdxSigAnalyser(
             Strategy *strategy,
             o3d::Double timeframe,
-            o3d::Double subTimeframe,
+            o3d::Double sourceTimeframe,
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod=Price::PRICE_HLC);

@@ -13,12 +13,12 @@ using namespace siis;
 
 TimeframeBarAnalyser::TimeframeBarAnalyser(Strategy *strategy,
         o3d::Double timeframe,
-        o3d::Double subTimeframe,
+        o3d::Double sourceTimeframe,
         o3d::Int32 depth,
         o3d::Int32 history,
         Price::Method priceMethod) :
-    Analyser(strategy, timeframe, subTimeframe, 0, depth, history),
-    m_ohlcGen(subTimeframe, timeframe),
+    Analyser(strategy, timeframe, 0, depth, history),
+    m_ohlcGen(sourceTimeframe, timeframe),
     m_ohlc(depth),
     m_price("price", timeframe, priceMethod),
     m_volume("volume", timeframe)
@@ -94,4 +94,9 @@ void TimeframeBarAnalyser::process(o3d::Double timestamp, o3d::Double lastTimest
 o3d::Double TimeframeBarAnalyser::lastPrice() const
 {
     return m_price.close().last();
+}
+
+o3d::Double TimeframeBarAnalyser::sourceTimeframe() const
+{
+    return m_ohlcGen.fromTimeframe();
 }

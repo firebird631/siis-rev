@@ -44,7 +44,6 @@ static const char* PullbackParameters = R"JSON(
         "30min": {
             "enabled": true,
             "timeframe": "30m",
-            "sub-timeframe": "5m",
             "mode": "sr",
             "depth": 5,
             "history": 5,
@@ -56,7 +55,6 @@ static const char* PullbackParameters = R"JSON(
          "5min": {
             "enabled": true,
             "timeframe": "5m",
-            "sub-timeframe": "1m",
             "mode": "bollinger",
             "depth": 45,
             "history": 45,
@@ -68,7 +66,6 @@ static const char* PullbackParameters = R"JSON(
         "1min": {
             "enabled": true,
             "timeframe": "1m",
-            "sub-timeframe": "t",
             "mode": "conf",
             "depth": 5,
             "history": 5,

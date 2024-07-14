@@ -65,7 +65,6 @@ void StdSupervisor::init(Config *config)
             o3d::String mode = timeframe.get("mode", "").asString().c_str();
 
             o3d::Double tf = conf.timeframeAsDouble(timeframe, "timeframe");
-            o3d::Double subTf = conf.timeframeAsDouble(timeframe, "sub-timeframe");
 
             o3d::Int32 depth = timeframe.get("depth", 0).asInt();
             o3d::Int32 history = timeframe.get("history", 0).asInt();
@@ -75,22 +74,22 @@ void StdSupervisor::init(Config *config)
             }
 
 //            if (mode == "A") {
-//                Analyser *a = new Std...Analyser(this, tf, subTf, depth);
+//                Analyser *a = new Std...Analyser(this, tf, baseTimeframe(), depth);
 //                a->init(AnalyserConfig(timeframe));
 
 //                m_analysers.push_back(a);
 //            } else if (mode == "B") {
-//                Analyser *b = new FaBAnalyser(this, tf, subTf, depth);
+//                Analyser *b = new FaBAnalyser(this, tf, baseTimeframe(), depth);
 //                b->init(AnalyserConfig(timeframe));
 
 //                m_analysers.push_back(b);
 //            } else if (mode == "C") {
-//                Analyser *c = new FaCAnalyser(this, tf, subTf, depth);
+//                Analyser *c = new FaCAnalyser(this, tf, baseTimeframe(), depth);
 //                c->init(AnalyserConfig(timeframe));
 
 //                m_analysers.push_back(c);
 //            } else if (mode == "D") {
-//                Analyser *d = new FaDAnalyser(this, tf, subTf, depth);
+//                Analyser *d = new FaDAnalyser(this, tf, baseTimeframe(), depth);
 //                d->init(AnalyserConfig(timeframe));
 
 //                m_analysers.push_back(d);

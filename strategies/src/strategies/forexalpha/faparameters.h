@@ -30,7 +30,6 @@ static const char* ForexAlphaParameters = R"JSON(
         "weekly": {
             "enabled": true,
             "timeframe": "1w",
-            "sub-timeframe": "daily",
             "mode": "C",
             "depth": 22,
             "history": 22,
@@ -47,7 +46,6 @@ static const char* ForexAlphaParameters = R"JSON(
         "daily": {
             "enabled": true,
             "timeframe": "1d",
-            "sub-timeframe": "4h",
             "mode": "A",
             "depth": 41,
             "history": 41,
@@ -64,7 +62,6 @@ static const char* ForexAlphaParameters = R"JSON(
         "4hour": {
             "enabled": true,
             "timeframe": "4h",
-            "sub-timeframe": "1h",
             "mode": "D",
             "depth": 56,
             "history": 56,
@@ -83,7 +80,6 @@ static const char* ForexAlphaParameters = R"JSON(
         "hourly": {
             "enabled": true,
             "timeframe": "1h",
-            "sub-timeframe": "15m",
             "mode": "A",
             "depth": 41,
             "history": 41,
@@ -100,7 +96,6 @@ static const char* ForexAlphaParameters = R"JSON(
         "15min": {
             "enabled": true,
             "timeframe": "15m",
-            "sub-timeframe": "5m",
             "mode": "A",
             "depth": 41,
             "history": 41,
@@ -117,7 +112,6 @@ static const char* ForexAlphaParameters = R"JSON(
         "5min": {
             "enabled": true,
             "timeframe": "5m",
-            "sub-timeframe": "1m",
             "mode": "A",
             "depth": 41,
             "history": 41,
@@ -134,7 +128,6 @@ static const char* ForexAlphaParameters = R"JSON(
         "1min": {
             "enabled": false,
             "timeframe": "1m",
-            "sub-timeframe": "t",
             "mode": "B",
             "depth": 20,
             "history": 20,

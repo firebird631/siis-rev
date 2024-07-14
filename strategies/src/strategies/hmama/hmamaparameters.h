@@ -45,7 +45,6 @@ static const char* HmaMaParameters = R"JSON(
         "4hour": {
             "enabled": true,
             "timeframe": "4h",
-            "sub-timeframe": "5m",
             "mode": "trend",
             "depth": 25,
             "history": 25,
@@ -59,7 +58,6 @@ static const char* HmaMaParameters = R"JSON(
          "5min": {
             "enabled": true,
             "timeframe": "5m",
-            "sub-timeframe": "1m",
             "mode": "sig",
             "depth": 25,
             "history": 25,
@@ -74,7 +72,6 @@ static const char* HmaMaParameters = R"JSON(
         "1min": {
             "enabled": true,
             "timeframe": "1m",
-            "sub-timeframe": "t",
             "mode": "conf",
             "depth": 10,
             "history": 10,

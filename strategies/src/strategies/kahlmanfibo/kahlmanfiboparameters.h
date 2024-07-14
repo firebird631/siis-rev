@@ -44,7 +44,6 @@ static const char* KahlmanFiboParameters = R"JSON(
          "5min": {
             "enabled": true,
             "timeframe": "5m",
-            "sub-timeframe": "1m",
             "mode": "sig",
             "depth": 50,
             "history": 50,
@@ -58,7 +57,6 @@ static const char* KahlmanFiboParameters = R"JSON(
         "1min": {
             "enabled": true,
             "timeframe": "1m",
-            "sub-timeframe": "t",
             "mode": "conf",
             "depth": 5,
             "history": 5,

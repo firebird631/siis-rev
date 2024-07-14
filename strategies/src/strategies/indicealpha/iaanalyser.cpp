@@ -12,11 +12,11 @@ using namespace siis;
 IaAnalyser::IaAnalyser(
             Strategy *strategy,
             o3d::Double timeframe,
-            o3d::Double subTimeframe,
+            o3d::Double sourceTimeframe,
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod) :
-    TimeframeBarAnalyser(strategy, timeframe, subTimeframe, depth, history, priceMethod),
+    TimeframeBarAnalyser(strategy, timeframe, sourceTimeframe, depth, history, priceMethod),
     m_lastSignal(timeframe, 0.0)
 {
 

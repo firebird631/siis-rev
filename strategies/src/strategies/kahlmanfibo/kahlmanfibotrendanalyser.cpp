@@ -17,11 +17,11 @@ using namespace siis;
 KahlmanFiboTrendAnalyser::KahlmanFiboTrendAnalyser(
             Strategy *strategy,
             o3d::Double timeframe,
-            o3d::Double subTimeframe,
+            o3d::Double sourceTimeframe,
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod) :
-    TimeframeBarAnalyser(strategy, timeframe, subTimeframe, depth, history, priceMethod),
+    TimeframeBarAnalyser(strategy, timeframe, sourceTimeframe, depth, history, priceMethod),
     m_gain(0.7),  // step 0.01 min 0.0001
     m_kahlman(true),
     m_trendTimestamp(0.0),
