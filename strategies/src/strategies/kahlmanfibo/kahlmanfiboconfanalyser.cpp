@@ -41,10 +41,8 @@ void KahlmanFiboConfAnalyser::terminate()
 
 }
 
-TradeSignal KahlmanFiboConfAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
+void KahlmanFiboConfAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
 {
-    TradeSignal signal(timeframe(), timestamp);
-
     m_confirmation = 0;
 
     if (1) { // price().consolidated()) {
@@ -54,6 +52,4 @@ TradeSignal KahlmanFiboConfAnalyser::compute(o3d::Double timestamp, o3d::Double 
             m_confirmation = -1;
         }
     }
-
-    return signal;
 }

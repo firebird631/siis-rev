@@ -2,6 +2,7 @@ set(LIB_NAME forexalpha)
 
 set(STRATEGY_CXX
     forexalpha.cpp
+    faanalyser.cpp
     faaanalyser.cpp
     fabanalyser.cpp
     facanalyser.cpp

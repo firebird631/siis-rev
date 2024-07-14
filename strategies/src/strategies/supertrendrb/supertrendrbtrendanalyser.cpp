@@ -57,10 +57,8 @@ void SuperTrendRbTrendAnalyser::terminate()
 
 }
 
-TradeSignal SuperTrendRbTrendAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
+void SuperTrendRbTrendAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
 {
-    TradeSignal signal(barSize(), timestamp);
-
     if (price().consolidated()) {
         // compute only at close
         m_hma.compute(timestamp, price().price());   // compute on HL2 price
@@ -106,6 +104,4 @@ TradeSignal SuperTrendRbTrendAnalyser::compute(o3d::Double timestamp, o3d::Doubl
             m_trendTimestamp = timestamp;
         }
     }
-
-    return signal;
 }

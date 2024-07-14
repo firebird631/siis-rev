@@ -8,7 +8,6 @@
 #ifndef SIIS_ANALYSER_H
 #define SIIS_ANALYSER_H
 
-#include "../trade/tradesignal.h"
 #include "../tick.h"
 #include "../ohlc.h"
 
@@ -19,11 +18,12 @@ class Market;
 class AnalyserConfig;
 
 /**
- * @brief Strategy analyser per timeframe
+ * @brief Strategy analyser per bar
  * @author Frederic Scherma
  * @date 2019-03-15
  * @todo replace virtual by a template Analyser<FaaAnalyser> ...
  * std::unique_ptr<...> return std::make_unique<...<..>>()
+ * @todo remove subTimeframe
  */
 class SIIS_API Analyser
 {
@@ -66,16 +66,8 @@ public:
     /**
      * @brief process Process the analyse.
      * @param timestamp Current timestamp (must be >= next timestamp)
-     * @return True if a new signal was emitted.
      */
-    virtual o3d::Bool process(o3d::Double timestamp, o3d::Double lastTimestamp) = 0;
-
-    /**
-     * @brief exportConditions Export the condition of the last generated signal.
-     * @param conditions A Conditions object where to push the analyser specifics conditions.
-     * @todo Conditions and implementation
-     */
-    // virtual void exportConditions(Conditions &conditions) = 0;
+    virtual void process(o3d::Double timestamp, o3d::Double lastTimestamp) = 0;
 
     /**
      * @brief isNeedUpdate If timestamp >= next timestamp
@@ -104,9 +96,6 @@ public:
     o3d::Double nextTimestamp() const { return m_nextTimestamp; }
     o3d::Double nextTs() const { return m_nextTimestamp; }
 
-    o3d::Bool hasLastSignal() const { return m_lastSignal.type() != TradeSignal::NONE; }
-    const TradeSignal& lastSignal() const { return m_lastSignal; }
-
     /**
      * @brief log Log a message throught the message logger of the strategy.
      * @param channel Mapped name of the channel.
@@ -117,9 +106,6 @@ public:
 protected:
 
     void processCompleted(o3d::Double timestamp) { m_nextTimestamp = timestamp; }
-
-    void signalCompleted(const TradeSignal &tradeSignal) { m_lastSignal = tradeSignal; }
-    void clearSignal() { m_lastSignal = TradeSignal(m_timeframe, 0); }
 
 private:
 
@@ -134,8 +120,6 @@ private:
     o3d::Int32 m_history;
 
     o3d::Double m_nextTimestamp;
-
-    TradeSignal m_lastSignal;
 };
 
 } // namespace siis

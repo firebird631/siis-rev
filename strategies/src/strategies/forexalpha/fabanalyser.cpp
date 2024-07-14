@@ -18,7 +18,7 @@ FaBAnalyser::FaBAnalyser(
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod) :
-    TimeframeBarAnalyser(strategy, timeframe, subTimeframe, depth, history, priceMethod),
+    FaAnalyser(strategy, timeframe, subTimeframe, depth, history, priceMethod),
     m_atr("atr", timeframe),
     m_sma("sma", timeframe),
     m_ema("ema", timeframe),
@@ -47,10 +47,8 @@ void FaBAnalyser::terminate()
 
 }
 
-TradeSignal FaBAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
+void FaBAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
 {
-    TradeSignal signal(timeframe(), timestamp);
-
     m_rsi.compute(lastTimestamp, price().price());
     m_sma.compute(lastTimestamp, price().price());
     m_ema.compute(lastTimestamp, price().price());
@@ -73,16 +71,4 @@ TradeSignal FaBAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestam
             lvl1Signal = 1;
         }
     }
-
-    if (signal.valid()) {
-        // keep signal conditions for machine learning
-        // @todo how to, another method storeConditions() when to do it ? we want to store any possible
-        // valid signals, even thoose non traded because of somes criterias like max trade etc
-        // 'price': prices[-1],
-        // 'rsi': self.rsi.last,
-        // 'stochrsi': self.stochrsi.last_k,
-        // 'bollinger': (self.bollingerbands.last_bottom, self.bollingerbands.last_ma, self.bollingerbands.last_top),
-    }
-
-    return signal;
 }

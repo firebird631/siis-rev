@@ -19,6 +19,7 @@
 
 #include "siis/analysers/analyser.h"
 #include "siis/trade/stdtrademanager.h"
+#include "siis/trade/tradesignal.h"
 
 #include "siis/trade/entry.h"
 #include "siis/trade/takeprofit.h"

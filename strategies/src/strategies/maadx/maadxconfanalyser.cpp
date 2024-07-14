@@ -41,10 +41,8 @@ void MaAdxConfAnalyser::terminate()
 
 }
 
-TradeSignal MaAdxConfAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
+void MaAdxConfAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
 {
-    TradeSignal signal(timeframe(), timestamp);
-
     m_confirmation = 0;
 
     if (price().consolidated()) {
@@ -54,6 +52,4 @@ TradeSignal MaAdxConfAnalyser::compute(o3d::Double timestamp, o3d::Double lastTi
             m_confirmation = -1;
         }
     }
-
-    return signal;
 }

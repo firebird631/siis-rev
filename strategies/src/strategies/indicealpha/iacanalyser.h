@@ -8,7 +8,7 @@
 #ifndef SIIS_IACANALYSER_H
 #define SIIS_IACANALYSER_H
 
-#include "siis/analysers/timeframebaranalyser.h"
+#include "iaanalyser.h"
 
 #include "siis/indicators/atr/atr.h"
 #include "siis/indicators/sma/sma.h"
@@ -24,7 +24,7 @@ namespace siis {
  * @date 2019-06-03
  * Prefered for long timeframe like weekly or many days. Only compute the indicator, does not emit signal.
  */
-class SIIS_API IaCAnalyser : public TimeframeBarAnalyser
+class SIIS_API IaCAnalyser : public IaAnalyser
 {
 public:
 
@@ -40,7 +40,7 @@ public:
 
     virtual void init(AnalyserConfig conf) override;
     virtual void terminate() override;
-    virtual TradeSignal compute(o3d::Double timestamp, o3d::Double lastTimestamp) override;
+    virtual void compute(o3d::Double timestamp, o3d::Double lastTimestamp) override;
 
 private:
 

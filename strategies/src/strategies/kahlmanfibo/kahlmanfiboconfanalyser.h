@@ -34,7 +34,7 @@ public:
 
     virtual void init(AnalyserConfig conf) override;
     virtual void terminate() override;
-    virtual TradeSignal compute(o3d::Double timestamp, o3d::Double lastTimestamp) override;
+    virtual void compute(o3d::Double timestamp, o3d::Double lastTimestamp) override;
 
     inline o3d::Int32 confirmation() const { return m_confirmation; }
 

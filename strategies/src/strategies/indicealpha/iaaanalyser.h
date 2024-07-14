@@ -8,7 +8,7 @@
 #ifndef SIIS_IAAANALYSER_H
 #define SIIS_IAAANALYSER_H
 
-#include "siis/analysers/timeframebaranalyser.h"
+#include "iaanalyser.h"
 
 #include "siis/indicators/atr/atr.h"
 #include "siis/indicators/sma/sma.h"
@@ -24,7 +24,7 @@ namespace siis {
  * @date 2019-06-03
  * Prefered for common timeframe from 3m to 4h.
  */
-class SIIS_API IaAAnalyser : public TimeframeBarAnalyser
+class SIIS_API IaAAnalyser : public IaAnalyser
 {
 public:
 
@@ -40,7 +40,7 @@ public:
 
     virtual void init(AnalyserConfig conf) override;
     virtual void terminate() override;
-    virtual TradeSignal compute(o3d::Double timestamp, o3d::Double lastTimestamp) override;
+    virtual void compute(o3d::Double timestamp, o3d::Double lastTimestamp) override;
 
 private:
 

@@ -2,6 +2,7 @@ set(LIB_NAME indicealpha)
 
 set(STRATEGY_CXX
     indicealpha.cpp
+    iaanalyser.cpp
     iaaanalyser.cpp
     iabanalyser.cpp
     iacanalyser.cpp

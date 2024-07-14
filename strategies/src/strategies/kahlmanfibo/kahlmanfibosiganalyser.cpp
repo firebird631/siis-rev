@@ -71,10 +71,8 @@ void KahlmanFiboSigAnalyser::terminate()
 
 }
 
-TradeSignal KahlmanFiboSigAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
+void KahlmanFiboSigAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
 {
-    TradeSignal signal(timeframe(), timestamp);
-
     m_confirmation = 0;
 
     if (price().consolidated()) {
@@ -165,8 +163,6 @@ TradeSignal KahlmanFiboSigAnalyser::compute(o3d::Double timestamp, o3d::Double l
          // donchian fibo testing
         donchianFibo(timestamp);
     }
-
-    return signal;
 }
 
 void KahlmanFiboSigAnalyser::setUseKahlman(o3d::Bool use)

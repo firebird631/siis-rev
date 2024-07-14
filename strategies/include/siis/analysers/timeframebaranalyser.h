@@ -43,8 +43,8 @@ public:
     virtual void init(AnalyserConfig conf) override;
     virtual void prepare(o3d::Double timestamp) override;
 
-    virtual o3d::Bool process(o3d::Double timestamp, o3d::Double lastTimestamp) override;
-    virtual TradeSignal compute(o3d::Double timestamp, o3d::Double lastTimestamp) = 0;
+    virtual void process(o3d::Double timestamp, o3d::Double lastTimestamp) override;
+    virtual void compute(o3d::Double timestamp, o3d::Double lastTimestamp) = 0;
 
     virtual o3d::Double lastPrice() const override;
 

@@ -47,10 +47,8 @@ void PullbackBBAnalyser::terminate()
 
 }
 
-TradeSignal PullbackBBAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
+void PullbackBBAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
 {
-    TradeSignal signal(timeframe(), timestamp);
-
     m_confirmation = 0;
 
     if (price().consolidated()) {
@@ -83,8 +81,6 @@ TradeSignal PullbackBBAnalyser::compute(o3d::Double timestamp, o3d::Double lastT
             m_integrate = 1;
         }
     }
-
-    return signal;
 }
 
 o3d::Double PullbackBBAnalyser::entryPrice() const

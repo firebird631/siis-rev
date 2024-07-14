@@ -17,8 +17,9 @@
 #include "siis/indicators/price/price.h"
 #include "siis/indicators/volume/volume.h"
 
-#include "siis/analysers/analyser.h"
 #include "siis/trade/stdtrademanager.h"
+
+#include "iaanalyser.h"
 
 namespace siis {
 
@@ -65,7 +66,7 @@ private:
     o3d::Double m_minTradedTimeframe;
     o3d::Double m_maxTradedTimeframe;
 
-    std::vector<Analyser*> m_analysers;
+    std::vector<IaAnalyser*> m_analysers;
     StdTradeManager *m_tradeManager;
 
     void orderEntry(o3d::Double timestamp,

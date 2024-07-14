@@ -62,18 +62,18 @@ void RangeBarAnalyser::onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe
     /* not supported */
 }
 
-o3d::Bool RangeBarAnalyser::process(o3d::Double timestamp, o3d::Double lastTimestamp)
+void RangeBarAnalyser::process(o3d::Double timestamp, o3d::Double lastTimestamp)
 {
     o3d::Int32 n = m_ohlc.size();
 
     if (n < depth()) {
         // not enought samples
-        return false;
+        return;
     }
 
     if ((*m_ohlc.cbegin())->timestamp() <= 0.0) {
         // not enought samples
-        return false;
+        return;
     }
 
     m_price.compute(m_ohlc);
@@ -82,30 +82,12 @@ o3d::Bool RangeBarAnalyser::process(o3d::Double timestamp, o3d::Double lastTimes
     // last input data source timestamp as current timestamp limit
     o3d::Double lastInputTimestamp = m_price.lastTimestamp();
 
-    TradeSignal tradeSignal = compute(timestamp, lastInputTimestamp);
+    compute(timestamp, lastInputTimestamp);
 
     // @todo this doesnt work because each time a candle is closed a new one is opened
     if (m_price.consolidated()) {
         // last OHLC is not consolidated then the next timestamp is the timestamp of this last tick
         processCompleted(lastInputTimestamp);
-    }
-
-    // avoid duplicates signals
-    if (tradeSignal.type() != TradeSignal::NONE) {
-        // retains this valid signal
-        signalCompleted(tradeSignal);
-
-//        if (tradeSignal.entry()) {
-//            log("default", "entry");
-//        } else if (tradeSignal.exit()) {
-//            log("default", "exit");
-//        }
-
-        // returns new signal
-        return true;
-    } else {
-        // no new signal
-        return false;
     }
 }
 

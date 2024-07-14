@@ -685,6 +685,8 @@ src/strategies/forexalpha/faaanalyser.cpp
 src/strategies/forexalpha/faaanalyser.cpp
 src/strategies/forexalpha/faaanalyser.h
 src/strategies/forexalpha/faaanalyser.h
+src/strategies/forexalpha/faanalyser.cpp
+src/strategies/forexalpha/faanalyser.h
 src/strategies/forexalpha/fabanalyser.cpp
 src/strategies/forexalpha/fabanalyser.cpp
 src/strategies/forexalpha/fabanalyser.h
@@ -712,6 +714,8 @@ src/strategies/indicealpha/CMakeLists.txt
 src/strategies/indicealpha/README
 src/strategies/indicealpha/iaaanalyser.cpp
 src/strategies/indicealpha/iaaanalyser.h
+src/strategies/indicealpha/iaanalyser.cpp
+src/strategies/indicealpha/iaanalyser.h
 src/strategies/indicealpha/iabanalyser.cpp
 src/strategies/indicealpha/iabanalyser.h
 src/strategies/indicealpha/iacanalyser.cpp

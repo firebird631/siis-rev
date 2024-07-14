@@ -48,10 +48,8 @@ void MaAdxTrendAnalyser::terminate()
 
 }
 
-TradeSignal MaAdxTrendAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
+void MaAdxTrendAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
 {
-    TradeSignal signal(timeframe(), timestamp);
-
     m_slow_h_ma.compute(timestamp, price().high());
     m_slow_m_ma.compute(timestamp, price().price());
     m_slow_l_ma.compute(timestamp, price().low());
@@ -67,6 +65,4 @@ TradeSignal MaAdxTrendAnalyser::compute(o3d::Double timestamp, o3d::Double lastT
         // no trend between two MAs
         m_trend = 0;
     }
-
-    return signal;
 }

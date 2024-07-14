@@ -41,10 +41,8 @@ void SuperTrendConfAnalyser::terminate()
 
 }
 
-TradeSignal SuperTrendConfAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
+void SuperTrendConfAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
 {
-    TradeSignal signal(timeframe(), timestamp);
-
     m_confirmation = 0;
 
     if (price().consolidated()) {
@@ -54,6 +52,4 @@ TradeSignal SuperTrendConfAnalyser::compute(o3d::Double timestamp, o3d::Double l
             m_confirmation = -1;
         }
     }
-
-    return signal;
 }

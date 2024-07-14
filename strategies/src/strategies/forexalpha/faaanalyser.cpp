@@ -18,7 +18,7 @@ FaAAnalyser::FaAAnalyser(
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod) :
-    TimeframeBarAnalyser(strategy, timeframe, subTimeframe, depth, history, priceMethod),
+    FaAnalyser(strategy, timeframe, subTimeframe, depth, history, priceMethod),
     m_atr("atr", timeframe),
     m_sma("sma", timeframe),
     m_ema("ema", timeframe),
@@ -49,9 +49,9 @@ void FaAAnalyser::terminate()
 
 }
 
-TradeSignal FaAAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
+void FaAAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
 {
-    TradeSignal signal(timeframe(), timestamp);
+    m_lastSignal.reset();
 
     m_rsi.compute(lastTimestamp, price().price());
     m_sma.compute(lastTimestamp, price().price());
@@ -79,12 +79,12 @@ TradeSignal FaAAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestam
 
     // long entry on sell-setup
     if (m_td9.c().c >= 1 && m_td9.c().c <= 6 && m_td9.c().d < 0 && lvl1Signal > 0 /* && volumeSignal > 0*/) {
-        signal.setEntry();
-        signal.setLong();
-        signal.setPrice(price().close().getLast());
+        m_lastSignal.setEntry();
+        m_lastSignal.setLong();
+        m_lastSignal.setPrice(price().close().getLast());
 
         if (m_td9.c().tdst > 0.0) {
-            signal.setStop(m_td9.c().tdst);
+            m_lastSignal.setStop(m_td9.c().tdst);
         }
 
         // log("content", o3d::String("Entry long tdst={0} stop={1}").arg(m_td9.c().tdst).arg(signal.sl()));
@@ -92,12 +92,12 @@ TradeSignal FaAAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestam
 
     // short entry on buy-setup
     else if (m_td9.c().c >= 1 && m_td9.c().c <= 6 && m_td9.c().d > 0 && lvl1Signal < 0 /* && volumeSignal > 0*/) {
-        signal.setEntry();
-        signal.setShort();
-        signal.setPrice(price().close().getLast());
+        m_lastSignal.setEntry();
+        m_lastSignal.setShort();
+        m_lastSignal.setPrice(price().close().getLast());
 
         if (m_td9.c().tdst > 0.0) {
-            signal.setStop(m_td9.c().tdst);
+            m_lastSignal.setStop(m_td9.c().tdst);
         }
 
         // log("content", o3d::String("Entry short tdst={0} stop={1}").arg(m_td9.c().tdst).arg(signal.sl()));
@@ -105,18 +105,18 @@ TradeSignal FaAAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestam
 
     // aggressive long entry
     else if (m_td9.c().c >= 8 && m_td9.c().d > 0 && lvl1Signal > 0 /* && volumeSignal > 0*/) {
-        signal.setEntry();
-        signal.setLong();
-        signal.setPrice(price().close().getLast());
+        m_lastSignal.setEntry();
+        m_lastSignal.setLong();
+        m_lastSignal.setPrice(price().close().getLast());
 
         // log("content", o3d::String("Aggressive long entry close={0} stop={1}").arg(signal.p()).arg(signal.sl()));
     }
 
     // aggressive short entry
     else if (m_td9.c().c >= 8 && m_td9.c().d < 0 && lvl1Signal < 0 /* && volumeSignal > 0*/) {
-        signal.setEntry();
-        signal.setShort();
-        signal.setPrice(price().close().getLast());
+        m_lastSignal.setEntry();
+        m_lastSignal.setShort();
+        m_lastSignal.setPrice(price().close().getLast());
 
         // log("content", o3d::String("Aggressive short entry close={0} stop={1}").arg(signal.p()).arg(signal.sl()));
     }
@@ -127,18 +127,18 @@ TradeSignal FaAAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestam
 
     // sell-setup
     else if (m_td9.c().c >= 8 && m_td9.c().d < 0 && lvl1Signal < 0) {
-        signal.setExit();
-        signal.setLong();
-        signal.setPrice(price().close().getLast());
+        m_lastSignal.setExit();
+        m_lastSignal.setLong();
+        m_lastSignal.setPrice(price().close().getLast());
 
         // log("content", o3d::String("Exit long c8p-c9 ({0}{1})").arg(m_td9.c().c).arg(m_td9.c().p ? "p" : ""));
     }
 
     // buy-setup
     else if (m_td9.c().c >= 8 && m_td9.c().d > 0 && lvl1Signal < 0) {
-        signal.setExit();
-        signal.setShort();
-        signal.setPrice(price().close().getLast());
+        m_lastSignal.setExit();
+        m_lastSignal.setShort();
+        m_lastSignal.setPrice(price().close().getLast());
 
         // log("content", o3d::String("Exit short c8p-c9 ({0}{1})").arg(m_td9.c().c).arg(m_td9.c().p ? "p" : ""));
     }
@@ -148,17 +148,17 @@ TradeSignal FaAAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestam
     //
 
     else if (((m_td9.c().c >= 4 && m_td9.c().c <= 7) && m_td9.c().d < 0) && lvl1Signal < 0) {
-        signal.setExit();
-        signal.setLong();
-        signal.setPrice(price().close().getLast());
+        m_lastSignal.setExit();
+        m_lastSignal.setLong();
+        m_lastSignal.setPrice(price().close().getLast());
 
         // log("content", o3d::String("Abort long c4-c7"));
     }
 
     else if (((m_td9.c().c >= 4 && m_td9.c().c <= 7) && m_td9.c().d > 0) && lvl1Signal > 0) {
-        signal.setExit();
-        signal.setShort();
-        signal.setPrice(price().close().getLast());
+        m_lastSignal.setExit();
+        m_lastSignal.setShort();
+        m_lastSignal.setPrice(price().close().getLast());
 
         // log("content", o3d::String("Abort short c4-c7"));
     }
@@ -183,7 +183,7 @@ TradeSignal FaAAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestam
 //        // log("content", o3d::String("Canceled long entry c2-c3 price={0}").arg(price().close().getLast()));
 //    }
 
-    if (signal.valid()) {
+    if (m_lastSignal.valid()) {
         // keep signal conditions for machine learning
         // @todo how to, another method storeConditions() when to do it ? we want to store any possible
         // valid signals, even thoose non traded because of somes criterias like max trade etc
@@ -194,6 +194,4 @@ TradeSignal FaAAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestam
         // 'td.c': self.tomdemark.c.c,
         // 'td.cd': self.tomdemark.cd.c,
     }
-
-    return signal;
 }

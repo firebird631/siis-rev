@@ -48,10 +48,8 @@ void PullbackSRAnalyser::terminate()
 
 }
 
-TradeSignal PullbackSRAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
+void PullbackSRAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
 {
-    TradeSignal signal(timeframe(), timestamp);
-
     if (price().consolidated()) {
         // compute at close
         m_pivotpoint.compute(timestamp, price().open(), price().high(), price().low(), price().close());
@@ -107,6 +105,4 @@ TradeSignal PullbackSRAnalyser::compute(o3d::Double timestamp, o3d::Double lastT
 //    if (m_breakoutPrice > 0) {
 //        printf("%s %f dir=%i sr=%i\n", timestampToStr(timestamp).toAscii().getData(), m_breakoutPrice, m_breakoutDirection, m_srLevel);
 //    }
-
-    return signal;
 }

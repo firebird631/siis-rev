@@ -59,10 +59,8 @@ void KahlmanFiboTrendAnalyser::terminate()
 
 }
 
-TradeSignal KahlmanFiboTrendAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
+void KahlmanFiboTrendAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
 {
-    TradeSignal signal(timeframe(), timestamp);
-
     if (1) {  // price().consolidated()) {
         // compute only at close
         m_hma.compute(timestamp, price().price());   // compute on HL2 price
@@ -109,8 +107,6 @@ TradeSignal KahlmanFiboTrendAnalyser::compute(o3d::Double timestamp, o3d::Double
             m_trendTimestamp = timestamp;
         }
     }
-
-    return signal;
 }
 
 void KahlmanFiboTrendAnalyser::setUseKahlman(o3d::Bool use)

@@ -36,7 +36,7 @@ public:
 
     virtual void init(AnalyserConfig conf) override;
     virtual void terminate() override;
-    virtual TradeSignal compute(o3d::Double timestamp, o3d::Double lastTimestamp) override;
+    virtual void compute(o3d::Double timestamp, o3d::Double lastTimestamp) override;
 
     o3d::Int32 breakoutDirection() const { return m_breakoutDirection; }
     o3d::Double breakoutPrice() const { return m_breakoutPrice; }

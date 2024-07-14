@@ -18,6 +18,8 @@
 #include "siis/database/database.h"
 #include "siis/database/tradedb.h"
 
+#include "siis/trade/tradesignal.h"
+
 #include "iaaanalyser.h"
 #include "iabanalyser.h"
 #include "iacanalyser.h"
@@ -91,22 +93,22 @@ void IndiceAlpha::init(Config *config)
             }
 
             if (mode == "A") {
-                Analyser *a = new IaAAnalyser(this, tf, subTf, depth, history);
+                IaAnalyser *a = new IaAAnalyser(this, tf, subTf, depth, history);
                 a->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(a);
             } else if (mode == "B") {
-                Analyser *b = new IaBAnalyser(this, tf, subTf, depth, history);
+                IaAnalyser *b = new IaBAnalyser(this, tf, subTf, depth, history);
                 b->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(b);
             } else if (mode == "C") {
-                Analyser *c = new IaCAnalyser(this, tf, subTf, depth, history);
+                IaAnalyser *c = new IaCAnalyser(this, tf, subTf, depth, history);
                 c->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(c);
             } else if (mode == "D") {
-                Analyser *d = new IaDAnalyser(this, tf, subTf, depth, history);
+                IaAnalyser *d = new IaDAnalyser(this, tf, subTf, depth, history);
                 d->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(d);
@@ -188,8 +190,11 @@ void IndiceAlpha::compute(o3d::Double timestamp)
 {
     o3d::Bool sig = false;
 
-    for (Analyser *analyser : m_analysers) {
-        sig |= analyser->process(timestamp, lastTimestamp());
+    for (IaAnalyser *analyser : m_analysers) {
+        analyser->process(timestamp, lastTimestamp());
+        if (analyser->lastSignal().valid()) {
+            sig |= true;
+        }
     }
 
     // update the existing trades
@@ -200,7 +205,7 @@ void IndiceAlpha::compute(o3d::Double timestamp)
         o3d::Double maxExitTf = 0;
 
         // one or more potential entries or exits signals
-        for (Analyser *analyser : m_analysers) {
+        for (IaAnalyser *analyser : m_analysers) {
             if (analyser->lastSignal().type() == TradeSignal::ENTRY) {
                 // entry signal
                 const TradeSignal &signal = analyser->lastSignal();

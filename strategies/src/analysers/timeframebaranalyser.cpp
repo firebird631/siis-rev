@@ -59,18 +59,18 @@ void TimeframeBarAnalyser::onOhlcUpdate(o3d::Double timestamp, o3d::Double timef
     }
 }
 
-o3d::Bool TimeframeBarAnalyser::process(o3d::Double timestamp, o3d::Double lastTimestamp)
+void TimeframeBarAnalyser::process(o3d::Double timestamp, o3d::Double lastTimestamp)
 {
     o3d::Int32 n = m_ohlc.size();
 
     if (n < depth()) {
         // not enought samples
-        return false;
+        return;
     }
 
     if ((*m_ohlc.cbegin())->timestamp() <= 0.0) {
         // not enought samples
-        return false;
+        return;
     }
 
     m_price.compute(m_ohlc);
@@ -79,8 +79,6 @@ o3d::Bool TimeframeBarAnalyser::process(o3d::Double timestamp, o3d::Double lastT
     // last input data source timestamp as current timestamp limit
     o3d::Double lastInputTimestamp = m_price.lastTimestamp();
 
-    TradeSignal tradeSignal = compute(timestamp, lastInputTimestamp);
-
     // @todo this doesnt work because each time a candle is closed a new one is opened
     if (m_price.consolidated()) {
         // last OHLC is consolidated then the next timestamp is incremented by timeframe.
@@ -88,34 +86,6 @@ o3d::Bool TimeframeBarAnalyser::process(o3d::Double timestamp, o3d::Double lastT
     } else {
         // last OHLC is not consolidated then the next timestamp is the timestamp of this last OHLC
         processCompleted(lastInputTimestamp);
-    }
-
-    // avoid duplicates signals
-    if (tradeSignal.type() != TradeSignal::NONE) {
-        if (hasLastSignal() &&
-            (lastSignal().type() == tradeSignal.type()) &&
-            (lastSignal().direction() == tradeSignal.direction()) &&
-            (static_cast<o3d::Int32>(lastSignal().baseTime()) == static_cast<o3d::Int32>(tradeSignal.baseTime()))) {
-            // (tradeSignal.timestamp() - lastSignal().timestamp() < timeframe() * signalDelayFactor)) {
-
-            // same base time, avoid multiple entries on the same candle, returns no new signal
-            return false;
-        } else {
-            // retains this valid signal
-            signalCompleted(tradeSignal);
-
-//            if (tradeSignal.entry()) {
-//                log("default", "entry");
-//            } else if (tradeSignal.exit()) {
-//                log("default", "exit");
-//            }
-
-            // returns new signal
-            return true;
-        }
-    } else {
-        // no new signal
-        return false;
     }
 }
 
