@@ -31,7 +31,6 @@ Strategy::Strategy(Handler *handler, const o3d::String &identifier) :
     m_reversal(false),
     m_hedging(false),
     m_allowShort(true),
-    m_dual(false),
     m_maxTrades(1),
     m_tradeDelay(0.0),
     m_needUpdate(false),
@@ -76,7 +75,6 @@ void Strategy::initBasicsParameters(StrategyConfig &conf)
     m_reversal = conf.root().get("reversal", true).asBool();
     m_hedging = conf.root().get("hedging", false).asBool();
     m_allowShort = conf.root().get("allow-short", true).asBool();
-    m_dual = conf.root().get("dual", false).asBool();
     m_maxTrades = conf.root().get("max-trades", 1).asInt();
     m_tradeDelay = conf.root().get("trade-delay", 30).asDouble();
     m_needUpdate = conf.root().get("need-update", false).asBool();

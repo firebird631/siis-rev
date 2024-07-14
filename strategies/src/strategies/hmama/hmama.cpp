@@ -321,10 +321,10 @@ void HmaMa::compute(o3d::Double timestamp)
             orderEntry(timestamp, signal.tf(), signal.d(), signal.orderType(), signal.price(), signal.tp(), signal.sl());
 
             // plus a second trade to TP when other breakeven
-            if (dual()) {
-                o3d::Double tp2 = m_breakeven.breakevenTiggerPrice(signal.price(), signal.direction());
-                orderEntry(timestamp, signal.tf(), signal.d(), signal.orderType(), signal.price(), tp2, signal.sl());
-            }
+//            if (dual()) {
+//                o3d::Double tp2 = m_breakeven.breakevenTiggerPrice(signal.price(), signal.direction());
+//                orderEntry(timestamp, signal.tf(), signal.d(), signal.orderType(), signal.price(), tp2, signal.sl());
+//            }
         }
     }
 }

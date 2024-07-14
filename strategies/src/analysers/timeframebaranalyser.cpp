@@ -79,6 +79,8 @@ void TimeframeBarAnalyser::process(o3d::Double timestamp, o3d::Double lastTimest
     // last input data source timestamp as current timestamp limit
     o3d::Double lastInputTimestamp = m_price.lastTimestamp();
 
+    compute(timestamp, lastInputTimestamp);
+
     // @todo this doesnt work because each time a candle is closed a new one is opened
     if (m_price.consolidated()) {
         // last OHLC is consolidated then the next timestamp is incremented by timeframe.
