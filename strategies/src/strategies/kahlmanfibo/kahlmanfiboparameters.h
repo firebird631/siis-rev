@@ -31,13 +31,13 @@ static const char* KahlmanFiboParameters = R"JSON(
             "method": "standard",
             "max-trades": 3,
             "min-profit": 0.5,
-            "sig": {"type": "hma+donchian", "timeframe": "5m", "max-wide": 5, "one-way": false},
-            "confirm": {"type": "candle", "timeframe": "1m", "risk-reward": 1.0, "target-scale": 10.0},
-            "entry": {"type": "last", "timeframe": "5m", "depth": 1, "orientation": "up", "timeout": "1h"},
-            "take-profit": {"type": "fixed", "distance": "1.25%", "timeframe": "5m", "depth": 1, "orientation": "up"},
-            "stop-loss": {"type": "fixed", "distance": "0.75%", "timeframe": "5m", "depth": 2, "orientation": "dn"},
+            "sig": {"type": "hma+donchian", "analyser": "5min", "max-wide": 5, "one-way": false},
+            "confirm": {"type": "candle", "analyser": "1min", "risk-reward": 1.0, "target-scale": 10.0},
+            "entry": {"type": "last", "timeframe": "5m", "timeout": "1h"},
+            "take-profit": {"type": "fixed"v, "distance": "1.25%"},
+            "stop-loss": {"type": "fixed", "timeframe": "5m", "distance": "0.75%"},
             "breakeven": {"type": "fixed", "timeframe": "1m", "distance": "1.0%"},
-            "dynamic-stop-loss": {"type": "fixed", "distance": "1.0%", "timeframe": "5m"}
+            "dynamic-stop-loss": {"type": "fixed", "timeframe": "5m", "distance": "1.0%"}
         }
     },
     "timeframes": {

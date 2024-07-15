@@ -277,18 +277,23 @@ void Trade::removeOperation(o3d::Int32 id)
 void Trade::updateStats(o3d::Double lastPrice, o3d::Double timestamp)
 {
     if (isActive() && lastPrice > 0.0 && timestamp > 0.0) {
+        if (m_stats.bestPrice == 0.0 || m_stats.worstPrice == 0.0) {
+            m_stats.bestPrice = m_stats.worstPrice = entryPrice();
+            m_stats.bestPriceTimestamp = m_stats.worstPriceTimestamp = stats().firstRealizedEntryTimestamp;
+        }
+
         if (m_direction > 0) {
             if (lastPrice > m_stats.bestPrice) {
                 m_stats.bestPrice = lastPrice;
                 m_stats.bestPriceTimestamp = timestamp;
             }
 
-            if (lastPrice < m_stats.worstPrice || m_stats.worstPrice <= 0.0) {
+            if (lastPrice < m_stats.worstPrice) {
                 m_stats.worstPrice = lastPrice;
                 m_stats.worstPriceTimestamp = timestamp;
             }
         } else if (m_direction < 0) {
-            if (lastPrice < m_stats.bestPrice || m_stats.bestPrice <= 0.0) {
+            if (lastPrice < m_stats.bestPrice) {
                 m_stats.bestPrice = lastPrice;
                 m_stats.bestPriceTimestamp = timestamp;
             }

@@ -104,6 +104,7 @@ set(STRATEGY_LIB_CXX
     live/live.cpp
     optimization/optimization.cpp
     statistics/statistics.cpp
+    statistics/statisticstojson.cpp
     trade/assettrade.cpp
     trade/breakeven.cpp
     trade/entry.cpp

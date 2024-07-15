@@ -242,6 +242,7 @@ include/siis/poolworker.h
 include/siis/poolworker.h
 include/siis/position.h
 include/siis/statistics/statistics.h
+include/siis/statistics/statisticstojson.h
 include/siis/statistics/tradereport.h
 include/siis/strategy.h
 include/siis/strategy.h
@@ -674,6 +675,7 @@ src/poolworker.h
 src/poolworker.h
 src/position.cpp
 src/statistics/statistics.cpp
+src/statistics/statisticstojson.cpp
 src/strategies/CMakeLists.txt
 src/strategies/CMakeLists.txt
 src/strategies/bourricot/CMakeLists.txt

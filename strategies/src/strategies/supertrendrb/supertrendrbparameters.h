@@ -31,17 +31,17 @@ static const char* SuperTrendRbParameters = R"JSON(
             "method": "standard",
             "max-trades": 1,
             "min-profit": 0.5,
-            "sig": {"type": "supertrend", "tickbar": "16"},
-            "confirm": {"type": "bar", "tickbar": "8", "risk-reward": 0.0, "profit-scale": 0.0},
+            "sig": {"type": "supertrend", "analyser": "16tick"},
+            "confirm": {"type": "bar", "analyser": "8tick", "risk-reward": 0.0, "profit-scale": 0.0},
             "entry": {"type": "last", "timeframe": "15s", "timeout": "1h"},
-            "take-profit": {"type": "fixed", "distance": "1.25%", "timeframe": "15s"},
+            "take-profit": {"type": "fixed", "timeframe": "15s", "distance": "1.25%"},
             "stop-loss": {"type": "fixed", "timeframe": "15s", "distance": "0.75%"},
             "breakeven": {"type": "fixed", "timeframe": "15s", "distance": "1.0%"},
             "dynamic-stop-loss": {"type": "custom", "timeframe": "15s", "distance": "0.01%"}
         }
     },
     "tickbars": {
-        "16b": {
+        "16tick": {
             "enabled": true,
             "tickbar": "16",
             "mode": "sig",
@@ -54,7 +54,7 @@ static const char* SuperTrendRbParameters = R"JSON(
                 "hma3": {"len": 11}
             }
         },
-        "8b": {
+        "8tick": {
             "enabled": true,
             "tickbar": "8",
             "mode": "conf",

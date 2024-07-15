@@ -25,7 +25,7 @@ Prioritaire
   - sortino ratio
   - ulcer index
 
-- TickBarBase => RangeBar, RangeBarGenerator
+- ReversalBar, TickBar, VolumeBar
 
 - IndMarginTrade::updateStats complete PNL
 - pour les XxxxPositionSignal.refOrderId met on orderId or refOrderId ?
@@ -56,9 +56,6 @@ Prioritaire
   - builder ? pas vraiment nécessaire à voir quand même pour simplifier l'initialisation et la gestion
     - init
   - trade life-cycle components :
-    - entry (plutôt lié à la stratégie en elle même donc logiquement non nécessaire)
-    - stop-loss (gestion de l'ordre de sortie sur policy, exemple at close ou simple)
-    - take-profit (pareil que stop-loss)
     - dynamic-take-profit (optionnel)
 
 
