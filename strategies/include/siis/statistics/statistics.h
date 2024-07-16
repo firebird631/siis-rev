@@ -57,8 +57,6 @@ public:
 
     PercentSampler(const o3d::String &_name);
 
-    const o3d::Char *formatValue(o3d::Double value) const;
-
     PercentSampler& finalize();
 };
 
@@ -116,9 +114,7 @@ public:
 
     std::vector<PercentSampler> samplers;
 
-    const o3d::Char *formatValue(o3d::Double value) const;
-
-    void reset();
+     void reset();
 };
 
 
@@ -264,7 +260,7 @@ public:
 
     std::vector<TradeResults> tradesResults;
 
-    o3d::Double longestFlatPeriod = 0.0;
+    o3d::Double longestFlatPeriod = 0.0;     //!< longest duration between two trade, but issue with weekend or other holidays
     o3d::Double avgTimeInMarket = 0.0;
 
     o3d::Int32 numTradedDays = 0;

@@ -125,6 +125,12 @@ public:
     virtual void fetchAssets(const o3d::CString& assetId) override;
 
     //
+    // statistics
+    //
+
+    virtual void finalAccountStats(AccountStatistics &accountStats) const override;
+
+    //
     // processing
     //
 

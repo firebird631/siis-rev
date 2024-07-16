@@ -12,6 +12,7 @@
 #include "siis/strategy.h"
 #include "siis/config/config.h"
 #include "siis/connector/ordersignal.h"
+#include "siis/statistics/statistics.h"
 
 #include <o3d/core/debug.h>
 #include <o3d/core/uuid.h>
@@ -111,6 +112,7 @@ void LocalConnector::update()
     // update virtual account
     m_virtualAccount.updateBalance();
     m_virtualAccount.updateDrawDown();
+    m_virtualAccount.dailyUpdate(handler()->timestamp());
 
     // cleanup resources
     if (!m_removedOrders.empty()) {
@@ -200,6 +202,7 @@ void LocalConnector::init(Config *config)
 {
     if (config) {
         m_virtualAccount.balance = config->getInitialBalance();
+        m_virtualAccount.initialBalance = config->getInitialBalance();
         m_virtualAccount.currency = config->getInitialCurrency();
 
         // setup precision
@@ -463,6 +466,21 @@ void LocalConnector::fetchAssets(const o3d::CString &assetId)
     }
 }
 
+void LocalConnector::finalAccountStats(AccountStatistics &accountStats) const
+{
+    accountStats.initialEquity = m_virtualAccount.initialBalance;
+    accountStats.finalEquity = m_virtualAccount.balance;
+    accountStats.maxDrawDown = m_virtualAccount.maxDrawDown;
+    accountStats.maxDrawDownRate = m_virtualAccount.maxDrawDownRate;
+    accountStats.profitLoss = m_virtualAccount.profitLoss;
+    // @todo currency and precision for formatting
+
+    // copy samples
+    for (auto const &sample : m_virtualAccount.samples) {
+        accountStats.samples.push_back(sample);
+    }
+}
+
 o3d::Bool LocalConnector::_handleLimitOrder(Order *order, const Market *market)
 {
     if (order == nullptr || order->orderType != Order::ORDER_LIMIT) {
@@ -689,7 +707,7 @@ o3d::Int32 LocalConnector::modifyPosition(const o3d::CString &positionId,
     }
 }
 
-o3d::Double LocalConnector::VirtualAccountData::updateBalance() const
+o3d::Double LocalConnector::VirtualAccountData::updateBalance()
 {
     return 0.0;
 }
@@ -712,4 +730,53 @@ void LocalConnector::VirtualAccountData::updateDrawDown()
         drawDownRate = 0.0;
         drawDown = 0.0;
     }
+}
+
+void LocalConnector::VirtualAccountData::dailyUpdate(o3d::Double timestamp)
+{
+    o3d::Double currentBt = baseTime(timestamp, TF_DAY);
+
+    if (samples.empty()) {
+        // initial sample
+        AccountSample sample;
+        sample.timestamp = currentBt;
+        sample.drawDown = drawDown;
+        sample.drawDownRate = drawDownRate;
+        sample.equity = balance;
+        sample.profitLoss = profitLoss;
+
+        samples.push_back(sample);
+    }
+
+    if (lastUpdateTimestamp > 0.0) {
+        // add one sample per day
+        o3d::Double previousBt = baseTime(lastUpdateTimestamp, TF_DAY);
+
+        o3d::Int32 elapsedDays = o3d::min(999, static_cast<o3d::Int32>((currentBt - previousBt) / TF_DAY));
+        if (elapsedDays > 0) {
+            const AccountSample &prevSample = samples.back();
+
+            while (elapsedDays-- > 0) {
+                previousBt += TF_DAY;
+
+                AccountSample sample;
+                sample.timestamp = previousBt;
+                sample.drawDown = prevSample.drawDown;
+                sample.drawDownRate = prevSample.drawDownRate;
+                sample.equity = prevSample.equity;
+                sample.profitLoss = prevSample.profitLoss;
+
+                samples.push_back(sample);
+            }
+        }
+
+        // update current day
+        AccountSample &currSample = samples.back();
+        currSample.drawDown = drawDown;
+        currSample.drawDownRate = drawDownRate;
+        currSample.equity = balance;
+        currSample.profitLoss = profitLoss;
+    }
+
+    lastUpdateTimestamp = timestamp;
 }

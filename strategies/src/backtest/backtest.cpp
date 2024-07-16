@@ -161,7 +161,7 @@ o3d::Bool Backtest::isBacktesting() const
 void Backtest::terminate(Config *config)
 {
     GlobalStatistics globalStats;
-    AccountStatistics accountStats;  // @todo from paper trader
+    AccountStatistics accountStats;
 
     // delete strategies and markets
     for (auto pair : m_strategies) {
@@ -179,6 +179,9 @@ void Backtest::terminate(Config *config)
 
     m_strategies.clear();
 
+    // retrieve final account data and daily samples
+    m_connector->finalAccountStats(accountStats);
+
     globalStats.computeStats(accountStats);
 
     // if learning write final
@@ -192,13 +195,12 @@ void Backtest::terminate(Config *config)
          .arg(globalStats.best*100, 2).arg(globalStats.worst*100, 2).arg(globalStats.maxAdjacentWin).arg(globalStats.maxAdjacentLoss));
 
     INFO("results", o3d::String("Max draw-down {0} ({1}%)").arg(globalStats.maxDrawDown, 2).arg(globalStats.maxDrawDownRate*100, 2));
-
     INFO("results", o3d::String("Num traded-days {0}").arg(globalStats.numTradedDays));
-    INFO("results", o3d::String("Avg time in market {0} minutes.").arg(globalStats.avgTimeInMarket / 60.0));
-    INFO("results", o3d::String("Longest flat period {0} minutes.").arg(globalStats.longestFlatPeriod / 60.0));
+    // INFO("results", o3d::String("Avg time in market {0} minutes.").arg(globalStats.avgTimeInMarket / 60.0));
+    // INFO("results", o3d::String("Longest flat period {0} minutes.").arg(globalStats.longestFlatPeriod / 60.0));
     INFO("results", o3d::String("Avg Win/Loss {0}").arg(globalStats.percent.avgWinLossRate, 2));
 
-    config->printGlobalStats(globalStats, accountStats);
+    // config->printGlobalStats(globalStats, accountStats);
 
     // delete before primary connector
     if (m_traderProxy) {

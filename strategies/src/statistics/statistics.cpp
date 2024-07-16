@@ -14,6 +14,36 @@
 
 using namespace siis;
 
+o3d::Double average(const std::vector<o3d::Double> &samples) {
+    o3d::Double avg = 0.0;
+
+    if (samples.size() > 0) {
+        for (o3d::Double x : samples) {
+            avg += x;
+        }
+
+        avg /= samples.size();
+    }
+
+    return avg;
+}
+
+o3d::Double stdDeviation(const std::vector<o3d::Double> &samples) {
+    if (samples.size() < 2) {
+        return 0.0;
+    }
+
+    o3d::Double sqrSum = 0.0;
+    o3d::Double avg = average(samples);
+
+    for (o3d::Double x : samples) {
+        sqrSum += o3d::sqr(x - avg);
+    }
+
+    o3d::Double variance = sqrSum / (samples.size() - 1);  // n - 1 degree of freedom
+    return o3d::Math::sqrt(variance);
+}
+
 Sampler::Sampler(const o3d::String &_name) :
     name(_name)
 {
@@ -39,20 +69,8 @@ o3d::Int32 Sampler::count() const
 
 Sampler& Sampler::finalize()
 {
-    // average
-    avg = 0.0;
-
-    if (samples.size() > 0) {
-        for (size_t i = 0; i < samples.size(); ++i) {
-            avg += samples[i];
-        }
-
-        avg /= samples.size();
-    }
-
-    // std-dev
-
-    // @todo
+    avg = average(samples);
+    stdDev = stdDeviation(samples);
 
     return *this;
 }
@@ -82,16 +100,6 @@ void CurrencyStatToken::reset()
 PercentSampler::PercentSampler(const o3d::String &_name) :
     Sampler(_name)
 {
-}
-
-const o3d::Char* PercentSampler::formatValue(o3d::Double value) const
-{
-    return o3d::String::print("%.2f%%", value * 100).toAscii().getData();
-}
-
-const o3d::Char *PercentStatToken::formatValue(o3d::Double value) const
-{
-    return o3d::String::print("%.2f%%", value * 100).toAscii().getData();
 }
 
 void PercentStatToken::reset()
@@ -205,20 +213,6 @@ static bool compare(const TradeResults &a, const TradeResults &b)
     return a.exitTimestamp < b.exitTimestamp;
 }
 
-o3d::Double average(const std::vector<o3d::Double> &samples) {
-    o3d::Double avg = 0.0;
-
-    if (samples.size() > 0) {
-        for (size_t i = 0; i < samples.size(); ++i) {
-            avg += samples[i];
-        }
-
-        avg /= samples.size();
-    }
-
-    return avg;
-}
-
 void GlobalStatistics::computeStats(const AccountStatistics &accountStats)
 {
     const o3d::Double RISK_FREE_RATE_OF_RETURN = 0.0;
@@ -296,11 +290,11 @@ void GlobalStatistics::computeStats(const AccountStatistics &accountStats)
 
         // longest flat period and average trades per day
         if (prevTradeIt != tradesResults.end()) {
-            longestFlatPeriod = o3d::max(longestFlatPeriod, trade.entryTimestamp - trade.exitTimestamp);
+            longestFlatPeriod = o3d::max(longestFlatPeriod, trade.entryTimestamp - prevTradeIt->exitTimestamp);
 
             // new monthly sample
-            o3d::Int32 elapsedMonths = static_cast<o3d::Int32>((baseTime(trade.entryTimestamp, TF_MONTH) - baseTime(
-                        prevTradeIt->entryTimestamp, TF_MONTH)) / TF_MONTH);
+            o3d::Int32 elapsedMonths = o3d::min(999, static_cast<o3d::Int32>(
+                (baseTime(trade.entryTimestamp, TF_MONTH) - baseTime(prevTradeIt->entryTimestamp, TF_MONTH)) / TF_MONTH));
 
             if (elapsedMonths > 0) {
                 while (elapsedMonths-- > 0) {
@@ -334,8 +328,8 @@ void GlobalStatistics::computeStats(const AccountStatistics &accountStats)
         }
 
         // cumulative per month
-        profitPerMonthPct.at(profitPerMonthPct.size()-1) += trade.profitLossPct;
-        profitPerMonth.at(profitPerMonth.size()-1) += trade.profitLoss;
+        profitPerMonthPct.back() += trade.profitLossPct;
+        profitPerMonth.back() += trade.profitLoss;
 
         // draw-downs square samples for Ulcer ratio (relative or absolute percentage)
         // drawDownsSqrPct.push_back(o3d::sqr((1.0 + cumPnlPct) / (1.0 + maxPnlPct) - 1.0));
@@ -374,10 +368,8 @@ void GlobalStatistics::computeStats(const AccountStatistics &accountStats)
         }
 
         // a positive value
-        drawDownPerMonthPct.at(drawDownPerMonthPct.size()-1) = o3d::max(
-            drawDownPerMonthPct.at(drawDownPerMonthPct.size()-1), accountStats.samples[n].drawDownRate);
-        drawDownPerMonth.at(drawDownPerMonth.size()-1) = o3d::max(
-            drawDownPerMonth.at(drawDownPerMonth.size()-1), accountStats.samples[n].drawDown);
+        drawDownPerMonthPct.back() = o3d::max(drawDownPerMonthPct.back(), accountStats.samples[n].drawDownRate);
+        drawDownPerMonth.back() = o3d::max(drawDownPerMonth.back(), accountStats.samples[n].drawDown);
     }
 
     // results
@@ -399,20 +391,28 @@ void GlobalStatistics::computeStats(const AccountStatistics &accountStats)
 
     // Sharpe Ratio
     if (profitPerMonthPct.size() > 1) {
-        o3d::Int32 dof = static_cast<o3d::Int32>(profitPerMonthPct.size() - 1);
+        // o3d::Int32 dof = static_cast<o3d::Int32>(profitPerMonthPct.size() - 1);
 
         // Sharpe ratio (Student t distribution)
-/*      percent.sharpeRatio = ((percent.estimateProfitPerMonth - RISK_FREE_RATE_OF_RETURN) /
-                                        np.std(np.array(profitPerMonthPct), ddof=dof))
-        currency.sharpeRatio = ((currency.estimateProfitPerMonth - RISK_FREE_RATE_OF_RETURN) /
-                                         np.std(np.array(profitPerMonth), ddof=dof))
-*/
+        o3d::Double tmp = stdDeviation(profitPerMonthPct);
+        if (tmp != 0.0) {
+            percent.sharpeRatio = ((percent.estimateProfitPerMonth - RISK_FREE_RATE_OF_RETURN) / tmp);
+        }
+        tmp = stdDeviation(profitPerMonth);
+        if (tmp != 0.0) {
+            currency.sharpeRatio = ((currency.estimateProfitPerMonth - RISK_FREE_RATE_OF_RETURN) / tmp);
+        }
+
         // Sortino ratio (Student t distribution)
-  /*      percent.sortinoRatio = ((percent.estimateProfitPerMonth - RISK_FREE_RATE_OF_RETURN) /
-                                         np.std(np.array(drawDownPerMonthPct), dof))
-        currency.sortinoRatio = ((currency.estimateProfitPerMonth - RISK_FREE_RATE_OF_RETURN) /
-                                          np.std(np.array(drawDownPerMonth), dof))
-*/
+        tmp = stdDeviation(drawDownPerMonthPct);
+        if (tmp != 0.0) {
+            percent.sortinoRatio = ((percent.estimateProfitPerMonth - RISK_FREE_RATE_OF_RETURN) / tmp);
+        }
+        tmp = stdDeviation(drawDownPerMonth);
+        if (tmp != 0.0) {
+            currency.sortinoRatio = ((currency.estimateProfitPerMonth - RISK_FREE_RATE_OF_RETURN) / tmp);
+        }
+
         // Ulcer index
         percent.ulcerIndex = o3d::Math::sqrt(average(drawDownsSqrPct));
         currency.ulcerIndex = o3d::Math::sqrt(average(drawDownsSqr));

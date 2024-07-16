@@ -12,11 +12,6 @@ using namespace siis;
 
 void StatisticsToJson::dumpsSampler(const Sampler &sampler, Json::Value &output)
 {
-    //'min': self.fmt_value(self.min_value),
-    //'max': self.fmt_value(self.max_value),
-    //'cum': self.fmt_value(self.cumulated),
-    //'avg': self.fmt_value(self.average()),
-    //'std-dev': self.fmt_value(self.std_dev())
     output["min"] = sampler.minValue;
     output["max"] = sampler.maxValue;
     output["cum"] = sampler.cumulated;
@@ -35,7 +30,7 @@ void StatisticsToJson::dumpsPercentSampler(const PercentSampler &sampler, Json::
 
 void StatisticsToJson::dumpsCurrencyStatToken(const CurrencyStatToken &token, Json::Value &output)
 {
-    output["max-time-to-recover"] = round(token.maxTimeToRecover, 2);
+    output["max-time-to-recover"] = o3d::String::print("%.3f", token.maxTimeToRecover).toAscii().getData();
     output["estimate-profit-per-month"] = token.estimateProfitPerMonth;
 
     output["avg-trade"] = token.avgTrade;
@@ -56,7 +51,7 @@ void StatisticsToJson::dumpsCurrencyStatToken(const CurrencyStatToken &token, Js
 
 void StatisticsToJson::dumpsPercentStatToken(const PercentStatToken &token, Json::Value &output)
 {
-    output["max-time-to-recover"] = round(token.maxTimeToRecover, 2);
+    output["max-time-to-recover"] = o3d::String::print("%.3f", token.maxTimeToRecover).toAscii().getData();
     output["estimate-profit-per-month"] = o3d::String::print("%.2f%%", token.estimateProfitPerMonth * 100).toAscii().getData();
 
     output["avg-trade"] = o3d::String::print("%.2f%%", token.avgTrade * 100).toAscii().getData();
@@ -77,8 +72,8 @@ void StatisticsToJson::dumpsPercentStatToken(const PercentStatToken &token, Json
 
 void StatisticsToJson::dumpsGlobalStatistics(const GlobalStatistics &globalStats, Json::Value &output)
 {
-    output["longest-flat-period"] = round(globalStats.longestFlatPeriod, 2);
-    output["avg-time-in-market"] = round(globalStats.avgTimeInMarket, 2);
+    output["longest-flat-period"] = o3d::String::print("%.3f", globalStats.longestFlatPeriod).toAscii().getData();
+    output["avg-time-in-market"] = o3d::String::print("%.3f", globalStats.avgTimeInMarket).toAscii().getData();
     output["num-traded-days"] = globalStats.numTradedDays;
     output["avg-trade-per-day"] = round(globalStats.avgTradePerDay, 2);
     output["avg-trade-per-day-inc-we"] = round(globalStats.avgTradePerDayIncWe, 2);

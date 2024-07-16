@@ -21,6 +21,7 @@ class Handler;
 class Order;
 class Position;
 class Config;
+class AccountStatistics;
 
 /**
  * @brief SiiS strategy connector interface.
@@ -113,6 +114,12 @@ public:
     virtual void fetchAnyAssets() = 0;
 
     virtual void fetchAssets(const o3d::CString& assetId) = 0;
+
+    //
+    // statistics
+    //
+
+    virtual void finalAccountStats(AccountStatistics &accountStats) const = 0;
 };
 
 } // namespace siis

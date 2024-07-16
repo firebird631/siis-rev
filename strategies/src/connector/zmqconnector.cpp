@@ -28,6 +28,8 @@
 
 #include "siis/handler.h"
 
+#include "siis/statistics/statistics.h"
+
 #include <o3d/core/debug.h>
 
 using namespace siis;
@@ -503,6 +505,11 @@ void ZmqConnector::fetchAssets(const o3d::CString &assetId)
     if (m_connected && m_traderProxy) {
 
     }
+}
+
+void ZmqConnector::finalAccountStats(AccountStatistics &accountStats) const
+{
+    // @todo
 }
 
 o3d::Int32 ZmqConnector::modifyPosition(const o3d::CString &positionId,

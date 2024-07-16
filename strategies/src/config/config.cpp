@@ -724,7 +724,7 @@ void Config::overwriteLearningFile(const GlobalStatistics &global, const Account
             root["max-draw-down"] = o3d::String::print("%.2f", global.maxDrawDown).toAscii().getData();
             // root["initial-equity"] = o3d::String::print("%.2f", account.initialEquity).toAscii().getData();
             root["final-equity"] = o3d::String::print("%.2f", account.finalEquity).toAscii().getData();
-            root["stats-samples"] = samples;
+            root["account-daily-samples"] = samples;
             root["profit-loss"] = o3d::String::print("%.2f", account.profitLoss).toAscii().getData();
 
             root["best"] = o3d::String::print("%.2f%%", global.best * 100).toAscii().getData();
@@ -769,14 +769,14 @@ void Config::printGlobalStats(const GlobalStatistics &global, const AccountStati
         root["revision"] = today.buildString("%Y-%m-%dT%H:%M:%SZ").toAscii().getData();
 
         Json::Value samples(Json::arrayValue);
-        // @todo samples
-        for (auto sample : account.samples) {
+
+        for (auto const &sample : account.samples) {
             Json::Value s(Json::arrayValue);
 
-            s.append(sample.timestamp);
+            s.append(o3d::String::print("%.3f", sample.timestamp).toAscii().getData());
             s.append(sample.equity);
             s.append(sample.profitLoss);
-            s.append(sample.drawDownRate);
+            s.append( o3d::String::print("%.2f%%", sample.drawDownRate * 100).toAscii().getData());
             s.append(sample.drawDown);
 
             samples.append(s);
@@ -815,6 +815,7 @@ void Config::printGlobalStats(const GlobalStatistics &global, const AccountStati
 
         Json::StreamWriterBuilder builder;
         builder["indentation"] = "    ";
+        builder["precision"] = 9;
         Json::StreamWriter *writer = builder.newStreamWriter();
         std::stringstream s;
         writer->write(root, &s);

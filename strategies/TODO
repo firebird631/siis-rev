@@ -13,7 +13,7 @@ Prioritaire
 
 - Implementer offset sur breakeven.
 
-- GlobalStatistics terminer sharpe ratio et sortino ratio (manque standard deviation algo)
+- GlobalStatistics sortino ratio ne peut fonctionner sans le maxDrawDown du VirtualAccount
 
 - ReversalBar, TickBar, VolumeBar
 

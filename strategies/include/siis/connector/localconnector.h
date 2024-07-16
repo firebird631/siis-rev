@@ -106,6 +106,12 @@ public:
 
     virtual void fetchAssets(const o3d::CString& assetId) override;
 
+    //
+    // statistics
+    //
+
+    virtual void finalAccountStats(AccountStatistics &accountStats) const override;
+
 protected:
 
     Handler *m_handler;
@@ -126,6 +132,7 @@ protected:
 
     struct VirtualAccountData
     {
+        o3d::Double initialBalance = 0.0;
         o3d::Double balance = 1000.0;
         o3d::Double usedBalance = 0.0;
         o3d::Double profitLoss = 0.0;
@@ -143,8 +150,11 @@ protected:
         std::vector<AccountSample> samples;  //!< per day sample of the state of the account
         o3d::CStringMap<VirtualAsset> assets;
 
-        o3d::Double updateBalance() const;
+        o3d::Double updateBalance();
         void updateDrawDown();
+        void dailyUpdate(o3d::Double timestamp);
+
+        o3d::Double lastUpdateTimestamp = 0.0;
     };
 
     VirtualAccountData m_virtualAccount;
