@@ -397,7 +397,6 @@ void PositionTrade::orderSignal(const OrderSignal &signal)
 void PositionTrade::updateRealizedPnl()
 {
     if (m_entryPrice > 0.0 && m_filledExitQuantity > 0.0) {
-
         m_profitLossRate = m_direction * ((m_exitPrice * m_filledExitQuantity) - (m_entryPrice * m_filledExitQuantity)) /
                            (m_entryPrice * m_filledExitQuantity);
     }

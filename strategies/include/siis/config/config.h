@@ -249,6 +249,7 @@ public:
      * @brief overwriteLearningFile Overwrite the previously loaded learning file with results of the training.
      */
     void overwriteLearningFile(const GlobalStatistics &global, const AccountStatistics &account) const;
+    void printGlobalStats(const GlobalStatistics &global, const AccountStatistics &account) const;
 
     /**
      * @brief delete Delete a learning file.

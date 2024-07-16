@@ -8,16 +8,21 @@
 #ifndef SIIS_STATISTICSTOJSON_H
 #define SIIS_STATISTICSTOJSON_H
 
-#include "statistics.h">
+#include "statistics.h"
 #include <json/value.h>
 
 namespace siis {
 
-void dumpsSampler(const Sampler &sampler, Json::Value &output);
-void dumpsPercentSampler(const PercentSampler &sampler, Json::Value &output);
-void dumpsCurrencyStatToken(const CurrencyStatToken &token, Json::Value &output);
-void dumpsPercentStatToken(const PercentStatToken &token, Json::Value &output);
-void dumpsGlobalStatistics(const GlobalStatistics &globalStats, Json::Value &output);
+class SIIS_API StatisticsToJson
+{
+public:
+
+    static void dumpsSampler(const Sampler &sampler, Json::Value &output);
+    static void dumpsPercentSampler(const PercentSampler &sampler, Json::Value &output);
+    static void dumpsCurrencyStatToken(const CurrencyStatToken &token, Json::Value &output);
+    static void dumpsPercentStatToken(const PercentStatToken &token, Json::Value &output);
+    static void dumpsGlobalStatistics(const GlobalStatistics &globalStats, Json::Value &output);
+};
 
 } // namespace siis
 

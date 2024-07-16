@@ -13,17 +13,7 @@ Prioritaire
 
 - Implementer offset sur breakeven.
 
-- GlobalStatistics & trade statistics :
-  - per trade MAE (worst), MTE (best), ETD (best return), entry, exit and total efficiency
-  - avg entry, exit and total efficiency, mae, mte, etd, trade
-  - ratio any trade, avg win/avg loss, avg # of trade per day, avg time in market
-  - estimated profit per month
-  - longest flat period
-  - num traded days
-  - max time to recover
-  - sharpe ratio
-  - sortino ratio
-  - ulcer index
+- GlobalStatistics terminer sharpe ratio et sortino ratio (manque standard deviation algo)
 
 - ReversalBar, TickBar, VolumeBar
 

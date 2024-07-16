@@ -29,9 +29,12 @@ public:
 
     o3d::String name;
     std::vector<o3d::Double> samples;
-    o3d::Double minValue;
-    o3d::Double maxValue;
-    o3d::Double cumulated;
+    o3d::Double minValue = 0.0;
+    o3d::Double maxValue = 0.0;
+    o3d::Double cumulated = 0.0;
+
+    o3d::Double avg = 0.0;
+    o3d::Double stdDev = 0.0;
 
     Sampler(const o3d::String &_name);
 
@@ -39,8 +42,7 @@ public:
 
     o3d::Int32 count() const;
 
-    o3d::Double average() const;
-    o3d::Double stdDev() const;
+    Sampler& finalize();
 };
 
 
@@ -53,7 +55,11 @@ class SIIS_API PercentSampler : public Sampler
 {
 public:
 
+    PercentSampler(const o3d::String &_name);
+
     const o3d::Char *formatValue(o3d::Double value) const;
+
+    PercentSampler& finalize();
 };
 
 
@@ -125,6 +131,8 @@ class SIIS_API TradeResults
 {
 public:
 
+    o3d::Int32 direction;
+
     o3d::Double entryPrice;      //!< average entry price
     o3d::Double exitPrice;       //!< average exit price
 
@@ -133,6 +141,9 @@ public:
 
     o3d::Double bestPrice;
     o3d::Double worstPrice;
+
+    o3d::Double profitLossPct;
+    o3d::Double profitLoss;
 };
 
 
@@ -182,6 +193,42 @@ public:
 
 
 /**
+ * @brief The AccountSample class
+ * In this order for the output tuple.
+ */
+class SIIS_API AccountSample
+{
+public:
+
+    o3d::Double timestamp = 0.0;
+    o3d::Double equity = 0.0;
+    o3d::Double profitLoss = 0.0;
+
+    o3d::Double drawDownRate = 0.0;  //!< in percentile of equity
+    o3d::Double drawDown = 0.0;      //!< in currency
+};
+
+
+/**
+ * @brief The AccountStatistics class
+ * Statistics for the account in currency, with equity and pnl.
+ * Also contains samples at a daily frequency.
+ */
+class SIIS_API AccountStatistics
+{
+public:
+
+    o3d::Double initialEquity = 0.0;
+    o3d::Double finalEquity = 0.0;
+    o3d::Double profitLoss = 0.0;
+
+    o3d::Double maxDrawDownRate = 0.0;  //!< in percentile of equity
+    o3d::Double maxDrawDown = 0.0;      //!< in currency
+
+    std::vector<AccountSample> samples;  //!< per day sample of the state of the account
+};
+
+/**
  * @brief SiiS statistics base model and compatible for export, global to any strategies (for all markets).
  * @author Frederic Scherma
  * @date 2023-04-28
@@ -221,7 +268,8 @@ public:
     o3d::Double avgTimeInMarket = 0.0;
 
     o3d::Int32 numTradedDays = 0;
-    o3d::Double avgTradePerDay = 0.0;   //!< excluding weekend
+    o3d::Double avgTradePerDay = 0.0;        //!< excluding weekend (majority of the markets)
+    o3d::Double avgTradePerDayIncWe = 0.0;   //!< including weekend (crypto)
 
     CurrencyStatToken currency;
     PercentStatToken percent;
@@ -229,37 +277,7 @@ public:
     void reset();
     void add(const Statistics &stats);
 
-    void computeStats();
-};
-
-/**
- * @brief The AccountSample class
- * In this order for the output tuple.
- */
-class SIIS_API AccountSample
-{
-public:
-
-    o3d::Double timestamp = 0.0;
-    o3d::Double equity = 0.0;
-    o3d::Double profitLoss = 0.0;
-
-    o3d::Double drawDownRate = 0.0;  //!< in percentile of equity
-    o3d::Double drawDown = 0.0;      //!< in currency
-};
-
-class SIIS_API AccountStatistics
-{
-public:
-
-    o3d::Double initialEquity = 0.0;
-    o3d::Double finalEquity = 0.0;
-    o3d::Double profitLoss = 0.0;
-
-    o3d::Double maxDrawDownRate = 0.0;  //!< in percentile of equity
-    o3d::Double maxDrawDown = 0.0;      //!< in currency
-
-    std::vector<AccountSample> samples;  //!< per day sample of the state of the account
+    void computeStats(const AccountStatistics& accountStats);
 };
 
 } // namespace siis

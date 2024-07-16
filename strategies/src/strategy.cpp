@@ -237,6 +237,9 @@ void Strategy::addClosedTrade(Trade *trade)
             }
 
             m_stats.dailyPerformance += rpnl;
+
+            // keep some interesting values for final stats
+            m_stats.addTrade(trade);
         }
     }
 }

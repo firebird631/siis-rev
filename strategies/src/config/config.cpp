@@ -9,6 +9,7 @@
 #include "siis/config/strategyconfig.h"
 #include "siis/market.h"
 #include "siis/statistics/statistics.h"
+#include "siis/statistics/statisticstojson.h"
 
 #include <o3d/core/filemanager.h>
 #include <o3d/core/file.h>
@@ -745,10 +746,82 @@ void Config::overwriteLearningFile(const GlobalStatistics &global, const Account
             root["max-loss-series"] = global.maxAdjacentLoss;
             root["max-win-series"] = global.maxAdjacentWin;
 
-            // @todo add others stats
+            // percent
+            StatisticsToJson::dumpsGlobalStatistics(global, root);
 
             parser.save(m_learningPath.getFullPathName(), m_learningFilename);
         }
+    }
+    catch (Json::LogicError &e) {
+        O3D_ERROR(o3d::E_InvalidParameter("Invalid JSON format for learning " + m_learningFilename));
+    }
+}
+#include <json/writer.h>
+void Config::printGlobalStats(const GlobalStatistics &global, const AccountStatistics &account) const
+{
+    try {
+        // add revision, perf stats
+        Json::Value root;
+
+        o3d::DateTime today;
+        today.setCurrent(true);
+
+        root["revision"] = today.buildString("%Y-%m-%dT%H:%M:%SZ").toAscii().getData();
+
+        Json::Value samples(Json::arrayValue);
+        // @todo samples
+        for (auto sample : account.samples) {
+            Json::Value s(Json::arrayValue);
+
+            s.append(sample.timestamp);
+            s.append(sample.equity);
+            s.append(sample.profitLoss);
+            s.append(sample.drawDownRate);
+            s.append(sample.drawDown);
+
+            samples.append(s);
+        }
+
+        // @todo format equity, pnl and max-draw-down according to account currency precision
+        root["performance"] = o3d::String::print("%.2f%%", global.performance * 100).toAscii().getData();
+        root["max-draw-down-rate"] = o3d::String::print("%.2f%%", global.maxDrawDownRate * 100).toAscii().getData();
+        root["max-draw-down"] = o3d::String::print("%.2f", global.maxDrawDown).toAscii().getData();
+        // root["initial-equity"] = o3d::String::print("%.2f", account.initialEquity).toAscii().getData();
+        root["final-equity"] = o3d::String::print("%.2f", account.finalEquity).toAscii().getData();
+        root["stats-samples"] = samples;
+        root["profit-loss"] = o3d::String::print("%.2f", account.profitLoss).toAscii().getData();
+
+        root["best"] = o3d::String::print("%.2f%%", global.best * 100).toAscii().getData();
+        root["worst"] = o3d::String::print("%.2f%%", global.worst * 100).toAscii().getData();
+
+        root["succeed-trades"] = global.succeedTrades;
+        root["failed-trades"] = global.failedTrades;
+        root["roe-trades"] = global.roeTrades;
+        root["total-trades"] = global.totalTrades;
+        root["canceled-trades"] = global.canceledTrades;
+        root["open-trades"] = global.openTrades;
+        root["active-trades"] = global.activeTrades;
+
+        root["stop-loss-in-loss"] = global.stopLossInLoss;
+        root["take-profit-in-loss"] = global.takeProfitInLoss;
+        root["stop-loss-in-gain"] = global.stopLossInGain;
+        root["take-profit-in-gain"] = global.takeProfitInGain;
+
+        root["max-loss-series"] = global.maxAdjacentLoss;
+        root["max-win-series"] = global.maxAdjacentWin;
+
+        // percent
+        StatisticsToJson::dumpsGlobalStatistics(global, root);
+
+        Json::StreamWriterBuilder builder;
+        builder["indentation"] = "    ";
+        Json::StreamWriter *writer = builder.newStreamWriter();
+        std::stringstream s;
+        writer->write(root, &s);
+
+        o3d::deletePtr(writer);
+
+        INFO("results", o3d::String(s.str().data()));
     }
     catch (Json::LogicError &e) {
         O3D_ERROR(o3d::E_InvalidParameter("Invalid JSON format for learning " + m_learningFilename));
