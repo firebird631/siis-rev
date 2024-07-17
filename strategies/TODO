@@ -14,8 +14,13 @@ Prioritaire
 - Implementer offset sur breakeven.
 
 - GlobalStatistics sortino ratio ne peut fonctionner sans le maxDrawDown du VirtualAccount
+    - Ca implique de faire les calcules PNL, balance... dans le LocalConnector
+    - A défaut temporarairement on peut voir pour prendre le DD/MDD par stratégie
 
 - ReversalBar, TickBar, VolumeBar
+
+- Unification des strategies timeframe/rangebar...
+    - Probleme des classes specialisée des Analysers
 
 - IndMarginTrade::updateStats complete PNL
 - pour les XxxxPositionSignal.refOrderId met on orderId or refOrderId ?
