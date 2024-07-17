@@ -33,9 +33,6 @@ void StatisticsToJson::dumpsCurrencyStatToken(const CurrencyStatToken &token, Js
     output["max-time-to-recover"] = o3d::String::print("%.3f", token.maxTimeToRecover).toAscii().getData();
     output["estimate-profit-per-month"] = token.estimateProfitPerMonth;
 
-    output["avg-trade"] = token.avgTrade;
-    output["avg-winning-trade"] = token.avgWinningTrade;
-    output["avg-loosing-trade"] = token.avgLoosingTrade;
     output["avg-win-loss-rate"] = round(token.avgWinLossRate, 2);
 
     output["sharpe-ratio"] = round(token.sharpeRatio, 2);
@@ -54,9 +51,6 @@ void StatisticsToJson::dumpsPercentStatToken(const PercentStatToken &token, Json
     output["max-time-to-recover"] = o3d::String::print("%.3f", token.maxTimeToRecover).toAscii().getData();
     output["estimate-profit-per-month"] = o3d::String::print("%.2f%%", token.estimateProfitPerMonth * 100).toAscii().getData();
 
-    output["avg-trade"] = o3d::String::print("%.2f%%", token.avgTrade * 100).toAscii().getData();
-    output["avg-winning-trade"] = o3d::String::print("%.2f%%", token.avgWinningTrade * 100).toAscii().getData();
-    output["avg-loosing-trade"] = o3d::String::print("%.2f%%", token.avgLoosingTrade * 100).toAscii().getData();
     output["avg-win-loss-rate"] = round(token.avgWinLossRate, 2);
 
     output["sharpe-ratio"] = round(token.sharpeRatio, 2);

@@ -74,10 +74,6 @@ public:
 
     o3d::Double estimateProfitPerMonth = 0.0;
 
-    o3d::Double avgTrade = 0.0;
-
-    o3d::Double avgWinningTrade = 0.0;
-    o3d::Double avgLoosingTrade = 0.0;
     o3d::Double avgWinLossRate = 0.0;    //!< avgWinningTrade / avgLoosingTrade
 
     o3d::Double sharpeRatio = 1.0;
