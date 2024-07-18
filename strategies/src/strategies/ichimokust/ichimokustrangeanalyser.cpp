@@ -20,9 +20,9 @@ IchimokuStRangeAnalyser::IchimokuStRangeAnalyser(Strategy *strategy,
             Price::Method priceMethod) :
     TimeframeBarAnalyser(strategy, name, timeframe, sourceTimeframe, depth, history, priceMethod),
     m_slow_ma_high("slow_ma_high", timeframe),
-    m_slow_ma_low("slow_ma_high", timeframe),
+    m_slow_ma_low("slow_ma_low", timeframe),
     m_fast_ma_high("fast_ma_high", timeframe),
-    m_fast_ma_low("fast_ma_high", timeframe),
+    m_fast_ma_low("fast_ma_low", timeframe),
     m_inRange(false)
 {
 

@@ -41,8 +41,8 @@ IchimokuStRb::IchimokuStRb(Handler *handler, const o3d::String &identifier) :
     m_rangeAnalyser(nullptr),
     m_confAnalyser(nullptr),
     m_lastSignal(0, 0),
-    m_confirmProfitScale(0.0),
     m_confirmRiskBias(0.0),
+    m_confirmProfitScale(0.0),
     m_minProfit(0.0)
 {
 
@@ -393,7 +393,7 @@ TradeSignal IchimokuStRb::computeSignal(o3d::Double timestamp)
         if (((m_sigAnalyser->priceCross() > 0 && m_sigAnalyser->chikouDir() > 0) ||
              (m_sigAnalyser->priceDir() > 0 && m_sigAnalyser->chikouCross() > 0)) &&
              m_sigAnalyser->tenkanDir() > 0 && m_sigAnalyser->cloudDir() > 0) {
-
+//printf("L\n");
              signal.setEntry();
              signal.setLong();
 
@@ -407,7 +407,7 @@ TradeSignal IchimokuStRb::computeSignal(o3d::Double timestamp)
         } else if (((m_sigAnalyser->priceCross() < 0 && m_sigAnalyser->chikouDir() < 0) ||
                     (m_sigAnalyser->priceDir() < 0 && m_sigAnalyser->chikouCross() < 0)) &&
                    m_sigAnalyser->tenkanDir() < 0 && m_sigAnalyser->cloudDir() < 0) {
-
+//printf("S\n");
              signal.setEntry();
              signal.setShort();
 

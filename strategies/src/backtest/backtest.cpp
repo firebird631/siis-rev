@@ -110,6 +110,11 @@ void Backtest::init(
     for (MarketConfig *mc : config->getConfiguredMarkets()) {
         Market *market = new Market(mc->marketId, mc->marketId, "", "");  // @todo fetch market from DB if exists
 
+        // market data from database (synchronous)
+        if (!database->market()->fetchMarket(config->getBrokerId(), mc->marketId, market)) {
+            O3D_ERROR(o3d::E_InvalidPrecondition(o3d::String("Unable to find market info for ") + mc->marketId));
+        }
+
         Strategy *strategy = collection->build(this, config->getStrategy(), config->getStrategyIdentifier());
         strategy->setMarket(market);
         strategy->init(config);
@@ -123,11 +128,6 @@ void Backtest::init(
 
         if (mc->marketTradeType > -1) {
             market->setTradeCapacities(mc->marketTradeType);
-        }
-
-        // market data from database (synchronous)
-        if (!database->market()->fetchMarket(config->getBrokerId(), mc->marketId, market)) {
-            O3D_ERROR(o3d::E_InvalidPrecondition(o3d::String("Unable to find market info for ") + mc->marketId));
         }
 
         for (DataSource ds : strategy->getDataSources()) {

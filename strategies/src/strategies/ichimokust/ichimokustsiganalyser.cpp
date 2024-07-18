@@ -138,7 +138,7 @@ void IchimokuStSigAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimes
             m_tenkanDir = 1;
         } else if (m_ichimoku.tenkan().last() < m_ichimoku.kijun().last()) {
             // tenkan below kijun
-            m_cloudDir = -1;
+            m_tenkanDir = -1;
         }
 
         // future cloud direction

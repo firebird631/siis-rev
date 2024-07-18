@@ -19,9 +19,9 @@ IchimokuStRbRangeAnalyser::IchimokuStRbRangeAnalyser(Strategy *strategy,
             Price::Method priceMethod) :
     RangeBarAnalyser(strategy, name, barSize, depth, history, priceMethod, 1.0),
     m_slow_ma_high("slow_ma_high", barSize),
-    m_slow_ma_low("slow_ma_high", barSize),
+    m_slow_ma_low("slow_ma_low", barSize),
     m_fast_ma_high("fast_ma_high", barSize),
-    m_fast_ma_low("fast_ma_high", barSize),
+    m_fast_ma_low("fast_ma_low", barSize),
     m_inRange(false)
 {
 

@@ -38,7 +38,7 @@ IchimokuStRbSigAnalyser::~IchimokuStRbSigAnalyser()
 
 o3d::String IchimokuStRbSigAnalyser::typeName() const
 {
-    return "sig";
+    return "ichimoku";
 }
 
 void IchimokuStRbSigAnalyser::init(AnalyserConfig conf)
@@ -137,7 +137,7 @@ void IchimokuStRbSigAnalyser::compute(o3d::Double timestamp, o3d::Double lastTim
             m_tenkanDir = 1;
         } else if (m_ichimoku.tenkan().last() < m_ichimoku.kijun().last()) {
             // tenkan below kijun
-            m_cloudDir = -1;
+            m_tenkanDir = -1;
         }
 
         // future cloud direction

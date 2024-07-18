@@ -55,7 +55,7 @@ static const char* IchimokuStRbParameters = R"JSON(
         "16tick": {
             "enabled": true,
             "tickbar": "16",
-            "mode": "range",
+            "mode": "range-filter",
             "depth": 60,
             "history": 60,
             "indicators": {
