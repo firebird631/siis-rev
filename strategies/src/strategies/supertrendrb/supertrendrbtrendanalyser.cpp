@@ -13,11 +13,12 @@ using namespace siis;
 
 SuperTrendRbTrendAnalyser::SuperTrendRbTrendAnalyser(
             Strategy *strategy,
+            const o3d::String &name,
             o3d::Int32 barSize,
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod) :
-    RangeBarAnalyser(strategy, barSize, depth, history, priceMethod, 1.0),
+    RangeBarAnalyser(strategy, name, barSize, depth, history, priceMethod, 1.0),
     m_gain(0.7),  // step 0.01 min 0.0001
     m_kahlman(true),
     m_trendTimestamp(0.0),

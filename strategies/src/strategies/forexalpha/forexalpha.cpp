@@ -77,6 +77,7 @@ void ForexAlpha::init(Config *config)
         for (auto it = timeframes.begin(); it != timeframes.end(); ++it) {
             Json::Value timeframe = *it;
 
+            o3d::String name = it.name().c_str();
             o3d::String mode = timeframe.get("mode", "").asString().c_str();
 
             o3d::Double tf = conf.timeframeAsDouble(timeframe, "timeframe");
@@ -89,22 +90,22 @@ void ForexAlpha::init(Config *config)
             }
 
             if (mode == "A") {
-                FaAnalyser *a = new FaAAnalyser(this, tf, baseTimeframe(), depth, history);
+                FaAnalyser *a = new FaAAnalyser(this, name, tf, baseTimeframe(), depth, history);
                 a->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(a);
             } else if (mode == "B") {
-                FaAnalyser *b = new FaBAnalyser(this, tf, baseTimeframe(), depth, history);
+                FaAnalyser *b = new FaBAnalyser(this, name, tf, baseTimeframe(), depth, history);
                 b->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(b);
             } else if (mode == "C") {
-                FaAnalyser *c = new FaCAnalyser(this, tf, baseTimeframe(), depth, history);
+                FaAnalyser *c = new FaCAnalyser(this, name, tf, baseTimeframe(), depth, history);
                 c->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(c);
             } else if (mode == "D") {
-                FaAnalyser *d = new FaDAnalyser(this, tf, baseTimeframe(), depth, history);
+                FaAnalyser *d = new FaDAnalyser(this, name, tf, baseTimeframe(), depth, history);
                 d->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(d);

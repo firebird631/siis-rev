@@ -13,12 +13,13 @@ using namespace siis;
 
 MaAdxTrendAnalyser::MaAdxTrendAnalyser(
             Strategy *strategy,
+            const o3d::String &name,
             o3d::Double timeframe,
             o3d::Double sourceTimeframe,
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod) :
-    TimeframeBarAnalyser(strategy, timeframe, sourceTimeframe, depth, history, priceMethod),
+    TimeframeBarAnalyser(strategy, name, timeframe, sourceTimeframe, depth, history, priceMethod),
     m_slow_h_ma("slow_h_ma", timeframe),
     m_slow_m_ma("slow_m_ma", timeframe),
     m_slow_l_ma("slow_l_ma", timeframe),
@@ -30,6 +31,11 @@ MaAdxTrendAnalyser::MaAdxTrendAnalyser(
 MaAdxTrendAnalyser::~MaAdxTrendAnalyser()
 {
 
+}
+
+o3d::String MaAdxTrendAnalyser::typeName() const
+{
+    return "trend";
 }
 
 void MaAdxTrendAnalyser::init(AnalyserConfig conf)

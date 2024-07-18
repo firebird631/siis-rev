@@ -78,6 +78,7 @@ void MaAdx::init(Config *config)
         for (auto it = timeframes.begin(); it != timeframes.end(); ++it) {
             Json::Value timeframe = *it;
 
+            o3d::String name = it.name().c_str();
             o3d::String mode = timeframe.get("mode", "").asString().c_str();
 
             o3d::Double tf = conf.timeframeAsDouble(timeframe, "timeframe");
@@ -90,19 +91,19 @@ void MaAdx::init(Config *config)
             }
 
             if (mode == "trend") {
-                Analyser *a = new MaAdxTrendAnalyser(this, tf, baseTimeframe(), depth, history, Price::PRICE_HLC);
+                Analyser *a = new MaAdxTrendAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_HLC);
                 a->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(a);
                 m_trendAnalyser = static_cast<MaAdxTrendAnalyser*>(a);
             } else if (mode == "sig") {
-                Analyser *a = new MaAdxSigAnalyser(this, tf, baseTimeframe(), depth, history, Price::PRICE_HLC);
+                Analyser *a = new MaAdxSigAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_HLC);
                 a->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(a);
                 m_sigAnalyser = static_cast<MaAdxSigAnalyser*>(a);
             } else if (mode == "conf") {
-                Analyser *a = new MaAdxConfAnalyser(this, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
+                Analyser *a = new MaAdxConfAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
                 a->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(a);

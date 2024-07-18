@@ -29,6 +29,7 @@ public:
 
     TimeframeBarAnalyser(
             Strategy *strategy,
+            const o3d::String &name,
             o3d::Double timeframe,
             o3d::Double sourceTimeframe,
             o3d::Int32 depth,

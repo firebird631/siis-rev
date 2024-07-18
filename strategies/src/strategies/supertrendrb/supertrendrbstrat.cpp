@@ -77,6 +77,7 @@ void SuperTrendRbStrat::init(Config *config)
         for (auto it = tickbars.begin(); it != tickbars.end(); ++it) {
             Json::Value tickbar = *it;
 
+            o3d::String name = it.name().c_str();
             o3d::String mode = tickbar.get("mode", "").asString().c_str();
 
             o3d::Double barSize = conf.barSizeAsInt(tickbar, "tickbar");
@@ -89,19 +90,19 @@ void SuperTrendRbStrat::init(Config *config)
             }
 
             if (mode == "trend") {
-                Analyser *a = new SuperTrendRbTrendAnalyser(this, barSize, depth, history, Price::PRICE_HLC);
+                Analyser *a = new SuperTrendRbTrendAnalyser(this, name, barSize, depth, history, Price::PRICE_HLC);
                 a->init(AnalyserConfig(tickbar));
 
                 m_analysers.push_back(a);
                 m_trendAnalyser = static_cast<SuperTrendRbTrendAnalyser*>(a);
             } else if (mode == "sig") {
-                Analyser *a = new SuperTrendRbSigAnalyser(this, barSize, depth, history, Price::PRICE_HLC);
+                Analyser *a = new SuperTrendRbSigAnalyser(this, name, barSize, depth, history, Price::PRICE_HLC);
                 a->init(AnalyserConfig(tickbar));
 
                 m_analysers.push_back(a);
                 m_sigAnalyser = static_cast<SuperTrendRbSigAnalyser*>(a);
             } else if (mode == "conf") {
-                Analyser *a = new SuperTrendRbConfAnalyser(this, barSize, depth, history, Price::PRICE_CLOSE);
+                Analyser *a = new SuperTrendRbConfAnalyser(this, name, barSize, depth, history, Price::PRICE_CLOSE);
                 a->init(AnalyserConfig(tickbar));
 
                 m_analysers.push_back(a);

@@ -13,12 +13,13 @@ using namespace siis;
 
 PullbackConfAnalyser::PullbackConfAnalyser(
             Strategy *strategy,
+            const o3d::String &name,
             o3d::Double timeframe,
             o3d::Double sourceTimeframe,
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod) :
-    TimeframeBarAnalyser(strategy, timeframe, sourceTimeframe, depth, history, priceMethod),
+    TimeframeBarAnalyser(strategy, name, timeframe, sourceTimeframe, depth, history, priceMethod),
     m_confirmation(0)
 {
 
@@ -27,6 +28,11 @@ PullbackConfAnalyser::PullbackConfAnalyser(
 PullbackConfAnalyser::~PullbackConfAnalyser()
 {
 
+}
+
+o3d::String PullbackConfAnalyser::typeName() const
+{
+    return "conf";
 }
 
 void PullbackConfAnalyser::init(AnalyserConfig conf)

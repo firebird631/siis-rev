@@ -80,6 +80,7 @@ void IndiceAlpha::init(Config *config)
         for (auto it = timeframes.begin(); it != timeframes.end(); ++it) {
             Json::Value timeframe = *it;
 
+            o3d::String name = it.name().c_str();
             o3d::String mode = timeframe.get("mode", "").asString().c_str();
 
             o3d::Double tf = conf.timeframeAsDouble(timeframe, "timeframe");
@@ -92,22 +93,22 @@ void IndiceAlpha::init(Config *config)
             }
 
             if (mode == "A") {
-                IaAnalyser *a = new IaAAnalyser(this, tf, baseTimeframe(), depth, history);
+                IaAnalyser *a = new IaAAnalyser(this, name, tf, baseTimeframe(), depth, history);
                 a->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(a);
             } else if (mode == "B") {
-                IaAnalyser *b = new IaBAnalyser(this, tf, baseTimeframe(), depth, history);
+                IaAnalyser *b = new IaBAnalyser(this, name, tf, baseTimeframe(), depth, history);
                 b->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(b);
             } else if (mode == "C") {
-                IaAnalyser *c = new IaCAnalyser(this, tf, baseTimeframe(), depth, history);
+                IaAnalyser *c = new IaCAnalyser(this, name, tf, baseTimeframe(), depth, history);
                 c->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(c);
             } else if (mode == "D") {
-                IaAnalyser *d = new IaDAnalyser(this, tf, baseTimeframe(), depth, history);
+                IaAnalyser *d = new IaDAnalyser(this, name, tf, baseTimeframe(), depth, history);
                 d->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(d);

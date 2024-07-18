@@ -42,6 +42,21 @@ public:
     inline o3d::Double last() const { return m_size < 1 ? 0.0 : m_data[m_size-1]; }
     inline o3d::Double prev() const { return m_size < 2 ? 0.0 : m_data[m_size-2]; }
 
+    /**
+     * @brief at Return the value at index and works with negative index.
+     * @param i Positive or negative index or 0
+     */
+    inline const o3d::Double& at(o3d::Int32 n) const {
+        if (n >= m_size) throw o3d::E_IndexOutOfRange("");
+
+        if (n < 0) {
+            n = m_size + n;
+            if (n < 0) throw o3d::E_IndexOutOfRange("");
+        }
+
+        return m_data[n];
+    }
+
     DataArray& operator*= (const DataArray &a);
     DataArray& operator*= (o3d::Double scale);
     DataArray& operator/= (const DataArray &a);

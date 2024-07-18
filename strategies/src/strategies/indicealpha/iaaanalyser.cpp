@@ -11,14 +11,14 @@
 
 using namespace siis;
 
-IaAAnalyser::IaAAnalyser(
-            Strategy *strategy,
+IaAAnalyser::IaAAnalyser(Strategy *strategy,
+            const o3d::String &name,
             o3d::Double timeframe,
             o3d::Double sourceTimeframe,
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod) :
-    IaAnalyser(strategy, timeframe, sourceTimeframe, depth, history, priceMethod),
+    IaAnalyser(strategy, name, timeframe, sourceTimeframe, depth, history, priceMethod),
     m_atr("atr", timeframe),
     m_sma("sma", timeframe),
     m_ema("ema", timeframe),
@@ -31,6 +31,11 @@ IaAAnalyser::IaAAnalyser(
 IaAAnalyser::~IaAAnalyser()
 {
 
+}
+
+o3d::String IaAAnalyser::typeName() const
+{
+    return "A";
 }
 
 void IaAAnalyser::init(AnalyserConfig conf)

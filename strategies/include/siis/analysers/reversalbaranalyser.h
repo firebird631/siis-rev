@@ -30,6 +30,7 @@ public:
 
     ReversalBarAnalyser(
         Strategy *strategy,
+        const o3d::String &name,
         o3d::Int32 rangeSize,
         o3d::Int32 reversalSize,
         o3d::Int32 depth,

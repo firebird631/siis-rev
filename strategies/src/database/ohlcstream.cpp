@@ -35,9 +35,9 @@ OhlcStream::OhlcStream(
     m_to(to),
     m_cur(from),
     m_buffer(bufferSize*8, bufferSize*8),
-    m_bufferSize(bufferSize),
+    // m_bufferSize(bufferSize),
     m_finished(false),
-    m_ofs(0),
+    // m_ofs(0),
     m_ohlcDb(nullptr)
 {
     O3D_ASSERT(db != nullptr);

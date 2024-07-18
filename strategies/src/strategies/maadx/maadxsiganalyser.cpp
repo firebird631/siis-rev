@@ -13,12 +13,13 @@ using namespace siis;
 
 MaAdxSigAnalyser::MaAdxSigAnalyser(
             Strategy *strategy,
+            const o3d::String &name,
             o3d::Double timeframe,
             o3d::Double sourceTimeframe,
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod) :
-    TimeframeBarAnalyser(strategy, timeframe, sourceTimeframe, depth, history, priceMethod),
+    TimeframeBarAnalyser(strategy, name, timeframe, sourceTimeframe, depth, history, priceMethod),
     m_fast_h_ma("fast_h_ma", timeframe),
     m_fast_m_ma("fast_m_ma", timeframe),
     m_fast_l_ma("sfast_l_ma", timeframe),
@@ -33,6 +34,11 @@ MaAdxSigAnalyser::MaAdxSigAnalyser(
 MaAdxSigAnalyser::~MaAdxSigAnalyser()
 {
 
+}
+
+o3d::String MaAdxSigAnalyser::typeName() const
+{
+    return "sig";
 }
 
 void MaAdxSigAnalyser::init(AnalyserConfig conf)

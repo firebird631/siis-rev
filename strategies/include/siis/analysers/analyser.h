@@ -28,10 +28,17 @@ class SIIS_API Analyser
 {
 public:
 
-    Analyser(Strategy *strategy, o3d::Double timeframe, o3d::Int32 barSize,
+    Analyser(Strategy *strategy, const o3d::String &name,
+             o3d::Double timeframe, o3d::Int32 barSize,
              o3d::Int32 depth, o3d::Int32 history);
 
     virtual ~Analyser();
+
+    /**
+     * @brief typeName Internal type name as used into the "mode" fields.
+     * @return
+     */
+    virtual o3d::String typeName() const = 0;
 
     /**
      * @brief init Initialize using strategy anaylser configuration.
@@ -80,6 +87,8 @@ public:
     const Strategy* strategy() const { return m_strategy; }
     Strategy* strategy() { return m_strategy; }
 
+    const o3d::String& name() const { return m_name; }
+
     o3d::Double timeframe() const { return m_timeframe; }
     o3d::Double tf() const { return m_timeframe; }
 
@@ -106,9 +115,10 @@ private:
 
     Strategy *m_strategy;
 
-    o3d::Double m_timeframe;     //!< timeframe or bar size
+    o3d::String m_name;
 
-    o3d::Int32 m_barSize;        //!< bar size or timeframe
+    o3d::Double m_timeframe;     //!< timeframe
+    o3d::Int32 m_barSize;        //!< bar size
 
     o3d::Int32 m_depth;
     o3d::Int32 m_history;

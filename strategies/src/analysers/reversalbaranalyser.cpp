@@ -12,13 +12,14 @@
 using namespace siis;
 
 ReversalBarAnalyser::ReversalBarAnalyser(Strategy *strategy,
+        const o3d::String &name,
         o3d::Int32 rangeSize,
         o3d::Int32 reversalSize,
         o3d::Int32 depth,
         o3d::Int32 history,
         Price::Method priceMethod,
         o3d::Double tickScale) :
-    Analyser(strategy, rangeSize, 0.0, depth, history),
+    Analyser(strategy, name, rangeSize, 0.0, depth, history),
     m_ohlcGen(rangeSize, reversalSize, tickScale),
     m_ohlc(depth),
     m_price("price", 0.0, priceMethod),

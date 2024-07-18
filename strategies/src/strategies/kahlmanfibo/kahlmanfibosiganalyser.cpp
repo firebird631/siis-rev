@@ -16,12 +16,13 @@ using namespace siis;
 
 KahlmanFiboSigAnalyser::KahlmanFiboSigAnalyser(
             Strategy *strategy,
+            const o3d::String &name,
             o3d::Double timeframe,
             o3d::Double sourceTimeframe,
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod) :
-    TimeframeBarAnalyser(strategy, timeframe, sourceTimeframe, depth, history, priceMethod),
+    TimeframeBarAnalyser(strategy, name, timeframe, sourceTimeframe, depth, history, priceMethod),
     m_gain(0.7),  // step 0.01 min 0.0001
     m_kahlman(true),
     m_trendTimestamp(0.0),
@@ -46,6 +47,11 @@ KahlmanFiboSigAnalyser::KahlmanFiboSigAnalyser(
 KahlmanFiboSigAnalyser::~KahlmanFiboSigAnalyser()
 {
 
+}
+
+o3d::String KahlmanFiboSigAnalyser::typeName() const
+{
+    return "sig";
 }
 
 void KahlmanFiboSigAnalyser::init(AnalyserConfig conf)

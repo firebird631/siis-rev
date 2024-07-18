@@ -13,12 +13,13 @@ using namespace siis;
 
 PullbackSRAnalyser::PullbackSRAnalyser(
             Strategy *strategy,
+            const o3d::String &name,
             o3d::Double timeframe,
             o3d::Double sourceTimeframe,
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod) :
-    TimeframeBarAnalyser(strategy, timeframe, sourceTimeframe, depth, history, priceMethod),
+    TimeframeBarAnalyser(strategy, name, timeframe, sourceTimeframe, depth, history, priceMethod),
     m_pivotpoint("pivotpoint", timeframe),
     m_breakoutDirection(0),
     m_breakoutPrice(0.0),
@@ -30,6 +31,11 @@ PullbackSRAnalyser::PullbackSRAnalyser(
 PullbackSRAnalyser::~PullbackSRAnalyser()
 {
 
+}
+
+o3d::String PullbackSRAnalyser::typeName() const
+{
+    return "sr";
 }
 
 void PullbackSRAnalyser::init(AnalyserConfig conf)

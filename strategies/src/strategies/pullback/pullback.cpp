@@ -83,6 +83,7 @@ void Pullback::init(Config *config)
         for (auto it = timeframes.begin(); it != timeframes.end(); ++it) {
             Json::Value timeframe = *it;
 
+            o3d::String name = it.name().c_str();
             o3d::String mode = timeframe.get("mode", "").asString().c_str();
 
             o3d::Double tf = conf.timeframeAsDouble(timeframe, "timeframe");
@@ -95,19 +96,19 @@ void Pullback::init(Config *config)
             }
 
             if (mode == "sr") {
-                Analyser *a = new PullbackSRAnalyser(this, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
+                Analyser *a = new PullbackSRAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
                 a->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(a);
                 m_srAnalyser = static_cast<PullbackSRAnalyser*>(a);
             } else if (mode == "bollinger") {
-                Analyser *a = new PullbackBBAnalyser(this, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
+                Analyser *a = new PullbackBBAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
                 a->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(a);
                 m_bbAnalyser = static_cast<PullbackBBAnalyser*>(a);
             } else if (mode == "conf") {
-                Analyser *a = new PullbackConfAnalyser(this, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
+                Analyser *a = new PullbackConfAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
                 a->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(a);

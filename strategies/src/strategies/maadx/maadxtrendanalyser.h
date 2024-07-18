@@ -28,6 +28,7 @@ public:
 
     MaAdxTrendAnalyser(
             Strategy *strategy,
+            const o3d::String &name,
             o3d::Double timeframe,
             o3d::Double sourceTimeframe,
             o3d::Int32 depth,
@@ -35,6 +36,8 @@ public:
             Price::Method priceMethod=Price::PRICE_HLC);
 
     virtual ~MaAdxTrendAnalyser() override;
+
+    virtual o3d::String typeName() const override;
 
     virtual void init(AnalyserConfig conf) override;
     virtual void terminate() override;

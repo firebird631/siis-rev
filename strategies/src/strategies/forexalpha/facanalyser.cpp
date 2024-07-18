@@ -11,14 +11,14 @@
 
 using namespace siis;
 
-FaCAnalyser::FaCAnalyser(
-            Strategy *strategy,
+FaCAnalyser::FaCAnalyser(Strategy *strategy,
+            const o3d::String &name,
             o3d::Double timeframe,
             o3d::Double sourceTimeframe,
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod) :
-    FaAnalyser(strategy, timeframe, sourceTimeframe, depth, history, priceMethod),
+    FaAnalyser(strategy, name, timeframe, sourceTimeframe, depth, history, priceMethod),
     m_atr("atr", timeframe),
     m_sma("sma", timeframe),
     m_ema("ema", timeframe),
@@ -30,6 +30,11 @@ FaCAnalyser::FaCAnalyser(
 FaCAnalyser::~FaCAnalyser()
 {
 
+}
+
+o3d::String FaCAnalyser::typeName() const
+{
+    return "C";
 }
 
 void FaCAnalyser::init(AnalyserConfig conf)

@@ -82,10 +82,10 @@ private:
     o3d::Double m_toTs;
 
     DataArray m_buffer;
-    o3d::Int32 m_bufferSize;
+    // o3d::Int32 m_bufferSize;
 
     o3d::Bool m_finished;
-    o3d::Int32 m_ofs;
+    // o3d::Int32 m_ofs;
 
     OhlcDb *m_ohlcDb;
 

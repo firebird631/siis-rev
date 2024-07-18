@@ -150,6 +150,33 @@ static void mergeWithDotFormat(Json::Value *root, const Json::Value &b)
     }
 }
 
+o3d::Int32 AnalyserConfig::getAnalyserInt(const o3d::CString &analyserName,
+                                          const o3d::CString &valueName,
+                                          o3d::Int32 defValue) const
+{
+    if (indicators().isMember(analyserName.getData())) {
+        Json::Value cnf = indicators().get(analyserName.getData(), Json::Value());
+        if (cnf.isMember(valueName.getData())) {
+            return cnf.get(valueName.getData(), defValue).asInt();
+        }
+    }
+
+    return defValue;
+}
+
+o3d::Double AnalyserConfig::getAnalyserDouble(const o3d::CString &analyserName,
+                                              const o3d::CString &valueName,
+                                              o3d::Double defValue) const
+{
+    if (indicators().isMember(analyserName.getData())) {
+        Json::Value cnf = indicators().get(analyserName.getData(), Json::Value());
+        if (cnf.isMember(valueName.getData())) {
+            return cnf.get(valueName.getData(), defValue).asDouble();
+        }
+    }
+
+    return defValue;
+}
 
 Trade::Type tradeTypeFromStr(const o3d::String &type)
 {

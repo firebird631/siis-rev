@@ -59,6 +59,15 @@ public:
      */
     Json::Value indicators() const { return m_data.get("indicators", Json::Value()); }
 
+
+    o3d::Int32 getAnalyserInt(const o3d::CString &analyserName,
+                              const o3d::CString &valueName,
+                              o3d::Int32 defValue) const;
+
+    o3d::Double getAnalyserDouble(const o3d::CString &analyserName,
+                                  const o3d::CString &valueName,
+                                  o3d::Double defValue) const;
+
 private:
 
     Json::Value m_data;

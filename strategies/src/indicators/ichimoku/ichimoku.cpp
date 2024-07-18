@@ -142,6 +142,5 @@ void Ichimoku::compute(o3d::Double timestamp, const DataArray &high, const DataA
 
 o3d::Int32 Ichimoku::lookback() const
 {
-    // @todo
-    return m_senkouSpanBLen - 1 + m_lastTenkan - 1;
+    return m_senkouSpanBLen - 1;
 }

@@ -30,12 +30,15 @@ public:
 
     SuperTrendRbTrendAnalyser(
             Strategy *strategy,
+            const o3d::String &name,
             o3d::Int32 barSize,
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod=Price::PRICE_HLC);
 
     virtual ~SuperTrendRbTrendAnalyser() override;
+
+    virtual o3d::String typeName() const override;
 
     void setUseKahlman(o3d::Bool use);
 

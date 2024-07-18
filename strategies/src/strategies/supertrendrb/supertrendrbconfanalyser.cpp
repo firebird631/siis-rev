@@ -11,13 +11,13 @@
 
 using namespace siis;
 
-SuperTrendRbConfAnalyser::SuperTrendRbConfAnalyser(
-            Strategy *strategy,
+SuperTrendRbConfAnalyser::SuperTrendRbConfAnalyser(Strategy *strategy,
+            const o3d::String &name,
             o3d::Int32 rangeSize,
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod) :
-    RangeBarAnalyser(strategy, rangeSize, depth, history, priceMethod, 1.0),
+    RangeBarAnalyser(strategy, name, rangeSize, depth, history, priceMethod, 1.0),
     m_confirmation(0)
 {
 
@@ -26,6 +26,11 @@ SuperTrendRbConfAnalyser::SuperTrendRbConfAnalyser(
 SuperTrendRbConfAnalyser::~SuperTrendRbConfAnalyser()
 {
 
+}
+
+o3d::String SuperTrendRbConfAnalyser::typeName() const
+{
+    return "conf";
 }
 
 void SuperTrendRbConfAnalyser::init(AnalyserConfig conf)

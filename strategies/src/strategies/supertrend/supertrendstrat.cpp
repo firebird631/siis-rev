@@ -77,6 +77,7 @@ void SuperTrendStrat::init(Config *config)
         for (auto it = timeframes.begin(); it != timeframes.end(); ++it) {
             Json::Value timeframe = *it;
 
+            o3d::String name = it.name().c_str();
             o3d::String mode = timeframe.get("mode", "").asString().c_str();
 
             o3d::Double tf = conf.timeframeAsDouble(timeframe, "timeframe");
@@ -89,19 +90,19 @@ void SuperTrendStrat::init(Config *config)
             }
 
             if (mode == "trend") {
-                Analyser *a = new SuperTrendTrendAnalyser(this, tf, baseTimeframe(), depth, history, Price::PRICE_HLC);
+                Analyser *a = new SuperTrendTrendAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_HLC);
                 a->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(a);
                 m_trendAnalyser = static_cast<SuperTrendTrendAnalyser*>(a);
             } else if (mode == "sig") {
-                Analyser *a = new SuperTrendSigAnalyser(this, tf, baseTimeframe(), depth, history, Price::PRICE_HLC);
+                Analyser *a = new SuperTrendSigAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_HLC);
                 a->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(a);
                 m_sigAnalyser = static_cast<SuperTrendSigAnalyser*>(a);
             } else if (mode == "conf") {
-                Analyser *a = new SuperTrendConfAnalyser(this, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
+                Analyser *a = new SuperTrendConfAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
                 a->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(a);

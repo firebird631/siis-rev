@@ -30,12 +30,15 @@ public:
 
     SuperTrendRbSigAnalyser(
             Strategy *strategy,
+            const o3d::String &name,
             o3d::Int32 barSize,
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod=Price::PRICE_HL);
 
     virtual ~SuperTrendRbSigAnalyser() override;
+
+    virtual o3d::String typeName() const override;
 
     virtual void init(AnalyserConfig conf) override;
     virtual void terminate() override;

@@ -86,6 +86,7 @@ void KahlmanFibo::init(Config *config)
         for (auto it = timeframes.begin(); it != timeframes.end(); ++it) {
             Json::Value timeframe = *it;
 
+            o3d::String name = it.name().c_str();
             o3d::String mode = timeframe.get("mode", "").asString().c_str();
 
             o3d::Double tf = conf.timeframeAsDouble(timeframe, "timeframe");
@@ -98,21 +99,21 @@ void KahlmanFibo::init(Config *config)
             }
 
             if (mode == "trend") {
-                Analyser *a = new KahlmanFiboTrendAnalyser(this, tf, baseTimeframe(), depth, history, Price::PRICE_HL);
+                Analyser *a = new KahlmanFiboTrendAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_HL);
                 a->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(a);
                 m_trendAnalyser = static_cast<KahlmanFiboTrendAnalyser*>(a);
                 m_trendAnalyser->setUseKahlman(m_useKahlman);
             } else if (mode == "sig") {
-                Analyser *a = new KahlmanFiboSigAnalyser(this, tf, baseTimeframe(), depth, history, Price::PRICE_HL);
+                Analyser *a = new KahlmanFiboSigAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_HL);
                 a->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(a);
                 m_sigAnalyser = static_cast<KahlmanFiboSigAnalyser*>(a);
                 m_sigAnalyser->setUseKahlman(m_useKahlman);
             } else if (mode == "conf") {
-                Analyser *a = new KahlmanFiboConfAnalyser(this, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
+                Analyser *a = new KahlmanFiboConfAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
                 a->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(a);

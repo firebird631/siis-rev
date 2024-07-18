@@ -11,14 +11,14 @@
 
 using namespace siis;
 
-FaDAnalyser::FaDAnalyser(
-            Strategy *strategy,
+FaDAnalyser::FaDAnalyser(Strategy *strategy,
+            const o3d::String &name,
             o3d::Double timeframe,
             o3d::Double sourceTimeframe,
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod) :
-    FaAnalyser(strategy, timeframe, sourceTimeframe, depth, history, priceMethod),
+    FaAnalyser(strategy, name, timeframe, sourceTimeframe, depth, history, priceMethod),
     m_atr("atr", timeframe),
     m_sma("sma", timeframe),
     m_midSma("midSma", timeframe),
@@ -33,6 +33,11 @@ FaDAnalyser::FaDAnalyser(
 FaDAnalyser::~FaDAnalyser()
 {
 
+}
+
+o3d::String FaDAnalyser::typeName() const
+{
+    return "D";
 }
 
 void FaDAnalyser::init(AnalyserConfig conf)
