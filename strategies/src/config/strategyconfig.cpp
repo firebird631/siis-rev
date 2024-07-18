@@ -72,6 +72,10 @@ static void update(Json::Value& a, const Json::Value& b)
             // special case
             joinRightToLeft(a[key], b[key]);
             continue;
+        } else if (key == "tickbars") {
+            // special case
+            joinRightToLeft(a[key], b[key]);
+            continue;
         } else if (key == "contexts") {
             // special case
             joinRightToLeft(a[key], b[key]);

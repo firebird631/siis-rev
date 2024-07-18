@@ -45,6 +45,9 @@ void IchimokuStRbSigAnalyser::init(AnalyserConfig conf)
 {
     configureIndictor(conf, "ichimoku", m_ichimoku);
 
+    m_span_cross_ofs = -m_ichimoku.kijunLen();
+    m_chikou_ofs = -m_ichimoku.senkouSpanBLen();
+
 //    m_span_cross_ofs = conf.getAnalyserInt("ichimoku", "span-cross-offset", -26);
 //    m_chikou_ofs = conf.getAnalyserInt("ichimoku", "chikou-offset", -52);
 
@@ -58,16 +61,17 @@ void IchimokuStRbSigAnalyser::terminate()
 
 void IchimokuStRbSigAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
 {
+    // reset
+    m_priceCross = 0;
+    m_chikouCross = 0;
+    m_priceDir = 0;
+    m_chikouDir = 0;
+    m_tenkanDir = 0;
+    m_cloudDir = 0;
+
+
     if (price().consolidated()) {
         m_ichimoku.compute(timestamp, price().high(), price().low(), price().close());
-
-        // reset
-        m_priceCross = 0;
-        m_chikouCross = 0;
-        m_priceDir = 0;
-        m_chikouDir = 0;
-        m_tenkanDir = 0;
-        m_cloudDir = 0;
 
         // prices cross/direction
         o3d::Int32 i = m_span_cross_ofs - 1;

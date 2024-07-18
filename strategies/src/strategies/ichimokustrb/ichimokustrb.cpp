@@ -80,7 +80,7 @@ void IchimokuStRb::init(Config *config)
             o3d::String name = it.name().c_str();
             o3d::String mode = tickbar.get("mode", "").asString().c_str();
 
-            o3d::Double barSize = conf.barSizeAsInt(tickbar, "tickbar");
+            o3d::Int32 barSize = conf.barSizeAsInt(tickbar, "size");
 
             o3d::Int32 depth = tickbar.get("depth", 0).asInt();
             o3d::Int32 history = tickbar.get("history", 0).asInt();
@@ -90,18 +90,21 @@ void IchimokuStRb::init(Config *config)
             }
 
             if (mode == "ichimoku") {
+            printf("%i\n", barSize);
                 Analyser *a = new IchimokuStRbSigAnalyser(this, name, barSize, depth, history, Price::PRICE_HLC);
                 a->init(AnalyserConfig(tickbar));
 
                 m_analysers.push_back(a);
                 m_sigAnalyser = static_cast<IchimokuStRbSigAnalyser*>(a);
             } else if (mode == "range-filter") {
+            printf("%i\n", barSize);
                 Analyser *a = new IchimokuStRbRangeAnalyser(this, name, barSize, depth, history, Price::PRICE_HLC);
                 a->init(AnalyserConfig(tickbar));
 
                 m_analysers.push_back(a);
                 m_rangeAnalyser = static_cast<IchimokuStRbRangeAnalyser*>(a);
             } else if (mode == "conf") {
+            printf("%i\n", barSize);
                 Analyser *a = new IchimokuStRbConfAnalyser(this, name, barSize, depth, history, Price::PRICE_CLOSE);
                 a->init(AnalyserConfig(tickbar));
 

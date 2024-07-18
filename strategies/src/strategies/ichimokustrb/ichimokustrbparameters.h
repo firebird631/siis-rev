@@ -43,7 +43,7 @@ static const char* IchimokuStRbParameters = R"JSON(
     "tickbars": {
         "32tick": {
             "enabled": true,
-            "size": "32",
+            "size": 32,
             "mode": "ichimoku",
             "depth": 105,
             "history": 105,
@@ -54,13 +54,12 @@ static const char* IchimokuStRbParameters = R"JSON(
         },
         "16tick": {
             "enabled": true,
-            "tickbar": "16",
+            "size": 16,
             "mode": "range-filter",
             "depth": 60,
             "history": 60,
             "indicators": {
                 "price": {"method": "close"},
-                "supertrend": {"len": 14, "coeff": 2.5},
                 "fast_ma_high": {"len": 7},
                 "fast_ma_low": {"len": 7},
                 "slow_ma_high": {"len": 35},
@@ -69,7 +68,7 @@ static const char* IchimokuStRbParameters = R"JSON(
         },
         "8tick": {
             "enabled": true,
-            "tickbar": "8",
+            "size": 8,
             "mode": "conf",
             "depth": 5,
             "history": 5,
