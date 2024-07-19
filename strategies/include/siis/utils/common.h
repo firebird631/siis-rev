@@ -21,6 +21,8 @@ SIIS_API o3d::String timeframeToStr(o3d::Double tf);
 
 SIIS_API o3d::String timestampToStr(o3d::Double ts);
 
+SIIS_API o3d::Double durationFromStr(const o3d::String &deltaTime);
+
 SIIS_API o3d::String directionToStr(o3d::Int32 dir);
 
 SIIS_API o3d::String marketContractToStr(o3d::Int32 marketContract);

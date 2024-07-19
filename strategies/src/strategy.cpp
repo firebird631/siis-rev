@@ -12,6 +12,7 @@
 #include "siis/trade/stdtrademanager.h"
 
 #include <algorithm>
+#include <map>
 
 using namespace siis;
 
@@ -35,7 +36,9 @@ Strategy::Strategy(Handler *handler, const o3d::String &identifier) :
     m_tradeDelay(0.0),
     m_needUpdate(false),
     m_tradeType(Trade::TYPE_ASSET),
-    m_baseQuantity(1.0)
+    m_baseQuantity(1.0),
+    m_timezone(0.0),
+    m_sessionOffset(0.0)
 {
     m_properties["name"] = "undefined";
     m_properties["author"] = "undefined";
@@ -70,6 +73,74 @@ void Strategy::init(Config *config)
     m_brokerId = config->getBrokerId();
 }
 
+static void tradingSessionFromStr(Json::Value &trading, std::vector<TradingSession> &out)
+{
+    if (!trading.isString()) {
+        // @todo format error
+        return;
+    }
+
+    // ISO Monday 1..7
+    const std::map<o3d::String, o3d::Int32> DAYS_OF_WEEK = {
+        {"any", -2},
+        {"dow", -1},
+        {"mon", 1},
+        {"tue", 2},
+        {"wed", 3},
+        {"thu", 4},
+        {"fri", 5},
+        {"sat", 6},
+        {"sun", 7}
+    };
+
+    o3d::String value = trading.asCString();
+
+    if (value.count('/') != 1) {
+        // @todo format error
+        return;
+    }
+
+    o3d::Int32 slash = value.find('/');
+    o3d::Int32 dash = value.find('-');
+
+    o3d::String dow = value.sub(0, slash);
+    if (DAYS_OF_WEEK.find(dow) == DAYS_OF_WEEK.cend()) {
+        // @todo format error
+        return;
+    }
+
+    // "dow/15:30-21:30"
+    o3d::Double fromDuration = durationFromStr(value.sub(slash+1, dash));
+    o3d::Double toDuration = durationFromStr(value.sub(dash+1));
+
+    if (dow == "any") {
+        // any days
+        for (o3d::Int32 d = 1; d < 8; ++d) {
+            TradingSession session;
+            session.dayOfWeek = d;
+            session.fromTime = fromDuration;
+            session.toTime = toDuration;
+            out.push_back(session);
+        }
+    } else if (dow == "dow") {
+        // any days of week
+        for (o3d::Int32 d = 1; d < 6; ++d) {
+            TradingSession session;
+            session.dayOfWeek = d;
+            session.fromTime = fromDuration;
+            session.toTime = toDuration;
+            out.push_back(session);
+        }
+    } else {
+        // day is defined
+        TradingSession session;
+        session.dayOfWeek = DAYS_OF_WEEK.find(dow)->second;
+        session.fromTime = fromDuration;
+        session.toTime = toDuration;
+        out.push_back(session);
+    }
+}
+
 void Strategy::initBasicsParameters(StrategyConfig &conf)
 {
     m_reversal = conf.root().get("reversal", true).asBool();
@@ -81,6 +152,25 @@ void Strategy::initBasicsParameters(StrategyConfig &conf)
     m_tradeType = conf.tradeType();
 
     m_baseTimeframe = conf.baseTimeframe();
+
+    // trading sessions
+    if (conf.root().isMember("sessions")) {
+        Json::Value sessions = conf.root().get("sessions", Json::Value());
+
+        m_timezone = sessions.get("timezone", 0.0).asDouble();
+        m_sessionOffset = durationFromStr(sessions.get("offset", 0.0).asString().c_str());
+
+        if (sessions.isMember("trading")) {
+            Json::Value trading = sessions.get("trading", Json::Value());
+            if (!trading.empty() && trading.isArray()) {
+                for (auto it = trading.begin(); it != trading.end(); ++it) {
+                    tradingSessionFromStr(*it, m_tradingSessions);
+                }
+            } else if (trading.isString()) {
+                tradingSessionFromStr(trading, m_tradingSessions);
+            }
+        }
+    }
 
     // stream data sources
     if (m_baseTimeframe <= 0.0) {
@@ -123,6 +213,27 @@ void Strategy::setMarket(Market *market)
 void Strategy::setBaseQuantity(o3d::Double qty)
 {
     m_baseQuantity = qty;
+}
+
+
+void Strategy::setTimezone(o3d::Double tz)
+{
+    m_timezone = tz;
+}
+
+void Strategy::setSessionOffset(o3d::Double offset)
+{
+    m_sessionOffset = offset;
+}
+
+void Strategy::addTradingSession(o3d::Int8 dayOfWeek, o3d::Double fromTime, o3d::Double toTime)
+{
+    TradingSession tradeingSession;
+    tradeingSession.dayOfWeek = dayOfWeek;
+    tradeingSession.fromTime = fromTime;
+    tradeingSession.toTime = toTime;
+
+    m_tradingSessions.push_back(tradeingSession);
 }
 
 o3d::String Strategy::property(const o3d::String &propName) const
@@ -242,6 +353,36 @@ void Strategy::addClosedTrade(Trade *trade)
             m_stats.addTrade(trade);
         }
     }
+}
+
+o3d::Bool Strategy::allowedTradingSession(o3d::Double timestamp) const
+{
+    if (hasTradingSessions()) {
+        // compute daily offset in seconds
+        o3d::DateTime today;
+
+        // add the timezone offset in hours
+        today.fromTime(timestamp + timezone() * 3600, true);
+
+        o3d::Double todayTime = today.hour * 3600 + today.minute * 60 + today.second;
+        o3d::Bool allow = false;
+
+        for (const TradingSession &session : m_tradingSessions) {
+            // printf("%f %i -> %i %i\n", timestamp, session.dayOfWeek, today.getIsoDayOfWeek(), today.getDayOfWeek());
+            if (session.dayOfWeek == today.getDayOfWeek()) {
+                if (session.fromTime <= todayTime && todayTime <= session.toTime) {
+                    allow = true;
+                    break;
+                }
+            }
+        }
+
+        if (!allow) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 void Strategy::setProperty(const o3d::String propertyName, const o3d::String value)

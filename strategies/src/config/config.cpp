@@ -16,6 +16,8 @@
 #include <o3d/core/debug.h>
 #include <o3d/core/datetime.h>
 
+#include <json/writer.h>
+
 using namespace siis;
 using o3d::Debug;
 using o3d::Logger;
@@ -746,7 +748,6 @@ void Config::overwriteLearningFile(const GlobalStatistics &global, const Account
             root["max-loss-series"] = global.maxAdjacentLoss;
             root["max-win-series"] = global.maxAdjacentWin;
 
-            // percent
             StatisticsToJson::dumpsGlobalStatistics(global, root);
 
             parser.save(m_learningPath.getFullPathName(), m_learningFilename);
@@ -756,7 +757,7 @@ void Config::overwriteLearningFile(const GlobalStatistics &global, const Account
         O3D_ERROR(o3d::E_InvalidParameter("Invalid JSON format for learning " + m_learningFilename));
     }
 }
-#include <json/writer.h>
+
 void Config::printGlobalStats(const GlobalStatistics &global, const AccountStatistics &account) const
 {
     try {
@@ -810,7 +811,6 @@ void Config::printGlobalStats(const GlobalStatistics &global, const AccountStati
         root["max-loss-series"] = global.maxAdjacentLoss;
         root["max-win-series"] = global.maxAdjacentWin;
 
-        // percent
         StatisticsToJson::dumpsGlobalStatistics(global, root);
 
         Json::StreamWriterBuilder builder;

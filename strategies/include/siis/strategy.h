@@ -20,6 +20,7 @@
 #include "siis/datasource.h"
 #include "siis/statistics/statistics.h"
 #include "siis/trade/trade.h"
+#include "siis/tradingsession.h"
 
 namespace siis {
 
@@ -276,6 +277,37 @@ public:
      */
     void addClosedTrade(Trade *trade);
 
+    //
+    // trading sessions
+    //
+
+
+    /**
+     * @brief timezone Market timezone.
+     */
+    o3d::Double timezone() const { return m_timezone; }
+
+    /**
+     * @brief sessionOffset Market trading sessions offset.
+     * @return
+     */
+    o3d::Double sessionOffset() const { return m_sessionOffset; }
+
+    /**
+     * @brief hasTradingSessions True if one or more trading sessions are defined.
+     */
+    o3d::Bool hasTradingSessions() const { return m_tradingSessions.size() > 0; }
+
+    /**
+     * @brief tradingSessions Empty vector where each tuple is three values for day of week, hour of day, minute of day.
+     */
+    const std::vector<TradingSession> tradingSessions() const { return m_tradingSessions; }
+
+    /**
+     * @brief allowedTradingSession Return true if sessions allow trading else false.
+     */
+    o3d::Bool allowedTradingSession(o3d::Double timestamp) const;
+
 protected:
 
     void setProperty(const o3d::String propertyName, const o3d::String value);
@@ -312,6 +344,10 @@ protected:
                         o3d::Int32 pending,
                         o3d::Int32 actives);
 
+    void setTimezone(o3d::Double tz);
+    void setSessionOffset(o3d::Double offset);
+    void addTradingSession(o3d::Int8 dayOfWeek, o3d::Double fromTime, o3d::Double toTime);
+
 private:
 
     Handler *m_handler;
@@ -346,6 +382,12 @@ private:
     Trade::Type m_tradeType;
 
     o3d::Double m_baseQuantity;
+
+    o3d::Double m_timezone;        //!< market timezone UTC+N
+    o3d::Double m_sessionOffset;   //!< day session offset from 00:00 in seconds
+
+    //! allowed trading session (empty mean anytime) else must be explicit. each session is a TradingSession model.
+    std::vector<TradingSession> m_tradingSessions;
 };
 
 } // namespace siis

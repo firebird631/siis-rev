@@ -108,6 +108,39 @@ o3d::String siis::marketTypeToStr(o3d::Int32 marketType)
     return "undefined";
 }
 
+//! Convert date to number of days
+//! @warning Dates before Oct. 1582 are inaccurate.
+static o3d::Int64 gday(const o3d::DateTime &d)
+{
+    o3d::Int64 y, m;
+
+    m = (d.month + 9) % 12;
+    y = (d.year - m / 10);
+
+    return y*365 + y/4 - y/100 + y/400 + (m*306 + 5)/10 + (d.mday - 1);
+}
+
+//! Convert number of day to legal datetime
+//! @warning Dates before Oct. 1582 are inaccurate.
+static o3d::DateTime dft(o3d::Int64 d)
+{
+    o3d::Int64 y, ddd, mi;
+
+    y = (10000*d + 14780)/3652425;
+    ddd = d - (y*365 + y/4 - y/100 + y/400);
+    if (ddd < 0) {
+        --y;
+        ddd = d - (y*365 + y/4 - y/100 + y/400);
+    }
+    mi = (52 + 100*ddd)/3060;
+
+    o3d::DateTime dt;
+    dt.year = y + (mi + 2)/12;
+    dt.month = (mi + 2)%12 + 1;
+    dt.mday = ddd - (mi*306 + 5)/10 + 1;
+    return dt;
+}
+
 o3d::Double siis::baseTime(o3d::Double timestamp, o3d::Double timeframe)
 {
     if (timeframe < TF_WEEK) {
@@ -125,8 +158,9 @@ o3d::Double siis::baseTime(o3d::Double timestamp, o3d::Double timeframe)
         dt.microsecond = 0;
 
         // first day of the week (1 based on monday ISO8601)
-        dt.mday = o3d::max<o3d::Int8>(1, dt.mday - (dt.getDayOfWeek()-1));
-        dt.wday = o3d::DAY_MONDAY;
+        // dt.mday = o3d::max<o3d::Int8>(1, dt.mday - (dt.getIsoDayOfWeek()-1));
+        // dt.wday = o3d::DAY_MONDAY;
+        dt = dft(gday(dt) - dt.getDayOfWeek());
 
         return dt.toTimestamp(true);
     }
@@ -136,7 +170,7 @@ o3d::Double siis::baseTime(o3d::Double timestamp, o3d::Double timeframe)
 
         dt.fromTime(timestamp, true);
         dt.mday = 1;
-        dt.wday = dt.getDayOfWeek();  // adjust day of week
+        dt.wday = dt.getIsoDayOfWeek();  // adjust day of week
         dt.hour = 0;
         dt.minute = 0;
         dt.second = 0;
@@ -310,4 +344,38 @@ o3d::String siis::timestampToStr(o3d::Double ts)
     dt.fromTime(ts, true);
 
     return dt.buildString("%Y-%m-%d %H:%M:%S");
+}
+
+o3d::Double siis::durationFromStr(const o3d::String &deltaTime)
+{
+    if (deltaTime.count(':') != 1) {
+        // @todo format error
+        return 0.0;
+    }
+
+    o3d::Int32 sign = 1;
+    o3d::Int32 baseOfs = 0;
+
+    if (deltaTime.startsWith("-")) {
+        sign = -1;
+        baseOfs += 1;
+    } else if (deltaTime.startsWith("+")) {
+        baseOfs += 1;
+    }
+
+    o3d::Int32 separator = deltaTime.find(':');
+    o3d::Int32 hours = deltaTime.sub(baseOfs, separator).toInt32();
+    o3d::Int32 minutes = deltaTime.sub(separator+1).toInt32();
+
+    if ((hours < 0) || (hours > 23)) {
+        // @todo format error
+        return 0.0;
+    }
+
+    if ((minutes < 0) || (minutes > 59)) {
+        // @todo format error
+        return 0.0;
+    }
+
+    return sign * (hours * 3600.0 + minutes * 60.0);
 }

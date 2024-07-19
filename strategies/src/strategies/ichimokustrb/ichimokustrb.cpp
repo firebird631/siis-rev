@@ -90,21 +90,18 @@ void IchimokuStRb::init(Config *config)
             }
 
             if (mode == "ichimoku") {
-            printf("%i\n", barSize);
                 Analyser *a = new IchimokuStRbSigAnalyser(this, name, barSize, depth, history, Price::PRICE_HLC);
                 a->init(AnalyserConfig(tickbar));
 
                 m_analysers.push_back(a);
                 m_sigAnalyser = static_cast<IchimokuStRbSigAnalyser*>(a);
             } else if (mode == "range-filter") {
-            printf("%i\n", barSize);
                 Analyser *a = new IchimokuStRbRangeAnalyser(this, name, barSize, depth, history, Price::PRICE_HLC);
                 a->init(AnalyserConfig(tickbar));
 
                 m_analysers.push_back(a);
                 m_rangeAnalyser = static_cast<IchimokuStRbRangeAnalyser*>(a);
             } else if (mode == "conf") {
-            printf("%i\n", barSize);
                 Analyser *a = new IchimokuStRbConfAnalyser(this, name, barSize, depth, history, Price::PRICE_CLOSE);
                 a->init(AnalyserConfig(tickbar));
 
@@ -301,6 +298,13 @@ void IchimokuStRb::compute(o3d::Double timestamp)
 
         if (m_tradeManager->numTrades() >= maxTrades() && numClosed < 1) {
             doOrder = false;
+        }
+
+        if (hasTradingSessions()) {
+            if (!allowedTradingSession(timestamp)) {
+                doOrder = false;
+                // log(0.0, "content", o3d::String("No trading allowed outside of sessions for ") + market()->marketId(), o3d::System::MSG_INFO);
+            }
         }
 
         if (doOrder) {
