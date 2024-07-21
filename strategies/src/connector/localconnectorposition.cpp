@@ -268,7 +268,7 @@ o3d::Int32 LocalConnector::_closePosition(Position *position, const Market *mark
 //    o3d::String msg = o3d::String("LocalConnector::_closePosition {0} at={1} pl={2}{3}")
 //                .arg(position->positionId).arg(execPrice).arg(position->local.profitLoss)
 //                .arg(o3d::String(position->profitCurrency));
-//    handler()->log(0, market->marketId(), "local", msg);
+//    handler()->log("", market->marketId(), "local", msg);
 
     return Order::RET_OK;
 }

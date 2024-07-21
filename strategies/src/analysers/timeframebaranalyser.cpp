@@ -97,6 +97,11 @@ o3d::Double TimeframeBarAnalyser::lastPrice() const
     return m_price.close().last();
 }
 
+o3d::String TimeframeBarAnalyser::formatUnit() const
+{
+    return timeframeToStr(timeframe());
+}
+
 o3d::Double TimeframeBarAnalyser::sourceTimeframe() const
 {
     return m_ohlcGen.fromTimeframe();

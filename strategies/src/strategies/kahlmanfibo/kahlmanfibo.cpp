@@ -224,12 +224,12 @@ void KahlmanFibo::prepareMarketData(Connector *connector, Database *db, o3d::Dou
             o3d::String msg = o3d::String("Retrieved {0}/{1} OHLCs with most recent at {2}").arg(k).arg(depth)
                               .arg(timestampToStr(market()->getOhlcBuffer(ohlcType).get(lastN)->timestamp()));
 
-            log(analyser->timeframe(), "init", msg);
+            log(analyser->formatUnit(), "init", msg);
 
             analyser->onOhlcUpdate(toTs, analyser->timeframe(), market()->getOhlcBuffer(ohlcType));
         } else {
             o3d::String msg = o3d::String("No OHLCs founds (0/{0})").arg(depth);
-            log(analyser->timeframe(), "init", msg);
+            log(analyser->formatUnit(), "init", msg);
         }
     }
 
@@ -386,7 +386,7 @@ void KahlmanFibo::orderEntry(
                           .arg(market()->formatQty(quantity))
                           .arg(trade->estimateTakeProfitRate() * 100, 2)
                           .arg(trade->estimateStopLossRate() * 100, 2);
-        log(timeframe, "trade-entry", msg);
+        log(m_sigAnalyser->formatUnit(), "trade-entry", msg);
     }
 }
 
@@ -403,7 +403,7 @@ void KahlmanFibo::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double pri
         }
 
         o3d::String msg = o3d::String("#{0}").arg(trade->id());
-        log(trade->tf(), "order-exit", msg);
+        log(m_sigAnalyser->formatUnit(), "order-exit", msg);
     }
 }
 

@@ -260,10 +260,10 @@ void Strategy::process(o3d::Double timestamp)
     m_processing = false;
 }
 
-void Strategy::log(o3d::Double timeframe, const o3d::String &channel, const o3d::String &msg,
+void Strategy::log(const o3d::String &unit, const o3d::String &channel, const o3d::String &msg,
                    o3d::System::MessageLevel type)
 {
-    m_handler->log(timeframe, m_market->marketId(), channel, msg, type);
+    m_handler->log(unit, m_market->marketId(), channel, msg, type);
 }
 
 void Strategy::addClosedTrade(Trade *trade)
@@ -342,7 +342,7 @@ void Strategy::addClosedTrade(Trade *trade)
                                       .arg(m_stats.dailyPerformance * 100, 2)
                                       .arg(m_stats.performance * 100, 2);
 
-                log(TF_DAY, "daily-report", msg, o3d::System::MSG_CRITICAL);
+                log("1d", "daily-report", msg, o3d::System::MSG_CRITICAL);
 
                 m_stats.dailyPerformance = 0.0;
             }
@@ -369,7 +369,7 @@ o3d::Bool Strategy::allowedTradingSession(o3d::Double timestamp) const
 
         for (const TradingSession &session : m_tradingSessions) {
             // printf("%f %i -> %i %i\n", timestamp, session.dayOfWeek, today.getIsoDayOfWeek(), today.getDayOfWeek());
-            if (session.dayOfWeek == today.getDayOfWeek()) {
+            if (session.dayOfWeek == today.getIsoDayOfWeek()) {
                 if (session.fromTime <= todayTime && todayTime <= session.toTime) {
                     allow = true;
                     break;

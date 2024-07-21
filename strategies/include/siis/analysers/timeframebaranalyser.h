@@ -49,6 +49,8 @@ public:
 
     virtual o3d::Double lastPrice() const override;
 
+    virtual o3d::String formatUnit() const override;
+
     o3d::Double sourceTimeframe() const;
 
 protected:

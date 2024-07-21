@@ -39,5 +39,5 @@ o3d::Bool Analyser::isNeedUpdate(o3d::Double timestamp) const
 
 void Analyser::log(const o3d::String &channel, const o3d::String &msg)
 {
-    m_strategy->log(timeframe(), channel, msg);
+    m_strategy->log(formatUnit(), channel, msg);
 }

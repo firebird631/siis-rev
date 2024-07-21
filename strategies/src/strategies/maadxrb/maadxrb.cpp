@@ -202,12 +202,12 @@ void MaAdxRb::prepareMarketData(Connector *connector, Database *db, o3d::Double 
 
         if (lastN > 0) {
             k = handler()->database()->rangeBar()->fetchOhlcArrayLastTo(
-                    analyser->strategy()->brokerId(), market()->marketId(), analyser->timeframe(),
+                    analyser->strategy()->brokerId(), market()->marketId(), analyser->barSize(),
                     lastN, dstTs,
                     market()->getOhlcBuffer(ohlcType));
         } else {
             k = handler()->database()->rangeBar()->fetchOhlcArrayFromTo(
-                    analyser->strategy()->brokerId(), market()->marketId(), analyser->timeframe(),
+                    analyser->strategy()->brokerId(), market()->marketId(), analyser->barSize(),
                     srcTs, dstTs,
                     market()->getOhlcBuffer(ohlcType));
         }
@@ -218,12 +218,12 @@ void MaAdxRb::prepareMarketData(Connector *connector, Database *db, o3d::Double 
             o3d::String msg = o3d::String("Retrieved {0}/{1} OHLCs with most recent at {2}").arg(k).arg(depth)
                               .arg(timestampToStr(market()->getOhlcBuffer(ohlcType).get(lastN)->timestamp()));
 
-            log(analyser->timeframe(), "init", msg);
+            log(analyser->formatUnit(), "init", msg);
 
-            analyser->onOhlcUpdate(toTs, analyser->timeframe(), market()->getOhlcBuffer(ohlcType));
+            analyser->onOhlcUpdate(toTs, 0.0, market()->getOhlcBuffer(ohlcType));
         } else {
             o3d::String msg = o3d::String("No OHLCs founds (0/{0})").arg(depth);
-            log(analyser->timeframe(), "init", msg);
+            log(analyser->formatUnit(), "init", msg);
         }
     }
 
@@ -373,7 +373,7 @@ void MaAdxRb::orderEntry(
                           .arg(market()->formatQty(quantity))
                           .arg(trade->estimateTakeProfitRate() * 100, 2)
                           .arg(trade->estimateStopLossRate() * 100, 2);
-        log(barSize, "trade-entry", msg);
+        log(m_sigAnalyser->formatUnit(), "trade-entry", msg);
     }
 }
 
@@ -390,7 +390,7 @@ void MaAdxRb::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price)
         }
 
         o3d::String msg = o3d::String("#{0}").arg(trade->id());
-        log(trade->tf(), "order-exit", msg);
+        log(m_sigAnalyser->formatUnit()/*trade->tf()*/, "order-exit", msg);
     }
 }
 

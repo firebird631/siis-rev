@@ -344,16 +344,21 @@ Cache *Backtest::cache()
     return m_cache;
 }
 
-void Backtest::log(o3d::Double timeframe, const o3d::String &marketId, const o3d::String &channel,
+void Backtest::log(const o3d::String &unit, const o3d::String &marketId, const o3d::String &channel,
                    const o3d::String &msg, o3d::System::MessageLevel type)
 {
     // @todo throught the monitor send a log message
-    // m_monitor.log(timestamp(), timeframe, marketId, channel, msg);
+    // m_monitor.log(timestamp(), unit, marketId, channel, msg);
     o3d::DateTime dt;
     dt.fromTime(timestamp(), true);
 
-    m_displayer->display(channel, o3d::String("[{0}] (tf={1}) (on={2}) : {3}").arg(dt.buildString("%Y-%m-%d %H:%M:%S"))
-                         .arg(siis::timeframeToStr(timeframe)).arg(marketId).arg(msg), type);
+    if (unit.isEmpty()) {
+        m_displayer->display(channel, o3d::String("[{0}] <{2}> : {3}").arg(dt.buildString("%Y-%m-%d %H:%M:%S"))
+                                          .arg(marketId).arg(msg), type);
+    } else {
+        m_displayer->display(channel, o3d::String("[{0}] @{1} <{2}> : {3}").arg(dt.buildString("%Y-%m-%d %H:%M:%S"))
+                                          .arg(unit).arg(marketId).arg(msg), type);
+    }
 }
 
 o3d::Int32 Backtest::run(void *)

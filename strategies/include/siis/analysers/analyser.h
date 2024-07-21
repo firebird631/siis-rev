@@ -84,6 +84,11 @@ public:
      */
     virtual o3d::Double lastPrice() const = 0;
 
+    /**
+     * @brief formatUnit Return a formatted string about the timeframe or range size.
+     */
+    virtual o3d::String formatUnit() const = 0;
+
     const Strategy* strategy() const { return m_strategy; }
     Strategy* strategy() { return m_strategy; }
 
@@ -92,7 +97,7 @@ public:
     o3d::Double timeframe() const { return m_timeframe; }
     o3d::Double tf() const { return m_timeframe; }
 
-    o3d::Double barSize() const { return m_barSize; }
+    o3d::Int32 barSize() const { return m_barSize; }
 
     o3d::Int32 depth() const { return m_depth; }
     o3d::Int32 history() const { return m_history; }

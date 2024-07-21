@@ -54,6 +54,10 @@ Prioritaire
 Secondaire
 ==========
 
+- les methodes de log prennent un double timeframe mais ce n'est pas consistant avec les range-bar et autre...
+   - sauf qu'un seul parametre peut être insufisant donc soit c'est un objet de temporalité soit on doit filer une
+     chaine et donc formatter en amont ou avec l'analyser peut etre
+
 - config trading session per trader::market (now only global per profile)
 
 - ajouter trade operation (step stop loss)

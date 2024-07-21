@@ -18,7 +18,7 @@ RangeBarAnalyser::RangeBarAnalyser(Strategy *strategy,
         o3d::Int32 history,
         Price::Method priceMethod,
         o3d::Double tickScale) :
-    Analyser(strategy, name, rangeSize, 0.0, depth, history),
+    Analyser(strategy, name, 0.0, rangeSize, depth, history),
     m_ohlcGen(rangeSize, tickScale),
     m_ohlc(depth),
     m_price("price", 0.0, priceMethod),
@@ -60,7 +60,10 @@ void RangeBarAnalyser::onTickUpdate(o3d::Double timestamp, const TickArray &tick
 
 void RangeBarAnalyser::onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe, const OhlcArray &ohlc)
 {
-    /* not supported */
+    // a bulk of bars (generally initial)
+    for (o3d::Int32 i = 0; i < ohlc.getSize(); ++i) {
+        m_ohlc.writeElt()->copy(ohlc[i].data());
+    }
 }
 
 void RangeBarAnalyser::process(o3d::Double timestamp, o3d::Double lastTimestamp)
@@ -95,4 +98,9 @@ void RangeBarAnalyser::process(o3d::Double timestamp, o3d::Double lastTimestamp)
 o3d::Double RangeBarAnalyser::lastPrice() const
 {
     return m_price.close().last();
+}
+
+o3d::String RangeBarAnalyser::formatUnit() const
+{
+    return o3d::String::print("%irb", barSize());
 }

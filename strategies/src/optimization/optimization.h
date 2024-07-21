@@ -71,7 +71,7 @@ public:
     virtual Database* database() override;
     virtual Cache* cache() override;
 
-    virtual void log(o3d::Double timeframe, const o3d::String &marketId,
+    virtual void log(const o3d::String &unit, const o3d::String &marketId,
                      const o3d::String &channel, const o3d::String &msg,
                      o3d::System::MessageLevel type = o3d::System::MSG_INFO) override;
 

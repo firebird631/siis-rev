@@ -142,12 +142,12 @@ public:
 
     /**
      * @brief log Log a message throught the message logger of the handler.
-     * @param timeframe Timeframe of the message or -1 if none.
+     * @param unit Bar model (timeframe or non-temporal bar) related to the message or en empty string.
      * @param marketId Related market id or empty if none.
      * @param channel Mapped name of the channel or empty if general.
      * @param msg Message content.
      */
-    virtual void log(o3d::Double timeframe,
+    virtual void log(const o3d::String &unit,
                      const o3d::String &marketId,
                      const o3d::String &channel,
                      const o3d::String &msg,

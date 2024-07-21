@@ -261,10 +261,10 @@ void ForexAlpha::orderEntry(
         o3d::Double limitPrice,
         o3d::Double stopPrice)
 {
-    log(timeframe, "content", "entry");
+    log(timeframeToStr(timeframe), "content", "entry");
 }
 
 void ForexAlpha::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price)
 {
-    log(trade->tf(), "content", "exit");
+    log(timeframeToStr(trade->tf()), "content", "exit");
 }

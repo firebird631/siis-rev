@@ -213,12 +213,12 @@ public:
 
     /**
      * @brief log Log a message throught the message logger of the handler.
-     * @param timeframe Timeframe of the message or -1 if none.
+     * @param unit Bar model (timeframe or non-temporal bar) related to the message or en empty string.
      * @param channel Mapped name of the channel.
      * @param msg Message content.
      */
-    void log(o3d::Double timeframe, const o3d::String &channel, const o3d::String &msg,
-                     o3d::System::MessageLevel type = o3d::System::MSG_INFO);
+    void log(const o3d::String &unit, const o3d::String &channel, const o3d::String &msg,
+             o3d::System::MessageLevel type = o3d::System::MSG_INFO);
 
     //
     // accessors

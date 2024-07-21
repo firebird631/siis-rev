@@ -50,6 +50,8 @@ public:
 
     virtual o3d::Double lastPrice() const override;
 
+    virtual o3d::String formatUnit() const override;
+
 protected:
 
     inline const Price& price() const { return m_price; }

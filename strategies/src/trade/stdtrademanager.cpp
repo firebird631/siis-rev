@@ -106,7 +106,7 @@ void StdTradeManager::process(o3d::Double timestamp)
                                   .arg(trade->profitLossRate()*100.0, 2)
                                   .arg(pips, 1)
                                   .arg(trade->profitLossRate() > 0 ? "WIN" : "LOSS");
-            m_strategy->log(trade->tf(), "trade-exit", msg);
+            m_strategy->log(""/*trade->tf()*/, "trade-exit", msg);
         }
 
         m_trades.remove(trade);

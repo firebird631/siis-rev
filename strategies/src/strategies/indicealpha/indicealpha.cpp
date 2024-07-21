@@ -274,7 +274,7 @@ void IndiceAlpha::orderEntry(
         // query open
         trade->open(this, direction, orderType, price, quantity, stopPrice, limitPrice);
 
-        log(timeframe, "content", "entry");
+        log(timeframeToStr(timeframe), "content", "entry");
     }
 }
 
@@ -289,6 +289,6 @@ void IndiceAlpha::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double pri
 
         // @todo trade manager removeTrader and it must also freeTrade from tradeproxy
 
-        log(trade->tf(), "content", "exit");
+        log(timeframeToStr(trade->tf()), "content", "exit");
     }
 }
