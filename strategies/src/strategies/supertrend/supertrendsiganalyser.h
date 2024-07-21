@@ -22,7 +22,7 @@ namespace siis {
  * @author Frederic Scherma
  * @date 2023-09-04
  * Signal analyser
- * @note It is important that price method is HLC.
+ * @note It is important to compute price HL2
  */
 class SIIS_API SuperTrendSigAnalyser : public TimeframeBarAnalyser
 {

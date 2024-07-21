@@ -48,7 +48,7 @@ static const char* SuperTrendParameters = R"JSON(
             "depth": 50,
             "history": 50,
             "indicators": {
-                "price": {"method": "HLC"},
+                "price": {"method": "HL"},
                 "supertrend": {"len": 14, "coeff": 2.5},
                 "hma": {"len": 22},
                 "hma3": {"len": 11}

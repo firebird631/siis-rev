@@ -61,7 +61,7 @@ static const char* KahlmanFiboParameters = R"JSON(
             "depth": 5,
             "history": 5,
             "indicators": {
-                "price": {"method": "HLC"}
+                "price": {"method": "close"}
             }
         }
     }

@@ -445,21 +445,50 @@ void Strategy::addOrderBookDataSource(o3d::Int32 depth)
     m_dataSources.push_back(DataSource(DataSource::ORDER_BOOK, 0.0, depth));
 }
 
-void Strategy::adjustOhlcFetchRange(o3d::Int32 depth, o3d::Double &fromTs, o3d::Double &toTs, o3d::Int32 &nLast) const
+void Strategy::adjustOhlcFetchRange(o3d::Int32 history, o3d::Int32 depth,
+                                    o3d::Double &fromTs, o3d::Double &toTs,
+                                    o3d::Int32 &nLast) const
 {
     if (market()->type() == Market::TYPE_CRYPTO) {
-        // nothing to do h24, d7 market
-        return;
+        // crypto are h24, d7 market
+        if (fromTs && toTs) {
+            // from till date
+            // fromTs don't change
+            // toTs don't change
+            nLast = 0;
+            return;
+        } else if (!fromTs && toTs) {
+            // n last till date
+            fromTs = 0;
+            // toTs don't change
+            nLast = o3d::max(history, depth);
+            return;
+        } else if (fromTs && !toTs) {
+            // from date till now
+            // fromTs don't change
+            toTs = 0;
+            nLast = 0;
+            return;
+        } else {
+            // n last till now
+            fromTs = 0;
+            toTs = 0;
+            nLast = o3d::max(history, depth);
+            return;
+        }
+    } else {
+        // there is multiples case, weekend off and nationals days off
+        // and the case of stocks markets closed during the local night
+        // but also some 15 min of twice on indices ...
+
+        // so many complexes cases then we try to get the max of last n OHLCs
+        // here simple direct solution but not correct in case of leaks of data
+
+        // either n last till date, or n last till now
+        fromTs = 0.0;
+        // toTs don't change
+        nLast = o3d::max(history, depth);
     }
-
-    // there is multiples case, weekend off and nationals days off
-    // and the case of stocks markets closed during the local night
-    // but also some 15 min of twice on indices ...
-
-    // so many complexes cases then we try to get the max of last n OHLCs
-    // here simple direct solution but not correct in case of leaks of data
-    nLast = depth;
-    fromTs = 0.0;
 }
 
 void Strategy::setInitialized()

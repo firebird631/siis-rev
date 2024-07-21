@@ -193,9 +193,9 @@ void SuperTrendRbStrat::prepareMarketData(Connector *connector, Database *db, o3
 
         o3d::Double srcTs = 0.0;  //!< range-bar are not linear then source timestamp cannot be determined
         o3d::Double dstTs = fromTs - 1.0;
-        o3d::Int32 lastN = 0;
+        o3d::Int32 lastN = depth;
 
-        adjustOhlcFetchRange(depth, srcTs, dstTs, lastN);
+        adjustOhlcFetchRange(analyser->history(), analyser->depth(), srcTs, dstTs, lastN);
 
         if (lastN > 0) {
             k = handler()->database()->rangeBar()->fetchOhlcArrayLastTo(
@@ -298,6 +298,12 @@ void SuperTrendRbStrat::compute(o3d::Double timestamp)
 
         if (m_tradeManager->numTrades() >= maxTrades() && numClosed < 1) {
             doOrder = false;
+        }
+
+        if (hasTradingSessions()) {
+            if (!allowedTradingSession(timestamp)) {
+                doOrder = false;
+            }
         }
 
         if (doOrder) {

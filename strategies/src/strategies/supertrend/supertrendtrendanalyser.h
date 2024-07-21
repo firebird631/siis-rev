@@ -22,7 +22,6 @@ namespace siis {
  * @author Frederic Scherma
  * @date 2023-09-30
  * Trend analyser
- * @note It is important that price method is HLC.
  */
 class SIIS_API SuperTrendTrendAnalyser : public TimeframeBarAnalyser
 {
@@ -35,7 +34,7 @@ public:
             o3d::Double sourceTimeframe,
             o3d::Int32 depth,
             o3d::Int32 history,
-            Price::Method priceMethod=Price::PRICE_HLC);
+            Price::Method priceMethod=Price::PRICE_CLOSE);
 
     virtual ~SuperTrendTrendAnalyser() override;
 

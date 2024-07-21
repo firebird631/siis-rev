@@ -773,6 +773,17 @@ src/strategies/maadx/maadxsiganalyser.cpp
 src/strategies/maadx/maadxsiganalyser.h
 src/strategies/maadx/maadxtrendanalyser.cpp
 src/strategies/maadx/maadxtrendanalyser.h
+src/strategies/maadxrb/CMakeLists.txt
+src/strategies/maadxrb/README
+src/strategies/maadxrb/maadxrb.cpp
+src/strategies/maadxrb/maadxrb.h
+src/strategies/maadxrb/maadxrbconfanalyser.cpp
+src/strategies/maadxrb/maadxrbconfanalyser.h
+src/strategies/maadxrb/maadxrbparameters.h
+src/strategies/maadxrb/maadxrbsiganalyser.cpp
+src/strategies/maadxrb/maadxrbsiganalyser.h
+src/strategies/maadxrb/maadxrbtrendanalyser.cpp
+src/strategies/maadxrb/maadxrbtrendanalyser.h
 src/strategies/maichimoku/CMakeLists.txt
 src/strategies/maichimoku/README
 src/strategies/maichimoku/maichimoku.cpp

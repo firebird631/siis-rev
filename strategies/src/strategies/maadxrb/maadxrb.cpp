@@ -1,12 +1,12 @@
 /**
- * @brief SiiS strategy MA Ichimoku.
+ * @brief SiiS strategy MAADX range-bar.
  * @copyright Copyright (C) 2023 SiiS
  * @author Frederic SCHERMA (frederic.scherma@gmail.com)
- * @date 2023-05-25
+ * @date 2023-04-24
  */
 
-#include "maichimoku.h"
-#include "maichimokuparameters.h"
+#include "maadxrb.h"
+#include "maadxrbparameters.h"
 
 #include "siis/config/strategyconfig.h"
 #include "siis/handler.h"
@@ -15,11 +15,11 @@
 #include "siis/connector/connector.h"
 #include "siis/database/database.h"
 #include "siis/database/tradedb.h"
-#include "siis/database/ohlcdb.h"
+#include "siis/database/rangebardb.h"
 
-//#include "maichimokutrendanalyser.h"
-//#include "maichimokusiganalyser.h"
-//#include "maichimokuconfanalyser.h"
+#include "maadxrbtrendanalyser.h"
+#include "maadxrbsiganalyser.h"
+#include "maadxrbconfanalyser.h"
 
 using namespace siis;
 using o3d::Logger;
@@ -30,18 +30,18 @@ extern "C"
 
 SIIS_PLUGIN_API siis::Strategy* siisStrategy(Handler *handler, const o3d::String &identifier)
 {
-    return new siis::MaIchimoku(handler, identifier);
+    return new siis::MaAdxRb(handler, identifier);
 }
 
 } // extern "C"
 
-MaIchimoku::MaIchimoku(Handler *handler, const o3d::String &identifier) :
+MaAdxRb::MaAdxRb(Handler *handler, const o3d::String &identifier) :
     Strategy(handler, identifier),
-//    m_srAnalyser(nullptr),
-//    m_bbAnalyser(nullptr),
-//    m_confAnalyser(nullptr),
+    m_trendAnalyser(nullptr),
+    m_sigAnalyser(nullptr),
+    m_confAnalyser(nullptr),
     m_lastSignal(0, 0),
-    m_confirmAtClose(false),
+    m_adxSig(40),
     m_targetScale(1.0),
     m_riskReward(1.0),
     m_minProfit(0.0)
@@ -49,68 +49,69 @@ MaIchimoku::MaIchimoku(Handler *handler, const o3d::String &identifier) :
 
 }
 
-MaIchimoku::~MaIchimoku()
+MaAdxRb::~MaAdxRb()
 {
 
 }
 
-void MaIchimoku::init(Config *config)
+void MaAdxRb::init(Config *config)
 {
     Strategy::init(config);
 
     // author defined strategy properties details
-    setProperty("name", "ma-ichimoku");
+    setProperty("name", "maadx-rb");
     setProperty("author", "Frederic SCHERMA (frederic.scherma@gmail.com)");
-    setProperty("date", "2023-05-25");
+    setProperty("date", "2023-04-24");
     setProperty("revision", "1");
-    setProperty("copyright", "2018-2023 Dream Overflow");
-    setProperty("comment", "Αny kind of market dedicaded strategy, but specialy interesting with Forex.");
+    setProperty("copyright", "2018-2024 Dream Overflow");
+    setProperty("comment", "Crypto, indices and stocks big caps dedicaded strategy");
 
     // strategie parameters
     StrategyConfig conf;
-    conf.parseDefaults(MaIchimokuParameters);
+    conf.parseDefaults(MaAdxRbParameters);
     conf.parseOverrides(config);
 
     initBasicsParameters(conf);
 
-    if (conf.root().isMember("timeframes")) {
-        Json::Value timeframes = conf.root().get("timeframes", Json::Value());
-        for (auto it = timeframes.begin(); it != timeframes.end(); ++it) {
-            Json::Value timeframe = *it;
+    if (conf.root().isMember("tickbars")) {
+        Json::Value tickbars = conf.root().get("tickbars", Json::Value());
+        for (auto it = tickbars.begin(); it != tickbars.end(); ++it) {
+            Json::Value tickbar = *it;
 
-            o3d::String mode = timeframe.get("mode", "").asString().c_str();
+            o3d::String name = it.name().c_str();
+            o3d::String mode = tickbar.get("mode", "").asString().c_str();
 
-            o3d::Double tf = conf.timeframeAsDouble(timeframe, "timeframe");
+            o3d::Int32 barSize = conf.barSizeAsInt(tickbar, "size");
 
-            o3d::Int32 depth = timeframe.get("depth", 0).asInt();
-            o3d::Int32 history = timeframe.get("history", 0).asInt();
+            o3d::Int32 depth = tickbar.get("depth", 0).asInt();
+            o3d::Int32 history = tickbar.get("history", 0).asInt();
 
-            if (!timeframe.get("enabled", true).asBool()) {
+            if (!tickbar.get("enabled", true).asBool()) {
                 continue;
             }
 
-//            if (mode == "sr") {
-//                Analyser *a = new PullbackSRAnalyser(this, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
-//                a->init(AnalyserConfig(timeframe));
+            if (mode == "trend") {
+                Analyser *a = new MaAdxRbTrendAnalyser(this, name, barSize, depth, history, Price::PRICE_HLC);
+                a->init(AnalyserConfig(tickbar));
 
-//                m_analysers.push_back(a);
-//                m_srAnalyser = static_cast<PullbackSRAnalyser*>(a);
-//            } else if (mode == "bollinger") {
-//                Analyser *a = new PullbackBBAnalyser(this, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
-//                a->init(AnalyserConfig(timeframe));
+                m_analysers.push_back(a);
+                m_trendAnalyser = static_cast<MaAdxRbTrendAnalyser*>(a);
+            } else if (mode == "sig") {
+                Analyser *a = new MaAdxRbSigAnalyser(this, name, barSize, depth, history, Price::PRICE_HLC);
+                a->init(AnalyserConfig(tickbar));
 
-//                m_analysers.push_back(a);
-//                m_bbAnalyser = static_cast<PullbackBBAnalyser*>(a);
-//            } else if (mode == "conf") {
-//                Analyser *a = new PullbackConfAnalyser(this, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
-//                a->init(AnalyserConfig(timeframe));
+                m_analysers.push_back(a);
+                m_sigAnalyser = static_cast<MaAdxRbSigAnalyser*>(a);
+            } else if (mode == "conf") {
+                Analyser *a = new MaAdxRbConfAnalyser(this, name, barSize, depth, history, Price::PRICE_CLOSE);
+                a->init(AnalyserConfig(tickbar));
 
-//                m_analysers.push_back(a);
-//                m_confAnalyser = static_cast<PullbackConfAnalyser*>(a);
-//            } else {
-//                // ignored, unknow mode
-//                O3D_WARNING(o3d::String("Pullback strategy unknow mode {0}").arg(mode));
-//            }
+                m_analysers.push_back(a);
+                m_confAnalyser = static_cast<MaAdxRbConfAnalyser*>(a);
+            } else {
+                // ignored, unknow mode
+                O3D_WARNING(o3d::String("MaAdxRb strategy unknow mode {0}").arg(mode));
+            }
         }
     }
 
@@ -122,29 +123,21 @@ void MaIchimoku::init(Config *config)
 
             m_minProfit = context.get("min-profit", 0.0).asDouble() * 0.01;
 
-//            // breakout
-//            if (context.isMember("breakout")) {
-//                Json::Value trend = context.get("breakout", Json::Value());
-//                // "type": "sr-bollinger", "sr-timeframe": "30m", "bollinger-timeframe": "5m"
-//            }
+            // trend
+            if (context.isMember("trend")) {
+                Json::Value trend = context.get("trend", Json::Value());
+            }
 
-//            // integrate
-//            if (context.isMember("integrate")) {
-//                Json::Value sig = context.get("integrate", Json::Value());
-//                // "type": "sr"
-//            }
+            // sig
+            if (context.isMember("sig")) {
+                Json::Value sig = context.get("sig", Json::Value());
 
-//            // pullback
-//            if (context.isMember("pullback")) {
-//                Json::Value pullback = context.get("pullback", Json::Value());
-//                // "type": "bollinger"
-//            }
+                m_adxSig = sig.get("min-adx", Json::Value()).asDouble();
+            }
 
             // conf
             if (context.isMember("confirm")) {
                 Json::Value confirm = context.get("confirm", Json::Value());
-
-                m_confirmAtClose = confirm.get("type", Json::Value()).asString() == "candle";
 
                 m_targetScale = confirm.get("target-scale", Json::Value()).asDouble();
                 m_riskReward = confirm.get("risk-reward", Json::Value()).asDouble();
@@ -163,16 +156,16 @@ void MaIchimoku::init(Config *config)
     setInitialized();
 }
 
-void MaIchimoku::terminate(Connector *connector, Database *db)
+void MaAdxRb::terminate(Connector *connector, Database *db)
 {
     for (Analyser *analyser : m_analysers) {
         analyser->terminate();
         o3d::deletePtr(analyser);
     }
 
-//    m_srAnalyser = nullptr;
-//    m_bbAnalyser = nullptr;
-//    m_confAnalyser = nullptr;
+    m_trendAnalyser = nullptr;
+    m_sigAnalyser = nullptr;
+    m_confAnalyser = nullptr;
 
     m_analysers.clear();
 
@@ -188,7 +181,7 @@ void MaIchimoku::terminate(Connector *connector, Database *db)
     setTerminated();
 }
 
-void MaIchimoku::prepareMarketData(Connector *connector, Database *db, o3d::Double fromTs, o3d::Double toTs)
+void MaAdxRb::prepareMarketData(Connector *connector, Database *db, o3d::Double fromTs, o3d::Double toTs)
 {
     Ohlc::Type ohlcType = Ohlc::TYPE_MID;
 
@@ -201,19 +194,19 @@ void MaIchimoku::prepareMarketData(Connector *connector, Database *db, o3d::Doub
 
         o3d::Int32 k = 0;
 
-        o3d::Double srcTs = fromTs - 1.0 - analyser->timeframe() * depth;
+        o3d::Double srcTs = 0.0;  //!< range-bar are not linear then source timestamp cannot be determined
         o3d::Double dstTs = fromTs - 1.0;
-        o3d::Int32 lastN = 0;
+        o3d::Int32 lastN = depth;
 
         adjustOhlcFetchRange(analyser->history(), analyser->depth(), srcTs, dstTs, lastN);
 
         if (lastN > 0) {
-            k = handler()->database()->ohlc()->fetchOhlcArrayLastTo(
+            k = handler()->database()->rangeBar()->fetchOhlcArrayLastTo(
                     analyser->strategy()->brokerId(), market()->marketId(), analyser->timeframe(),
                     lastN, dstTs,
                     market()->getOhlcBuffer(ohlcType));
         } else {
-            k = handler()->database()->ohlc()->fetchOhlcArrayFromTo(
+            k = handler()->database()->rangeBar()->fetchOhlcArrayFromTo(
                     analyser->strategy()->brokerId(), market()->marketId(), analyser->timeframe(),
                     srcTs, dstTs,
                     market()->getOhlcBuffer(ohlcType));
@@ -237,14 +230,14 @@ void MaIchimoku::prepareMarketData(Connector *connector, Database *db, o3d::Doub
     setMarketDataPrepared();
 }
 
-void MaIchimoku::finalizeMarketData(Connector *connector, Database *db)
+void MaAdxRb::finalizeMarketData(Connector *connector, Database *db)
 {
     m_tradeManager = new StdTradeManager(this);
     setReady();
     setRunning();
 }
 
-void MaIchimoku::onTickUpdate(o3d::Double timestamp, const TickArray &ticks)
+void MaAdxRb::onTickUpdate(o3d::Double timestamp, const TickArray &ticks)
 {
     if (baseTimeframe() == TF_TICK) {
         for (Analyser *analyser : m_analysers) {
@@ -253,26 +246,22 @@ void MaIchimoku::onTickUpdate(o3d::Double timestamp, const TickArray &ticks)
     }
 }
 
-void MaIchimoku::onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe, Ohlc::Type ohlcType, const OhlcArray &ohlc)
+void MaAdxRb::onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe, Ohlc::Type ohlcType, const OhlcArray &ohlc)
 {
-    if (baseTimeframe() == timeframe) {
-        for (Analyser *analyser : m_analysers) {
-            analyser->onOhlcUpdate(timestamp, ohlcType, ohlc);
-        }
-    }
+    /* not compatible */
 }
 
-void MaIchimoku::onOrderSignal(const OrderSignal &orderSignal)
+void MaAdxRb::onOrderSignal(const OrderSignal &orderSignal)
 {
     m_tradeManager->onOrderSignal(orderSignal);
 }
 
-void MaIchimoku::onPositionSignal(const PositionSignal &positionSignal)
+void MaAdxRb::onPositionSignal(const PositionSignal &positionSignal)
 {
     m_tradeManager->onPositionSignal(positionSignal);
 }
 
-void MaIchimoku::prepare(o3d::Double timestamp)
+void MaAdxRb::prepare(o3d::Double timestamp)
 {
     // prepare before compute
     for (Analyser *analyser : m_analysers) {
@@ -280,7 +269,7 @@ void MaIchimoku::prepare(o3d::Double timestamp)
     }
 }
 
-void MaIchimoku::compute(o3d::Double timestamp)
+void MaAdxRb::compute(o3d::Double timestamp)
 {
     for (Analyser *analyser : m_analysers) {
         analyser->process(timestamp, lastTimestamp());
@@ -307,6 +296,10 @@ void MaIchimoku::compute(o3d::Double timestamp)
 
         o3d::Bool doOrder = true;
 
+        if (signal.direction() < 0 && !allowShort()) {
+            doOrder = false;
+        }
+
 //        if (signal.estimateTakeProfitRate() < m_minProfit) {
 //            doOrder = false;
 //        }
@@ -323,22 +316,16 @@ void MaIchimoku::compute(o3d::Double timestamp)
 
         if (doOrder) {
             orderEntry(timestamp, signal.tf(), signal.d(), signal.orderType(), signal.price(), signal.tp(), signal.sl());
-
-            // plus a second trade to TP when other breakeven
-//            if (dual()) {
-//                o3d::Double tp2 = m_breakeven.breakevenTiggerPrice(signal.price(), signal.direction());
-//                orderEntry(timestamp, signal.tf(), signal.d(), signal.orderType(), signal.price(), tp2, signal.sl());
-//            }
         }
     }
 }
 
-void MaIchimoku::finalize(o3d::Double timestamp)
+void MaAdxRb::finalize(o3d::Double timestamp)
 {
     // cleanup eventually
 }
 
-void MaIchimoku::updateTrade(Trade *trade)
+void MaAdxRb::updateTrade(Trade *trade)
 {
     if (trade) {
         m_breakeven.updateΤrade(handler()->timestamp(), lastTimestamp(), trade);
@@ -346,7 +333,7 @@ void MaIchimoku::updateTrade(Trade *trade)
     }
 }
 
-void MaIchimoku::updateStats()
+void MaAdxRb::updateStats()
 {
     o3d::Double performance = 0.0;
     o3d::Double drawDownRate = 0.0;
@@ -359,22 +346,22 @@ void MaIchimoku::updateStats()
     setActiveStats(performance, drawDownRate, drawDown, pending, actives);
 }
 
-void MaIchimoku::orderEntry(
+void MaAdxRb::orderEntry(
         o3d::Double timestamp,
-        o3d::Double timeframe,
+        o3d::Int32 barSize,
         o3d::Int32 direction,
         Order::OrderType orderType,
         o3d::Double price,
         o3d::Double takeProfitPrice,
         o3d::Double stopLossPrice)
 {
-    Trade* trade = handler()->traderProxy()->createTrade(market(), tradeType(), timeframe);
+    Trade* trade = handler()->traderProxy()->createTrade(market(), tradeType(), barSize);
     if (trade) {
         m_tradeManager->addTrade(trade);
 
         o3d::Double quantity = baseQuantity();
 
-        // query open @todo order type
+        // query open
         trade->open(this, direction, orderType, price, quantity, takeProfitPrice, stopLossPrice);
 
         o3d::String msg = o3d::String("#{0} {1} at {2} sl={3} tp={4} q={5} {6}%/{7}%")
@@ -386,11 +373,11 @@ void MaIchimoku::orderEntry(
                           .arg(market()->formatQty(quantity))
                           .arg(trade->estimateTakeProfitRate() * 100, 2)
                           .arg(trade->estimateStopLossRate() * 100, 2);
-        log(timeframe, "trade-entry", msg);
+        log(barSize, "trade-entry", msg);
     }
 }
 
-void MaIchimoku::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price)
+void MaAdxRb::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price)
 {
     if (trade) {
         if (price > 0.0) {
@@ -407,11 +394,47 @@ void MaIchimoku::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double pric
     }
 }
 
-TradeSignal MaIchimoku::computeSignal(o3d::Double timestamp)
+TradeSignal MaAdxRb::computeSignal(o3d::Double timestamp)
 {
-    TradeSignal signal(5/*m_bbAnalyser->timeframe()*/, timestamp);
+    TradeSignal signal(m_sigAnalyser->barSize(), timestamp);
 
-    // @todo
+    if (m_trendAnalyser->trend() > 0) {
+        if (m_sigAnalyser->adx() > m_adxSig) {
+            if (m_sigAnalyser->sig() > 0 && m_sigAnalyser->adx() <= ADX_MAX) {
+                if (m_confAnalyser->confirmation() > 0) {
+                    // keep only one signal per timeframe
+                    if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
+                        signal.setEntry();
+                        signal.setLong();
+
+                        m_entry.updateSignal(signal, market());
+                        // signal.setPrice(m_confAnalyser->lastPrice());
+
+                        signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_targetScale));
+                        signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_targetScale, m_riskReward));
+                    }
+                }
+            }
+        }
+    } else if (m_trendAnalyser->trend() < 0) {
+        if (m_sigAnalyser->adx() > m_adxSig) {
+            if (m_sigAnalyser->sig() < 0 && m_sigAnalyser->adx() <= ADX_MAX) {
+                if (m_confAnalyser->confirmation() < 0) {
+                    // keep only one signal per timeframe
+                    if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
+                        signal.setEntry();
+                        signal.setShort();
+
+                        m_entry.updateSignal(signal, market());
+                        // signal.setPrice(m_confAnalyser->lastPrice());
+
+                        signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_targetScale));
+                        signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_targetScale, m_riskReward));
+                    }
+                }
+            }
+        }
+    }
 
     if (signal.valid()) {
         m_stopLoss.updateSignal(signal);

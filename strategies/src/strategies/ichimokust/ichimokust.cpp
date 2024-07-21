@@ -195,7 +195,7 @@ void IchimokuSt::prepareMarketData(Connector *connector, Database *db, o3d::Doub
         o3d::Double dstTs = fromTs - 1.0;
         o3d::Int32 lastN = 0;
 
-        adjustOhlcFetchRange(depth, srcTs, dstTs, lastN);
+        adjustOhlcFetchRange(analyser->history(), analyser->depth(), srcTs, dstTs, lastN);
 
         if (lastN > 0) {
             k = handler()->database()->ohlc()->fetchOhlcArrayLastTo(
@@ -307,6 +307,12 @@ void IchimokuSt::compute(o3d::Double timestamp)
 
         if (m_tradeManager->numTrades() >= maxTrades() && numClosed < 1) {
             doOrder = false;
+        }
+
+        if (hasTradingSessions()) {
+            if (!allowedTradingSession(timestamp)) {
+                doOrder = false;
+            }
         }
 
         if (doOrder) {

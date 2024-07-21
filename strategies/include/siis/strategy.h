@@ -322,7 +322,9 @@ protected:
     void addAskOhlcDataSource(o3d::Double timeframe);
     void addOrderBookDataSource(o3d::Int32 depth);
 
-    void adjustOhlcFetchRange(o3d::Int32 depth, o3d::Double &fromTs, o3d::Double &toTs, o3d::Int32 &nLast) const;
+    void adjustOhlcFetchRange(o3d::Int32 history, o3d::Int32 depth,
+                              o3d::Double &fromTs, o3d::Double &toTs,
+                              o3d::Int32 &nLast) const;
 
     //
     // state

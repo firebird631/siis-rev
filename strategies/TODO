@@ -1,9 +1,6 @@
 Urgent
 ======
 
-- trading session depuis config
-- check trading session
-
 - log rotate ou a minima taille max
 - exit-fee doit être multiplié par le raw PNL
 
@@ -56,6 +53,8 @@ Prioritaire
 
 Secondaire
 ==========
+
+- config trading session per trader::market (now only global per profile)
 
 - ajouter trade operation (step stop loss)
 - ajouter trading region (range, channel)

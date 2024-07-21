@@ -60,11 +60,13 @@ public:
 
     /**
      * @brief createTrade Create a new trade object according to the type of the market.
+     * @param timeframe Timeframe in seconds or nominal size of a bar in ticks or pips.
      */
     Trade* createTrade(Market *market, Trade::Type tradeType, o3d::Double timeframe);
 
     /**
      * @brief createTrade Not the prefered way because it have to lookup for the market trought the handler.
+     * @param timeframe Timeframe in seconds or nominal size of a bar in ticks or pips.
      */
     Trade* createTrade(const o3d::CString &marketId, Trade::Type tradeType, o3d::Double timeframe);
 

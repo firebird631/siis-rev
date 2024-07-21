@@ -1,14 +1,14 @@
 /**
- * @brief SiiS MAADX strategy trend analyser.
+ * @brief SiiS MAADX range-bar strategy trend analyser.
  * @copyright Copyright (C) 2023 SiiS
  * @author Frederic SCHERMA (frederic.scherma@gmail.com)
  * @date 2023-04-24
  */
 
-#ifndef SIIS_MAADXTRENDANALYSER_H
-#define SIIS_MAADXTRENDANALYSER_H
+#ifndef SIIS_MAADXRBTRENDANALYSER_H
+#define SIIS_MAADXRBTRENDANALYSER_H
 
-#include "siis/analysers/timeframebaranalyser.h"
+#include "siis/analysers/rangebaranalyser.h"
 
 #include "siis/indicators/hma/hma.h"
 
@@ -16,25 +16,24 @@
 namespace siis {
 
 /**
- * @brief SiiS MAADX strategy trend analyser.
+ * @brief SiiS MAADX range-bar strategy trend analyser.
  * @author Frederic Scherma
  * @date 2023-04-24
  * Trend analyser
  */
-class SIIS_API MaAdxTrendAnalyser : public TimeframeBarAnalyser
+class SIIS_API MaAdxRbTrendAnalyser : public RangeBarAnalyser
 {
 public:
 
-    MaAdxTrendAnalyser(
+    MaAdxRbTrendAnalyser(
             Strategy *strategy,
             const o3d::String &name,
-            o3d::Double timeframe,
-            o3d::Double sourceTimeframe,
+            o3d::Int32 rangeSize,
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod=Price::PRICE_CLOSE);
 
-    virtual ~MaAdxTrendAnalyser() override;
+    virtual ~MaAdxRbTrendAnalyser() override;
 
     virtual o3d::String typeName() const override;
 
@@ -55,4 +54,4 @@ private:
 
 } // namespace siis
 
-#endif // SIIS_MAADXTRENDANALYSER_H
+#endif // SIIS_MAADXRBTRENDANALYSER_H

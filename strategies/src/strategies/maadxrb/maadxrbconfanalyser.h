@@ -1,40 +1,40 @@
 /**
- * @brief SiiS MAADX strategy trend analyser.
+ * @brief SiiS MAADX range-bar strategy confirmation analyser.
  * @copyright Copyright (C) 2023 SiiS
  * @author Frederic SCHERMA (frederic.scherma@gmail.com)
  * @date 2023-04-24
  */
 
-#ifndef SIIS_MAADXTRENDANALYSER_H
-#define SIIS_MAADXTRENDANALYSER_H
+#ifndef SIIS_MAADXRBCONFANALYSER_H
+#define SIIS_MAADXRBCONFANALYSER_H
 
-#include "siis/analysers/timeframebaranalyser.h"
+#include "siis/analysers/rangebaranalyser.h"
 
 #include "siis/indicators/hma/hma.h"
+#include "siis/indicators/adx/adx.h"
 
 
 namespace siis {
 
 /**
- * @brief SiiS MAADX strategy trend analyser.
+ * @brief SiiS MAADX range-bar strategy confirmation analyser.
  * @author Frederic Scherma
  * @date 2023-04-24
- * Trend analyser
+ * Confirmation analyser
  */
-class SIIS_API MaAdxTrendAnalyser : public TimeframeBarAnalyser
+class SIIS_API MaAdxRbConfAnalyser : public RangeBarAnalyser
 {
 public:
 
-    MaAdxTrendAnalyser(
+    MaAdxRbConfAnalyser(
             Strategy *strategy,
             const o3d::String &name,
-            o3d::Double timeframe,
-            o3d::Double sourceTimeframe,
+            o3d::Int32 rangeSize,
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod=Price::PRICE_CLOSE);
 
-    virtual ~MaAdxTrendAnalyser() override;
+    virtual ~MaAdxRbConfAnalyser() override;
 
     virtual o3d::String typeName() const override;
 
@@ -42,17 +42,13 @@ public:
     virtual void terminate() override;
     virtual void compute(o3d::Double timestamp, o3d::Double lastTimestamp) override;
 
-    inline o3d::Int32 trend() const { return m_trend; }
+    inline o3d::Int32 confirmation() const { return m_confirmation; }
 
 private:
 
-    Hma m_slow_h_ma;
-    Hma m_slow_m_ma;
-    Hma m_slow_l_ma;
-
-    o3d::Int32 m_trend;
+    o3d::Int32 m_confirmation;
 };
 
 } // namespace siis
 
-#endif // SIIS_MAADXTRENDANALYSER_H
+#endif // SIIS_MAADXCONFANALYSER_H
