@@ -549,7 +549,15 @@ TradeSignal Pullback::computeSignal(o3d::Double timestamp)
 
         m_stopLoss.updateSignal(signal);
 
+        signal.setEntryTimeout(m_entry.timeout());
+
+        if (!m_entry.checkMaxSpread(market())) {
+            // cancel signal because of non typical spread
+            signal.reset();
+        }
+
         if (m_minProfit > 0.0 && signal.estimateTakeProfitRate() < m_minProfit) {
+            // not enought profit
             signal.reset();
         }
     }

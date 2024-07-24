@@ -353,7 +353,7 @@ void Backtest::log(const o3d::String &unit, const o3d::String &marketId, const o
     dt.fromTime(timestamp(), true);
 
     if (unit.isEmpty()) {
-        m_displayer->display(channel, o3d::String("[{0}] <{2}> : {3}").arg(dt.buildString("%Y-%m-%d %H:%M:%S"))
+        m_displayer->display(channel, o3d::String("[{0}] <{1}> : {2}").arg(dt.buildString("%Y-%m-%d %H:%M:%S"))
                                           .arg(marketId).arg(msg), type);
     } else {
         m_displayer->display(channel, o3d::String("[{0}] @{1} <{2}> : {3}").arg(dt.buildString("%Y-%m-%d %H:%M:%S"))

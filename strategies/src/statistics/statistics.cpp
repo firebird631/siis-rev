@@ -336,12 +336,12 @@ void GlobalStatistics::computeStats(const AccountStatistics &accountStats)
         drawDownsSqrPct.push_back(o3d::sqr(cumPnlPct - maxPnlPct));
         drawDownsSqr.push_back(o3d::sqr(cumPnl - maxPnl));
 
-        // MFE, MAE, ETD (gross value, no trade fees)
+        // MFE (positive), MAE (negative), ETD (negative) (gross value, no trade fees)
         mfePct.addSample(trade.direction * (trade.bestPrice - trade.entryPrice) / trade.entryPrice);
-        maePct.addSample(trade.direction * (trade.entryPrice - trade.worstPrice) / trade.entryPrice);
-        etdPct.addSample(trade.direction * (trade.bestPrice - trade.exitPrice) / trade.exitPrice);
+        maePct.addSample(trade.direction * (trade.worstPrice - trade.entryPrice) / trade.entryPrice);
+        etdPct.addSample(trade.direction * (trade.exitPrice - trade.bestPrice) / trade.bestPrice);
 
-        // efficiency
+        // efficiency (-1..1)
         eefPct.addSample((trade.bestPrice - trade.entryPrice) / (trade.bestPrice - trade.worstPrice));
         xefPct.addSample((trade.exitPrice - trade.worstPrice) / (trade.bestPrice - trade.worstPrice));
         tefPct.addSample((trade.exitPrice - trade.entryPrice) / (trade.bestPrice - trade.worstPrice));

@@ -43,27 +43,22 @@ o3d::Double siis::timeframeFromStr(const o3d::String &tf)
 
 o3d::String siis::timeframeToStr(o3d::Double tf)
 {
-    switch (static_cast<o3d::Int32>(tf)) {
-        case 0: return "t";
-        case 1: return "1s";
-        case 10: return "10s";
-        case 60: return "1m";
-        case 2*60: return "2m";
-        case 3*60: return "3m";
-        case 5*60: return "5m";
-        case 10*60: return "10m";
-        case 15*60: return "15m";
-        case 60*60: return "1h";
-        case 2*60*60: return "2h";
-        case 3*60*60: return "3h";
-        case 4*60*60: return "4h";
-        case 6*60*60: return "6h";
-        case 8*60*60: return "8h";
-        case 24*60*60: return "1d";
-        case 2*24*60*60: return "2d";
-        case 3*24*60*60: return "3d";
-        case 7*24*60*60: return "1w";
-        case 30*24*60*60: return "1m";
+    if (tf == TF_TICK) {
+        return "t";
+    } else if (tf > TF_TICK && tf < TF_MIN) {
+        return o3d::String::print("%is", static_cast<o3d::Int32>(tf));
+    } else if (tf > TF_MIN && tf < TF_HOUR) {
+        return o3d::String::print("%im", static_cast<o3d::Int32>(tf / TF_MIN));
+    } else if (tf > TF_HOUR && tf < TF_DAY) {
+        return o3d::String::print("%ih", static_cast<o3d::Int32>(tf / TF_HOUR));
+    } else if (tf > TF_DAY && tf < TF_WEEK) {
+        return o3d::String::print("%id", static_cast<o3d::Int32>(tf / TF_DAY));
+    } else if (tf > TF_WEEK && tf < TF_MONTH) {
+        return o3d::String::print("%iw", static_cast<o3d::Int32>(tf / TF_WEEK));
+    } else if (tf > TF_MONTH && tf < TF_YEAR) {
+        return o3d::String::print("%iM", static_cast<o3d::Int32>(tf / TF_MONTH));
+    } else if (tf > TF_YEAR) {
+        return o3d::String::print("%iy", static_cast<o3d::Int32>(tf / TF_YEAR));
     }
 
     return "";
