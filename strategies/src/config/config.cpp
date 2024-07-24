@@ -727,7 +727,10 @@ void Config::overwriteLearningFile(const GlobalStatistics &global, const Account
             // root["initial-equity"] = o3d::String::print("%.2f", account.initialEquity).toAscii().getData();
             root["final-equity"] = o3d::String::print("%.2f", account.finalEquity).toAscii().getData();
             root["account-daily-samples"] = samples;
-            root["profit-loss"] = o3d::String::print("%.2f", account.profitLoss).toAscii().getData();
+            // current non-realized PNL
+            root["profit-loss"] = o3d::String::print("%f", account.profitLoss).toAscii().getData();
+            // total realized PNL
+            root["realized-pnl"] = o3d::String::print("%f", account.finalEquity - account.initialEquity).toAscii().getData();
 
             root["best"] = o3d::String::print("%.2f%%", global.best * 100).toAscii().getData();
             root["worst"] = o3d::String::print("%.2f%%", global.worst * 100).toAscii().getData();

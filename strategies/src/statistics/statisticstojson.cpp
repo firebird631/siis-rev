@@ -35,9 +35,9 @@ void StatisticsToJson::dumpsCurrencyStatToken(const CurrencyStatToken &token, Js
 
     output["avg-win-loss-rate"] = round(token.avgWinLossRate, 2);
 
-    output["sharpe-ratio"] = round(token.sharpeRatio, 2);
-    output["sortino-ratio"] = round(token.sortinoRatio, 2);
-    output["ulcer-index"] = round(token.ulcerIndex, 2);
+    output["sharpe-ratio"] = token.sharpeRatio;
+    output["sortino-ratio"] = token.sortinoRatio;
+    output["ulcer-index"] = token.ulcerIndex;
 
     for (const Sampler &sampler : token.samplers) {
         Json::Value samplerOutput;
@@ -53,9 +53,9 @@ void StatisticsToJson::dumpsPercentStatToken(const PercentStatToken &token, Json
 
     output["avg-win-loss-rate"] = round(token.avgWinLossRate, 2);
 
-    output["sharpe-ratio"] = round(token.sharpeRatio, 2);
-    output["sortino-ratio"] = round(token.sortinoRatio, 2);
-    output["ulcer-index"] = round(token.ulcerIndex, 2);
+    output["sharpe-ratio"] = token.sharpeRatio;
+    output["sortino-ratio"] = token.sortinoRatio;
+    output["ulcer-index"] = token.ulcerIndex;
 
     for (const PercentSampler &sampler : token.samplers) {
         Json::Value samplerOutput;
