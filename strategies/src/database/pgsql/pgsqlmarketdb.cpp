@@ -29,7 +29,9 @@ PgSqlMarketDb::PgSqlMarketDb(siis::PgSql *db) :
                                         min_size, max_size, step_size,
                                         min_notional, max_notional, step_notional,
                                         min_price, max_price, step_price,
-                                        maker_fee, taker_fee, maker_commission, taker_commission FROM market
+                                        maker_fee, taker_fee,
+                                        maker_commission, taker_commission,
+                                        flags FROM market
                                     WHERE broker_id = $1 AND market_id = $2)SQL");
 
     // @todo store market data
@@ -77,20 +79,12 @@ o3d::Bool PgSqlMarketDb::fetchMarket(const o3d::String &brokerId, const o3d::Str
     out->setQuoteInfo(query->getOut("quote").toCString(), query->getOut("quote_precision").toInt32());
     out->setSettlementInfo(query->getOut("settlement").toCString(), query->getOut("settlement_precision").toInt32());
     // don't set base quote & settlement display symbol
-    // no have hedging in DB
     // out->setExpiry(query->getOut("expiry").toCString());
 
-    // no have this information in DB
-    o3d::Bool hedging = false;
+    o3d::Int32 flags = query->getOut("flags").toInt32();
 
-    if (out->contract() == Market::CONTRACT_CFD) {
-        hedging = true;
-    } else if (out->contract() == Market::CONTRACT_FUTURE) {
-        if (out->type() != Market::TYPE_CRYPTO) {
-            // except some case that support dual side like as binancefutures but it is like two separates markets
-            hedging = true;
-        }
-    }
+    // hedging is bit 0 from flags
+    o3d::Bool hedging = flags & 0x01;
 
     out->setDetails(query->getOut("contract_size").toDouble(),
                     query->getOut("lot_size").toDouble(),
