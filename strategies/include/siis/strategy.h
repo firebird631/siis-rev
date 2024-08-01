@@ -288,10 +288,16 @@ public:
     o3d::Double timezone() const { return m_timezone; }
 
     /**
-     * @brief sessionOffset Market trading sessions offset.
+     * @brief sessionOffset Market trading sessions offset from UTC 00:00 in seconds.
      * @return
      */
     o3d::Double sessionOffset() const { return m_sessionOffset; }
+
+    /**
+     * @brief sessionDuration Market trading sessions duration from session offset in seconds.
+     * @return
+     */
+    o3d::Double sessionDuration() const { return m_sessionOffset; }
 
     /**
      * @brief hasTradingSessions True if one or more trading sessions are defined.
@@ -348,6 +354,7 @@ protected:
 
     void setTimezone(o3d::Double tz);
     void setSessionOffset(o3d::Double offset);
+    void setSessionDuration(o3d::Double duration);
     void addTradingSession(o3d::Int8 dayOfWeek, o3d::Double fromTime, o3d::Double toTime);
 
 private:
@@ -385,8 +392,9 @@ private:
 
     o3d::Double m_baseQuantity;
 
-    o3d::Double m_timezone;        //!< market timezone UTC+N
-    o3d::Double m_sessionOffset;   //!< day session offset from 00:00 in seconds
+    o3d::Double m_timezone;         //!< market timezone UTC+N
+    o3d::Double m_sessionOffset;    //!< day session offset from 00:00 in seconds
+    o3d::Double m_sessionDuration;  //!< day session duration from session offset in seconds
 
     //! allowed trading session (empty mean anytime) else must be explicit. each session is a TradingSession model.
     std::vector<TradingSession> m_tradingSessions;

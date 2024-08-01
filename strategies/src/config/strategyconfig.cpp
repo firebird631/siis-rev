@@ -84,6 +84,10 @@ static void update(Json::Value& a, const Json::Value& b)
             // special case
             joinRightToLeft(a[key], b[key]);
             continue;
+        } else if (key == "markets") {
+            // special case
+            joinRightToLeft(a[key], b[key]);
+            continue;
         }
 
         if (!a.isMember(key)) {
@@ -141,20 +145,6 @@ static void modifyDict(Json::Value *root, o3d::StringTokenizer &keysOrIndexes, J
                 return;
             }
         }
-    }
-}
-
-static void mergeWithDotFormat(Json::Value *root, const Json::Value &b)
-{
-    if (!root->isObject() || !b.isObject()) return;
-
-    for (const auto& key : b.getMemberNames()) {
-        if(b[key].type() == Json::objectValue || b[key].type() == Json::arrayValue) {
-            continue;
-        }
-
-        o3d::StringTokenizer parts(o3d::String(key.c_str()), ".");
-        modifyDict(root, parts, b[key]);
     }
 }
 
@@ -306,6 +296,23 @@ o3d::Bool StrategyConfig::parseOverrides(const Config *config)
     return true;
 }
 
+o3d::Bool StrategyConfig::parseMarketOverrides(const o3d::CString &marketId)
+{
+    if (m_root->isMember("markets")) {
+        Json::Value markets = m_root->get("markets", Json::Value());
+        if (markets.isMember(marketId.getData())) {
+            Json::Value market = markets.get(marketId.getData(), Json::Value());
+            if (!market.empty() && market.isObject()) {
+                // found an override for this market
+                StrategyConfig::mergeWithDotFormat(m_root, market);
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 o3d::Double StrategyConfig::baseTimeframe() const
 {
     if (m_root->get("base-timeframe", 0).isDouble() || m_root->get("base-timeframe", 0).isIntegral()) {
@@ -368,6 +375,21 @@ o3d::Int32 StrategyConfig::barSizeAsInt(Json::Value &parent, const o3d::String &
         return o3d::String(parent.get(key.toUtf8().getData(), "0").asString().c_str()).toInt32();
     } else {
         return 0;
+    }
+}
+
+void StrategyConfig::mergeWithDotFormat(Json::Value *root, const Json::Value &b)
+{
+    if (!root->isObject() || !b.isObject()) return;
+
+    for (const auto& key : b.getMemberNames()) {
+        // keep array needed for "sessions.trading" if an array
+        if(b[key].type() == Json::objectValue || (b[key].type() == Json::arrayValue && key != "sessions.trading")) {
+            continue;
+        }
+
+        o3d::StringTokenizer parts(o3d::String(key.c_str()), ".");
+        modifyDict(root, parts, b[key]);
     }
 }
 

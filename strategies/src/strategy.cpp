@@ -38,7 +38,8 @@ Strategy::Strategy(Handler *handler, const o3d::String &identifier) :
     m_tradeType(Trade::TYPE_ASSET),
     m_baseQuantity(1.0),
     m_timezone(0.0),
-    m_sessionOffset(0.0)
+    m_sessionOffset(0.0),
+    m_sessionDuration(0.0)
 {
     m_properties["name"] = "undefined";
     m_properties["author"] = "undefined";
@@ -143,6 +144,9 @@ static void tradingSessionFromStr(Json::Value &trading, std::vector<TradingSessi
 
 void Strategy::initBasicsParameters(StrategyConfig &conf)
 {
+    // eventually parse per market overrides
+    conf.parseMarketOverrides(market()->marketId());
+
     m_reversal = conf.root().get("reversal", true).asBool();
     m_hedging = conf.root().get("hedging", false).asBool();
     m_allowShort = conf.root().get("allow-short", true).asBool();
@@ -159,6 +163,7 @@ void Strategy::initBasicsParameters(StrategyConfig &conf)
 
         m_timezone = sessions.get("timezone", 0.0).asDouble();
         m_sessionOffset = durationFromStr(sessions.get("offset", 0.0).asString().c_str());
+        m_sessionDuration = durationFromStr(sessions.get("duration", 0.0).asString().c_str());
 
         if (sessions.isMember("trading")) {
             Json::Value trading = sessions.get("trading", Json::Value());
@@ -224,6 +229,11 @@ void Strategy::setTimezone(o3d::Double tz)
 void Strategy::setSessionOffset(o3d::Double offset)
 {
     m_sessionOffset = offset;
+}
+
+void Strategy::setSessionDuration(o3d::Double duration)
+{
+    m_sessionDuration = duration;
 }
 
 void Strategy::addTradingSession(o3d::Int8 dayOfWeek, o3d::Double fromTime, o3d::Double toTime)

@@ -8,13 +8,14 @@ Urgent
 Prioritaire
 ===========
 
-- Implementer offset sur breakeven.
-
 - GlobalStatistics sortino ratio ne peut fonctionner sans le maxDrawDown du VirtualAccount
     - Ca implique de faire les calcules PNL, balance... dans le LocalConnector
     - A défaut temporarairement on peut voir pour prendre le DD/MDD par stratégie
 
-- ReversalBar, TickBar, VolumeBar
+- TickBar (t)
+- VolumeBar (v)
+- Renko ATR et %
+- UniRenko (x,y,z)
 
 - Unification des strategies timeframe/rangebar...
     - Probleme des classes specialisée des Analysers
@@ -26,7 +27,6 @@ Prioritaire
 - taille des trades
 - notional-value pour margin trade, position trade, asset trade
 
-- gestion des statistiques par account (paper trader local)
 - verifier/fixer les size sur connectormessagereceivetickaggreged.cpp
 
 - events to REDIS
@@ -54,11 +54,8 @@ Prioritaire
 Secondaire
 ==========
 
-- les methodes de log prennent un double timeframe mais ce n'est pas consistant avec les range-bar et autre...
-   - sauf qu'un seul parametre peut être insufisant donc soit c'est un objet de temporalité soit on doit filer une
-     chaine et donc formatter en amont ou avec l'analyser peut etre
-
-- config trading session per trader::market (now only global per profile)
+- config trading session par market (actuellement seul le global et chargé pour tous les markets)
+   - pas important car pour l'instant on fait que backtest un market à la fois
 
 - ajouter trade operation (step stop loss)
 - ajouter trading region (range, channel)
@@ -99,9 +96,9 @@ Secondaire
   - implementer coté strategie
     - order create, update, delete
     - position update, close
-    - binance spot, kraken spot, bitmex futures, ig CFD
+    - binance spot, kraken spot, bitmex futures, ig CFD...
 
-- live handler
+- completer le live handler
 
 
 Tertiaire
@@ -113,8 +110,10 @@ Tertiaire
 - indicators :
   - volume profile
   - composite volume profile
+  - vwap
+  - foot-print
 
-- eventuellement avoir une table VP comme on a pour les OHLC mais donc fixé pour une temporalité ou plusieurs
+- eventuellement avoir une table VP comme on a pour les OHLC mais donc fixée pour une temporalité ou plusieurs
 
 - tick-bar based strategy (non timeframe based)
   - descente de gradient stochastique (SGD)
@@ -139,9 +138,10 @@ Tertiaire
 Pas important
 =============
 
-- connecteur mysql pas important
+- DAO mysql pas important
 
 - FIFO margin trade
   - open, close, remove, modify tp, modify sl, order events, position events
 
-- learning / trainer / optimizer
+- learning (trainer), optimizer
+  - cette partie est actuellement gérée par la version Python

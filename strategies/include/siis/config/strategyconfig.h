@@ -255,6 +255,13 @@ public:
     o3d::Bool parseOverrides(const Config *config);
 
     /**
+     * @brief parseMarketOverrides : Load market specific overrides.
+     * @param marketId
+     * @return
+     */
+    o3d::Bool parseMarketOverrides(const o3d::CString &marketId);
+
+    /**
      * @brief root Strategy parameters root.
      * @return
      */
@@ -293,6 +300,8 @@ public:
 
     o3d::Double timeframeAsDouble(Json::Value &parent, const o3d::String &key) const;
     o3d::Int32 barSizeAsInt(Json::Value &parent, const o3d::String &key) const;
+
+    static void mergeWithDotFormat(Json::Value *root, const Json::Value &b);
 
 private:
 
