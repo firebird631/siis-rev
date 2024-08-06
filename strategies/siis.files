@@ -139,6 +139,7 @@ include/siis/display/ncursesdisplayer.h
 include/siis/display/ncursesdisplayer.h
 include/siis/display/ttydisplayer.h
 include/siis/display/ttydisplayer.h
+include/siis/economicevent.h
 include/siis/handler.h
 include/siis/handler.h
 include/siis/indicators/adx/adx.h
@@ -150,6 +151,7 @@ include/siis/indicators/bbands/bbands.h
 include/siis/indicators/bbands/bbands.h
 include/siis/indicators/bbawe/bbawe.h
 include/siis/indicators/cci/cci.h
+include/siis/indicators/cumulativevolumedelta/cvd.h
 include/siis/indicators/dmi/dmi.h
 include/siis/indicators/donchian/donchian.h
 include/siis/indicators/donchian/donchian.h
@@ -209,6 +211,9 @@ include/siis/indicators/volume/volume.h
 include/siis/indicators/volume/volume.h
 include/siis/indicators/volume/volume.h
 include/siis/indicators/volume/volume.h
+include/siis/indicators/volumeprofile/volumeprofile.h
+include/siis/indicators/volumeprofile/volumeprofiledata.h
+include/siis/indicators/vwap/vwap.h
 include/siis/indicators/vwma/vwma.h
 include/siis/indicators/vwma/vwma.h
 include/siis/indicators/vwma/vwma.h
@@ -547,6 +552,7 @@ src/indicators/bbands/bbands.cpp
 src/indicators/bbands/bbands.cpp
 src/indicators/bbawe/bbawe.cpp
 src/indicators/cci/cci.cpp
+src/indicators/cumulativevolumedelta/cvd.cpp
 src/indicators/dmi/dmi.cpp
 src/indicators/donchian/donchian.cpp
 src/indicators/donchian/donchian.cpp
@@ -614,6 +620,8 @@ src/indicators/volume/volume.cpp
 src/indicators/volume/volume.cpp
 src/indicators/volume/volume.cpp
 src/indicators/volume/volume.cpp
+src/indicators/volumeprofile/volumeprofile.cpp
+src/indicators/vwap/vwap.cpp
 src/indicators/vwma/vwma.cpp
 src/indicators/vwma/vwma.cpp
 src/indicators/vwma/vwma.cpp

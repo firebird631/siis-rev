@@ -1,23 +1,23 @@
 Urgent
 ======
 
-- log rotate ou a minima taille max
+- log rotate ou a minima taille max (voir dans o3d...)
 - exit-fee doit être multiplié par le raw PNL
 
 
 Prioritaire
 ===========
 
-- GlobalStatistics sortino ratio ne peut fonctionner sans le maxDrawDown du VirtualAccount
-    - Ca implique de faire les calcules PNL, balance... dans le LocalConnector
-    - A défaut temporarairement on peut voir pour prendre le DD/MDD par stratégie
+- EconomicEvent model
+  - DAO Economic Event
+  - EconomicEvent Stream(er) (like TickStream)
 
 - TickBar (t)
 - VolumeBar (v)
 - Renko ATR et %
 - UniRenko (x,y,z)
 
-- Unification des strategies timeframe/rangebar...
+- Unification ou non des strategies timeframe/rangebar ?
     - Probleme des classes specialisée des Analysers
 
 - IndMarginTrade::updateStats complete PNL
@@ -54,13 +54,13 @@ Prioritaire
 Secondaire
 ==========
 
-- config trading session par market (actuellement seul le global et chargé pour tous les markets)
-   - pas important car pour l'instant on fait que backtest un market à la fois
-
 - ajouter trade operation (step stop loss)
 - ajouter trading region (range, channel)
 
 - trade loads/dumps
+
+- ajouter a daily limit handler
+    - comment on rajouter des handler dans cette version, à quel niveau on les gére
 
 - tout comme la version Python mettre un timestamp sur les modification des trades (sl/tp) pour éviter de saturer
   l'API en cas de call successifs
@@ -108,10 +108,11 @@ Tertiaire
   - open, close, remove, modify tp, modify sl, order events, position events
 
 - indicators :
-  - volume profile
+  - volume profile (WIP)
   - composite volume profile
   - vwap
-  - foot-print
+  - cumulative volume delta
+  - foot-print, delta, divergence
 
 - eventuellement avoir une table VP comme on a pour les OHLC mais donc fixée pour une temporalité ou plusieurs
 
@@ -127,6 +128,8 @@ Tertiaire
   - postgresql save market liquidation data
   - postgresql save market info data
   - postgresql save OHLCs data
+  - postgresql load economic event
+  - postgresql save economic event
 
 - replication mode
   - mode live mais connexion à une source de donnée en WebSocket ou REST et simples signaux buy/sell/update
@@ -138,7 +141,7 @@ Tertiaire
 Pas important
 =============
 
-- DAO mysql pas important
+- DAOs mysql
 
 - FIFO margin trade
   - open, close, remove, modify tp, modify sl, order events, position events

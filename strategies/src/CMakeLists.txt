@@ -73,6 +73,7 @@ set(STRATEGY_LIB_CXX
     indicators/bbands/bbands.cpp
     indicators/bbawe/bbawe.cpp
     indicators/cci/cci.cpp
+    indicators/cumulativevolumedelta/cvd.cpp
     indicators/donchian/donchian.cpp
     indicators/dmi/dmi.cpp
     indicators/ema/ema.cpp
@@ -95,7 +96,9 @@ set(STRATEGY_LIB_CXX
     indicators/td9/td9.cpp
     indicators/triangle/triangle.cpp
     indicators/volume/volume.cpp
+    indicators/volumeprofile/volumeprofile.cpp
     indicators/vwma/vwma.cpp
+    indicators/vwap/vwap.cpp
     indicators/wma/wma.cpp
     indicators/zigzag/zigzag.cpp
     learning/learning.cpp
