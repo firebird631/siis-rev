@@ -29,7 +29,10 @@ public:
     // CLS_CUMULATIVE
 
     VolumeProfile(const o3d::String &name, o3d::Double timeframe,
-                  o3d::Double sensibility=1.0, o3d::Double valueArea=70.0, o3d::Bool computePeaksAndValleys=true);
+                  o3d::Int32 historySize=10,
+                  o3d::Double sensibility=1.0,
+                  o3d::Double valueArea=70.0,
+                  o3d::Bool computePeaksAndValleys=true);
 
     VolumeProfile(const o3d::String &name, o3d::Double timeframe, IndicatorConfig conf);
 
@@ -53,6 +56,7 @@ private:
 
     // @todo market tick size, scale, precision (@see rangebar)
 
+    o3d::Int32 m_historySize;
     o3d::Double m_sensibility;
 
     o3d::Double m_valueArea;

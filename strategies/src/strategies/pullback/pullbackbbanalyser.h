@@ -10,7 +10,7 @@
 
 #include "siis/analysers/timeframebaranalyser.h"
 
-#include "siis/indicators/bbands/bbands.h"
+#include "siis/indicators/bollinger/bollinger.h"
 
 namespace siis {
 

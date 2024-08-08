@@ -277,14 +277,22 @@ void GlobalStatistics::computeStats(const AccountStatistics &accountStats)
         // max time to recover (by percentage)
         if (cumPnlPct >= maxPnlPct) {
             maxPnlPct = cumPnlPct;
-            percent.maxTimeToRecover = o3d::max(percent.maxTimeToRecover, trade.exitTimestamp - maxPnlPctTs);
+
+            if (maxPnlPctTs > 0) {
+                percent.maxTimeToRecover = o3d::max(percent.maxTimeToRecover, trade.exitTimestamp - maxPnlPctTs);
+            }
+
             maxPnlPctTs = trade.exitTimestamp;
         }
 
         // max time to recover (by currency)
         if (cumPnl >= maxPnl) {
             maxPnl = cumPnl;
-            currency.maxTimeToRecover = o3d::max(currency.maxTimeToRecover, trade.exitTimestamp - maxPnlTs);
+
+            if (maxPnlTs > 0) {
+                currency.maxTimeToRecover = o3d::max(currency.maxTimeToRecover, trade.exitTimestamp - maxPnlTs);
+            }
+
             maxPnlTs = trade.exitTimestamp;
         }
 

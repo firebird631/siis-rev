@@ -14,7 +14,7 @@ using o3d::Debug;
 
 
 VolumeProfile::VolumeProfile(const o3d::String &name,
-                             o3d::Double timeframe,
+                             o3d::Double timeframe, o3d::Int32 history,
                              o3d::Double sensibility,
                              o3d::Double valueArea,
                              o3d::Bool computePeaksAndValleys) :

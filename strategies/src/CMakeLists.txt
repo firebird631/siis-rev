@@ -69,8 +69,9 @@ set(STRATEGY_LIB_CXX
     display/ncursesdisplayer.cpp
     display/ttydisplayer.cpp
     indicators/atr/atr.cpp
+    indicators/atrsr/atrsr.cpp
     indicators/adx/adx.cpp
-    indicators/bbands/bbands.cpp
+    indicators/bollinger/bollinger.cpp
     indicators/bbawe/bbawe.cpp
     indicators/cci/cci.cpp
     indicators/cumulativevolumedelta/cvd.cpp
@@ -83,7 +84,7 @@ set(STRATEGY_LIB_CXX
     indicators/kahlmanfilter/kahlmanfilter.cpp
     indicators/macd/macd.cpp
     indicators/mama/mama.cpp
-    indicators/mmt/mmt.cpp
+    indicators/momentum/momentum.cpp
     indicators/price/price.cpp
     indicators/pivotpoint/pivotpoint.cpp
     indicators/rsi/rsi.cpp

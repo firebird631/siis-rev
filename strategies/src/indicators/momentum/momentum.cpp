@@ -5,7 +5,7 @@
  * @date 2019-03-19
  */
 
-#include "siis/indicators/mmt/mmt.h"
+#include "siis/indicators/momentum/momentum.h"
 #include "siis/utils/common.h"
 
 #include <ta-lib/ta_func.h>
@@ -14,7 +14,7 @@ using namespace siis;
 using o3d::Logger;
 using o3d::Debug;
 
-Mmt::Mmt(const o3d::String &name, o3d::Double timeframe, o3d::Int32 len) :
+Momentum::Momentum(const o3d::String &name, o3d::Double timeframe, o3d::Int32 len) :
     Indicator(name, timeframe),
     m_len(len),
     m_prev(0.0),
@@ -22,7 +22,7 @@ Mmt::Mmt(const o3d::String &name, o3d::Double timeframe, o3d::Int32 len) :
 {
 }
 
-Mmt::Mmt(const o3d::String &name, o3d::Double timeframe, IndicatorConfig conf) :
+Momentum::Momentum(const o3d::String &name, o3d::Double timeframe, IndicatorConfig conf) :
     Indicator(name, timeframe),
     m_len(0),
     m_prev(0.0),
@@ -35,7 +35,7 @@ Mmt::Mmt(const o3d::String &name, o3d::Double timeframe, IndicatorConfig conf) :
     }
 }
 
-void Mmt::setConf(IndicatorConfig conf)
+void Momentum::setConf(IndicatorConfig conf)
 {
     if (conf.data().isObject()) {
         m_len = conf.data().get("len", 20).asInt();
@@ -44,7 +44,7 @@ void Mmt::setConf(IndicatorConfig conf)
     }
 }
 
-void Mmt::compute(o3d::Double timestamp, const DataArray &price)
+void Momentum::compute(o3d::Double timestamp, const DataArray &price)
 {
     o3d::Int32 lb = lookback();
     if (price.getSize() <= lb) {
@@ -69,7 +69,7 @@ void Mmt::compute(o3d::Double timestamp, const DataArray &price)
     done(timestamp);
 }
 
-o3d::Int32 Mmt::lookback() const
+o3d::Int32 Momentum::lookback() const
 {
     return m_len;  // ::TA_MOM_Lookback(m_len);
 }

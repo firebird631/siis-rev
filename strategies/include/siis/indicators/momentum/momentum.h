@@ -14,25 +14,25 @@
 namespace siis {
 
 /**
- * @brief SiiS simple moving average indicator.
+ * @brief SiiS momentum indicator.
  * @author Frederic Scherma
  * @date 2019-03-15
  */
-class SIIS_API Mmt : public Indicator
+class SIIS_API Momentum : public Indicator
 {
 public:
 
     // TYPE_TREND
     // CLS_OSCILLATOR
 
-    Mmt(const o3d::String &name, o3d::Double timeframe, o3d::Int32 len=20);
-    Mmt(const o3d::String &name, o3d::Double timeframe, IndicatorConfig conf);
+    Momentum(const o3d::String &name, o3d::Double timeframe, o3d::Int32 len=20);
+    Momentum(const o3d::String &name, o3d::Double timeframe, IndicatorConfig conf);
 
     void setConf(IndicatorConfig conf);
 
     o3d::Int32 len() const { return m_len; }
 
-    const DataArray& mmt() const { return m_mmt; }
+    const DataArray& momentum() const { return m_mmt; }
 
     o3d::Double last() const { return m_last; }
     o3d::Double prev() const { return m_prev; }

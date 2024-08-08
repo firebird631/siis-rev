@@ -5,7 +5,7 @@
  * @date 2019-03-19
  */
 
-#include "siis/indicators/bbands/bbands.h"
+#include "siis/indicators/bollinger/bollinger.h"
 #include "siis/utils/common.h"
 
 #include <ta-lib/ta_func.h>
