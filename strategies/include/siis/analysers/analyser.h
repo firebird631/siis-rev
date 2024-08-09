@@ -75,6 +75,20 @@ public:
     virtual void process(o3d::Double timestamp, o3d::Double lastTimestamp) = 0;
 
     /**
+     * @brief updateTick Per tick processer. Called by the bar generator to have in sync indicators.
+     * @param tick Last tick to process.
+     * @param finalize true when a bar just consolidate.
+     */
+    virtual void updateTick(const Tick& tick, o3d::Bool finalize);
+
+    /**
+     * @brief updateBar Per bar processer. Called by the bar generator to have in sync indicators.
+     * @param bar Last bar to process.
+     * @param finalize true when a bar just consolidate.
+     */
+    virtual void updateBar(const Ohlc& bar, o3d::Bool finalize);
+
+    /**
      * @brief isNeedUpdate If timestamp >= next timestamp
      */
     virtual o3d::Bool isNeedUpdate(o3d::Double timestamp) const;

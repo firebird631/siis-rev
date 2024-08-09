@@ -2,6 +2,7 @@ set(LIB_NAME maadx)
 
 set(STRATEGY_CXX
     maadx.cpp
+    maadxsessionanalyser.cpp
     maadxtrendanalyser.cpp
     maadxconfanalyser.cpp
     maadxsiganalyser.cpp)

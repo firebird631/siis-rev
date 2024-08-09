@@ -20,6 +20,7 @@
 #include "maadxtrendanalyser.h"
 #include "maadxsiganalyser.h"
 #include "maadxconfanalyser.h"
+#include "maadxsessionanalyser.h"
 
 using namespace siis;
 using o3d::Logger;
@@ -37,6 +38,7 @@ SIIS_PLUGIN_API siis::Strategy* siisStrategy(Handler *handler, const o3d::String
 
 MaAdx::MaAdx(Handler *handler, const o3d::String &identifier) :
     Strategy(handler, identifier),
+    m_sessionAnalyser(nullptr),
     m_trendAnalyser(nullptr),
     m_sigAnalyser(nullptr),
     m_confAnalyser(nullptr),
@@ -90,14 +92,20 @@ void MaAdx::init(Config *config)
                 continue;
             }
 
-            if (mode == "trend") {
-                Analyser *a = new MaAdxTrendAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_HLC);
+            if (mode == "session") {
+                Analyser *a = new MaAdxSessionAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
+                a->init(AnalyserConfig(timeframe));
+
+                m_analysers.push_back(a);
+                m_sessionAnalyser = static_cast<MaAdxSessionAnalyser*>(a);
+            } else if (mode == "trend") {
+                Analyser *a = new MaAdxTrendAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
                 a->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(a);
                 m_trendAnalyser = static_cast<MaAdxTrendAnalyser*>(a);
             } else if (mode == "sig") {
-                Analyser *a = new MaAdxSigAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_HLC);
+                Analyser *a = new MaAdxSigAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
                 a->init(AnalyserConfig(timeframe));
 
                 m_analysers.push_back(a);
@@ -122,6 +130,11 @@ void MaAdx::init(Config *config)
             ContextConfig ctxConfig(context);
 
             m_minProfit = context.get("min-profit", 0.0).asDouble() * 0.01;
+
+            // session
+            if (context.isMember("session")) {
+                Json::Value session = context.get("session", Json::Value());
+            }
 
             // trend
             if (context.isMember("trend")) {
@@ -398,11 +411,49 @@ void MaAdx::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price)
     }
 }
 
+o3d::Bool MaAdx::checkVp(o3d::Int32 direction, o3d::Int32 vpUp, o3d::Int32 vpDn) const{
+    if (direction > 0 && m_confAnalyser->lastPrice() <= m_sessionAnalyser->vp().pocPrice()) {
+        return false;
+    } else if (direction < 0 && m_confAnalyser->lastPrice() >= m_sessionAnalyser->vp().pocPrice()) {
+        return true;
+    }
+
+    if (m_sessionAnalyser) {
+        if (direction > 0) {
+            return vpUp > vpDn;
+        } else if (direction < 0) {
+            return vpUp < vpDn;
+        }
+    }
+
+    return true;
+}
+
 TradeSignal MaAdx::computeSignal(o3d::Double timestamp)
 {
     TradeSignal signal(m_sigAnalyser->timeframe(), timestamp);
 
-    if (m_trendAnalyser->trend() > 0) {
+    o3d::Int32 vpUp = 0;
+    o3d::Int32 vpDn = 0;
+
+    // volume-profile signal
+    if (m_sessionAnalyser && m_sessionAnalyser->lastPrice()) {
+        o3d::Double price = m_sessionAnalyser->lastPrice();
+        // o3d::Int32 n = -m_sessionAnalyser->vp().vp().size();
+
+        for (auto const vp : m_sessionAnalyser->vp().vp()) {
+            // price = m_sessionAnalyser->price().close().last();
+            // ++n;
+
+            if (price > vp->pocPrice) {
+                ++vpUp;
+            } else if (price < vp->pocPrice) {
+                ++vpDn;
+            }
+        }
+    }
+
+    if (m_trendAnalyser->trend() > 0 && checkVp(1, vpUp, vpDn)) {
         if (m_sigAnalyser->adx() > m_adxSig) {
             if (m_sigAnalyser->sig() > 0 && m_sigAnalyser->adx() <= ADX_MAX) {
                 if (m_confAnalyser->confirmation() > 0) {
@@ -420,7 +471,7 @@ TradeSignal MaAdx::computeSignal(o3d::Double timestamp)
                 }
             }
         }
-    } else if (m_trendAnalyser->trend() < 0) {
+    } else if (m_trendAnalyser->trend() < 0 && checkVp(-1, vpUp, vpDn)) {
         if (m_sigAnalyser->adx() > m_adxSig) {
             if (m_sigAnalyser->sig() < 0 && m_sigAnalyser->adx() <= ADX_MAX) {
                 if (m_confAnalyser->confirmation() < 0) {

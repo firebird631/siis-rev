@@ -23,12 +23,21 @@ class SIIS_API VolumeProfileData
 {
 public:
 
-    o3d::Double valPric {0};
+    typedef std::unordered_map<o3d::Double, std::pair<o3d::Double, o3d::Double>> T_BinHashMap;
+    typedef T_BinHashMap::iterator IT_BinHashMap;
+
+    o3d::Double timestamp {0};     //!< open timestamp
+    o3d::Double timeframe {0};     //!< or duration
+
+    o3d::Double sensibility {1};
+
+    o3d::Double valPrice {0};
     o3d::Double vahPrice {0};
 
     o3d::Double pocPrice {0};
+    o3d::Double pocVolume {0};
 
-    std::unordered_map<o3d::Double, std::pair<o3d::Double, o3d::Double>> bins;
+    T_BinHashMap bins;
 
     DataArray peaks;
     DataArray valleys;

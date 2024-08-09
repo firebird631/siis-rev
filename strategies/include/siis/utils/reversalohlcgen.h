@@ -16,6 +16,8 @@
 
 namespace siis {
 
+class Analyser;
+
 /**
  * @brief Generator OHLC for a specific size, reversal and scale of reversal-bar
  * @author Frederic Scherma
@@ -52,6 +54,11 @@ public:
      * @return Number of newly generated ohlc.
      */
     o3d::UInt32 genFromTicks(const TickArray &ticks, OhlcCircular &out);
+
+    /**
+     * Similar as genFromTicks but take an extra analyser parameters to call updateTick.
+     */
+    o3d::UInt32 genFromTicks(const TickArray &ticks, OhlcCircular &out, Analyser &analyser);
 
     o3d::Bool valid() const;
 

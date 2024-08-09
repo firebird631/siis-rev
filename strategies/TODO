@@ -104,6 +104,8 @@ Secondaire
 Tertiaire
 =========
 
+- avoir une interface BarGenerator + une interface GeneratorUpdater et en hériter depuis Analyser
+
 - spot trade
   - open, close, remove, modify tp, modify sl, order events, position events
 

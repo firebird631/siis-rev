@@ -32,6 +32,16 @@ Analyser::~Analyser()
 
 }
 
+void Analyser::updateTick(const Tick& tick, o3d::Bool finalize)
+{
+    // nothing by default
+}
+
+void Analyser::updateBar(const Ohlc &bar, o3d::Bool finalize)
+{
+    // nothing by default
+}
+
 o3d::Bool Analyser::isNeedUpdate(o3d::Double timestamp) const
 {
     return timestamp >= m_nextTimestamp;

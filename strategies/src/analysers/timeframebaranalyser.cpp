@@ -45,13 +45,13 @@ void TimeframeBarAnalyser::prepare(o3d::Double timestamp)
 void TimeframeBarAnalyser::onTickUpdate(o3d::Double timestamp, const TickArray &ticks)
 {
     // generate the ohlc from the last market update
-    m_ohlcGen.genFromTicks(ticks, m_ohlc);
+    m_ohlcGen.genFromTicks(ticks, m_ohlc, *this);
 }
 
 void TimeframeBarAnalyser::onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe, const OhlcArray &ohlc)
 {
     if (timeframe == m_ohlcGen.fromTimeframe()) {
-        m_ohlcGen.genFromOhlc(ohlc, m_ohlc);
+        m_ohlcGen.genFromOhlc(ohlc, m_ohlc, *this);
     } else if (timeframe == m_ohlcGen.toTimeframe()) {
         // a bulk of finaly OHLC (generally initial)
         for (o3d::Int32 i = 0; i < ohlc.getSize(); ++i) {

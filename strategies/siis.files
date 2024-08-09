@@ -105,6 +105,7 @@ include/siis/indicators/td9/td9.h
 include/siis/indicators/volume/volume.h
 include/siis/indicators/volumeprofile/volumeprofile.h
 include/siis/indicators/volumeprofile/volumeprofiledata.h
+include/siis/indicators/vwap/vwap.h
 include/siis/indicators/vwma/vwma.h
 include/siis/indicators/wma/wma.h
 include/siis/indicators/zigzag/zigzag.h
@@ -371,6 +372,8 @@ src/strategies/maadx/maadx.h
 src/strategies/maadx/maadxconfanalyser.cpp
 src/strategies/maadx/maadxconfanalyser.h
 src/strategies/maadx/maadxparameters.h
+src/strategies/maadx/maadxsessionanalyser.cpp
+src/strategies/maadx/maadxsessionanalyser.h
 src/strategies/maadx/maadxsiganalyser.cpp
 src/strategies/maadx/maadxsiganalyser.h
 src/strategies/maadx/maadxtrendanalyser.cpp

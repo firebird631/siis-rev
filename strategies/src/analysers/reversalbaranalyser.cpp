@@ -56,7 +56,7 @@ void ReversalBarAnalyser::prepare(o3d::Double timestamp)
 void ReversalBarAnalyser::onTickUpdate(o3d::Double timestamp, const TickArray &ticks)
 {
     // generate the ohlc from the last market update
-    m_ohlcGen.genFromTicks(ticks, m_ohlc);
+    m_ohlcGen.genFromTicks(ticks, m_ohlc, *this);
 }
 
 void ReversalBarAnalyser::onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe, const OhlcArray &ohlc)

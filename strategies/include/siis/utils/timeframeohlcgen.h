@@ -16,6 +16,8 @@
 
 namespace siis {
 
+class Analyser;
+
 /**
  * @brief Generator OHLC for a specific fixed timeframe.
  * @author Frederic Scherma
@@ -45,6 +47,11 @@ public:
     o3d::UInt32 genFromTicks(const TickArray &ticks, OhlcCircular &out);
 
     /**
+     * Similar as genFromTicks but take an extra analyser parameters to call updateTick.
+     */
+    o3d::UInt32 genFromTicks(const TickArray &ticks, OhlcCircular &out, Analyser &analyser);
+
+    /**
      * @brief genFromOhlc Generate as many higher ohlc as possible from the array of ohlc given in parameters.
      * @param ohlc Input array of ohlc (1 or more).
      * @param out Circular array of ohlc to complete (new ohlc array pushed back).
@@ -52,6 +59,14 @@ public:
      */
     o3d::UInt32 genFromOhlc(const OhlcArray &ohlc, OhlcCircular &out);
 
+    /**
+     * Similar as genFromOhlc but take an extra analyser parameters to call updateBar.
+     */
+    o3d::UInt32 genFromOhlc(const OhlcArray &ohlc, OhlcCircular &out, Analyser &analyser);
+
+    /**
+     * @brief baseTime Compute the base time for a given timestamp, according to the timeframe of the generator.
+     */
     o3d::Double baseTime(o3d::Double timestamp) const { return siis::baseTime(timestamp, m_toTf); }
 
     o3d::Bool valid() const;

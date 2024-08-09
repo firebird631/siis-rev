@@ -348,7 +348,7 @@ void Strategy::addClosedTrade(Trade *trade)
             if (lastTimestamp() - m_stats.dailyStartTimestamp >= TF_DAY) {
                 m_stats.dailyStartTimestamp = baseTime(lastTimestamp(), TF_DAY);
 
-                o3d::String msg = o3d::String("Daily performance {0}% on a partial of {1}%")
+                o3d::String msg = o3d::String("Daily perf {0}% on {1}%")
                                       .arg(m_stats.dailyPerformance * 100, 2)
                                       .arg(m_stats.performance * 100, 2);
 

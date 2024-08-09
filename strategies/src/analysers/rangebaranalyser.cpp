@@ -55,7 +55,7 @@ void RangeBarAnalyser::prepare(o3d::Double timestamp)
 void RangeBarAnalyser::onTickUpdate(o3d::Double timestamp, const TickArray &ticks)
 {
     // generate the ohlc from the last market update
-    m_ohlcGen.genFromTicks(ticks, m_ohlc);
+    m_ohlcGen.genFromTicks(ticks, m_ohlc, *this);
 }
 
 void RangeBarAnalyser::onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe, const OhlcArray &ohlc)

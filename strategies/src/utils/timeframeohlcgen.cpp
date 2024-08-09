@@ -6,6 +6,7 @@
  */
 
 #include "siis/utils/timeframeohlcgen.h"
+#include "siis/analysers/analyser.h"
 
 using namespace siis;
 
@@ -59,6 +60,62 @@ o3d::UInt32 TimeframeOhlcGen::genFromTicks(const TickArray &ticks, OhlcCircular 
     return n;
 }
 
+o3d::UInt32 TimeframeOhlcGen::genFromTicks(const TickArray &ticks, OhlcCircular &out, Analyser &analyser)
+{
+    o3d::UInt32 n = 0;
+    m_numLastConsumed = 0;
+
+    o3d::Bool newBar = false;
+
+    if (m_ohlcType == Ohlc::TYPE_LAST) {
+        for (o3d::Int32 i = 0; i < ticks.getSize(); ++i) {
+            const Tick *lastTick = ticks.get(i);
+
+            newBar = updateFromTickLast(lastTick, out);
+            analyser.updateTick(*lastTick, newBar);
+
+            if (newBar) {
+                n += 1;
+            }
+        }
+    } else if (m_ohlcType == Ohlc::TYPE_MID) {
+        for (o3d::Int32 i = 0; i < ticks.getSize(); ++i) {
+            const Tick *lastTick = ticks.get(i);
+
+            newBar = updateFromTickMid(lastTick, out);
+            analyser.updateTick(*lastTick, newBar);
+
+            if (newBar) {
+                n += 1;
+            }
+        }
+    } else if (m_ohlcType == Ohlc::TYPE_BID) {
+        for (o3d::Int32 i = 0; i < ticks.getSize(); ++i) {
+            const Tick *lastTick = ticks.get(i);
+
+            newBar = updateFromTickBid(lastTick, out);
+            analyser.updateTick(*lastTick, newBar);
+
+            if (newBar) {
+                n += 1;
+            }
+        }
+    } else if (m_ohlcType == Ohlc::TYPE_ASK) {
+        for (o3d::Int32 i = 0; i < ticks.getSize(); ++i) {
+            const Tick *lastTick = ticks.get(i);
+
+            newBar = updateFromTickAsk(lastTick, out);
+            analyser.updateTick(*lastTick, newBar);
+
+            if (newBar) {
+                n += 1;
+            }
+        }
+    }
+
+    return n;
+}
+
 o3d::UInt32 TimeframeOhlcGen::genFromOhlc(const OhlcArray &ohlc, OhlcCircular &out)
 {
     o3d::UInt32 n = 0;
@@ -85,6 +142,58 @@ o3d::UInt32 TimeframeOhlcGen::genFromOhlc(const OhlcArray &ohlc, OhlcCircular &o
     } else if (m_ohlcType == Ohlc::TYPE_ASK) {
         for (o3d::Int32 i = 0; i < ohlc.getSize(); ++i) {
             if (updateFromOhlcAsk(ohlc.get(i), out)) {
+                n += 1;
+            }
+        }
+    }
+
+    return n;
+}
+
+o3d::UInt32 TimeframeOhlcGen::genFromOhlc(const OhlcArray &ohlc, OhlcCircular &out, Analyser &analyser)
+{
+    o3d::UInt32 n = 0;
+    m_numLastConsumed = 0;
+
+    o3d::Bool newBar = false;
+
+    if (m_ohlcType == Ohlc::TYPE_LAST) {
+        for (o3d::Int32 i = 0; i < ohlc.getSize(); ++i) {
+            const Ohlc *lastBar = ohlc.get(i);
+            newBar = updateFromOhlcLast(ohlc.get(i), out);
+            analyser.updateBar(*lastBar, newBar);
+
+            if (newBar) {
+                n += 1;
+            }
+        }
+    } else if (m_ohlcType == Ohlc::TYPE_MID) {
+        for (o3d::Int32 i = 0; i < ohlc.getSize(); ++i) {
+            const Ohlc *lastBar = ohlc.get(i);
+            newBar = updateFromOhlcMid(ohlc.get(i), out);
+            analyser.updateBar(*lastBar, newBar);
+
+            if (newBar) {
+                n += 1;
+            }
+        }
+    } else if (m_ohlcType == Ohlc::TYPE_BID) {
+        for (o3d::Int32 i = 0; i < ohlc.getSize(); ++i) {
+            const Ohlc *lastBar = ohlc.get(i);
+            newBar = updateFromOhlcBid(ohlc.get(i), out);
+            analyser.updateBar(*lastBar, newBar);
+
+            if (newBar) {
+                n += 1;
+            }
+        }
+    } else if (m_ohlcType == Ohlc::TYPE_ASK) {
+        for (o3d::Int32 i = 0; i < ohlc.getSize(); ++i) {
+            const Ohlc *lastBar = ohlc.get(i);
+            newBar = updateFromOhlcAsk(ohlc.get(i), out);
+            analyser.updateBar(*lastBar, newBar);
+
+            if (newBar) {
                 n += 1;
             }
         }
