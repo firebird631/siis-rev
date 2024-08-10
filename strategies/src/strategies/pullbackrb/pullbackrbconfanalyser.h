@@ -1,14 +1,14 @@
 /**
- * @brief SiiS Pullback strategy confirmation analyser.
+ * @brief SiiS MAADX range-bar strategy confirmation analyser.
  * @copyright Copyright (C) 2023 SiiS
  * @author Frederic SCHERMA (frederic.scherma@gmail.com)
  * @date 2023-05-09
  */
 
-#ifndef SIIS_PULLBACKCONFANALYSER_H
-#define SIIS_PULLBACKCONFANALYSER_H
+#ifndef SIIS_PULLBACKRBCONFANALYSER_H
+#define SIIS_PULLBACKRBCONFANALYSER_H
 
-#include "siis/analysers/timeframebaranalyser.h"
+#include "siis/analysers/rangebaranalyser.h"
 
 #include "siis/indicators/hma/hma.h"
 #include "siis/indicators/adx/adx.h"
@@ -17,25 +17,23 @@
 namespace siis {
 
 /**
- * @brief SiiS Pullback strategy confirmation analyser.
+ * @brief SiiS Pullback range-bar strategy confirmation analyser.
  * @author Frederic Scherma
  * @date 2023-05-09
  * Confirmation analyser
  */
-class SIIS_API PullbackConfAnalyser : public TimeframeBarAnalyser
+class SIIS_API PullbackRbConfAnalyser : public RangeBarAnalyser
 {
 public:
 
-    PullbackConfAnalyser(
-            Strategy *strategy,
+    PullbackRbConfAnalyser(Strategy *strategy,
             const o3d::String &name,
-            o3d::Double timeframe,
-            o3d::Double sourceTimeframe,
+            o3d::Int32 rangeSize,
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod=Price::PRICE_CLOSE);
 
-    virtual ~PullbackConfAnalyser() override;
+    virtual ~PullbackRbConfAnalyser() override;
 
     virtual o3d::String typeName() const override;
 
@@ -52,4 +50,4 @@ private:
 
 } // namespace siis
 
-#endif // SIIS_PULLBACKCONFANALYSER_H
+#endif // SIIS_PULLBACKRBCONFANALYSER_H

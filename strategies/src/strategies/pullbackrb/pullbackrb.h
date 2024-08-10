@@ -1,12 +1,12 @@
 /**
- * @brief SiiS strategy pullback.
+ * @brief SiiS strategy pullback range-bar.
  * @copyright Copyright (C) 2023 SiiS
  * @author Frederic SCHERMA (frederic.scherma@gmail.com)
  * @date 2023-05-09
  */
 
-#ifndef SIIS_PULLBACK_H
-#define SIIS_PULLBACK_H
+#ifndef SIIS_PULLBACKRB_H
+#define SIIS_PULLBACKRB_H
 
 #include "siis/base.h"
 #include "siis/strategy.h"
@@ -29,22 +29,22 @@
 
 namespace siis {
 
-class PullbackSessionAnalyser;
-class PullbackSRAnalyser;
-class PullbackBBAnalyser;
-class PullbackConfAnalyser;
+class PullbackRbSessionAnalyser;
+class PullbackRbSRAnalyser;
+class PullbackRbBBAnalyser;
+class PullbackRbConfAnalyser;
 
 /**
- * @brief Strategy pullback.
+ * @brief Strategy pullback range-bar.
  * @author Frederic Scherma
  * @date 2023-05-09
  */
-class SIIS_PLUGIN_API Pullback : public Strategy
+class SIIS_PLUGIN_API PullbackRb : public Strategy
 {
 public:
 
-    Pullback(Handler *handler, const o3d::String &identifier);
-    virtual ~Pullback() override;
+    PullbackRb(Handler *handler, const o3d::String &identifier);
+    virtual ~PullbackRb() override;
 
     virtual void init(Config *config) override;
     virtual void terminate(Connector *connector, Database *db) override;
@@ -74,10 +74,10 @@ private:
     std::vector<Analyser*> m_analysers;
     StdTradeManager *m_tradeManager;
 
-    PullbackSessionAnalyser *m_sessionAnalyser;
-    PullbackSRAnalyser *m_srAnalyser;
-    PullbackBBAnalyser *m_bbAnalyser;
-    PullbackConfAnalyser *m_confAnalyser;
+    PullbackRbSessionAnalyser *m_sessionAnalyser;
+    PullbackRbSRAnalyser *m_srAnalyser;
+    PullbackRbBBAnalyser *m_bbAnalyser;
+    PullbackRbConfAnalyser *m_confAnalyser;
 
     TradeSignal m_lastSignal;
 
@@ -115,4 +115,4 @@ private:
 
 } // namespace siis
 
-#endif // SIIS_PULLBACK_H
+#endif // SIIS_PULLBACKRB_H

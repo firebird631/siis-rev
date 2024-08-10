@@ -5,8 +5,8 @@
  * @date 2023-05-09
  */
 
-#include "pullback.h"
-#include "pullbackparameters.h"
+#include "pullbackrb.h"
+#include "pullbackrbparameters.h"
 
 #include "siis/config/strategyconfig.h"
 #include "siis/handler.h"
@@ -15,12 +15,12 @@
 #include "siis/connector/connector.h"
 #include "siis/database/database.h"
 #include "siis/database/tradedb.h"
-#include "siis/database/ohlcdb.h"
+#include "siis/database/rangebardb.h"
 
-#include "pullbacksessionanalyser.h"
-#include "pullbacksranalyser.h"
-#include "pullbackbbanalyser.h"
-#include "pullbackconfanalyser.h"
+#include "pullbackrbsessionanalyser.h"
+#include "pullbackrbsranalyser.h"
+#include "pullbackrbbbanalyser.h"
+#include "pullbackrbconfanalyser.h"
 
 using namespace siis;
 using o3d::Logger;
@@ -31,12 +31,12 @@ extern "C"
 
 SIIS_PLUGIN_API siis::Strategy* siisStrategy(Handler *handler, const o3d::String &identifier)
 {
-    return new siis::Pullback(handler, identifier);
+    return new siis::PullbackRb(handler, identifier);
 }
 
 } // extern "C"
 
-Pullback::Pullback(Handler *handler, const o3d::String &identifier) :
+PullbackRb::PullbackRb(Handler *handler, const o3d::String &identifier) :
     Strategy(handler, identifier),
     m_sessionAnalyser(nullptr),
     m_srAnalyser(nullptr),
@@ -56,71 +56,71 @@ Pullback::Pullback(Handler *handler, const o3d::String &identifier) :
 
 }
 
-Pullback::~Pullback()
+PullbackRb::~PullbackRb()
 {
 
 }
 
-void Pullback::init(Config *config)
+void PullbackRb::init(Config *config)
 {
     Strategy::init(config);
 
     // author defined strategy properties details
-    setProperty("name", "pullback");
+    setProperty("name", "pullback-rb");
     setProperty("author", "Frederic SCHERMA (frederic.scherma@gmail.com)");
-    setProperty("date", "2023-05-09");
+    setProperty("date", "2024-08-10");
     setProperty("revision", "1");
-    setProperty("copyright", "2018-2023 Dream Overflow");
+    setProperty("copyright", "2018-2024 Dream Overflow");
     setProperty("comment", "Αny kind of market dedicaded strategy, but specialy interesting with Forex.");
 
     // strategie parameters
     StrategyConfig conf;
-    conf.parseDefaults(PullbackParameters);
+    conf.parseDefaults(PullbackRbParameters);
     conf.parseOverrides(config);
 
     initBasicsParameters(conf);
 
-    if (conf.root().isMember("timeframes")) {
-        Json::Value timeframes = conf.root().get("timeframes", Json::Value());
-        for (auto it = timeframes.begin(); it != timeframes.end(); ++it) {
-            Json::Value timeframe = *it;
+if (conf.root().isMember("tickbars")) {
+        Json::Value tickbars = conf.root().get("tickbars", Json::Value());
+        for (auto it = tickbars.begin(); it != tickbars.end(); ++it) {
+            Json::Value tickbar = *it;
 
             o3d::String name = it.name().c_str();
-            o3d::String mode = timeframe.get("mode", "").asString().c_str();
+            o3d::String mode = tickbar.get("mode", "").asString().c_str();
 
-            o3d::Double tf = conf.timeframeAsDouble(timeframe, "timeframe");
+            o3d::Int32 barSize = conf.barSizeAsInt(tickbar, "size");
 
-            o3d::Int32 depth = timeframe.get("depth", 0).asInt();
-            o3d::Int32 history = timeframe.get("history", 0).asInt();
+            o3d::Int32 depth = tickbar.get("depth", 0).asInt();
+            o3d::Int32 history = tickbar.get("history", 0).asInt();
 
-            if (!timeframe.get("enabled", true).asBool()) {
+            if (!tickbar.get("enabled", true).asBool()) {
                 continue;
             }
 
             if (mode == "session") {
-                Analyser *a = new PullbackSessionAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
-                a->init(AnalyserConfig(timeframe));
+                Analyser *a = new PullbackRbSessionAnalyser(this, name, barSize, depth, history, Price::PRICE_CLOSE);
+                a->init(AnalyserConfig(tickbar));
 
                 m_analysers.push_back(a);
-                m_sessionAnalyser = static_cast<PullbackSessionAnalyser*>(a);
+                m_sessionAnalyser = static_cast<PullbackRbSessionAnalyser*>(a);
             } else if (mode == "sr") {
-                Analyser *a = new PullbackSRAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
-                a->init(AnalyserConfig(timeframe));
+                Analyser *a = new PullbackRbSRAnalyser(this, name, barSize, depth, history, Price::PRICE_CLOSE);
+                a->init(AnalyserConfig(tickbar));
 
                 m_analysers.push_back(a);
-                m_srAnalyser = static_cast<PullbackSRAnalyser*>(a);
+                m_srAnalyser = static_cast<PullbackRbSRAnalyser*>(a);
             } else if (mode == "bollinger") {
-                Analyser *a = new PullbackBBAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
-                a->init(AnalyserConfig(timeframe));
+                Analyser *a = new PullbackRbBBAnalyser(this, name, barSize, depth, history, Price::PRICE_CLOSE);
+                a->init(AnalyserConfig(tickbar));
 
                 m_analysers.push_back(a);
-                m_bbAnalyser = static_cast<PullbackBBAnalyser*>(a);
+                m_bbAnalyser = static_cast<PullbackRbBBAnalyser*>(a);
             } else if (mode == "conf") {
-                Analyser *a = new PullbackConfAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
-                a->init(AnalyserConfig(timeframe));
+                Analyser *a = new PullbackRbConfAnalyser(this, name, barSize, depth, history, Price::PRICE_CLOSE);
+                a->init(AnalyserConfig(tickbar));
 
                 m_analysers.push_back(a);
-                m_confAnalyser = static_cast<PullbackConfAnalyser*>(a);
+                m_confAnalyser = static_cast<PullbackRbConfAnalyser*>(a);
             } else {
                 // ignored, unknow mode
                 O3D_WARNING(o3d::String("Pullback strategy unknow mode {0}").arg(mode));
@@ -183,7 +183,7 @@ void Pullback::init(Config *config)
     setInitialized();
 }
 
-void Pullback::terminate(Connector *connector, Database *db)
+void PullbackRb::terminate(Connector *connector, Database *db)
 {
     for (Analyser *analyser : m_analysers) {
         analyser->terminate();
@@ -209,7 +209,7 @@ void Pullback::terminate(Connector *connector, Database *db)
     setTerminated();
 }
 
-void Pullback::prepareMarketData(Connector *connector, Database *db, o3d::Double fromTs, o3d::Double toTs)
+void PullbackRb::prepareMarketData(Connector *connector, Database *db, o3d::Double fromTs, o3d::Double toTs)
 {
     Ohlc::Type ohlcType = Ohlc::TYPE_MID;
 
@@ -222,20 +222,20 @@ void Pullback::prepareMarketData(Connector *connector, Database *db, o3d::Double
 
         o3d::Int32 k = 0;
 
-        o3d::Double srcTs = fromTs - 1.0 - analyser->timeframe() * depth;
+        o3d::Double srcTs = 0.0;  //!< range-bar are not linear then source timestamp cannot be determined
         o3d::Double dstTs = fromTs - 1.0;
-        o3d::Int32 lastN = 0;
+        o3d::Int32 lastN = depth;
 
         adjustOhlcFetchRange(analyser->history(), analyser->depth(), srcTs, dstTs, lastN);
 
         if (lastN > 0) {
-            k = handler()->database()->ohlc()->fetchOhlcArrayLastTo(
-                    analyser->strategy()->brokerId(), market()->marketId(), analyser->timeframe(),
+            k = handler()->database()->rangeBar()->fetchOhlcArrayLastTo(
+                    analyser->strategy()->brokerId(), market()->marketId(), analyser->barSize(),
                     lastN, dstTs,
                     market()->getOhlcBuffer(ohlcType));
         } else {
-            k = handler()->database()->ohlc()->fetchOhlcArrayFromTo(
-                    analyser->strategy()->brokerId(), market()->marketId(), analyser->timeframe(),
+            k = handler()->database()->rangeBar()->fetchOhlcArrayFromTo(
+                    analyser->strategy()->brokerId(), market()->marketId(), analyser->barSize(),
                     srcTs, dstTs,
                     market()->getOhlcBuffer(ohlcType));
         }
@@ -248,7 +248,7 @@ void Pullback::prepareMarketData(Connector *connector, Database *db, o3d::Double
 
             log(analyser->formatUnit(), "init", msg);
 
-            analyser->onOhlcUpdate(toTs, analyser->timeframe(), market()->getOhlcBuffer(ohlcType));
+            analyser->onOhlcUpdate(toTs, 0.0, market()->getOhlcBuffer(ohlcType));
         } else {
             o3d::String msg = o3d::String("No OHLCs founds (0/{0})").arg(depth);
             log(analyser->formatUnit(), "init", msg);
@@ -258,14 +258,14 @@ void Pullback::prepareMarketData(Connector *connector, Database *db, o3d::Double
     setMarketDataPrepared();
 }
 
-void Pullback::finalizeMarketData(Connector *connector, Database *db)
+void PullbackRb::finalizeMarketData(Connector *connector, Database *db)
 {
     m_tradeManager = new StdTradeManager(this);
     setReady();
     setRunning();
 }
 
-void Pullback::onTickUpdate(o3d::Double timestamp, const TickArray &ticks)
+void PullbackRb::onTickUpdate(o3d::Double timestamp, const TickArray &ticks)
 {
     if (baseTimeframe() == TF_TICK) {
         for (Analyser *analyser : m_analysers) {
@@ -274,26 +274,22 @@ void Pullback::onTickUpdate(o3d::Double timestamp, const TickArray &ticks)
     }
 }
 
-void Pullback::onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe, Ohlc::Type ohlcType, const OhlcArray &ohlc)
+void PullbackRb::onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe, Ohlc::Type ohlcType, const OhlcArray &ohlc)
 {
-    if (baseTimeframe() == timeframe) {
-        for (Analyser *analyser : m_analysers) {
-            analyser->onOhlcUpdate(timestamp, ohlcType, ohlc);
-        }
-    }
+    /* not compatible */
 }
 
-void Pullback::onOrderSignal(const OrderSignal &orderSignal)
+void PullbackRb::onOrderSignal(const OrderSignal &orderSignal)
 {
     m_tradeManager->onOrderSignal(orderSignal);
 }
 
-void Pullback::onPositionSignal(const PositionSignal &positionSignal)
+void PullbackRb::onPositionSignal(const PositionSignal &positionSignal)
 {
     m_tradeManager->onPositionSignal(positionSignal);
 }
 
-void Pullback::prepare(o3d::Double timestamp)
+void PullbackRb::prepare(o3d::Double timestamp)
 {
     // prepare before compute
     for (Analyser *analyser : m_analysers) {
@@ -301,7 +297,7 @@ void Pullback::prepare(o3d::Double timestamp)
     }
 }
 
-void Pullback::compute(o3d::Double timestamp)
+void PullbackRb::compute(o3d::Double timestamp)
 {
     for (Analyser *analyser : m_analysers) {
         analyser->process(timestamp, lastTimestamp());
@@ -358,12 +354,12 @@ void Pullback::compute(o3d::Double timestamp)
     }
 }
 
-void Pullback::finalize(o3d::Double timestamp)
+void PullbackRb::finalize(o3d::Double timestamp)
 {
     // cleanup eventually
 }
 
-void Pullback::updateTrade(Trade *trade)
+void PullbackRb::updateTrade(Trade *trade)
 {
     if (trade) {
         m_breakeven.updateΤrade(handler()->timestamp(), lastTimestamp(), trade);
@@ -371,7 +367,7 @@ void Pullback::updateTrade(Trade *trade)
     }
 }
 
-void Pullback::updateStats()
+void PullbackRb::updateStats()
 {
     o3d::Double performance = 0.0;
     o3d::Double drawDownRate = 0.0;
@@ -384,7 +380,7 @@ void Pullback::updateStats()
     setActiveStats(performance, drawDownRate, drawDown, pending, actives);
 }
 
-void Pullback::orderEntry(
+void PullbackRb::orderEntry(
         o3d::Double timestamp,
         o3d::Double timeframe,
         o3d::Int32 direction,
@@ -415,7 +411,7 @@ void Pullback::orderEntry(
     }
 }
 
-void Pullback::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price)
+void PullbackRb::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price)
 {
     if (trade) {
         if (price > 0.0) {
@@ -432,7 +428,7 @@ void Pullback::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price)
     }
 }
 
-o3d::Bool Pullback::checkVp(o3d::Int32 direction, o3d::Int32 vpUp, o3d::Int32 vpDn) const{
+o3d::Bool PullbackRb::checkVp(o3d::Int32 direction, o3d::Int32 vpUp, o3d::Int32 vpDn) const{
     if (m_sessionAnalyser == nullptr) {
         return true;
     }
@@ -454,7 +450,7 @@ o3d::Bool Pullback::checkVp(o3d::Int32 direction, o3d::Int32 vpUp, o3d::Int32 vp
     return true;
 }
 
-TradeSignal Pullback::computeSignal(o3d::Double timestamp)
+TradeSignal PullbackRb::computeSignal(o3d::Double timestamp)
 {
     TradeSignal signal(m_bbAnalyser->timeframe(), timestamp);
 

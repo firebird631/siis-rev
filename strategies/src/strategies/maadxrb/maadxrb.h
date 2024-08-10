@@ -22,6 +22,7 @@
 #include "siis/trade/tradesignal.h"
 
 #include "siis/trade/entry.h"
+#include "siis/trade/takeprofit.h"
 #include "siis/trade/stoploss.h"
 #include "siis/trade/breakeven.h"
 #include "siis/trade/dynamicstoploss.h"
@@ -86,6 +87,7 @@ private:
     o3d::Double m_minProfit;
 
     Entry m_entry;
+    TakeProfit m_takeProfit;
     StopLoss m_stopLoss;
     Breakeven m_breakeven;
     DynamicStopLoss m_dynamicStopLoss;

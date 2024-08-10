@@ -1,51 +1,49 @@
 /**
- * @brief SiiS Pullback strategy confirmation analyser.
+ * @brief SiiS Pullback range-bar strategy confirmation analyser.
  * @copyright Copyright (C) 2023 SiiS
  * @author Frederic SCHERMA (frederic.scherma@gmail.com)
  * @date 2023-05-09
  */
 
-#include "pullbackconfanalyser.h"
+#include "pullbackrbconfanalyser.h"
 
 #include "siis/config/strategyconfig.h"
 
 using namespace siis;
 
-PullbackConfAnalyser::PullbackConfAnalyser(
-            Strategy *strategy,
+PullbackRbConfAnalyser::PullbackRbConfAnalyser(Strategy *strategy,
             const o3d::String &name,
-            o3d::Double timeframe,
-            o3d::Double sourceTimeframe,
+            o3d::Int32 rangeSize,
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod) :
-    TimeframeBarAnalyser(strategy, name, timeframe, sourceTimeframe, depth, history, priceMethod),
+    RangeBarAnalyser(strategy, name, rangeSize, depth, history, priceMethod),
     m_confirmation(0)
 {
 
 }
 
-PullbackConfAnalyser::~PullbackConfAnalyser()
+PullbackRbConfAnalyser::~PullbackRbConfAnalyser()
 {
 
 }
 
-o3d::String PullbackConfAnalyser::typeName() const
+o3d::String PullbackRbConfAnalyser::typeName() const
 {
     return "conf";
 }
 
-void PullbackConfAnalyser::init(AnalyserConfig conf)
+void PullbackRbConfAnalyser::init(AnalyserConfig conf)
 {
-    TimeframeBarAnalyser::init(conf);
+    RangeBarAnalyser::init(conf);
 }
 
-void PullbackConfAnalyser::terminate()
+void PullbackRbConfAnalyser::terminate()
 {
 
 }
 
-void PullbackConfAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
+void PullbackRbConfAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
 {
     m_confirmation = 0;
 

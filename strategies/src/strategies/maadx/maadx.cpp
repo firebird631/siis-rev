@@ -159,7 +159,7 @@ void MaAdx::init(Config *config)
             // entry-exits
             m_entry.init(market(), ctxConfig);
             m_stopLoss.init(market(), ctxConfig);
-            // m_takeProfit.init(market(), ctxConfig);
+            m_takeProfit.init(market(), ctxConfig);
             m_breakeven.init(market(), ctxConfig);
             m_dynamicStopLoss.init(market(), ctxConfig);
             // m_dynamicTakeProfit.init(market(), ctxConfig);
@@ -176,6 +176,7 @@ void MaAdx::terminate(Connector *connector, Database *db)
         o3d::deletePtr(analyser);
     }
 
+    m_sessionAnalyser = nullptr;
     m_trendAnalyser = nullptr;
     m_sigAnalyser = nullptr;
     m_confAnalyser = nullptr;
@@ -469,8 +470,17 @@ TradeSignal MaAdx::computeSignal(o3d::Double timestamp)
                         m_entry.updateSignal(signal, market());
                         // signal.setPrice(m_confAnalyser->lastPrice());
 
-                        signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_targetScale));
-                        signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_targetScale, m_riskReward));
+                        if (m_takeProfit.adjustPolicy() == ADJ_CUSTOM) {
+                            signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_targetScale));
+                        } else {
+                            m_takeProfit.updateSignal(signal);
+                        }
+
+                        if (m_stopLoss.adjustPolicy() == ADJ_CUSTOM) {
+                            signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_targetScale, m_riskReward));
+                        } else {
+                            m_stopLoss.updateSignal(signal);
+                        }
                     }
                 }
             }
@@ -487,8 +497,17 @@ TradeSignal MaAdx::computeSignal(o3d::Double timestamp)
                         m_entry.updateSignal(signal, market());
                         // signal.setPrice(m_confAnalyser->lastPrice());
 
-                        signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_targetScale));
-                        signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_targetScale, m_riskReward));
+                        if (m_takeProfit.adjustPolicy() == ADJ_CUSTOM) {
+                            signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_targetScale));
+                        } else {
+                            m_takeProfit.updateSignal(signal);
+                        }
+
+                        if (m_stopLoss.adjustPolicy() == ADJ_CUSTOM) {
+                            signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_targetScale, m_riskReward));
+                        } else {
+                            m_stopLoss.updateSignal(signal);
+                        }
                     }
                 }
             }
