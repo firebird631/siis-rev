@@ -97,7 +97,7 @@ void VolumeProfile::setConf(IndicatorConfig conf)
         m_sensibility = conf.data().get((Json::ArrayIndex)2, 1.0).asDouble();
         m_valueAreaSize = conf.data().get((Json::ArrayIndex)3, 70.0).asDouble();
         m_computePeaksAndValleys = conf.data().get((Json::ArrayIndex)4, false).asBool();
-        m_tickScale = conf.data().get((Json::ArrayIndex)4, 1.0).asDouble();
+        m_tickScale = conf.data().get((Json::ArrayIndex)5, 1.0).asDouble();
     }
 }
 

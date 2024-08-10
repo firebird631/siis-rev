@@ -412,10 +412,14 @@ void MaAdx::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price)
 }
 
 o3d::Bool MaAdx::checkVp(o3d::Int32 direction, o3d::Int32 vpUp, o3d::Int32 vpDn) const{
+    if (m_sessionAnalyser == nullptr) {
+        return true;
+    }
+
     if (direction > 0 && m_confAnalyser->lastPrice() <= m_sessionAnalyser->vp().pocPrice()) {
         return false;
     } else if (direction < 0 && m_confAnalyser->lastPrice() >= m_sessionAnalyser->vp().pocPrice()) {
-        return true;
+        return false;
     }
 
     if (m_sessionAnalyser) {

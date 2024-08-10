@@ -403,6 +403,8 @@ src/strategies/pullback/pullbackbbanalyser.h
 src/strategies/pullback/pullbackconfanalyser.cpp
 src/strategies/pullback/pullbackconfanalyser.h
 src/strategies/pullback/pullbackparameters.h
+src/strategies/pullback/pullbacksessionanalyser.cpp
+src/strategies/pullback/pullbacksessionanalyser.h
 src/strategies/pullback/pullbacksranalyser.cpp
 src/strategies/pullback/pullbacksranalyser.h
 src/strategies/supertrend/CMakeLists.txt

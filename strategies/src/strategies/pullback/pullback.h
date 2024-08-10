@@ -28,6 +28,7 @@
 
 namespace siis {
 
+class PullbackSessionAnalyser;
 class PullbackSRAnalyser;
 class PullbackBBAnalyser;
 class PullbackConfAnalyser;
@@ -72,6 +73,7 @@ private:
     std::vector<Analyser*> m_analysers;
     StdTradeManager *m_tradeManager;
 
+    PullbackSessionAnalyser *m_sessionAnalyser;
     PullbackSRAnalyser *m_srAnalyser;
     PullbackBBAnalyser *m_bbAnalyser;
     PullbackConfAnalyser *m_confAnalyser;
@@ -105,6 +107,8 @@ private:
     void orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price);
 
     TradeSignal computeSignal(o3d::Double timestamp);
+
+    o3d::Bool checkVp(o3d::Int32 direction, o3d::Int32 vpUp, o3d::Int32 vpDn) const;
 };
 
 } // namespace siis

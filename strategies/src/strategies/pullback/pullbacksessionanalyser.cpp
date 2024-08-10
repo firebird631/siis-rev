@@ -1,18 +1,18 @@
 /**
- * @brief SiiS MAADX strategy session analyser.
+ * @brief SiiS Pullback strategy session analyser.
  * @copyright Copyright (C) 2024 SiiS
  * @author Frederic SCHERMA (frederic.scherma@gmail.com)
  * @date 2024-08-09
  */
 
-#include "maadxsessionanalyser.h"
+#include "pullbacksessionanalyser.h"
 
 #include "siis/config/strategyconfig.h"
 #include "siis/strategy.h"
 
 using namespace siis;
 
-MaAdxSessionAnalyser::MaAdxSessionAnalyser(
+PullbackSessionAnalyser::PullbackSessionAnalyser(
             Strategy *strategy,
             const o3d::String &name,
             o3d::Double timeframe,
@@ -26,17 +26,17 @@ MaAdxSessionAnalyser::MaAdxSessionAnalyser(
 
 }
 
-MaAdxSessionAnalyser::~MaAdxSessionAnalyser()
+PullbackSessionAnalyser::~PullbackSessionAnalyser()
 {
 
 }
 
-o3d::String MaAdxSessionAnalyser::typeName() const
+o3d::String PullbackSessionAnalyser::typeName() const
 {
     return "session";
 }
 
-void MaAdxSessionAnalyser::init(AnalyserConfig conf)
+void PullbackSessionAnalyser::init(AnalyserConfig conf)
 {
     configureIndictor(conf, "vp", m_vp);
 
@@ -46,17 +46,17 @@ void MaAdxSessionAnalyser::init(AnalyserConfig conf)
     TimeframeBarAnalyser::init(conf);
 }
 
-void MaAdxSessionAnalyser::terminate()
+void PullbackSessionAnalyser::terminate()
 {
 
 }
 
-void MaAdxSessionAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
+void PullbackSessionAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
 {
 
 }
 
-void MaAdxSessionAnalyser::updateTick(const Tick &tick, o3d::Bool finalize)
+void PullbackSessionAnalyser::updateTick(const Tick &tick, o3d::Bool finalize)
 {
     m_vp.update(tick, finalize);
 }

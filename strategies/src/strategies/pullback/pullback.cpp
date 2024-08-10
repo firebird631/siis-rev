@@ -17,6 +17,7 @@
 #include "siis/database/tradedb.h"
 #include "siis/database/ohlcdb.h"
 
+#include "pullbacksessionanalyser.h"
 #include "pullbacksranalyser.h"
 #include "pullbackbbanalyser.h"
 #include "pullbackconfanalyser.h"
@@ -37,6 +38,7 @@ SIIS_PLUGIN_API siis::Strategy* siisStrategy(Handler *handler, const o3d::String
 
 Pullback::Pullback(Handler *handler, const o3d::String &identifier) :
     Strategy(handler, identifier),
+    m_sessionAnalyser(nullptr),
     m_srAnalyser(nullptr),
     m_bbAnalyser(nullptr),
     m_confAnalyser(nullptr),
@@ -95,7 +97,13 @@ void Pullback::init(Config *config)
                 continue;
             }
 
-            if (mode == "sr") {
+            if (mode == "session") {
+                Analyser *a = new PullbackSessionAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
+                a->init(AnalyserConfig(timeframe));
+
+                m_analysers.push_back(a);
+                m_sessionAnalyser = static_cast<PullbackSessionAnalyser*>(a);
+            } else if (mode == "sr") {
                 Analyser *a = new PullbackSRAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
                 a->init(AnalyserConfig(timeframe));
 
@@ -423,10 +431,52 @@ void Pullback::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price)
     }
 }
 
+o3d::Bool Pullback::checkVp(o3d::Int32 direction, o3d::Int32 vpUp, o3d::Int32 vpDn) const{
+    if (m_sessionAnalyser == nullptr) {
+        return true;
+    }
+
+    if (direction > 0 && m_confAnalyser->lastPrice() <= m_sessionAnalyser->vp().pocPrice()) {
+        return false;
+    } else if (direction < 0 && m_confAnalyser->lastPrice() >= m_sessionAnalyser->vp().pocPrice()) {
+        return false;
+    }
+
+    if (m_sessionAnalyser) {
+        if (direction > 0) {
+            return vpUp > vpDn;
+        } else if (direction < 0) {
+            return vpUp < vpDn;
+        }
+    }
+
+    return true;
+}
+
 TradeSignal Pullback::computeSignal(o3d::Double timestamp)
 {
     TradeSignal signal(m_bbAnalyser->timeframe(), timestamp);
 
+    o3d::Int32 vpUp = 0;
+    o3d::Int32 vpDn = 0;
+
+    // volume-profile signal
+    if (m_sessionAnalyser && m_sessionAnalyser->lastPrice()) {
+        o3d::Double price = m_sessionAnalyser->lastPrice();
+        // o3d::Int32 n = -m_sessionAnalyser->vp().vp().size();
+
+        for (auto const vp : m_sessionAnalyser->vp().vp()) {
+            // price = m_sessionAnalyser->price().close().last();
+            // ++n;
+
+            if (price > vp->pocPrice) {
+                ++vpUp;
+            } else if (price < vp->pocPrice) {
+                ++vpDn;
+            }
+        }
+    }
+    // printf("%i %i\n", vpUp, vpDn);
     // if integrate => long
     if (m_srAnalyser->breakoutDirection() < 0 && m_srAnalyser->breakoutPrice() > 0.0 && m_bbAnalyser->isPriceBelowLower()) {
         m_breakoutTimestamp = timestamp;
@@ -472,7 +522,7 @@ TradeSignal Pullback::computeSignal(o3d::Double timestamp)
     }
 
     // check for price above bollinger => long
-    if (m_integrateDirection > 0 && m_bbAnalyser->isPriceAboveLower()) {
+    if (m_integrateDirection > 0 && m_bbAnalyser->isPriceAboveLower() && checkVp(1, vpUp, vpDn)) {
         if (m_confirmAtClose) {
             if (m_confAnalyser->confirmation() > 0) {
                 // keep only one signal per timeframe
@@ -504,7 +554,7 @@ TradeSignal Pullback::computeSignal(o3d::Double timestamp)
     }
 
     // check for price below bollinger => short
-    if (m_integrateDirection < 0 && m_bbAnalyser->isPriceBelowUpper()) {
+    if (m_integrateDirection < 0 && m_bbAnalyser->isPriceBelowUpper() && checkVp(-1, vpUp, vpDn)) {
         if (m_confirmAtClose) {
             if (m_confAnalyser->confirmation() < 0) {
                 // keep only one signal per timeframe

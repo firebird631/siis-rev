@@ -2,6 +2,7 @@ set(LIB_NAME pullback)
 
 set(STRATEGY_CXX
     pullback.cpp
+    pullbacksessionanalyser.cpp
     pullbacksranalyser.cpp
     pullbackbbanalyser.cpp
     pullbackconfanalyser.cpp)
