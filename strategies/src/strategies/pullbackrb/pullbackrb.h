@@ -71,6 +71,8 @@ public:
 
 private:
 
+    static constexpr o3d::Double ADX_MAX = 75.0;
+
     std::vector<Analyser*> m_analysers;
     StdTradeManager *m_tradeManager;
 
@@ -85,6 +87,7 @@ private:
     o3d::Double m_targetScale;
     o3d::Double m_riskReward;
     o3d::Double m_minProfit;
+    o3d::Double m_adxSig;
 
     Entry m_entry;
     StopLoss m_stopLoss;

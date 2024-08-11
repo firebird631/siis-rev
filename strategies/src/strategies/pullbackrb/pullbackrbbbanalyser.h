@@ -11,6 +11,7 @@
 #include "siis/analysers/rangebaranalyser.h"
 
 #include "siis/indicators/bollinger/bollinger.h"
+#include "siis/indicators/adx/adx.h"
 
 namespace siis {
 
@@ -75,6 +76,9 @@ public:
         return price().last() > m_bollinger.lower().last();
     }
 
+    inline o3d::Double adx() const { return m_adx.last(); }
+    inline o3d::Bool hasAdx() const { return m_hasAdx; }
+
     o3d::Double entryPrice() const;
     o3d::Double takeProfit(o3d::Int32 dir, o3d::Double profitScale) const;
     o3d::Double stopLoss(o3d::Int32 dir, o3d::Double lossScale, o3d::Double riskReward) const;
@@ -82,11 +86,13 @@ public:
 private:
 
     BBands m_bollinger;
+    Adx m_adx;  //!< optional ADX
 
     o3d::Int32 m_breakout;
     o3d::Int32 m_integrate;
 
     o3d::Int32 m_confirmation;
+    o3d::Bool m_hasAdx;
 };
 
 } // namespace siis

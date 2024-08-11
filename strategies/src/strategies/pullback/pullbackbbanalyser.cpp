@@ -21,9 +21,11 @@ PullbackBBAnalyser::PullbackBBAnalyser(
             Price::Method priceMethod) :
     TimeframeBarAnalyser(strategy, name, timeframe, sourceTimeframe, depth, history, priceMethod),
     m_bollinger("bollinger", timeframe),
+    m_adx("adx", timeframe),
     m_breakout(0),
     m_integrate(0),
-    m_confirmation(0)
+    m_confirmation(0),
+    m_hasAdx(false)
 {
 
 }
@@ -41,6 +43,11 @@ o3d::String PullbackBBAnalyser::typeName() const
 void PullbackBBAnalyser::init(AnalyserConfig conf)
 {
     configureIndictor(conf, "bollinger", m_bollinger);
+    configureIndictor(conf, "adx", m_adx);
+
+    if (conf.hasIndicator("adx")) {
+        m_hasAdx = true;
+    }
 
     m_breakout = 0;
     m_integrate = 0;
@@ -85,6 +92,10 @@ void PullbackBBAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestam
             m_breakout = -1;
         } else if (lc > 0) {
             m_integrate = 1;
+        }
+
+        if (m_hasAdx) {
+            m_adx.compute(timestamp, price().high(), price().low(), price().close());
         }
     }
 }

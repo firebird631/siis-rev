@@ -59,6 +59,7 @@ public:
      */
     Json::Value indicators() const { return m_data.get("indicators", Json::Value()); }
 
+    o3d::Bool hasIndicator(const o3d::CString &name) const;
 
     o3d::Int32 getAnalyserInt(const o3d::CString &analyserName,
                               const o3d::CString &valueName,

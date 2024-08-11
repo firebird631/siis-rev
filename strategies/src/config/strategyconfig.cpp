@@ -148,6 +148,17 @@ static void modifyDict(Json::Value *root, o3d::StringTokenizer &keysOrIndexes, J
     }
 }
 
+o3d::Bool AnalyserConfig::hasIndicator(const o3d::CString &name) const
+{
+   Json::Value lindicators = indicators();
+
+    if (lindicators.isMember(name.getData())) {
+        return true;
+    }
+
+    return false;
+}
+
 o3d::Int32 AnalyserConfig::getAnalyserInt(const o3d::CString &analyserName,
                                           const o3d::CString &valueName,
                                           o3d::Int32 defValue) const

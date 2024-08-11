@@ -47,6 +47,7 @@ Pullback::Pullback(Handler *handler, const o3d::String &identifier) :
     m_targetScale(1.0),
     m_riskReward(1.0),
     m_minProfit(0.0),
+    m_minAdx(25.0),
     m_breakoutTimestamp(0.0),
     m_breakoutDirection(0),
     m_breakoutPrice(0),
@@ -152,6 +153,7 @@ void Pullback::init(Config *config)
             if (context.isMember("pullback")) {
                 Json::Value pullback = context.get("pullback", Json::Value());
                 // "type": "bollinger"
+                m_minAdx = pullback.get("min-adx", Json::Value()).asDouble();
             }
 
             // conf
@@ -478,6 +480,18 @@ TradeSignal Pullback::computeSignal(o3d::Double timestamp)
         }
     }
     // printf("%i %i\n", vpUp, vpDn);
+
+    // adx signal
+    o3d::Bool adxSignal = false;
+
+    if (m_bbAnalyser->hasAdx()) {
+        if (m_bbAnalyser->adx() > m_minAdx && m_bbAnalyser->adx() <= ADX_MAX) {
+            adxSignal = true;
+        }
+    } else {
+        adxSignal = true;
+    }
+
     // if integrate => long
     if (m_srAnalyser->breakoutDirection() < 0 && m_srAnalyser->breakoutPrice() > 0.0 && m_bbAnalyser->isPriceBelowLower()) {
         m_breakoutTimestamp = timestamp;
@@ -523,7 +537,7 @@ TradeSignal Pullback::computeSignal(o3d::Double timestamp)
     }
 
     // check for price above bollinger => long
-    if (m_integrateDirection > 0 && m_bbAnalyser->isPriceAboveLower() && checkVp(1, vpUp, vpDn)) {
+    if (m_integrateDirection > 0 && m_bbAnalyser->isPriceAboveLower() && checkVp(1, vpUp, vpDn) && adxSignal) {
         if (m_confirmAtClose) {
             if (m_confAnalyser->confirmation() > 0) {
                 // keep only one signal per timeframe
@@ -573,7 +587,7 @@ TradeSignal Pullback::computeSignal(o3d::Double timestamp)
     }
 
     // check for price below bollinger => short
-    if (m_integrateDirection < 0 && m_bbAnalyser->isPriceBelowUpper() && checkVp(-1, vpUp, vpDn)) {
+    if (m_integrateDirection < 0 && m_bbAnalyser->isPriceBelowUpper() && checkVp(-1, vpUp, vpDn) && adxSignal) {
         if (m_confirmAtClose) {
             if (m_confAnalyser->confirmation() < 0) {
                 // keep only one signal per timeframe
