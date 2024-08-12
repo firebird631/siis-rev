@@ -72,26 +72,34 @@ void MaAdxRbSigAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestam
         }
     }
 
-    if (1) {  // price().consolidated()) {
-        // compute only at close
+    o3d::Bool compute = true;
+
+    if (isUpdateAtclose()) {
+        compute = price().consolidated();
+    }
+
+    o3d::Int32 hc = 0;
+    o3d::Int32 lc = 0;
+
+    if (compute) {
         m_fast_h_ma.compute(timestamp, price().high());
         m_fast_m_ma.compute(timestamp, price().price());
         m_fast_l_ma.compute(timestamp, price().low());
 
         m_adx.compute(timestamp, price().high(), price().low(), price().close());
 
-        o3d::Int32 hc = DataArray::cross(price().close(), m_fast_h_ma.hma());
-        o3d::Int32 lc = DataArray::cross(price().close(), m_fast_l_ma.hma());
+        hc = DataArray::cross(price().close(), m_fast_h_ma.hma());
+        lc = DataArray::cross(price().close(), m_fast_l_ma.hma());
+    }
 
-        if (hc > 0) {
-            m_trend = 1;
-            m_sig = 1;
-        } else if (lc < 0) {
-            m_trend = -1;
-            m_sig = -1;
-        } else {
-            m_sig = 0;
-        }
+    if (hc > 0) {
+        m_trend = 1;
+        m_sig = 1;
+    } else if (lc < 0) {
+        m_trend = -1;
+        m_sig = -1;
+    } else {
+        m_sig = 0;
     }
 }
 

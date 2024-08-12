@@ -80,7 +80,6 @@ void PullbackRbBBAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimest
     }
 
     if (compute) {
-        // compute only at close
         m_bollinger.compute(timestamp, price().close());
 
         o3d::Int32 uc = DataArray::cross(price().close(), m_bollinger.upper());

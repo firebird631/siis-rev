@@ -17,6 +17,7 @@
 #include "siis/database/tradedb.h"
 #include "siis/database/rangebardb.h"
 
+#include "maadxrbsessionanalyser.h"
 #include "maadxrbtrendanalyser.h"
 #include "maadxrbsiganalyser.h"
 #include "maadxrbconfanalyser.h"
@@ -37,6 +38,7 @@ SIIS_PLUGIN_API siis::Strategy* siisStrategy(Handler *handler, const o3d::String
 
 MaAdxRb::MaAdxRb(Handler *handler, const o3d::String &identifier) :
     Strategy(handler, identifier),
+    m_sessionAnalyser(nullptr),
     m_trendAnalyser(nullptr),
     m_sigAnalyser(nullptr),
     m_confAnalyser(nullptr),
@@ -90,7 +92,13 @@ void MaAdxRb::init(Config *config)
                 continue;
             }
 
-            if (mode == "trend") {
+            if (mode == "session") {
+                Analyser *a = new MaAdxRbSessionAnalyser(this, name, barSize, depth, history, Price::PRICE_HLC);
+                a->init(AnalyserConfig(tickbar));
+
+                m_analysers.push_back(a);
+                m_sessionAnalyser = static_cast<MaAdxRbSessionAnalyser*>(a);
+            } else if (mode == "trend") {
                 Analyser *a = new MaAdxRbTrendAnalyser(this, name, barSize, depth, history, Price::PRICE_HLC);
                 a->init(AnalyserConfig(tickbar));
 
@@ -394,11 +402,53 @@ void MaAdxRb::orderExit(o3d::Double timestamp, Trade *trade, o3d::Double price)
     }
 }
 
+o3d::Bool MaAdxRb::checkVp(o3d::Int32 direction, o3d::Int32 vpUp, o3d::Int32 vpDn) const{
+    if (m_sessionAnalyser == nullptr) {
+        return true;
+    }
+
+    if (direction > 0 && m_confAnalyser->lastPrice() <= m_sessionAnalyser->vp().pocPrice()) {
+        return false;
+    } else if (direction < 0 && m_confAnalyser->lastPrice() >= m_sessionAnalyser->vp().pocPrice()) {
+        return false;
+    }
+
+    if (m_sessionAnalyser) {
+        if (direction > 0) {
+            return vpUp > vpDn;
+        } else if (direction < 0) {
+            return vpUp < vpDn;
+        }
+    }
+
+    return true;
+}
+
 TradeSignal MaAdxRb::computeSignal(o3d::Double timestamp)
 {
     TradeSignal signal(m_sigAnalyser->barSize(), timestamp);
 
-    if (m_trendAnalyser->trend() > 0) {
+    o3d::Int32 vpUp = 0;
+    o3d::Int32 vpDn = 0;
+
+    // volume-profile signal
+    if (m_sessionAnalyser && m_sessionAnalyser->lastPrice()) {
+        o3d::Double price = m_sessionAnalyser->lastPrice();
+        // o3d::Int32 n = -m_sessionAnalyser->vp().vp().size();
+
+        for (auto const vp : m_sessionAnalyser->vp().vp()) {
+            // price = m_sessionAnalyser->price().close().last();
+            // ++n;
+
+            if (price > vp->pocPrice) {
+                ++vpUp;
+            } else if (price < vp->pocPrice) {
+                ++vpDn;
+            }
+        }
+    }
+
+    if (m_trendAnalyser->trend() > 0 && checkVp(1, vpUp, vpDn)) {
         if (m_sigAnalyser->adx() > m_adxSig) {
             if (m_sigAnalyser->sig() > 0 && m_sigAnalyser->adx() <= ADX_MAX) {
                 if (m_confAnalyser->confirmation() > 0) {
@@ -425,7 +475,7 @@ TradeSignal MaAdxRb::computeSignal(o3d::Double timestamp)
                 }
             }
         }
-    } else if (m_trendAnalyser->trend() < 0) {
+    } else if (m_trendAnalyser->trend() < 0 && checkVp(-1, vpUp, vpDn)) {
         if (m_sigAnalyser->adx() > m_adxSig) {
             if (m_sigAnalyser->sig() < 0 && m_sigAnalyser->adx() <= ADX_MAX) {
                 if (m_confAnalyser->confirmation() < 0) {
