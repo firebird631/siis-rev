@@ -41,7 +41,7 @@ o3d::String SuperTrendRbSigAnalyser::typeName() const
     return "sig";
 }
 
-void SuperTrendRbSigAnalyser::init(AnalyserConfig conf)
+void SuperTrendRbSigAnalyser::init(const AnalyserConfig &conf)
 {
     configureIndictor(conf, "hma", m_hma);
     // configureIndictor(conf, "hma3", m_hma3);  // might be half len of hma

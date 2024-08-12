@@ -33,7 +33,7 @@ o3d::String SuperTrendRbConfAnalyser::typeName() const
     return "conf";
 }
 
-void SuperTrendRbConfAnalyser::init(AnalyserConfig conf)
+void SuperTrendRbConfAnalyser::init(const AnalyserConfig &conf)
 {
     RangeBarAnalyser::init(conf);
 

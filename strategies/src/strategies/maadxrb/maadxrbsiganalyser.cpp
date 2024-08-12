@@ -40,7 +40,7 @@ o3d::String MaAdxRbSigAnalyser::typeName() const
     return "sig";
 }
 
-void MaAdxRbSigAnalyser::init(AnalyserConfig conf)
+void MaAdxRbSigAnalyser::init(const AnalyserConfig &conf)
 {
     configureIndictor(conf, "fast_h_ma", m_fast_h_ma);
     configureIndictor(conf, "fast_m_ma", m_fast_m_ma);

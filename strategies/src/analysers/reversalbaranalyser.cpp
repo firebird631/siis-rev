@@ -33,7 +33,7 @@ ReversalBarAnalyser::~ReversalBarAnalyser()
 
 }
 
-void ReversalBarAnalyser::init(AnalyserConfig /*conf*/)
+void ReversalBarAnalyser::init(const AnalyserConfig &conf)
 {
     o3d::Int32 pricePrecision = strategy()->market()->precisionPrice();
     if (pricePrecision == 0) {
@@ -46,6 +46,11 @@ void ReversalBarAnalyser::init(AnalyserConfig /*conf*/)
     }
 
     m_ohlcGen.init(pricePrecision, tickSize);
+
+    // configuration parameters
+    if (conf.data().isMember("update-at-close")) {
+        setUpdateAtClose(conf.data().get("update-at-close", false).asBool());
+    }
 }
 
 void ReversalBarAnalyser::prepare(o3d::Double timestamp)
@@ -78,17 +83,21 @@ void ReversalBarAnalyser::process(o3d::Double timestamp, o3d::Double lastTimesta
         return;
     }
 
-    m_price.compute(m_ohlc);
-    m_volume.compute(m_ohlc);
+    // m_price.compute(m_ohlc);
+    // m_volume.compute(m_ohlc);
+    // prefers the faster incremental method
+    m_price.computeMinimalist(m_ohlc, m_ohlcGen.current(), numLastBars());
+    m_volume.computeMinimalist(m_ohlc, m_ohlcGen.current(), numLastBars());
 
     // last input data source timestamp as current timestamp limit
     o3d::Double lastInputTimestamp = m_price.lastTimestamp();
 
-    // @todo this doesnt work because each time a candle is closed a new one is opened
     if (m_price.consolidated()) {
         // last OHLC is not consolidated then the next timestamp is the timestamp of this last tick
         processCompleted(lastInputTimestamp);
     }
+
+    resetNumLastBars();
 }
 
 o3d::Double ReversalBarAnalyser::lastPrice() const

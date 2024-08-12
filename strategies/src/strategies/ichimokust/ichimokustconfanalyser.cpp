@@ -35,7 +35,7 @@ o3d::String IchimokuStConfAnalyser::typeName() const
     return "conf";
 }
 
-void IchimokuStConfAnalyser::init(AnalyserConfig conf)
+void IchimokuStConfAnalyser::init(const AnalyserConfig &conf)
 {
     TimeframeBarAnalyser::init(conf);
 

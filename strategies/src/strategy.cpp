@@ -71,6 +71,10 @@ void Strategy::init(Config *config)
     // default strategie parameters
     // ...
 
+    if (config == nullptr) {
+        return;
+    }
+
     m_brokerId = config->getBrokerId();
 }
 

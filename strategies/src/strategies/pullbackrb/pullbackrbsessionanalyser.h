@@ -35,7 +35,7 @@ public:
 
     virtual o3d::String typeName() const override;
 
-    virtual void init(AnalyserConfig conf) override;
+    virtual void init(const AnalyserConfig &conf) override;
     virtual void terminate() override;
     virtual void compute(o3d::Double timestamp, o3d::Double lastTimestamp) override;
     virtual void updateTick(const Tick& tick, o3d::Bool finalize) override;

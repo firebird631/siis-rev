@@ -38,7 +38,7 @@ o3d::String PullbackRbBBAnalyser::typeName() const
     return "bollinger";
 }
 
-void PullbackRbBBAnalyser::init(AnalyserConfig conf)
+void PullbackRbBBAnalyser::init(const AnalyserConfig &conf)
 {
     configureIndictor(conf, "bollinger", m_bollinger);
     configureIndictor(conf, "adx", m_adx);
@@ -73,7 +73,13 @@ void PullbackRbBBAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimest
     m_breakout = 0;
     m_integrate = 0;
 
-    if (1) {  // price().consolidated()) {
+    o3d::Bool compute = true;
+
+    if (isUpdateAtclose()) {
+        compute = price().consolidated();
+    }
+
+    if (compute) {
         // compute only at close
         m_bollinger.compute(timestamp, price().close());
 

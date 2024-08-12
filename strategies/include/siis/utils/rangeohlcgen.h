@@ -61,6 +61,11 @@ public:
     o3d::Bool valid() const;
 
     /**
+     * @brief current Return the current working bar. Sometime it could be a nullptr.
+     */
+    const Ohlc* current() const { return m_curOhlc; }
+
+    /**
      * @brief updateFromTick Update from one more tick and last ohlc from out.
      * @return True if a new ohlc is append to out.
      */

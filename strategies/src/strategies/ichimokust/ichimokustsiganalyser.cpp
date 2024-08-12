@@ -43,7 +43,7 @@ o3d::String IchimokuStSigAnalyser::typeName() const
     return "sig";
 }
 
-void IchimokuStSigAnalyser::init(AnalyserConfig conf)
+void IchimokuStSigAnalyser::init(const AnalyserConfig &conf)
 {
     configureIndictor(conf, "ichimoku", m_ichimoku);
 

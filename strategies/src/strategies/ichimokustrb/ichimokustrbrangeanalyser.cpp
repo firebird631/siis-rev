@@ -37,7 +37,7 @@ o3d::String IchimokuStRbRangeAnalyser::typeName() const
     return "range-filter";
 }
 
-void IchimokuStRbRangeAnalyser::init(AnalyserConfig conf)
+void IchimokuStRbRangeAnalyser::init(const AnalyserConfig &conf)
 {
     configureIndictor(conf, "slow_ma_high", m_slow_ma_high);
     configureIndictor(conf, "slow_ma_low", m_slow_ma_low);

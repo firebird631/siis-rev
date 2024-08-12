@@ -41,6 +41,14 @@ public:
 
     void compute(const OhlcCircular &ohlc);
 
+    /**
+     * @brief computeMinimalist Similar as compute but only update the last bar if num bars is 1
+     * @param ohlc
+     * If num bars is greater than 1 it then call the default compute method.
+     * @note This is an optimized compute version without trade-off.
+     */
+    void computeMinimalist(const OhlcCircular &ohlc, const Ohlc *current, o3d::Int32 numBars);
+
 private:
 
     DataArray m_volume;
@@ -50,6 +58,8 @@ private:
 
     o3d::Double m_prev;
     o3d::Double m_last;
+
+    void computeLast(const Ohlc *current);
 };
 
 } // namespace siis

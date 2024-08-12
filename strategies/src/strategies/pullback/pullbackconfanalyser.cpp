@@ -35,7 +35,7 @@ o3d::String PullbackConfAnalyser::typeName() const
     return "conf";
 }
 
-void PullbackConfAnalyser::init(AnalyserConfig conf)
+void PullbackConfAnalyser::init(const AnalyserConfig &conf)
 {
     TimeframeBarAnalyser::init(conf);
 }

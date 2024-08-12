@@ -36,7 +36,7 @@ o3d::String MaAdxSessionAnalyser::typeName() const
     return "session";
 }
 
-void MaAdxSessionAnalyser::init(AnalyserConfig conf)
+void MaAdxSessionAnalyser::init(const AnalyserConfig &conf)
 {
     configureIndictor(conf, "vp", m_vp);
 

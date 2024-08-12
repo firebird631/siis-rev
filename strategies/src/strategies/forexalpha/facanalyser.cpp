@@ -37,7 +37,7 @@ o3d::String FaCAnalyser::typeName() const
     return "C";
 }
 
-void FaCAnalyser::init(AnalyserConfig conf)
+void FaCAnalyser::init(const AnalyserConfig &conf)
 {
     configureIndictor(conf, "atr", m_atr);
     configureIndictor(conf, "sma", m_sma);

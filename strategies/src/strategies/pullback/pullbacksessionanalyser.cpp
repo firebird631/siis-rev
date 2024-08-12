@@ -36,7 +36,7 @@ o3d::String PullbackSessionAnalyser::typeName() const
     return "session";
 }
 
-void PullbackSessionAnalyser::init(AnalyserConfig conf)
+void PullbackSessionAnalyser::init(const AnalyserConfig &conf)
 {
     configureIndictor(conf, "vp", m_vp);
 

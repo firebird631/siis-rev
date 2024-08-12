@@ -63,6 +63,31 @@ void Volume::compute(const OhlcCircular &ohlc)
     done(timestamp);
 }
 
+void Volume::computeMinimalist(const OhlcCircular &ohlc, const Ohlc *current, o3d::Int32 numBars)
+{
+    if (numBars == 1) {
+        computeLast(current);
+    } else {
+        compute(ohlc);
+    }
+}
+
+void Volume::computeLast(const Ohlc *cur)
+{
+    m_prev = m_last;
+
+    if (cur == nullptr) {
+        return;
+    }
+
+    o3d::Int32 last = m_volume.getSize() - 1;
+
+    m_volume[last] = cur->volume();
+
+    m_last = m_volume[last];
+    done(cur->timestamp());
+}
+
 //void Volume::compute(o3d::Double timestamp, const OhlcArray &ohlc, o3d::Int32 ofs)
 //{
 //    m_prev = m_last;

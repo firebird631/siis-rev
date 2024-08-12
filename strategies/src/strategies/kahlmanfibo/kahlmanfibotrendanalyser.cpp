@@ -45,7 +45,7 @@ o3d::String KahlmanFiboTrendAnalyser::typeName() const
     return "trend";
 }
 
-void KahlmanFiboTrendAnalyser::init(AnalyserConfig conf)
+void KahlmanFiboTrendAnalyser::init(const AnalyserConfig &conf)
 {
     configureIndictor(conf, "hma", m_hma);
     // configureIndictor(conf, "hma3", m_hma3);  // might be half len of hma

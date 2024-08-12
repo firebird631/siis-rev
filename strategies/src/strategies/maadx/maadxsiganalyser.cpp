@@ -41,7 +41,7 @@ o3d::String MaAdxSigAnalyser::typeName() const
     return "sig";
 }
 
-void MaAdxSigAnalyser::init(AnalyserConfig conf)
+void MaAdxSigAnalyser::init(const AnalyserConfig &conf)
 {
     configureIndictor(conf, "fast_h_ma", m_fast_h_ma);
     configureIndictor(conf, "fast_m_ma", m_fast_m_ma);

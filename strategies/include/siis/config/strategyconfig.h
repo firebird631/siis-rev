@@ -310,7 +310,7 @@ private:
 };
 
 template <class T>
-void configureIndictor(AnalyserConfig &conf, const o3d::CString &name, T &indicator)
+void configureIndictor(const AnalyserConfig &conf, const o3d::CString &name, T &indicator)
 {
     Json::Value indicators = conf.indicators();
 

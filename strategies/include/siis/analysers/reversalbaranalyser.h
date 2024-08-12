@@ -43,7 +43,7 @@ public:
     virtual void onTickUpdate(o3d::Double timestamp, const TickArray &ticks) override;
     virtual void onOhlcUpdate(o3d::Double timestamp, o3d::Double timeframe, const OhlcArray &ohlc) override;
 
-    virtual void init(AnalyserConfig conf) override;
+    virtual void init(const AnalyserConfig &conf) override;
     virtual void prepare(o3d::Double timestamp) override;
 
     virtual void process(o3d::Double timestamp, o3d::Double lastTimestamp) override;

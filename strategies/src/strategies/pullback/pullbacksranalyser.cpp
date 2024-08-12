@@ -38,7 +38,7 @@ o3d::String PullbackSRAnalyser::typeName() const
     return "sr";
 }
 
-void PullbackSRAnalyser::init(AnalyserConfig conf)
+void PullbackSRAnalyser::init(const AnalyserConfig &conf)
 {
     configureIndictor(conf, "pivotpoint", m_pivotpoint);
 

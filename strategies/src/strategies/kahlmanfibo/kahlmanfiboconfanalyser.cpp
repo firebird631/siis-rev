@@ -35,7 +35,7 @@ o3d::String KahlmanFiboConfAnalyser::typeName() const
     return "conf";
 }
 
-void KahlmanFiboConfAnalyser::init(AnalyserConfig conf)
+void KahlmanFiboConfAnalyser::init(const AnalyserConfig &conf)
 {
     TimeframeBarAnalyser::init(conf);
 

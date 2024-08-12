@@ -38,7 +38,7 @@ o3d::String IaAAnalyser::typeName() const
     return "A";
 }
 
-void IaAAnalyser::init(AnalyserConfig conf)
+void IaAAnalyser::init(const AnalyserConfig &conf)
 {
     configureIndictor(conf, "atr", m_atr);
     configureIndictor(conf, "sma", m_sma);

@@ -43,7 +43,7 @@ o3d::String SuperTrendSigAnalyser::typeName() const
     return "sig";
 }
 
-void SuperTrendSigAnalyser::init(AnalyserConfig conf)
+void SuperTrendSigAnalyser::init(const AnalyserConfig &conf)
 {
     configureIndictor(conf, "hma", m_hma);
     // configureIndictor(conf, "hma3", m_hma3);  // might be half len of hma

@@ -33,7 +33,7 @@ o3d::String PullbackRbConfAnalyser::typeName() const
     return "conf";
 }
 
-void PullbackRbConfAnalyser::init(AnalyserConfig conf)
+void PullbackRbConfAnalyser::init(const AnalyserConfig &conf)
 {
     RangeBarAnalyser::init(conf);
 }

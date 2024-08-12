@@ -35,7 +35,7 @@ o3d::String SuperTrendConfAnalyser::typeName() const
     return "conf";
 }
 
-void SuperTrendConfAnalyser::init(AnalyserConfig conf)
+void SuperTrendConfAnalyser::init(const AnalyserConfig &conf)
 {
     TimeframeBarAnalyser::init(conf);
 

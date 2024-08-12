@@ -33,7 +33,7 @@ o3d::String IchimokuStRbConfAnalyser::typeName() const
     return "conf";
 }
 
-void IchimokuStRbConfAnalyser::init(AnalyserConfig conf)
+void IchimokuStRbConfAnalyser::init(const AnalyserConfig &conf)
 {
     RangeBarAnalyser::init(conf);
 

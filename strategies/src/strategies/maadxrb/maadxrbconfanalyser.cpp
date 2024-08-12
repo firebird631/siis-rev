@@ -34,7 +34,7 @@ o3d::String MaAdxRbConfAnalyser::typeName() const
     return "conf";
 }
 
-void MaAdxRbConfAnalyser::init(AnalyserConfig conf)
+void MaAdxRbConfAnalyser::init(const AnalyserConfig &conf)
 {
     RangeBarAnalyser::init(conf);
 

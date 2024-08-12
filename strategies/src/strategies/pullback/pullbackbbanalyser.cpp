@@ -40,7 +40,7 @@ o3d::String PullbackBBAnalyser::typeName() const
     return "bollinger";
 }
 
-void PullbackBBAnalyser::init(AnalyserConfig conf)
+void PullbackBBAnalyser::init(const AnalyserConfig &conf)
 {
     configureIndictor(conf, "bollinger", m_bollinger);
     configureIndictor(conf, "adx", m_adx);

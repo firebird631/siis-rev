@@ -22,7 +22,9 @@ Analyser::Analyser(Strategy *strategy,
     m_barSize(barSize),
     m_depth(depth),
     m_history(history),
-    m_nextTimestamp(0)
+    m_updateAtClose(false),
+    m_nextTimestamp(0),
+    m_numLastBars(0)
 {
 
 }

@@ -37,7 +37,7 @@ o3d::String MaAdxRbTrendAnalyser::typeName() const
     return "trend";
 }
 
-void MaAdxRbTrendAnalyser::init(AnalyserConfig conf)
+void MaAdxRbTrendAnalyser::init(const AnalyserConfig &conf)
 {
     configureIndictor(conf, "slow_h_ma", m_slow_h_ma);
     configureIndictor(conf, "slow_m_ma", m_slow_m_ma);

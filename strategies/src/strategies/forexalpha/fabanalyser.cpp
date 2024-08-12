@@ -37,7 +37,7 @@ o3d::String FaBAnalyser::typeName() const
     return "B";
 }
 
-void FaBAnalyser::init(AnalyserConfig conf)
+void FaBAnalyser::init(const AnalyserConfig &conf)
 {
     configureIndictor(conf, "atr", m_atr);
     configureIndictor(conf, "sma", m_sma);

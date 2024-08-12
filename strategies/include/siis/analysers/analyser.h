@@ -43,7 +43,7 @@ public:
     /**
      * @brief init Initialize using strategy anaylser configuration.
      */
-    virtual void init(AnalyserConfig conf) = 0;
+    virtual void init(const AnalyserConfig &conf) = 0;
 
     /**
      * @brief init Terminate the analyser.
@@ -103,6 +103,22 @@ public:
      */
     virtual o3d::String formatUnit() const = 0;
 
+    /**
+     * @brief isComputeAtclose If configured (default is false) it will only to allow indicators computation at bar
+     * close.
+     * @note This is a free to uses method because it is possible to combine indicator at close with some at each
+     * process.
+     * There is pros and cons :
+     * - pros : faster computation because only compute once over many, filter noise.
+     * - cons : could loss wanted crossing during a bar.
+     */
+    o3d::Bool isUpdateAtclose() const { return m_updateAtClose; }
+
+    /**
+     * @brief setUpdateAtClose Default is false. Each analyser must implements his own usage of isUpdateAtClose().
+     */
+    void setUpdateAtClose(o3d::Bool b) { m_updateAtClose = b; }
+
     const Strategy* strategy() const { return m_strategy; }
     Strategy* strategy() { return m_strategy; }
 
@@ -120,6 +136,12 @@ public:
     o3d::Double nextTs() const { return m_nextTimestamp; }
 
     /**
+     * @brief numLastBars Number of process bar at the last iteration. 1 mean at least the current bar.
+     * More than 1 means it generated (and append) new bars.
+     */
+    o3d::Int32 numLastBars() const { return m_numLastBars; }
+
+    /**
      * @brief log Log a message throught the message logger of the strategy.
      * @param channel Mapped name of the channel.
      * @param msg Message content.
@@ -128,7 +150,10 @@ public:
 
 protected:
 
-    void processCompleted(o3d::Double timestamp) { m_nextTimestamp = timestamp; }
+    inline void processCompleted(o3d::Double timestamp) { m_nextTimestamp = timestamp; }
+
+    inline void incNumLastBars(o3d::Int32 num) { m_numLastBars += num; }
+    inline void resetNumLastBars() { m_numLastBars = 0; }
 
 private:
 
@@ -142,7 +167,10 @@ private:
     o3d::Int32 m_depth;
     o3d::Int32 m_history;
 
+    o3d::Bool m_updateAtClose;
+
     o3d::Double m_nextTimestamp;
+    o3d::Int32 m_numLastBars;
 };
 
 } // namespace siis

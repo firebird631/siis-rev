@@ -40,7 +40,7 @@ o3d::String FaDAnalyser::typeName() const
     return "D";
 }
 
-void FaDAnalyser::init(AnalyserConfig conf)
+void FaDAnalyser::init(const AnalyserConfig &conf)
 {
     configureIndictor(conf, "atr", m_atr);
     configureIndictor(conf, "sma", m_sma);

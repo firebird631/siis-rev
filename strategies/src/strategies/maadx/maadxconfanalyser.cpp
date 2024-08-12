@@ -35,7 +35,7 @@ o3d::String MaAdxConfAnalyser::typeName() const
     return "conf";
 }
 
-void MaAdxConfAnalyser::init(AnalyserConfig conf)
+void MaAdxConfAnalyser::init(const AnalyserConfig &conf)
 {
     TimeframeBarAnalyser::init(conf);
 

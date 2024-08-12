@@ -36,7 +36,7 @@ o3d::String PullbackRbSRAnalyser::typeName() const
     return "sr";
 }
 
-void PullbackRbSRAnalyser::init(AnalyserConfig conf)
+void PullbackRbSRAnalyser::init(const AnalyserConfig &conf)
 {
     configureIndictor(conf, "pivotpoint", m_pivotpoint);
 
@@ -55,7 +55,7 @@ void PullbackRbSRAnalyser::terminate()
 void PullbackRbSRAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
 {
     if (price().consolidated()) {
-        // compute at close
+        // always compute at close
         m_pivotpoint.compute(timestamp, price().open(), price().high(), price().low(), price().close());
     }
 
