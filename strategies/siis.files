@@ -86,6 +86,7 @@ include/siis/indicators/ema/ema.h
 include/siis/indicators/hma/hma.h
 include/siis/indicators/hma3/hma3.h
 include/siis/indicators/ichimoku/ichimoku.h
+include/siis/indicators/imbalance/barimbalance.h
 include/siis/indicators/indicator.h
 include/siis/indicators/kahlmanfilter/kahlmanfilter.h
 include/siis/indicators/macd/macd.h
@@ -254,6 +255,7 @@ src/indicators/ema/ema.cpp
 src/indicators/hma/hma.cpp
 src/indicators/hma3/hma3.cpp
 src/indicators/ichimoku/ichimoku.cpp
+src/indicators/imbalance/barimbalance.cpp
 src/indicators/kahlmanfilter/kahlmanfilter.cpp
 src/indicators/macd/macd.cpp
 src/indicators/mama/mama.cpp

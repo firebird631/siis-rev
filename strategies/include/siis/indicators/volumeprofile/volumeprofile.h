@@ -1,6 +1,6 @@
  /**
  * @brief SiiS tick volume profile indicator.
- * @copyright Copyright (C) 2019 SiiS
+ * @copyright Copyright (C) 2024 SiiS
  * @author Frederic SCHERMA (frederic.scherma@gmail.com)
  * @date 2024-08-02
  */

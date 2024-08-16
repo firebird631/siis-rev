@@ -80,6 +80,7 @@ set(STRATEGY_LIB_CXX
     indicators/ema/ema.cpp
     indicators/hma/hma.cpp
     indicators/hma3/hma3.cpp
+    indicators/imbalance/barimbalance.cpp
     indicators/ichimoku/ichimoku.cpp
     indicators/kahlmanfilter/kahlmanfilter.cpp
     indicators/macd/macd.cpp

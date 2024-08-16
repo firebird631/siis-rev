@@ -54,6 +54,8 @@ Prioritaire
 Secondaire
 ==========
 
+- ajouter barimbalance (voir version Python)
+
 - ajouter trade operation (step stop loss)
 - ajouter trading region (range, channel)
 
