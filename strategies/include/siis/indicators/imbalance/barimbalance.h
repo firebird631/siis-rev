@@ -53,7 +53,7 @@ public:
      * @param timeframe Related bar timeframe or 0
      * @param depth min 1 Number of bar lookback if lower than given array.
      */
-    BarImbalance(const o3d::String &name, o3d::Double timeframe, o3d::Int32 depth=10);
+    BarImbalance(const o3d::String &name, o3d::Double timeframe, o3d::Int32 depth=10, o3d::Double minHeight=0.0);
 
     BarImbalance(const o3d::String &name, o3d::Double timeframe, IndicatorConfig conf);
 
@@ -86,6 +86,7 @@ private:
     o3d::Double m_sessionDuration;   //!< 0 means full day
 
     o3d::Int32 m_depth;
+    o3d::Double m_minHeight;
 
     T_Imbalance m_imbalances;
 

@@ -16,11 +16,12 @@ using o3d::Debug;
 
 BarImbalance::BarImbalance(const o3d::String &name,
                              o3d::Double timeframe,
-                             o3d::Int32 depth) :
+                             o3d::Int32 depth, o3d::Double minHeight) :
     Indicator(name, timeframe),
     m_sessionOffset(0.0),
     m_sessionDuration(0.0),
-    m_depth(depth)
+    m_depth(depth),
+    m_minHeight(minHeight)
 {
 
 }
@@ -29,12 +30,15 @@ BarImbalance::BarImbalance(const o3d::String &name, o3d::Double timeframe, Indic
     Indicator(name, timeframe),
     m_sessionOffset(0.0),
     m_sessionDuration(0.0),
-    m_depth(10)
+    m_depth(10),
+    m_minHeight(0.0)
 {
     if (conf.data().isObject()) {
         m_depth = conf.data().get("depth", 10).asInt();
+        m_minHeight = conf.data().get("min-height", 0.0).asDouble();
     } else if (conf.data().isArray()) {
         m_depth = conf.data().get((Json::ArrayIndex)1, 10).asInt();
+        m_minHeight = conf.data().get((Json::ArrayIndex)2, 0.0).asDouble();
     }
 }
 
@@ -46,8 +50,10 @@ void BarImbalance::setConf(IndicatorConfig conf)
 {
     if (conf.data().isObject()) {
         m_depth = conf.data().get("depth()", 10).asInt();
+        m_minHeight = conf.data().get("min-height", 0.0).asDouble();
     } else if (conf.data().isArray()) {
         m_depth = conf.data().get((Json::ArrayIndex)1, 10).asInt();
+        m_minHeight = conf.data().get((Json::ArrayIndex)2, 0.0).asDouble();
     }
 }
 
@@ -68,8 +74,8 @@ void BarImbalance::compute(o3d::Double timestamp, const DataArray &timestamps,
     T_Imbalance foundImbalances;
 
     if (numLastBars > 1) {
-        o3d::Int32 baseIdx = timestamps.getSize() - numLastBars - 1;
-        o3d::Int32 endIdx = baseIdx + numLastBars - 1;
+        o3d::Int32 baseIdx = o3d::max(1, timestamps.getSize() - numLastBars - 1);
+        o3d::Int32 endIdx = timestamps.getSize() - 2;
 
         if (timestamps.getSize() > m_depth) {
             // limit input size
@@ -77,15 +83,16 @@ void BarImbalance::compute(o3d::Double timestamp, const DataArray &timestamps,
         }
 
         for (o3d::Int32 i = baseIdx; i < endIdx; ++i) {
-            o3d::Double curOpen = open[baseIdx];
-            o3d::Double curClose = close[baseIdx];
+            // o3d::Double curOpen = open[baseIdx];
+            // o3d::Double curClose = close[baseIdx];
 
             // lookup for upper imbalance
             o3d::Double prevHigh = high[baseIdx-1];
             o3d::Double nextLow  = low[baseIdx+1];
 
             if (nextLow > prevHigh) {
-                if (curOpen <= prevHigh && curClose >= nextLow) {
+                //if (curOpen <= prevHigh && curClose >= nextLow) {
+                if (nextLow - prevHigh > m_minHeight) {
                     // found at timestamp
                     foundImbalances.push_back(Imbalance());
 
@@ -103,7 +110,8 @@ void BarImbalance::compute(o3d::Double timestamp, const DataArray &timestamps,
             o3d::Double nextHigh= high[baseIdx+1];
 
             if (nextHigh < prevLow) {
-                if (curOpen >= prevLow && curClose <= nextHigh) {
+                //if (curOpen >= prevLow && curClose <= nextHigh) {
+                if (prevLow - nextHigh > m_minHeight) {
                     // found at timestamp
                     foundImbalances.push_back(Imbalance());
 
@@ -147,18 +155,26 @@ BarImbalance::T_Imbalance BarImbalance::updateImbalances(T_Imbalance &imbalances
         for (Imbalance imbalance : imbalances) {
             keep = true;
 
-            if (highPrice <= imbalance.highPrice && lowPrice >= imbalance.lowPrice) {
+            if (lowPrice > imbalance.lowPrice && highPrice < imbalance.highPrice) {
                 // the bar is inside, it cancels and potentially could create 2 news one
                 keep = false;
-            } else if (highPrice > imbalance.highPrice && lowPrice < imbalance.lowPrice) {
+            } else if (lowPrice <= imbalance.lowPrice && highPrice >= imbalance.highPrice) {
                 // the bar eat the imbalance, it cancels the imbalance
                 keep = false;
-            } else if (highPrice < imbalance.highPrice && lowPrice < imbalance.lowPrice) {
+            } else if (lowPrice <= imbalance.lowPrice && highPrice > imbalance.lowPrice) {
                 // partially inside (low part), reduce the lower part
                 imbalance.lowPrice = highPrice;
-            } else if (highPrice > imbalance.highPrice && lowPrice > imbalance.lowPrice) {
+
+                if (imbalance.lowPrice >= imbalance.highPrice) {
+                    keep = false;
+                }
+            } else if (highPrice >= imbalance.highPrice && lowPrice < imbalance.highPrice) {
                 // partially inside (high part), reduce the higher part
                 imbalance.highPrice = lowPrice;
+
+                if (imbalance.lowPrice >= imbalance.highPrice) {
+                    keep = false;
+                }
             }
 
             if (keep) {
