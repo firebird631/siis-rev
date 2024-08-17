@@ -41,14 +41,16 @@ public:
      * @param sensibility bin width
      * @param valueAreaSize In percent ]0..100]
      * @param computePeaksAndValleys Auto compute at finalize (default false)
-     * @param tickScale Supplementary tick scalar to adjust price computation.
+     * @param tickScale Supplementary tick scalar to adjust price computation
+     * @param sessionFilter If defined, ticks received out of the session are ignored
      */
     VolumeProfile(const o3d::String &name, o3d::Double timeframe,
                   o3d::Int32 historySize=10,
                   o3d::Double sensibility=1.0,
                   o3d::Double valueAreaSize=70.0,
                   o3d::Bool computePeaksAndValleys=false,
-                  o3d::Double tickScale=1.0);
+                  o3d::Double tickScale=1.0,
+                  o3d::Bool sessionFilter=false);
 
     VolumeProfile(const o3d::String &name, o3d::Double timeframe, IndicatorConfig conf);
 
@@ -70,6 +72,7 @@ public:
     o3d::Double valueAreaSize() const { return m_valueAreaSize; }
     o3d::Bool isComputeValueArea() const { return m_valueAreaSize > 0 && m_valueAreaSize <= 100; }
     o3d::Bool isComputePeaksAndValleys() const { return m_computePeaksAndValleys; }
+    o3d::Bool hasSessionFilter() const { return m_sessionFilter; }
 
     o3d::Bool hasValues() const { return !m_vp.empty(); }
 
@@ -148,6 +151,7 @@ private:
     o3d::Bool m_computePeaksAndValleys;
 
     o3d::Double m_tickScale;
+    o3d::Bool m_sessionFilter;
 
     VolumeProfileData *m_pCurrent;
 

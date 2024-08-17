@@ -89,7 +89,13 @@ void KahlmanFiboSigAnalyser::compute(o3d::Double timestamp, o3d::Double lastTime
         }
     }
 
-    if (1) {  // price().consolidated()) {
+    o3d::Bool compute = true;
+
+    if (isUpdateAtclose()) {
+        compute = price().consolidated();
+    }
+
+    if (compute) {
         // compute only at close
         m_hma.compute(timestamp, price().price());   // compute on HL2 price
         m_hma3.compute(timestamp, price().close());  // compute on close price

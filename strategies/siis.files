@@ -76,8 +76,8 @@ include/siis/handler.h
 include/siis/indicators/adx/adx.h
 include/siis/indicators/atr/atr.h
 include/siis/indicators/atrsr/atrsr.h
+include/siis/indicators/awesome/awesome.h
 include/siis/indicators/bollinger/bollinger.h
-include/siis/indicators/bbawe/bbawe.h
 include/siis/indicators/cci/cci.h
 include/siis/indicators/cumulativevolumedelta/cvd.h
 include/siis/indicators/dmi/dmi.h
@@ -245,8 +245,8 @@ src/indicators/adx/adx.cpp
 src/indicators/atr/atr.cpp
 src/indicators/atrsr/atrsr.cpp
 src/indicators/atr/atr.cpp
+src/indicators/awesome/awesome.cpp
 src/indicators/bollinger/bollinger.cpp
-src/indicators/bbawe/bbawe.cpp
 src/indicators/cci/cci.cpp
 src/indicators/cumulativevolumedelta/cvd.cpp
 src/indicators/dmi/dmi.cpp

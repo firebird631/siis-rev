@@ -23,7 +23,7 @@ VolumeProfile::VolumeProfile(const o3d::String &name,
                              o3d::Double sensibility,
                              o3d::Double valueAreaSize,
                              o3d::Bool computePeaksAndValleys,
-                             o3d::Double tickScale) :
+                             o3d::Double tickScale, o3d::Bool sessionFilter) :
     Indicator(name, timeframe),
     m_sessionOffset(0.0),
     m_sessionDuration(0.0),
@@ -34,6 +34,7 @@ VolumeProfile::VolumeProfile(const o3d::String &name,
     m_valueAreaSize(valueAreaSize),
     m_computePeaksAndValleys(computePeaksAndValleys),
     m_tickScale(tickScale),
+    m_sessionFilter(sessionFilter),
     m_pCurrent(nullptr),
     m_currentMinPrice(0.0),
     m_currentMaxPrice(0.0),
@@ -53,6 +54,7 @@ VolumeProfile::VolumeProfile(const o3d::String &name, o3d::Double timeframe, Ind
     m_valueAreaSize(70.0),
     m_computePeaksAndValleys(false),
     m_tickScale(1.0),
+    m_sessionFilter(false),
     m_pCurrent(nullptr),
     m_currentMinPrice(0.0),
     m_currentMaxPrice(0.0),
@@ -64,12 +66,14 @@ VolumeProfile::VolumeProfile(const o3d::String &name, o3d::Double timeframe, Ind
         m_valueAreaSize = conf.data().get("value-area", 70.0).asDouble();
         m_computePeaksAndValleys = conf.data().get("peaks-and-valleys", false).asBool();
         m_tickScale = conf.data().get("tick-scale", 1.0).asDouble();
+        m_sessionFilter = conf.data().get("session-filter", false).asBool();
     } else if (conf.data().isArray()) {
         m_historySize = conf.data().get((Json::ArrayIndex)1, 10).asInt();
         m_sensibility = conf.data().get((Json::ArrayIndex)2, 1.0).asDouble();
         m_valueAreaSize = conf.data().get((Json::ArrayIndex)3, 70.0).asDouble();
         m_computePeaksAndValleys = conf.data().get((Json::ArrayIndex)4, false).asBool();
         m_tickScale = conf.data().get((Json::ArrayIndex)5, 1.0).asDouble();
+        m_sessionFilter = conf.data().get((Json::ArrayIndex)6, 1.0).asBool();
     }
 }
 
@@ -92,12 +96,14 @@ void VolumeProfile::setConf(IndicatorConfig conf)
         m_valueAreaSize = conf.data().get("value-area", 70.0).asDouble();
         m_computePeaksAndValleys = conf.data().get("peaks-and-valleys", false).asBool();
         m_tickScale = conf.data().get("tick-scale", 1.0).asDouble();
+        m_sessionFilter = conf.data().get("session-filter", false).asBool();
     } else if (conf.data().isArray()) {
         m_historySize = conf.data().get((Json::ArrayIndex)1, 10).asInt();
         m_sensibility = conf.data().get((Json::ArrayIndex)2, 1.0).asDouble();
         m_valueAreaSize = conf.data().get((Json::ArrayIndex)3, 70.0).asDouble();
         m_computePeaksAndValleys = conf.data().get((Json::ArrayIndex)4, false).asBool();
         m_tickScale = conf.data().get((Json::ArrayIndex)5, 1.0).asDouble();
+        m_sessionFilter = conf.data().get((Json::ArrayIndex)6, 1.0).asBool();
     }
 }
 
@@ -183,7 +189,7 @@ void VolumeProfile::update(const Tick &tick, o3d::Bool finalize)
         }
     }
 
-    if (m_sessionOffset > 0 || m_sessionDuration > 0) {
+    if (m_sessionFilter && (m_sessionOffset > 0 || m_sessionDuration > 0)) {
         o3d::Double basetime = baseTime(TF_DAY, tick.timestamp());
 
         if (tick.timestamp() < basetime + m_sessionOffset) {

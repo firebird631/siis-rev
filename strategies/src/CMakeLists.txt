@@ -68,11 +68,11 @@ set(STRATEGY_LIB_CXX
     display/displayer.cpp
     display/ncursesdisplayer.cpp
     display/ttydisplayer.cpp
+    indicators/adx/adx.cpp
     indicators/atr/atr.cpp
     indicators/atrsr/atrsr.cpp
-    indicators/adx/adx.cpp
+    indicators/awesome/awesome.cpp
     indicators/bollinger/bollinger.cpp
-    indicators/bbawe/bbawe.cpp
     indicators/cci/cci.cpp
     indicators/cumulativevolumedelta/cvd.cpp
     indicators/donchian/donchian.cpp

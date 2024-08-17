@@ -51,7 +51,13 @@ void MaAdxConfAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp
 {
     m_confirmation = 0;
 
-    if (1) {  // price().consolidated()) {
+    o3d::Bool compute = true;
+
+    if (isUpdateAtclose()) {
+        compute = price().consolidated();
+    }
+
+    if (compute) {
         if (price().close().last() > price().close().prev()) {
             m_confirmation = 1;
         } else if (price().close().last() < price().close().prev()) {

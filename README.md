@@ -68,10 +68,10 @@ Features and TODO list
     * Common indicators are supported (RSI, SMA, BBANDS, ATR, STOCH, ask if you want more...)
     * Pure signal strategies are possibles in way to only generating some signals/alerts
 	* Machine-learning (WIP)
-	* Strategy optimizer using algo-G (WIP)
-* Fast backtesting (WIP)
+	* Strategy optimizer using algo-G (Using the Python Trainer)
+* Fast backtesting
 * Paper-mode (simulate a broker for spot and margin trading using live market data)
-* Live-mode trading on your broker account
+* Live-mode trading on your broker account (planned)
 * Web client monitor and manager (planned)
 	* Display account details and assets quantities
 	* Display tickers and markets informations
@@ -86,12 +86,8 @@ Features and TODO list
 * Notifiers (planned)
 	* Basic Discord WebHook notifier (planned)
 	* Hangout notifier (planned)
-* 4 initials strategies
-	* Bitcoin/Ethereum (WIP)
-	* Altcoins (WIP)
-	* Forex (WIP)
-	* Indices (WIP)
-	* Social copy (postponned)
+* More than 10 functionnals strategies
+    * ...
 * Manual per trade directives (WIP)
     * Add many dynamic stop-loss (trigger level + stop price), useful to schedule how to follow the price
     * Many exits conditions to be implemented
@@ -119,11 +115,11 @@ If this project helped you out feel free to donate.
 Installation
 ------------
 
-Need Python3.6 or Python3.7, GCC or CLANG compiler and CMAKE on your system.
+Need Python3.8 or more recent, GCC or CLANG compiler and CMAKE on your system.
 Tested on Debian, Ubuntu and Fedora.
 
 An important C++ dependency is my other project Objective3D. I use it for all
-the work I've done on the core module, tons of features I really need.
+the work I've done only on the core module, tons of features I really need.
 
 There is more details on the strategy/ directory.
 
