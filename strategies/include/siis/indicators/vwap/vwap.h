@@ -23,12 +23,9 @@ namespace siis {
  * @author Frederic Scherma
  * @date 2024-08-18
  */
-class SIIS_API VWap: public Indicator
+class SIIS_API VWap : public Indicator
 {
 public:
-
-    typedef std::vector<std::pair<o3d::Double, std::pair<o3d::Double, o3d::Double>>> T_VolumeByPrice;
-    typedef T_VolumeByPrice::iterator IT_VolumeByPrice;
 
     // TYPE_AVERAGE_PRICE
     // CLS_INDEX
@@ -39,11 +36,13 @@ public:
      * @param timeframe Related bar timeframe or 0
      * @param vwapTimeframe VWAP session/timeframe (one of "1d", "1w", "1M")
      * @param historySize min 1
+     * @param numStdDev Number of standard deviation to compute (+ and -)
      * @param sessionFilter If defined, ticks received out of the session are ignored
      */
     VWap(const o3d::String &name, o3d::Double timeframe,
          const o3d::CString &vwapTimeframe,
-         o3d::Int32 historySize=2,
+         o3d::Int32 historySize=7,
+         o3d::Int32 numStdDev=3,
          o3d::Bool sessionFilter=false);
 
     VWap(const o3d::String &name, o3d::Double timeframe, IndicatorConfig conf);
@@ -85,8 +84,6 @@ public:
      */
     void update(const Tick &tick, o3d::Bool finalize=false);
 
-    void finalize();
-
 private:
 
     o3d::Double m_vwapTimeframe;
@@ -112,6 +109,8 @@ private:
 
     o3d::Double m_prev;
     o3d::Double m_last;
+
+    void finalize();
 };
 
 } // namespace siis

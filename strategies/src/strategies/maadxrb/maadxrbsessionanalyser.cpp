@@ -20,7 +20,8 @@ MaAdxRbSessionAnalyser::MaAdxRbSessionAnalyser(
             o3d::Int32 history,
             Price::Method priceMethod) :
     RangeBarAnalyser(strategy, name, rangeSize, depth, history, priceMethod),
-    m_vp("volumeprofile", rangeSize)
+    m_vp("volumeprofile", rangeSize),
+    m_cvd("cvd", rangeSize, "1d")
 {
 
 }
@@ -38,9 +39,12 @@ o3d::String MaAdxRbSessionAnalyser::typeName() const
 void MaAdxRbSessionAnalyser::init(const AnalyserConfig &conf)
 {
     configureIndictor(conf, "vp", m_vp);
+    configureIndictor(conf, "cvd", m_cvd);
 
     m_vp.init(strategy()->market()->precisionPrice(), strategy()->market()->stepPrice());
     m_vp.setSession(strategy()->sessionOffset(), strategy()->sessionDuration());
+
+    m_cvd.setSession(strategy()->sessionOffset(), strategy()->sessionDuration());
 
     RangeBarAnalyser::init(conf);
 }
@@ -58,4 +62,5 @@ void MaAdxRbSessionAnalyser::compute(o3d::Double timestamp, o3d::Double lastTime
 void MaAdxRbSessionAnalyser::updateTick(const Tick &tick, o3d::Bool finalize)
 {
     m_vp.update(tick, finalize);
+    m_cvd.update(tick, finalize);
 }

@@ -49,17 +49,21 @@ set(STRATEGY_LIB_CXX
     connector/messages/connectormessagelistpositions.cpp
     connector/messages/connectormessagemodifyposition.cpp
     database/database.cpp
+    database/economiceventdb.cpp
+    database/economiceventstream.cpp
     database/marketdb.cpp
     database/ohlcdb.cpp
     database/ohlcstream.cpp
     database/rangebardb.cpp
     database/tickstream.cpp
     database/tradedb.cpp
+    database/mysql/economiceventdb.cpp
     database/mysql/mysql.cpp
     database/mysql/mysqltradedb.cpp
     database/mysql/mysqlmarketdb.cpp
     database/mysql/mysqlohlcdb.cpp
     database/mysql/mysqlrangebardb.cpp
+    database/pgsql/economiceventdb.cpp
     database/pgsql/pgsql.cpp
     database/pgsql/pgsqltradedb.cpp
     database/pgsql/pgsqlmarketdb.cpp

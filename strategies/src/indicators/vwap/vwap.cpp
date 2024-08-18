@@ -51,10 +51,11 @@ VWap::VWap(const o3d::String &name,
            o3d::Double timeframe,
            const o3d::CString &vwapTimeframe,
            o3d::Int32 historySize,
+           o3d::Int32 numStdDev,
            o3d::Bool sessionFilter) :
     Indicator(name, timeframe),
     m_vwapTimeframe(0.0),
-    m_numStdDev(3),
+    m_numStdDev(numStdDev),
     m_sessionOffset(0.0),
     m_sessionDuration(0.0),
     m_historySize(historySize),
@@ -68,7 +69,9 @@ VWap::VWap(const o3d::String &name,
     m_prev(0.0),
     m_last(0.0)
 {
-    m_vwapTimeframe = timeframeFromStr(vwapTimeframe);
+    if (vwapTimeframe.isValid()) {
+        m_vwapTimeframe = timeframeFromStr(vwapTimeframe);
+    }
 }
 
 VWap::VWap(const o3d::String &name, o3d::Double timeframe, IndicatorConfig conf) :
@@ -89,13 +92,15 @@ VWap::VWap(const o3d::String &name, o3d::Double timeframe, IndicatorConfig conf)
     m_last(0.0)
 {
     if (conf.data().isObject()) {
-        m_historySize = conf.data().get("history", 2).asInt();
         m_vwapTimeframe = timeframeFromStr(conf.data().get("vwap-timeframe", "1d").asString().c_str());
+        m_historySize = conf.data().get("history", 7).asInt();
+        m_numStdDev = conf.data().get("num-std-dev", 3).asInt();
         m_sessionFilter = conf.data().get("session-filter", false).asBool();
     } else if (conf.data().isArray()) {
-        m_historySize = conf.data().get((Json::ArrayIndex)1, 2).asInt();
-        m_vwapTimeframe = timeframeFromStr(conf.data().get((Json::ArrayIndex)2, "1d").asString().c_str());
-        m_sessionFilter = conf.data().get((Json::ArrayIndex)3, false).asBool();
+        m_vwapTimeframe = timeframeFromStr(conf.data().get((Json::ArrayIndex)1, "1d").asString().c_str());
+        m_historySize = conf.data().get((Json::ArrayIndex)2, 7).asInt();
+        m_numStdDev = conf.data().get((Json::ArrayIndex)3, 3).asInt();
+        m_sessionFilter = conf.data().get((Json::ArrayIndex)4, false).asBool();
     }
 }
 
@@ -113,13 +118,15 @@ VWap::~VWap()
 void VWap::setConf(IndicatorConfig conf)
 {
     if (conf.data().isObject()) {
-        m_historySize = conf.data().get("history", 2).asInt();
         m_vwapTimeframe = timeframeFromStr(conf.data().get("vwap-timeframe", "1d").asString().c_str());
+        m_historySize = conf.data().get("history", 7).asInt();
+        m_numStdDev = conf.data().get("num-std-dev", 3).asInt();
         m_sessionFilter = conf.data().get("session-filter", false).asBool();
     } else if (conf.data().isArray()) {
-        m_historySize = conf.data().get((Json::ArrayIndex)1, 2).asInt();
-        m_vwapTimeframe = timeframeFromStr(conf.data().get((Json::ArrayIndex)2, "1d").asString().c_str());
-        m_sessionFilter = conf.data().get((Json::ArrayIndex)3, false).asBool();
+        m_vwapTimeframe = timeframeFromStr(conf.data().get((Json::ArrayIndex)1, "1d").asString().c_str());
+        m_historySize = conf.data().get((Json::ArrayIndex)2, 7).asInt();
+        m_numStdDev = conf.data().get((Json::ArrayIndex)3, 3).asInt();
+        m_sessionFilter = conf.data().get((Json::ArrayIndex)4, false).asBool();
     }
 }
 

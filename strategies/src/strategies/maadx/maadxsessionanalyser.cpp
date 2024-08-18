@@ -21,7 +21,8 @@ MaAdxSessionAnalyser::MaAdxSessionAnalyser(
             o3d::Int32 history,
             Price::Method priceMethod) :
     TimeframeBarAnalyser(strategy, name, timeframe, sourceTimeframe, depth, history, priceMethod),
-    m_vp("volumeprofile", timeframe)
+    m_vp("volumeprofile", timeframe),
+    m_cvd("cvd", timeframe, "1d")
 {
 
 }
@@ -39,9 +40,12 @@ o3d::String MaAdxSessionAnalyser::typeName() const
 void MaAdxSessionAnalyser::init(const AnalyserConfig &conf)
 {
     configureIndictor(conf, "vp", m_vp);
+    configureIndictor(conf, "cvd", m_cvd);
 
     m_vp.init(strategy()->market()->precisionPrice(), strategy()->market()->stepPrice());
     m_vp.setSession(strategy()->sessionOffset(), strategy()->sessionDuration());
+
+    m_cvd.setSession(strategy()->sessionOffset(), strategy()->sessionDuration());
 
     TimeframeBarAnalyser::init(conf);
 }
@@ -59,4 +63,9 @@ void MaAdxSessionAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimest
 void MaAdxSessionAnalyser::updateTick(const Tick &tick, o3d::Bool finalize)
 {
     m_vp.update(tick, finalize);
+    m_cvd.update(tick, finalize);
+
+    if (finalize) {
+        printf("%s %f\n", timestampToStr(tick.timestamp()).toAscii().getData(), m_cvd.last());
+    }
 }

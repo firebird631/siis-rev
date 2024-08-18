@@ -9,9 +9,10 @@ Urgent
 Prioritaire
 ===========
 
-- EconomicEvent model
-  - DAO Economic Event
-  - EconomicEvent Stream(er) (like TickStream)
+- DAO Economic Event
+- EconomicEvent Stream(er) (like TickStream)
+    - avec gestion du streamer en backtesting
+- cumulative volume delta
 
 - TickBar (t)
 - VolumeBar (v)
@@ -19,7 +20,7 @@ Prioritaire
 - UniRenko (x,y,z)
 
 - Unification ou non des strategies timeframe/rangebar ?
-    - Probleme des classes specialisée des Analysers
+    - Probleme des classes specialisées des Analysers
 
 - IndMarginTrade::updateStats complete PNL
 - pour les XxxxPositionSignal.refOrderId met on orderId or refOrderId ?
@@ -54,8 +55,6 @@ Prioritaire
 
 Secondaire
 ==========
-
-- ajouter barimbalance (voir version Python)
 
 - ajouter trade operation (step stop loss)
 - ajouter trading region (range, channel)
@@ -113,10 +112,7 @@ Tertiaire
   - open, close, remove, modify tp, modify sl, order events, position events
 
 - indicators :
-  - volume profile (WIP)
-  - composite volume profile
-  - vwap
-  - cumulative volume delta
+  - composite volume profile et tester avec bourricot
   - foot-print, delta, divergence
 
 - eventuellement avoir une table VP comme on a pour les OHLC mais donc fixée pour une temporalité ou plusieurs
