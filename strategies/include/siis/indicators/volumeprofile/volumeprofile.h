@@ -181,4 +181,4 @@ private:
 
 } // namespace siis
 
-#endif // SIIS_TICKVOLUMEPROFILE_H
+#endif // SIIS_VOLUMEPROFILE_H

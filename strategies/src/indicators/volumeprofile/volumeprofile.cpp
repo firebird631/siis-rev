@@ -189,7 +189,7 @@ void VolumeProfile::update(const Tick &tick, o3d::Bool finalize)
         }
     }
 
-    if (m_sessionFilter && (m_sessionOffset > 0 || m_sessionDuration > 0)) {
+    if (m_sessionFilter && timeframe() == TF_DAY && (m_sessionOffset > 0 || m_sessionDuration > 0)) {
         o3d::Double basetime = baseTime(TF_DAY, tick.timestamp());
 
         if (tick.timestamp() < basetime + m_sessionOffset) {

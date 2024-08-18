@@ -57,6 +57,22 @@ public:
         return m_data[n];
     }
 
+    /**
+     * @brief at Changes the value at index and works with negative index.
+     * @param i Positive or negative index or 0
+     * @param v New value to set
+     */
+    inline void set(o3d::Int32 n, o3d::Double v) const {
+        if (n >= m_size) throw o3d::E_IndexOutOfRange("");
+
+        if (n < 0) {
+            n = m_size + n;
+            if (n < 0) throw o3d::E_IndexOutOfRange("");
+        }
+
+        m_data[n] = v;
+    }
+
     DataArray& operator*= (const DataArray &a);
     DataArray& operator*= (o3d::Double scale);
     DataArray& operator/= (const DataArray &a);

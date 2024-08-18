@@ -107,6 +107,7 @@ include/siis/indicators/volume/volume.h
 include/siis/indicators/volumeprofile/volumeprofile.h
 include/siis/indicators/volumeprofile/volumeprofiledata.h
 include/siis/indicators/vwap/vwap.h
+include/siis/indicators/vwap/vwapdata.h
 include/siis/indicators/vwma/vwma.h
 include/siis/indicators/wma/wma.h
 include/siis/indicators/zigzag/zigzag.h
