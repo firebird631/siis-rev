@@ -25,8 +25,10 @@ MaAdxRbSigAnalyser::MaAdxRbSigAnalyser(
     m_fast_l_ma("sfast_l_ma", rangeSize),
     m_adx("adx", rangeSize),
     m_cvd("cvd", rangeSize, depth, "1d"),
+    m_cvd_ma("cvd_ma", rangeSize),
     m_trend(0),
     m_sig(0),
+    m_cvdTrend(0),
     m_confirmation(0)
 {
 
@@ -49,12 +51,15 @@ void MaAdxRbSigAnalyser::init(const AnalyserConfig &conf)
     configureIndicator(conf, "fast_l_ma", m_fast_l_ma);
 
     configureIndicator(conf, "adx", m_adx);
+
     configureIndicator(conf, "cvd", m_cvd);
+    configureIndicator(conf, "cvd_ma", m_cvd_ma);
 
     m_cvd.setSession(strategy()->sessionOffset(), strategy()->sessionDuration());
 
     m_confirmation = 0;
     m_trend = 0;
+    m_cvdTrend = 0;
     m_sig = 0;
 
     RangeBarAnalyser::init(conf);
@@ -95,6 +100,15 @@ void MaAdxRbSigAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestam
 
         hc = DataArray::cross(price().close(), m_fast_h_ma.hma());
         lc = DataArray::cross(price().close(), m_fast_l_ma.hma());
+
+        m_cvd_ma.compute(timestamp, m_cvd.cvd().asArray());
+
+        m_cvdTrend = 0;
+        if (m_cvd.last() > m_cvd_ma.last()) {
+            m_cvdTrend = 1;
+        } else if (m_cvd.last() < m_cvd_ma.last()) {
+            m_cvdTrend = -1;
+        }
     }
 
     if (hc > 0) {

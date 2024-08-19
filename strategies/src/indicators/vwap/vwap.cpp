@@ -17,38 +17,39 @@ using o3d::Debug;
 
 VWapData::VWapData(o3d::Double vwapTimeframe, o3d::Double timestamp, o3d::Int32 numStdDev)
 {
-    vwap.zero(1);
+    vwap.setSize(1);
 
-    plusStdDev.reserve(3);
-    minusStdDev.reserve(3);
+    plusStdDev.resize(3);
+    minusStdDev.resize(3);
 
     for (o3d::Int32 i = 0; i < numStdDev; ++i) {
-        plusStdDev[i].zero(1);
-        minusStdDev[i].zero(1);
+        plusStdDev[i].setSize(1);
+        minusStdDev[i].setSize(1);
     }
 }
 
 const DataArray& VWapData::stdDevAt(o3d::Int32 stdDev) const
 {
-    if (stdDev == 0) throw o3d::E_IndexOutOfRange("");
+    if (stdDev == 0) throw o3d::E_IndexOutOfRange("stdDevAt (1)");
 
     if (stdDev > 0) {
         o3d::Int32 size = static_cast<o3d::Int32>(minusStdDev.size());
 
-        if (stdDev >= size) throw o3d::E_IndexOutOfRange("");
+        if (stdDev >= size) throw o3d::E_IndexOutOfRange("stdDevAt (2)");
 
         return plusStdDev[stdDev];
     }
 
     o3d::Int32 size = static_cast<o3d::Int32>(minusStdDev.size());
 
-    if (-stdDev >= size) throw o3d::E_IndexOutOfRange("");
+    if (-stdDev >= size) throw o3d::E_IndexOutOfRange("stdDevAt (3)");
 
     return minusStdDev[-stdDev];
 }
 
 VWap::VWap(const o3d::String &name,
            o3d::Double timeframe,
+           o3d::Int32 depth,
            const o3d::CString &vwapTimeframe,
            o3d::Int32 historySize,
            o3d::Int32 numStdDev,
@@ -59,6 +60,7 @@ VWap::VWap(const o3d::String &name,
     m_sessionOffset(0.0),
     m_sessionDuration(0.0),
     m_historySize(historySize),
+    m_depth(depth),
     m_sessionFilter(sessionFilter),
     m_pCurrent(nullptr),
     m_openTimestamp(0.0),
@@ -74,13 +76,14 @@ VWap::VWap(const o3d::String &name,
     }
 }
 
-VWap::VWap(const o3d::String &name, o3d::Double timeframe, IndicatorConfig conf) :
+VWap::VWap(const o3d::String &name, o3d::Double timeframe, o3d::Int32 depth,  IndicatorConfig conf) :
     Indicator(name, timeframe),
     m_vwapTimeframe(0.0),
     m_numStdDev(3),
     m_sessionOffset(0.0),
     m_sessionDuration(0.0),
     m_historySize(0),
+    m_depth(depth),
     m_sessionFilter(false),
     m_pCurrent(nullptr),
     m_openTimestamp(0.0),
@@ -145,11 +148,11 @@ const VWapData* VWap::previous(o3d::Int32 n) const
 {
     o3d::Int32 size = static_cast<o3d::Int32>(m_vwap.size());
 
-    if (n >= size) throw o3d::E_IndexOutOfRange("");
+    if (n >= size) throw o3d::E_IndexOutOfRange("previous");
 
     if (n < 0) {
         n = size + n;
-        if (n < 0) throw o3d::E_IndexOutOfRange("");
+        if (n < 0) throw o3d::E_IndexOutOfRange("previous");
     }
 
     return m_vwap[n];
@@ -177,16 +180,21 @@ void VWap::update(const Tick &tick, o3d::Bool finalize)
 {
     m_prev = m_last;
 
-    if (tick.timestamp() >= m_openTimestamp + m_vwapTimeframe) {
+    if (m_openTimestamp > 0 && tick.timestamp() >= m_openTimestamp + m_vwapTimeframe) {
         // new VWAP
         this->finalize();
-    } else if (finalize) {
+    } else if (finalize && m_pCurrent) {
         // or finalize the current (intra) bar (not the current VWAP timeframe)
         m_pCurrent->vwap.push(m_pCurrent->vwap.last());
 
         for (o3d::Int32 i = 0; i < m_numStdDev; ++i) {
             m_pCurrent->minusStdDev[i].push(m_pCurrent->minusStdDev[i].last());
             m_pCurrent->plusStdDev[i].push(m_pCurrent->plusStdDev[i].last());
+        }
+
+        if (m_pCurrent->vwap.getSize() > m_depth) {
+            // @todo not optimal with DataArray but could use CircularArray
+            // but in that case it will need a transform to DataArray to process others computations...
         }
     }
 

@@ -26,8 +26,10 @@ MaAdxSigAnalyser::MaAdxSigAnalyser(
     m_fast_l_ma("sfast_l_ma", timeframe),
     m_adx("adx", timeframe),
     m_cvd("cvd", timeframe, depth, "1d"),
+    m_cvd_ma("cvd_ma", timeframe),
     m_trend(0),
     m_sig(0),
+    m_cvdTrend(0),
     m_confirmation(0)
 {
 
@@ -50,12 +52,15 @@ void MaAdxSigAnalyser::init(const AnalyserConfig &conf)
     configureIndicator(conf, "fast_l_ma", m_fast_l_ma);
 
     configureIndicator(conf, "adx", m_adx);
+
     configureIndicator(conf, "cvd", m_cvd);
+    configureIndicator(conf, "cvd_ma", m_cvd_ma);
 
     m_cvd.setSession(strategy()->sessionOffset(), strategy()->sessionDuration());
 
     m_confirmation = 0;
     m_trend = 0;
+    m_cvdTrend = 0;
     m_sig = 0;
 
     TimeframeBarAnalyser::init(conf);
@@ -96,6 +101,15 @@ void MaAdxSigAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
 
         hc = DataArray::cross(price().close(), m_fast_h_ma.hma());
         lc = DataArray::cross(price().close(), m_fast_l_ma.hma());
+
+        m_cvd_ma.compute(timestamp, m_cvd.cvd().asArray());
+
+        m_cvdTrend = 0;
+        if (m_cvd.last() > m_cvd_ma.last()) {
+            m_cvdTrend = 1;
+        } else if (m_cvd.last() < m_cvd_ma.last()) {
+            m_cvdTrend = -1;
+        }
     }
 
     if (hc > 0) {

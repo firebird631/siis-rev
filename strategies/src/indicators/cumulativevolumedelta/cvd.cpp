@@ -31,7 +31,6 @@ CumulativeVolumeDelta::CumulativeVolumeDelta(const o3d::String &name,
     m_last(0.0)
 {
     O3D_ASSERT(depth > 0);
-    // printf("%i \n", m_cvd.capacity());
 
     if (cvdTimeframe.isValid()) {
         m_cvdTimeframe = timeframeFromStr(cvdTimeframe);
@@ -104,7 +103,7 @@ void CumulativeVolumeDelta::update(const Tick &tick, o3d::Bool finalize)
         this->finalize();
     }
 
-    // reset accumulator at each new session
+    // reset accumulator at each new session and for the initial state
     if (tick.timestamp() > m_openTimestamp + m_cvdTimeframe) {
         // printf("%s %f\n", timestampToStr(tick.timestamp()).toAscii().getData(), m_cvd.back());
         m_cvd.back() = 0.0;

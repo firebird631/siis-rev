@@ -7,6 +7,7 @@
 
 #include "maadxtrendanalyser.h"
 
+#include "siis/strategy.h"
 #include "siis/config/strategyconfig.h"
 
 using namespace siis;
@@ -23,7 +24,9 @@ MaAdxTrendAnalyser::MaAdxTrendAnalyser(
     m_slow_h_ma("slow_h_ma", timeframe),
     m_slow_m_ma("slow_m_ma", timeframe),
     m_slow_l_ma("slow_l_ma", timeframe),
-    m_trend(0)
+    m_vwap("vwap", timeframe, depth),
+    m_trend(0),
+    m_vwapTrend(0)
 {
 
 }
@@ -44,7 +47,12 @@ void MaAdxTrendAnalyser::init(const AnalyserConfig &conf)
     configureIndicator(conf, "slow_m_ma", m_slow_m_ma);
     configureIndicator(conf, "slow_l_ma", m_slow_l_ma);
 
+    configureIndicator(conf, "vwap", m_vwap);
+
+    m_vwap.setSession(strategy()->sessionOffset(), strategy()->sessionDuration());
+
     m_trend = 0;
+    m_vwapTrend = 0;
 
     TimeframeBarAnalyser::init(conf);
 }
@@ -72,14 +80,27 @@ void MaAdxTrendAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestam
 
         hc = DataArray::cross(price().close(), m_slow_h_ma.hma());
         lc = DataArray::cross(price().close(), m_slow_l_ma.hma());
+
+        if (price().close().last() > m_vwap.last()) {
+            m_vwapTrend = 1;
+        } else if (price().close().last() < m_vwap.last()) {
+            m_vwapTrend = -1;
+        } else {
+            m_vwapTrend = 0;
+        }
     }
 
     if (hc > 0) {
         m_trend = 1;
     } else if (lc < 0) {
         m_trend = -1;
-    } else if (hc < 0 || lc > 0) {
+    } else if (lc > 0 || hc < 0) {
         // no trend between two MAs
         m_trend = 0;
     }
+}
+
+void MaAdxTrendAnalyser::updateTick(const Tick &tick, o3d::Bool finalize)
+{
+    m_vwap.update(tick, finalize);
 }

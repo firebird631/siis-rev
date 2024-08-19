@@ -31,8 +31,8 @@ public:
      * @brief VWap
      * @param name
      * @param timeframe Related bar timeframe or 0
+     * @param depth Max series size. Must be the same as analyser depth
      * @param cvdTimeframe CVD session/timeframe (one of "1d", "1w", "1M")
-     * @param depth Max series size. Must be the same as analyser depth.
      * @param sessionFilter If defined, ticks received out of the session are ignored
      */
     CumulativeVolumeDelta(const o3d::String &name, o3d::Double timeframe, o3d::Int32 depth,

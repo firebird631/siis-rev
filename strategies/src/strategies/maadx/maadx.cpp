@@ -17,6 +17,7 @@
 #include "siis/database/tradedb.h"
 #include "siis/database/ohlcdb.h"
 
+#include "maadxprofileanalyser.h"
 #include "maadxtrendanalyser.h"
 #include "maadxsiganalyser.h"
 #include "maadxconfanalyser.h"
@@ -38,6 +39,7 @@ SIIS_PLUGIN_API siis::Strategy* siisStrategy(Handler *handler, const o3d::String
 
 MaAdx::MaAdx(Handler *handler, const o3d::String &identifier) :
     Strategy(handler, identifier),
+    m_profileAnalyser(nullptr),
     m_sessionAnalyser(nullptr),
     m_trendAnalyser(nullptr),
     m_sigAnalyser(nullptr),
@@ -92,7 +94,13 @@ void MaAdx::init(Config *config)
                 continue;
             }
 
-            if (mode == "session") {
+            if (mode == "profile") {
+                Analyser *a = new MaAdxProfileAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
+                a->init(AnalyserConfig(timeframe));
+
+                m_analysers.push_back(a);
+                m_profileAnalyser = static_cast<MaAdxProfileAnalyser*>(a);
+            } else if (mode == "session") {
                 Analyser *a = new MaAdxSessionAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
                 a->init(AnalyserConfig(timeframe));
 
@@ -434,6 +442,65 @@ o3d::Bool MaAdx::checkVp(o3d::Int32 direction, o3d::Int32 vpUp, o3d::Int32 vpDn)
     return true;
 }
 
+o3d::Bool MaAdx::checkVWap(o3d::Int32 direction) const
+{
+    if (m_trendAnalyser == nullptr) {
+        return true;
+    }
+
+    return (direction == m_trendAnalyser->vwapTrend());
+}
+
+o3d::Bool MaAdx::checkCvd(o3d::Int32 direction) const
+{
+    if (m_sigAnalyser == nullptr) {
+        return true;
+    }
+
+    return (direction == m_sigAnalyser->cvdTrend());
+}
+
+o3d::Bool MaAdx::checkTrend(o3d::Int32 direction, o3d::Int32 vpUp, o3d::Int32 vpDn) const
+{
+    //  0 initial
+//    if (m_trendAnalyser->trend() == direction) {
+//        return direction;
+//    }
+    /*
+    // 1 initial with VP
+    // if self.trend_ma_analyser.trend == direction and check_vp(direction):
+    //     return direction
+
+    // 2 interesting
+    // if check_vp(direction) and check_vwap(direction):
+    //     return direction
+
+    // 3 interesting
+    // if check_vp(direction) and check_cvd(direction):
+    //     return direction
+    */
+
+    // 4 very interesting
+    if (checkVp(direction, vpUp, vpDn) && checkVWap(direction) && checkCvd(direction)) {
+        return direction;
+    }
+        /*
+    // 5 inefficient
+    // if self.trend_ma_analyser.trend == direction and check_vp(direction) and check_vwap(direction):
+    //     return direction
+
+    // 6 too strict
+    // if self.trend_ma_analyser.trend == direction and check_vp(direction) and check_cvd(direction):
+    //     return direction
+
+    // 7 (full) too strict
+    // if self.trend_ma_analyser.trend == direction and check_vp(direction) and check_vwap(direction) and check_cvd(direction):
+    //     return direction
+         */
+
+    return 0;
+}
+
 TradeSignal MaAdx::computeSignal(o3d::Double timestamp)
 {
     TradeSignal signal(m_sigAnalyser->timeframe(), timestamp);
@@ -458,7 +525,7 @@ TradeSignal MaAdx::computeSignal(o3d::Double timestamp)
         }
     }
 
-    if (m_trendAnalyser->trend() > 0 && checkVp(1, vpUp, vpDn)) {
+    if (checkTrend(1, vpUp, vpDn)) {
         if (m_sigAnalyser->adx() > m_adxSig) {
             if (m_sigAnalyser->sig() > 0 && m_sigAnalyser->adx() <= ADX_MAX) {
                 if (m_confAnalyser->confirmation() > 0) {
@@ -485,7 +552,7 @@ TradeSignal MaAdx::computeSignal(o3d::Double timestamp)
                 }
             }
         }
-    } else if (m_trendAnalyser->trend() < 0 && checkVp(-1, vpUp, vpDn)) {
+    } else if (checkTrend(-1, vpUp, vpDn)) {
         if (m_sigAnalyser->adx() > m_adxSig) {
             if (m_sigAnalyser->sig() < 0 && m_sigAnalyser->adx() <= ADX_MAX) {
                 if (m_confAnalyser->confirmation() < 0) {

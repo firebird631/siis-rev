@@ -384,6 +384,8 @@ src/strategies/maadx/maadx.h
 src/strategies/maadx/maadxconfanalyser.cpp
 src/strategies/maadx/maadxconfanalyser.h
 src/strategies/maadx/maadxparameters.h
+src/strategies/maadx/maadxprofileanalyser.cpp
+src/strategies/maadx/maadxprofileanalyser.h
 src/strategies/maadx/maadxsessionanalyser.cpp
 src/strategies/maadx/maadxsessionanalyser.h
 src/strategies/maadx/maadxsiganalyser.cpp
@@ -397,6 +399,8 @@ src/strategies/maadxrb/maadxrb.h
 src/strategies/maadxrb/maadxrbconfanalyser.cpp
 src/strategies/maadxrb/maadxrbconfanalyser.h
 src/strategies/maadxrb/maadxrbparameters.h
+src/strategies/maadxrb/maadxrbprofileanalyser.cpp
+src/strategies/maadxrb/maadxrbprofileanalyser.h
 src/strategies/maadxrb/maadxrbsessionanalyser.cpp
 src/strategies/maadxrb/maadxrbsessionanalyser.h
 src/strategies/maadxrb/maadxrbsiganalyser.cpp

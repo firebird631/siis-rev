@@ -10,6 +10,7 @@
 
 #include "siis/analysers/timeframebaranalyser.h"
 
+#include "siis/indicators/sma/sma.h"
 #include "siis/indicators/hma/hma.h"
 #include "siis/indicators/adx/adx.h"
 #include "siis/indicators/cumulativevolumedelta/cvd.h"
@@ -49,6 +50,7 @@ public:
     inline o3d::Int32 sig() const { return m_sig; }
 
     inline const CumulativeVolumeDelta& cvd() const { return m_cvd; }
+    inline o3d::Int32 cvdTrend() const { return m_cvdTrend; }
 
     o3d::Double takeProfit(o3d::Double profitScale) const;
     o3d::Double stopLoss(o3d::Double lossScale, o3d::Double riskReward) const;
@@ -62,9 +64,11 @@ private:
     Adx m_adx;
 
     CumulativeVolumeDelta m_cvd;
+    Sma m_cvd_ma;
 
     o3d::Int32 m_trend;
     o3d::Int32 m_sig;
+    o3d::Int32 m_cvdTrend;
 
     o3d::Int32 m_confirmation;
 };

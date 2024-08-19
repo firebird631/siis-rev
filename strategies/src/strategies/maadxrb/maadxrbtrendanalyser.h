@@ -11,6 +11,7 @@
 #include "siis/analysers/rangebaranalyser.h"
 
 #include "siis/indicators/hma/hma.h"
+#include "siis/indicators/vwap/vwap.h"
 
 
 namespace siis {
@@ -40,8 +41,10 @@ public:
     virtual void init(const AnalyserConfig &conf) override;
     virtual void terminate() override;
     virtual void compute(o3d::Double timestamp, o3d::Double lastTimestamp) override;
+    virtual void updateTick(const Tick& tick, o3d::Bool finalize) override;
 
     inline o3d::Int32 trend() const { return m_trend; }
+    inline o3d::Int32 vwapTrend() const { return m_vwapTrend; }
 
 private:
 
@@ -49,7 +52,10 @@ private:
     Hma m_slow_m_ma;
     Hma m_slow_l_ma;
 
+    VWap m_vwap;
+
     o3d::Int32 m_trend;
+    o3d::Int32 m_vwapTrend;
 };
 
 } // namespace siis

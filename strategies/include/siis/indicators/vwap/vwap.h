@@ -34,18 +34,19 @@ public:
      * @brief VWap
      * @param name
      * @param timeframe Related bar timeframe or 0
+     * @param depth Max series size. Must be the same as analyser depth
      * @param vwapTimeframe VWAP session/timeframe (one of "1d", "1w", "1M")
      * @param historySize min 1
      * @param numStdDev Number of standard deviation to compute (+ and -)
      * @param sessionFilter If defined, ticks received out of the session are ignored
      */
-    VWap(const o3d::String &name, o3d::Double timeframe,
-         const o3d::CString &vwapTimeframe,
+    VWap(const o3d::String &name, o3d::Double timeframe, o3d::Int32 depth,
+         const o3d::CString &vwapTimeframe="1d",
          o3d::Int32 historySize=7,
          o3d::Int32 numStdDev=3,
          o3d::Bool sessionFilter=false);
 
-    VWap(const o3d::String &name, o3d::Double timeframe, IndicatorConfig conf);
+    VWap(const o3d::String &name, o3d::Double timeframe, o3d::Int32 depth, IndicatorConfig conf);
 
     ~VWap();
 
@@ -93,6 +94,7 @@ private:
     o3d::Double m_sessionDuration;   //!< 0 means full day
 
     o3d::Int32 m_historySize;
+    o3d::Int32 m_depth;
 
     o3d::Bool m_sessionFilter;
 

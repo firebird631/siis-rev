@@ -57,6 +57,12 @@ void BarImbalance::setConf(IndicatorConfig conf)
     }
 }
 
+void BarImbalance::setSession(o3d::Double sessionOffset, o3d::Double sessionDuration)
+{
+    m_sessionOffset = sessionOffset;
+    m_sessionDuration = sessionDuration;
+}
+
 void BarImbalance::compute(o3d::Double timestamp, const DataArray &timestamps,
                            const DataArray &open, const DataArray &high, const DataArray &low, const DataArray &close,
                            o3d::Int32 numLastBars)
@@ -131,7 +137,14 @@ void BarImbalance::compute(o3d::Double timestamp, const DataArray &timestamps,
 
     // keep filtered previous and newly found
     m_imbalances = previousImbalances;
-    m_imbalances.insert(m_imbalances.end(), foundImbalances.begin(), foundImbalances.end());
+
+    if (foundImbalances.size()) {
+        if (m_imbalances.empty()) {
+            m_imbalances = foundImbalances;
+        } else {
+            m_imbalances.insert(m_imbalances.end(), foundImbalances.begin(), foundImbalances.end());
+        }
+    }
 
     done(timestamp);
 }
@@ -148,25 +161,30 @@ BarImbalance::T_Imbalance BarImbalance::updateImbalances(T_Imbalance &imbalances
     T_Imbalance newList;
     o3d::Bool keep;
 
-    for (o3d::Int32 i = high.getSize() - numLastBars; i < high.getSize(); ++i) {
-        o3d::Double highPrice = high[i];
-        o3d::Double lowPrice = low[i];
+    for (Imbalance imbalance : imbalances) {
+        keep = true;
 
-        for (Imbalance imbalance : imbalances) {
-            keep = true;
+        for (o3d::Int32 i = high.getSize() - numLastBars; i < high.getSize(); ++i) {
+            o3d::Double highPrice = high[i];
+            o3d::Double lowPrice = low[i];
 
             if (lowPrice > imbalance.lowPrice && highPrice < imbalance.highPrice) {
                 // the bar is inside, it cancels and potentially could create 2 news one
                 keep = false;
+                break;
+
             } else if (lowPrice <= imbalance.lowPrice && highPrice >= imbalance.highPrice) {
                 // the bar eat the imbalance, it cancels the imbalance
                 keep = false;
+                break;
+
             } else if (lowPrice <= imbalance.lowPrice && highPrice > imbalance.lowPrice) {
                 // partially inside (low part), reduce the lower part
                 imbalance.lowPrice = highPrice;
 
                 if (imbalance.lowPrice >= imbalance.highPrice) {
                     keep = false;
+                    break;
                 }
             } else if (highPrice >= imbalance.highPrice && lowPrice < imbalance.highPrice) {
                 // partially inside (high part), reduce the higher part
@@ -174,12 +192,13 @@ BarImbalance::T_Imbalance BarImbalance::updateImbalances(T_Imbalance &imbalances
 
                 if (imbalance.lowPrice >= imbalance.highPrice) {
                     keep = false;
+                    break;
                 }
             }
+        }
 
-            if (keep) {
-                newList.push_back(imbalance);
-            }
+        if (keep) {
+            newList.push_back(imbalance);
         }
     }
 

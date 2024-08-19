@@ -74,6 +74,7 @@ public:
         m_size(0)
     {
         O3D_ASSERT(size > 1);  // at least 2 elements
+        setSize(size);
     }
 
     /**
@@ -99,7 +100,7 @@ public:
         }
     }
 
-    inline o3d::Int32 capacity() const { return getMaxSize(); }
+    inline o3d::Int32 capacity() const { return getSize(); }
 
     /**
      * @brief writeElt Return the current writable double and move to the next position.
@@ -153,7 +154,7 @@ public:
     /**
      * Convert a circular array into a linear array in one or two memcpy.
      */
-    void asArray(DataArray &out) const
+    void fillArray(DataArray &out) const
     {
         if (out.getSize() != size()) {
             out.setSize(size());
@@ -169,6 +170,28 @@ public:
         } else {
             memcpy(out.getData(), m_data, m_size * sizeof(o3d::Double));
         }
+    }
+
+    /**
+     * Convert a circular array into a linear array in one or two memcpy.
+     */
+    DataArray asArray() const
+    {
+        DataArray out(size());
+        out.setSize(size());
+
+        if (m_last > m_first) {
+            // same effect as last case
+            memcpy(out.getData(), m_first, m_size * sizeof(o3d::Double));
+        } else if (m_last > m_data) {
+            o3d::Int32 ofs = m_end - m_first;
+            memcpy(out.getData(), m_first, ofs * sizeof(o3d::Double));
+            memcpy(out.getData() + ofs, m_data, (m_size - ofs) * sizeof(o3d::Double));
+        } else {
+            memcpy(out.getData(), m_data, m_size * sizeof(o3d::Double));
+        }
+
+        return out;
     }
 
 private:
