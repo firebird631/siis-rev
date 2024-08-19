@@ -12,6 +12,7 @@
 
 #include "siis/indicators/hma/hma.h"
 #include "siis/indicators/adx/adx.h"
+#include "siis/indicators/cumulativevolumedelta/cvd.h"
 
 
 namespace siis {
@@ -42,9 +43,12 @@ public:
     virtual void init(const AnalyserConfig &conf) override;
     virtual void terminate() override;
     virtual void compute(o3d::Double timestamp, o3d::Double lastTimestamp) override;
+    virtual void updateTick(const Tick& tick, o3d::Bool finalize) override;
 
     inline o3d::Double adx() const { return m_adx.last(); }
     inline o3d::Int32 sig() const { return m_sig; }
+
+    inline const CumulativeVolumeDelta& cvd() const { return m_cvd; }
 
     o3d::Double takeProfit(o3d::Double profitScale) const;
     o3d::Double stopLoss(o3d::Double lossScale, o3d::Double riskReward) const;
@@ -56,6 +60,8 @@ private:
     Hma m_fast_l_ma;
 
     Adx m_adx;
+
+    CumulativeVolumeDelta m_cvd;
 
     o3d::Int32 m_trend;
     o3d::Int32 m_sig;

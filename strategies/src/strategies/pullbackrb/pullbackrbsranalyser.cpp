@@ -38,7 +38,7 @@ o3d::String PullbackRbSRAnalyser::typeName() const
 
 void PullbackRbSRAnalyser::init(const AnalyserConfig &conf)
 {
-    configureIndictor(conf, "pivotpoint", m_pivotpoint);
+    configureIndicator(conf, "pivotpoint", m_pivotpoint);
 
     RangeBarAnalyser::init(conf);
 

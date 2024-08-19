@@ -40,8 +40,8 @@ o3d::String PullbackRbBBAnalyser::typeName() const
 
 void PullbackRbBBAnalyser::init(const AnalyserConfig &conf)
 {
-    configureIndictor(conf, "bollinger", m_bollinger);
-    configureIndictor(conf, "adx", m_adx);
+    configureIndicator(conf, "bollinger", m_bollinger);
+    configureIndicator(conf, "adx", m_adx);
 
     if (conf.hasIndicator("adx")) {
         m_hasAdx = true;

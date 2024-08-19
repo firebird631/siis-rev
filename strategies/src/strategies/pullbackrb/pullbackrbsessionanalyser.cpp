@@ -37,7 +37,7 @@ o3d::String PullbackRbSessionAnalyser::typeName() const
 
 void PullbackRbSessionAnalyser::init(const AnalyserConfig &conf)
 {
-    configureIndictor(conf, "vp", m_vp);
+    configureIndicator(conf, "vp", m_vp);
 
     m_vp.init(strategy()->market()->precisionPrice(), strategy()->market()->stepPrice());
     m_vp.setSession(strategy()->sessionOffset(), strategy()->sessionDuration());

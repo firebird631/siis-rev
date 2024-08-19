@@ -43,7 +43,7 @@ o3d::String IchimokuStRbSigAnalyser::typeName() const
 
 void IchimokuStRbSigAnalyser::init(const AnalyserConfig &conf)
 {
-    configureIndictor(conf, "ichimoku", m_ichimoku);
+    configureIndicator(conf, "ichimoku", m_ichimoku);
 
     m_span_cross_ofs = -m_ichimoku.kijunLen();
     m_chikou_ofs = -m_ichimoku.senkouSpanBLen();

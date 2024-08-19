@@ -15,8 +15,8 @@ using o3d::Debug;
 
 CumulativeVolumeDelta::CumulativeVolumeDelta(const o3d::String &name,
            o3d::Double timeframe,
-           const o3d::CString &cvdTimeframe,
            o3d::Int32 depth,
+           const o3d::CString &cvdTimeframe,
            o3d::Bool sessionFilter) :
     Indicator(name, timeframe),
     m_cvdTimeframe(0.0),
@@ -30,6 +30,9 @@ CumulativeVolumeDelta::CumulativeVolumeDelta(const o3d::String &name,
     m_prev(0.0),
     m_last(0.0)
 {
+    O3D_ASSERT(depth > 0);
+    // printf("%i \n", m_cvd.capacity());
+
     if (cvdTimeframe.isValid()) {
         m_cvdTimeframe = timeframeFromStr(cvdTimeframe);
     }
@@ -38,31 +41,28 @@ CumulativeVolumeDelta::CumulativeVolumeDelta(const o3d::String &name,
     m_cvd.append(0.0);
 }
 
-CumulativeVolumeDelta::CumulativeVolumeDelta(const o3d::String &name, o3d::Double timeframe, IndicatorConfig conf) :
+CumulativeVolumeDelta::CumulativeVolumeDelta(const o3d::String &name, o3d::Double timeframe,
+                                             o3d::Int32 depth, IndicatorConfig conf) :
     Indicator(name, timeframe),
     m_cvdTimeframe(0.0),
     m_sessionOffset(0.0),
     m_sessionDuration(0.0),
-    m_depth(10),
+    m_depth(depth),
     m_sessionFilter(false),
     m_openTimestamp(0.0),
     m_prevTickPrice(0.0),
-    m_cvd(10),
+    m_cvd(depth),
     m_prev(0.0),
     m_last(0.0)
 {
+    O3D_ASSERT(depth > 0);
+
     if (conf.data().isObject()) {
         m_cvdTimeframe = timeframeFromStr(conf.data().get("cvd-timeframe", "1d").asString().c_str());
-        m_depth = conf.data().get("depth", 10).asInt();
         m_sessionFilter = conf.data().get("session-filter", false).asBool();
     } else if (conf.data().isArray()) {
         m_cvdTimeframe = timeframeFromStr(conf.data().get((Json::ArrayIndex)1, "1d").asString().c_str());
-        m_depth = conf.data().get((Json::ArrayIndex)2, 10).asInt();
         m_sessionFilter = conf.data().get((Json::ArrayIndex)3, false).asBool();
-    }
-
-    if (m_depth != m_cvd.size()) {
-        m_cvd.setSize(m_depth);
     }
 
     // begin the first value
@@ -78,16 +78,10 @@ void CumulativeVolumeDelta::setConf(IndicatorConfig conf)
 {
     if (conf.data().isObject()) {
         m_cvdTimeframe = timeframeFromStr(conf.data().get("cvd-timeframe", "1d").asString().c_str());
-        m_depth = conf.data().get("depth", 10).asInt();
-        m_sessionFilter = conf.data().get("session-filter", false).asBool();
+         m_sessionFilter = conf.data().get("session-filter", false).asBool();
     } else if (conf.data().isArray()) {
         m_cvdTimeframe = timeframeFromStr(conf.data().get((Json::ArrayIndex)1, "1d").asString().c_str());
-        m_depth = conf.data().get((Json::ArrayIndex)2, 10).asInt();
         m_sessionFilter = conf.data().get((Json::ArrayIndex)3, false).asBool();
-    }
-
-    if (m_depth != m_cvd.size()) {
-        m_cvd.setSize(m_depth);
     }
 }
 

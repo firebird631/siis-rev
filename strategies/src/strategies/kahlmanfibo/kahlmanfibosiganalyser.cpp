@@ -56,11 +56,11 @@ o3d::String KahlmanFiboSigAnalyser::typeName() const
 
 void KahlmanFiboSigAnalyser::init(const AnalyserConfig &conf)
 {
-    configureIndictor(conf, "hma", m_hma);
+    configureIndicator(conf, "hma", m_hma);
     // configureIndictor(conf, "hma3", m_hma3);  // might be half len of hma
     m_hma3.setLength(m_hma.len() / 2);
 
-    configureIndictor(conf, "donchian", m_donchian);
+    configureIndicator(conf, "donchian", m_donchian);
 
     // m_kHma.setLength(22);
     // m_kHma3.setLength(11);

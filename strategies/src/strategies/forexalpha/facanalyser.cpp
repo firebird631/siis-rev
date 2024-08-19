@@ -39,10 +39,10 @@ o3d::String FaCAnalyser::typeName() const
 
 void FaCAnalyser::init(const AnalyserConfig &conf)
 {
-    configureIndictor(conf, "atr", m_atr);
-    configureIndictor(conf, "sma", m_sma);
-    configureIndictor(conf, "ema", m_ema);
-    configureIndictor(conf, "rsi", m_rsi);
+    configureIndicator(conf, "atr", m_atr);
+    configureIndicator(conf, "sma", m_sma);
+    configureIndicator(conf, "ema", m_ema);
+    configureIndicator(conf, "rsi", m_rsi);
 
     TimeframeBarAnalyser::init(conf);
 }

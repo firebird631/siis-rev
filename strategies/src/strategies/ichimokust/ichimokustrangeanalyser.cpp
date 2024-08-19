@@ -40,10 +40,10 @@ o3d::String IchimokuStRangeAnalyser::typeName() const
 
 void IchimokuStRangeAnalyser::init(const AnalyserConfig &conf)
 {
-    configureIndictor(conf, "slow_ma_high", m_slow_ma_high);
-    configureIndictor(conf, "slow_ma_low", m_slow_ma_low);
-    configureIndictor(conf, "fast_ma_high", m_fast_ma_high);
-    configureIndictor(conf, "fast_ma_low", m_fast_ma_low);
+    configureIndicator(conf, "slow_ma_high", m_slow_ma_high);
+    configureIndicator(conf, "slow_ma_low", m_slow_ma_low);
+    configureIndicator(conf, "fast_ma_high", m_fast_ma_high);
+    configureIndicator(conf, "fast_ma_low", m_fast_ma_low);
 
     TimeframeBarAnalyser::init(conf);
 }

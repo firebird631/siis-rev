@@ -42,13 +42,13 @@ o3d::String FaDAnalyser::typeName() const
 
 void FaDAnalyser::init(const AnalyserConfig &conf)
 {
-    configureIndictor(conf, "atr", m_atr);
-    configureIndictor(conf, "sma", m_sma);
-    configureIndictor(conf, "midSma", m_midSma);
-    configureIndictor(conf, "slowSma", m_slowSma);
-    configureIndictor(conf, "ema", m_ema);
-    configureIndictor(conf, "rsi", m_rsi);
-    configureIndictor(conf, "td9", m_td9);
+    configureIndicator(conf, "atr", m_atr);
+    configureIndicator(conf, "sma", m_sma);
+    configureIndicator(conf, "midSma", m_midSma);
+    configureIndicator(conf, "slowSma", m_slowSma);
+    configureIndicator(conf, "ema", m_ema);
+    configureIndicator(conf, "rsi", m_rsi);
+    configureIndicator(conf, "td9", m_td9);
 
     TimeframeBarAnalyser::init(conf);
 }

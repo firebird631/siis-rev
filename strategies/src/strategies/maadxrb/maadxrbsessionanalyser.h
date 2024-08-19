@@ -10,7 +10,6 @@
 
 #include "siis/analysers/rangebaranalyser.h"
 
-#include "siis/indicators/cumulativevolumedelta/cvd.h"
 #include "siis/indicators/volumeprofile/volumeprofile.h"
 
 namespace siis {
@@ -43,12 +42,10 @@ public:
     virtual void updateTick(const Tick& tick, o3d::Bool finalize) override;
 
     inline const VolumeProfile& vp() const { return m_vp; }
-    inline const CumulativeVolumeDelta& cvd() const { return m_cvd; }
 
 private:
 
     VolumeProfile m_vp;
-    CumulativeVolumeDelta m_cvd;
 };
 
 } // namespace siis

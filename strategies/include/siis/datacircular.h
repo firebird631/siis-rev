@@ -99,6 +99,8 @@ public:
         }
     }
 
+    inline o3d::Int32 capacity() const { return getMaxSize(); }
+
     /**
      * @brief writeElt Return the current writable double and move to the next position.
      * @return A valid pointer on the last double for write.

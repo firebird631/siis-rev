@@ -8,6 +8,7 @@
 #include "maadxsiganalyser.h"
 
 #include "siis/config/strategyconfig.h"
+#include "siis/strategy.h"
 
 using namespace siis;
 
@@ -24,6 +25,7 @@ MaAdxSigAnalyser::MaAdxSigAnalyser(
     m_fast_m_ma("fast_m_ma", timeframe),
     m_fast_l_ma("sfast_l_ma", timeframe),
     m_adx("adx", timeframe),
+    m_cvd("cvd", timeframe, depth, "1d"),
     m_trend(0),
     m_sig(0),
     m_confirmation(0)
@@ -43,11 +45,14 @@ o3d::String MaAdxSigAnalyser::typeName() const
 
 void MaAdxSigAnalyser::init(const AnalyserConfig &conf)
 {
-    configureIndictor(conf, "fast_h_ma", m_fast_h_ma);
-    configureIndictor(conf, "fast_m_ma", m_fast_m_ma);
-    configureIndictor(conf, "fast_l_ma", m_fast_l_ma);
+    configureIndicator(conf, "fast_h_ma", m_fast_h_ma);
+    configureIndicator(conf, "fast_m_ma", m_fast_m_ma);
+    configureIndicator(conf, "fast_l_ma", m_fast_l_ma);
 
-    configureIndictor(conf, "adx", m_adx);
+    configureIndicator(conf, "adx", m_adx);
+    configureIndicator(conf, "cvd", m_cvd);
+
+    m_cvd.setSession(strategy()->sessionOffset(), strategy()->sessionDuration());
 
     m_confirmation = 0;
     m_trend = 0;
@@ -102,6 +107,11 @@ void MaAdxSigAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
     } else {
         m_sig = 0;
     }
+}
+
+void MaAdxSigAnalyser::updateTick(const Tick &tick, o3d::Bool finalize)
+{
+    m_cvd.update(tick, finalize);
 }
 
 o3d::Double MaAdxSigAnalyser::takeProfit(o3d::Double profitScale) const

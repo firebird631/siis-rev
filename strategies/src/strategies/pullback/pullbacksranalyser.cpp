@@ -40,7 +40,7 @@ o3d::String PullbackSRAnalyser::typeName() const
 
 void PullbackSRAnalyser::init(const AnalyserConfig &conf)
 {
-    configureIndictor(conf, "pivotpoint", m_pivotpoint);
+    configureIndicator(conf, "pivotpoint", m_pivotpoint);
 
     TimeframeBarAnalyser::init(conf);
 

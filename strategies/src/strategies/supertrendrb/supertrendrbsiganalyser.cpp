@@ -43,11 +43,11 @@ o3d::String SuperTrendRbSigAnalyser::typeName() const
 
 void SuperTrendRbSigAnalyser::init(const AnalyserConfig &conf)
 {
-    configureIndictor(conf, "hma", m_hma);
+    configureIndicator(conf, "hma", m_hma);
     // configureIndictor(conf, "hma3", m_hma3);  // might be half len of hma
 
     m_hma3.setLength(m_hma.len() / 2);
-    configureIndictor(conf, "supertrend", m_superTrend);
+    configureIndicator(conf, "supertrend", m_superTrend);
 
     // m_kHma.setLength(22);
     // m_kHma3.setLength(11);
