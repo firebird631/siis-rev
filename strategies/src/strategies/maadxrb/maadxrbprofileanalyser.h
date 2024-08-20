@@ -8,7 +8,7 @@
 #ifndef SIIS_MAADXRBPROFILEANALYSER_H
 #define SIIS_MAADXRBPROFILEANALYSER_H
 
-#include "siis/analysers/rangebaranalyser.h"
+#include "siis/analysers/timeframebaranalyser.h"
 
 #include "siis/indicators/imbalance/barimbalance.h"
 
@@ -20,14 +20,15 @@ namespace siis {
  * @date 2024-08-18
  * Profile analyser
  */
-class SIIS_API MaAdxRbProfileAnalyser : public RangeBarAnalyser
+class SIIS_API MaAdxRbProfileAnalyser : public TimeframeBarAnalyser
 {
 public:
 
     MaAdxRbProfileAnalyser(
             Strategy *strategy,
             const o3d::String &name,
-            o3d::Int32 rangeSize,
+            o3d::Double timeframe,
+            o3d::Double sourceTimeframe,
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod=Price::PRICE_CLOSE);

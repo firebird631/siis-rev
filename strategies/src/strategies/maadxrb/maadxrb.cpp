@@ -77,77 +77,52 @@ void MaAdxRb::init(Config *config)
 
     initBasicsParameters(conf);
 
-//    if (conf.root().isMember("timeframes")) {
-//        Json::Value timeframes = conf.root().get("timeframes", Json::Value());
-//        for (auto it = timeframes.begin(); it != timeframes.end(); ++it) {
-//            Json::Value timeframe = *it;
-
-//            o3d::String name = it.name().c_str();
-//            o3d::String mode = timeframe.get("mode", "").asString().c_str();
-
-//            o3d::Double timeframe = conf.timeframeAsDouble(timeframe, "timeframe");
-
-//            o3d::Int32 depth = tickbar.get("depth", 0).asInt();
-//            o3d::Int32 history = tickbar.get("history", 0).asInt();
-
-//            if (!timeframe.get("enabled", true).asBool()) {
-//                continue;
-//            }
-
-//            if (mode == "profile") {
-//                Analyser *a = new MaAdxRbProfileAnalyser(this, name, timeframe, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
-//                a->init(AnalyserConfig(timeframe));
-
-//                m_analysers.push_back(a);
-//                m_profileAnalyser = static_cast<MaAdxRbProfileAnalyser*>(a);
-//            }
-//        }
-//    }
-
-    if (conf.root().isMember("tickbars")) {
-        Json::Value tickbars = conf.root().get("tickbars", Json::Value());
-        for (auto it = tickbars.begin(); it != tickbars.end(); ++it) {
-            Json::Value tickbar = *it;
+    if (conf.root().isMember("analysers")) {
+        Json::Value analyser = conf.root().get("analysers", Json::Value());
+        for (auto it = analyser.begin(); it != analyser.end(); ++it) {
+            Json::Value analyser = *it;
 
             o3d::String name = it.name().c_str();
-            o3d::String mode = tickbar.get("mode", "").asString().c_str();
+            o3d::String type = analyser.get("type", "").asString().c_str();
+            o3d::String mode = analyser.get("mode", "").asString().c_str();
 
-            o3d::Int32 barSize = conf.barSizeAsInt(tickbar, "size");
+            o3d::Double timeframe = conf.timeframeAsDouble(analyser, "timeframe");
+            o3d::Int32 barSize = conf.barSizeAsInt(analyser, "size");
 
-            o3d::Int32 depth = tickbar.get("depth", 0).asInt();
-            o3d::Int32 history = tickbar.get("history", 0).asInt();
+            o3d::Int32 depth = analyser.get("depth", 0).asInt();
+            o3d::Int32 history = analyser.get("history", 0).asInt();
 
-            if (!tickbar.get("enabled", true).asBool()) {
+            if (!analyser.get("enabled", true).asBool()) {
                 continue;
             }
 
-            if (mode == "profile") {
-                Analyser *a = new MaAdxRbProfileAnalyser(this, name, barSize, depth, history, Price::PRICE_CLOSE);
-                a->init(AnalyserConfig(tickbar));
+            if (mode == "profile" && type == "timeframe") {
+                Analyser *a = new MaAdxRbProfileAnalyser(this, name, timeframe, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
+                a->init(AnalyserConfig(analyser));
 
                 m_analysers.push_back(a);
                 m_profileAnalyser = static_cast<MaAdxRbProfileAnalyser*>(a);
-            } else if (mode == "session") {
+            } else if (mode == "session" && type == "range-bar") {
                 Analyser *a = new MaAdxRbSessionAnalyser(this, name, barSize, depth, history, Price::PRICE_CLOSE);
-                a->init(AnalyserConfig(tickbar));
+                a->init(AnalyserConfig(analyser));
 
                 m_analysers.push_back(a);
                 m_sessionAnalyser = static_cast<MaAdxRbSessionAnalyser*>(a);
-            } else if (mode == "trend") {
+            } else if (mode == "trend" && type == "range-bar") {
                 Analyser *a = new MaAdxRbTrendAnalyser(this, name, barSize, depth, history, Price::PRICE_CLOSE);
-                a->init(AnalyserConfig(tickbar));
+                a->init(AnalyserConfig(analyser));
 
                 m_analysers.push_back(a);
                 m_trendAnalyser = static_cast<MaAdxRbTrendAnalyser*>(a);
-            } else if (mode == "sig") {
+            } else if (mode == "sig" && type == "range-bar") {
                 Analyser *a = new MaAdxRbSigAnalyser(this, name, barSize, depth, history, Price::PRICE_CLOSE);
-                a->init(AnalyserConfig(tickbar));
+                a->init(AnalyserConfig(analyser));
 
                 m_analysers.push_back(a);
                 m_sigAnalyser = static_cast<MaAdxRbSigAnalyser*>(a);
-            } else if (mode == "conf") {
+            } else if (mode == "conf" && type == "range-bar") {
                 Analyser *a = new MaAdxRbConfAnalyser(this, name, barSize, depth, history, Price::PRICE_CLOSE);
-                a->init(AnalyserConfig(tickbar));
+                a->init(AnalyserConfig(analyser));
 
                 m_analysers.push_back(a);
                 m_confAnalyser = static_cast<MaAdxRbConfAnalyser*>(a);

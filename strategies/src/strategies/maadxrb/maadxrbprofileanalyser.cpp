@@ -12,15 +12,15 @@
 
 using namespace siis;
 
-MaAdxRbProfileAnalyser::MaAdxRbProfileAnalyser(
-            Strategy *strategy,
+MaAdxRbProfileAnalyser::MaAdxRbProfileAnalyser(Strategy *strategy,
             const o3d::String &name,
-            o3d::Int32 rangeSize,
+            o3d::Double timeframe,
+            o3d::Double sourceTimeframe,
             o3d::Int32 depth,
             o3d::Int32 history,
             Price::Method priceMethod) :
-    RangeBarAnalyser(strategy, name, rangeSize, depth, history, priceMethod),
-    m_imbalance("imbalance", rangeSize)
+    TimeframeBarAnalyser(strategy, name, timeframe, sourceTimeframe, depth, history, priceMethod),
+    m_imbalance("imbalance", timeframe)
 {
 
 }
@@ -41,7 +41,7 @@ void MaAdxRbProfileAnalyser::init(const AnalyserConfig &conf)
 
     m_imbalance.setSession(strategy()->sessionOffset(), strategy()->sessionDuration());
 
-    RangeBarAnalyser::init(conf);
+    TimeframeBarAnalyser::init(conf);
 }
 
 void MaAdxRbProfileAnalyser::terminate()

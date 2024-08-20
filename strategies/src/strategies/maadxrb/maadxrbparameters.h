@@ -30,17 +30,18 @@ static const char* MaAdxRbParameters = R"JSON(
             "method": "standard",
             "max-trades": 1,
             "min-profit": 0.1,
-            "trend": {"type": "sma", "analyser": "200tick"},
-            "sig": {"type": "sma", "analyser": "50tick", "min-adx": 40},
-            "confirm": {"type": "candle", "analyser": "10tick", "target-scale": 20, "risk-reward": 0.5},
+            "trend": {"type": "sma", "analyser": "trend"},
+            "sig": {"type": "sma", "analyser": "sig", "min-adx": 40},
+            "confirm": {"type": "candle", "analyser": "conf", "target-scale": 20, "risk-reward": 0.5},
             "entry": {"type": "last", "timeframe": "5m", "timeout": "1h"},
             "take-profit": {"type": "fixed", "timeframe": "5m", "distance": "0.25%"},
             "stop-loss": {"type": "fixed", "timeframe": "5m", "distance": "0.15%"}
         }
     },
-    "tickbars": {
-        "200tick": {
+    "analysers": {
+        "trend": {
             "enabled": true,
+            "type": "range-bar",
             "size": 200,
             "mode": "trend",
             "depth": 25,
@@ -52,8 +53,9 @@ static const char* MaAdxRbParameters = R"JSON(
                 "slow_l_ma": {"len": 20}
             }
         },
-         "50tick": {
+         "sig": {
             "enabled": true,
+            "type": "range-bar",
             "size": 50,
             "mode": "sig",
             "depth": 25,
@@ -66,8 +68,9 @@ static const char* MaAdxRbParameters = R"JSON(
                 "adx": {"len": 5}
             }
         },
-        "10tick": {
+        "conf": {
             "enabled": true,
+            "type": "range-bar",
             "size": 10,
             "mode": "conf",
             "depth": 10,

@@ -12,15 +12,13 @@ Prioritaire
 - DAO Economic Event
 - EconomicEvent Stream(er) (like TickStream)
     - avec gestion du streamer en backtesting
-- cumulative volume delta
 
 - TickBar (t)
 - VolumeBar (v)
 - Renko ATR et %
 - UniRenko (x,y,z)
 
-- Unification ou non des strategies timeframe/rangebar ?
-    - Probleme des classes specialisées des Analysers
+- Unifier les stratégies manquantes (en conjection avec la version python)
 
 - IndMarginTrade::updateStats complete PNL
 - pour les XxxxPositionSignal.refOrderId met on orderId or refOrderId ?
