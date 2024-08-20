@@ -51,7 +51,15 @@ void MaAdxRbProfileAnalyser::terminate()
 
 void MaAdxRbProfileAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
 {
-    m_imbalance.compute(timestamp, price().timestamp(),
-                        price().open(), price().high(), price().low(), price().close(),
-                        numLastBars());
+    o3d::Bool compute = true;
+
+    if (isUpdateAtclose()) {
+        compute = price().consolidated();
+    }
+
+    if (compute) {
+        m_imbalance.compute(timestamp, price().timestamp(),
+                            price().open(), price().high(), price().low(), price().close(),
+                            numLastBars());
+    }
 }

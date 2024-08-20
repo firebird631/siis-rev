@@ -462,43 +462,29 @@ o3d::Bool MaAdx::checkCvd(o3d::Int32 direction) const
 
 o3d::Bool MaAdx::checkTrend(o3d::Int32 direction, o3d::Int32 vpUp, o3d::Int32 vpDn) const
 {
-    //  0 initial
-//    if (m_trendAnalyser->trend() == direction) {
-//        return direction;
-//    }
-    /*
+    // 0 initial
+    // return m_trendAnalyser->trend() == direction;
+
     // 1 initial with VP
-    // if self.trend_ma_analyser.trend == direction and check_vp(direction):
-    //     return direction
+    // return m_trendAnalyser->trend() == direction && checkVp(direction, vpUp, vpDn);
 
     // 2 interesting
-    // if check_vp(direction) and check_vwap(direction):
-    //     return direction
+    // return checkVp(direction, vpUp, vpDn) && checkVWap(direction);
 
     // 3 interesting
-    // if check_vp(direction) and check_cvd(direction):
-    //     return direction
-    */
+    // return checkVp(direction, vpUp, vpDn) && checkCvd(direction);
 
     // 4 very interesting
-    if (checkVp(direction, vpUp, vpDn) && checkVWap(direction) && checkCvd(direction)) {
-        return direction;
-    }
-        /*
+    return checkVp(direction, vpUp, vpDn) && checkVWap(direction) && checkCvd(direction);
+
     // 5 inefficient
-    // if self.trend_ma_analyser.trend == direction and check_vp(direction) and check_vwap(direction):
-    //     return direction
+    // return self.trend_ma_analyser.trend == direction and check_vp(direction) and check_vwap(direction);
 
     // 6 too strict
-    // if self.trend_ma_analyser.trend == direction and check_vp(direction) and check_cvd(direction):
-    //     return direction
+    // return self.trend_ma_analyser.trend == direction and check_vp(direction) and check_cvd(direction);
 
     // 7 (full) too strict
-    // if self.trend_ma_analyser.trend == direction and check_vp(direction) and check_vwap(direction) and check_cvd(direction):
-    //     return direction
-         */
-
-    return 0;
+    // return self.trend_ma_analyser.trend == direction and check_vp(direction) and check_vwap(direction) and check_cvd(direction);
 }
 
 TradeSignal MaAdx::computeSignal(o3d::Double timestamp)

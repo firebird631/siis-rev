@@ -233,24 +233,26 @@ void VWap::update(const Tick &tick, o3d::Bool finalize)
     }
 
     // cumulative
-    o3d::Double vwap = 0.0;
+    if (tick.volume() > 0) {
+        o3d::Double vwap = 0.0;
 
-    m_pvs += tick.last() * tick.volume();  // price * volume
-    m_volumes += tick.volume();
+        m_pvs += tick.last() * tick.volume();  // price * volume
+        m_volumes += tick.volume();
 
-    m_pCurrent->vwap[m_pCurrent->vwap.getSize()-1] = vwap = m_pvs / m_volumes;
+        m_pCurrent->vwap[m_pCurrent->vwap.getSize()-1] = vwap = m_pvs / m_volumes;
 
-    m_last = m_pCurrent->vwap.last();
+        m_last = m_pCurrent->vwap.last();
 
-    // std dev
-    m_volume_dev += (tick.last() * tick.last()) * tick.volume();  // price^2 * volume
-    m_dev2 = o3d::max(m_volume_dev / m_volumes - vwap * vwap, 0.0);
+        // std dev
+        m_volume_dev += (tick.last() * tick.last()) * tick.volume();  // price^2 * volume
+        m_dev2 = o3d::max(m_volume_dev / m_volumes - vwap * vwap, 0.0);
 
-    o3d::Double stdDev = o3d::Math::sqrt(m_dev2);
+        o3d::Double stdDev = o3d::Math::sqrt(m_dev2);
 
-    for (o3d::Int32 i = 0; i < m_numStdDev; ++i) {
-        m_pCurrent->minusStdDev[i].set(-1, vwap - (i+1) * stdDev);
-        m_pCurrent->plusStdDev[i].set(-1, vwap + (i+1) * stdDev);
+        for (o3d::Int32 i = 0; i < m_numStdDev; ++i) {
+            m_pCurrent->minusStdDev[i].set(-1, vwap - (i+1) * stdDev);
+            m_pCurrent->plusStdDev[i].set(-1, vwap + (i+1) * stdDev);
+        }
     }
 
     // retain the last tick timestamp

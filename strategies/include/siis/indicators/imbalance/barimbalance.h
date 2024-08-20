@@ -36,6 +36,9 @@ public:
  *
  * New imbalance are computed only after a bar close.
  * Previous can be updated at each price move or at bar close.
+ *
+ * @note If compute at each new bar it is ok but if many initial bar are given to compute
+ * some imbalance could have been filled/partially and that case is not checked.
  */
 class SIIS_API BarImbalance : public Indicator
 {

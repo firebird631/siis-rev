@@ -77,6 +77,33 @@ void MaAdxRb::init(Config *config)
 
     initBasicsParameters(conf);
 
+//    if (conf.root().isMember("timeframes")) {
+//        Json::Value timeframes = conf.root().get("timeframes", Json::Value());
+//        for (auto it = timeframes.begin(); it != timeframes.end(); ++it) {
+//            Json::Value timeframe = *it;
+
+//            o3d::String name = it.name().c_str();
+//            o3d::String mode = timeframe.get("mode", "").asString().c_str();
+
+//            o3d::Double timeframe = conf.timeframeAsDouble(timeframe, "timeframe");
+
+//            o3d::Int32 depth = tickbar.get("depth", 0).asInt();
+//            o3d::Int32 history = tickbar.get("history", 0).asInt();
+
+//            if (!timeframe.get("enabled", true).asBool()) {
+//                continue;
+//            }
+
+//            if (mode == "profile") {
+//                Analyser *a = new MaAdxRbProfileAnalyser(this, name, timeframe, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
+//                a->init(AnalyserConfig(timeframe));
+
+//                m_analysers.push_back(a);
+//                m_profileAnalyser = static_cast<MaAdxRbProfileAnalyser*>(a);
+//            }
+//        }
+//    }
+
     if (conf.root().isMember("tickbars")) {
         Json::Value tickbars = conf.root().get("tickbars", Json::Value());
         for (auto it = tickbars.begin(); it != tickbars.end(); ++it) {
@@ -452,43 +479,29 @@ o3d::Bool MaAdxRb::checkCvd(o3d::Int32 direction) const
 
 o3d::Bool MaAdxRb::checkTrend(o3d::Int32 direction, o3d::Int32 vpUp, o3d::Int32 vpDn) const
 {
-    //  0 initial
-//    if (m_trendAnalyser->trend() == direction) {
-//        return direction;
-//    }
-    /*
+    // 0 initial
+    // return m_trendAnalyser->trend() == direction;
+
     // 1 initial with VP
-    // if self.trend_ma_analyser.trend == direction and check_vp(direction):
-    //     return direction
+    // return m_trendAnalyser->trend() == direction && checkVp(direction, vpUp, vpDn);
 
     // 2 interesting
-    // if check_vp(direction) and check_vwap(direction):
-    //     return direction
+    // return checkVp(direction, vpUp, vpDn) && checkVWap(direction);
 
     // 3 interesting
-    // if check_vp(direction) and check_cvd(direction):
-    //     return direction
-    */
+    // return checkVp(direction, vpUp, vpDn) && checkCvd(direction);
 
     // 4 very interesting
-    if (checkVp(direction, vpUp, vpDn) && checkVWap(direction) && checkCvd(direction)) {
-        return direction;
-    }
-        /*
+    return checkVp(direction, vpUp, vpDn) && checkVWap(direction) && checkCvd(direction);
+
     // 5 inefficient
-    // if self.trend_ma_analyser.trend == direction and check_vp(direction) and check_vwap(direction):
-    //     return direction
+    // return self.trend_ma_analyser.trend == direction and check_vp(direction) and check_vwap(direction);
 
     // 6 too strict
-    // if self.trend_ma_analyser.trend == direction and check_vp(direction) and check_cvd(direction):
-    //     return direction
+    // return self.trend_ma_analyser.trend == direction and check_vp(direction) and check_cvd(direction);
 
     // 7 (full) too strict
-    // if self.trend_ma_analyser.trend == direction and check_vp(direction) and check_vwap(direction) and check_cvd(direction):
-    //     return direction
-         */
-
-    return 0;
+    // return self.trend_ma_analyser.trend == direction and check_vp(direction) and check_vwap(direction) and check_cvd(direction);
 }
 
 TradeSignal MaAdxRb::computeSignal(o3d::Double timestamp)
