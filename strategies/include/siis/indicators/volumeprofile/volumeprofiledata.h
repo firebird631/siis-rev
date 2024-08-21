@@ -25,6 +25,7 @@ public:
 
     typedef std::unordered_map<o3d::Double, std::pair<o3d::Double, o3d::Double>> T_BinHashMap;
     typedef T_BinHashMap::iterator IT_BinHashMap;
+    typedef T_BinHashMap::const_iterator CIT_BinHashMap;
 
     o3d::Double timestamp {0};     //!< open timestamp
     o3d::Double timeframe {0};     //!< or duration

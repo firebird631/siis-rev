@@ -198,16 +198,13 @@ void VWap::update(const Tick &tick, o3d::Bool finalize)
         }
     }
 
+    // ignore ticks out of the daily session
     if (m_sessionFilter && m_vwapTimeframe == TF_DAY && (m_sessionOffset > 0 || m_sessionDuration > 0)) {
-        o3d::Double basetime = baseTime(TF_DAY, tick.timestamp());
-
-        if (tick.timestamp() < basetime + m_sessionOffset) {
-            // ignored, out of session
+        if (tick.timestamp() < m_openTimestamp) {
             return;
         }
 
-        if (tick.timestamp() >= basetime + m_sessionOffset + m_sessionDuration) {
-            // ignored, out of session
+        if (tick.timestamp() >= m_openTimestamp + (m_sessionDuration > 0.0 ? m_sessionDuration : m_vwapTimeframe)) {
             return;
         }
     }

@@ -22,13 +22,21 @@ namespace siis {
  * @brief SiiS tick volume profile indicator.
  * @author Frederic Scherma
  * @date 2024-08-02
+ * @todo Complete VA detection (as Python version)
+ * @todo Complete peaks & valleys detection (need an equivalent of scipy.find_peaks method
  */
 class SIIS_API VolumeProfile : public Indicator
 {
 public:
 
-    typedef std::vector<std::pair<o3d::Double, std::pair<o3d::Double, o3d::Double>>> T_VolumeByPrice;
-    typedef T_VolumeByPrice::iterator IT_VolumeByPrice;
+    typedef std::pair<o3d::Double, std::pair<o3d::Double, o3d::Double>> T_VolumeByPrice;
+    typedef std::pair<o3d::Double, o3d::Double> T_MergedVolumeByPrice;
+
+    typedef std::vector<T_VolumeByPrice> T_VolumeByPriceVector;
+    typedef T_VolumeByPriceVector::iterator IT_VolumeByPrice;
+
+    typedef std::vector<T_MergedVolumeByPrice> T_MergedVolumeByPriceVector;
+    typedef T_MergedVolumeByPriceVector::iterator IT_MergedVolumeByPrice;
 
     // TYPE_VOLUME
     // CLS_CUMULATIVE
@@ -126,15 +134,17 @@ public:
 
     void finalize();
 
-    void computeVolumeByPrices(T_VolumeByPrice &outVolumeByPrices) const;
+    void computeVolumesByPrice(T_VolumeByPriceVector &outVolumesByPrice) const;
+    void computeMergedVolumesByPrice(T_MergedVolumeByPriceVector &outMergedVolumesByPrice) const;
 
-    std::pair<o3d::Double, o3d::Double> computeValueArea(const T_VolumeByPrice& volumeByPrices,
+    std::pair<o3d::Double, o3d::Double> computeValueArea(const T_MergedVolumeByPriceVector& mergedVolumesByPrice,
                                                          o3d::Double pocPrice,
                                                          o3d::Double valueAreaSize=70.0) const;
 
-    void findPeaksAndValleys(const T_VolumeByPrice& volumeByPrices,
-                             std::vector<o3d::Double> &outPeaks,
-                             std::vector<o3d::Double> &outValleys) const;
+    void findPeaksAndValleys(const T_MergedVolumeByPriceVector& mergedVolumeByPrice,
+                             o3d::Double pocVolume,
+                             std::vector<o3d::Int32> &outPeaksIdx,
+                             std::vector<o3d::Int32> &outValleysIdx) const;
 
 private:
 
@@ -154,6 +164,7 @@ private:
     o3d::Bool m_sessionFilter;
 
     VolumeProfileData *m_pCurrent;
+    o3d::Double m_openTimestamp;
 
     o3d::Double m_currentMinPrice;
     o3d::Double m_currentMaxPrice;

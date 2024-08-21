@@ -36,6 +36,7 @@ VolumeProfile::VolumeProfile(const o3d::String &name,
     m_tickScale(tickScale),
     m_sessionFilter(sessionFilter),
     m_pCurrent(nullptr),
+    m_openTimestamp(0.0),
     m_currentMinPrice(0.0),
     m_currentMaxPrice(0.0),
     m_consolidated(false)
@@ -56,6 +57,7 @@ VolumeProfile::VolumeProfile(const o3d::String &name, o3d::Double timeframe, Ind
     m_tickScale(1.0),
     m_sessionFilter(false),
     m_pCurrent(nullptr),
+    m_openTimestamp(0.0),
     m_currentMinPrice(0.0),
     m_currentMaxPrice(0.0),
     m_consolidated(false)
@@ -183,22 +185,26 @@ void VolumeProfile::update(const Tick &tick, o3d::Bool finalize)
 
     if (m_pCurrent == nullptr) {
         if (timeframe() > 0) {
-            createVolumeProfile(baseTime(tick.timestamp(), timeframe()), tick.last());
+            m_openTimestamp = baseTime(tick.timestamp(), timeframe());
         } else {
-            createVolumeProfile(tick.timestamp(), tick.last());
+            m_openTimestamp = tick.timestamp();
         }
+
+        // session offset and duration only apply to a daily VP
+        if (timeframe() == TF_DAY && m_sessionFilter) {
+            m_openTimestamp += m_sessionOffset;
+        }
+
+        createVolumeProfile(m_openTimestamp, tick.last());
     }
 
+    // ignore ticks out of the daily session
     if (m_sessionFilter && timeframe() == TF_DAY && (m_sessionOffset > 0 || m_sessionDuration > 0)) {
-        o3d::Double basetime = baseTime(TF_DAY, tick.timestamp());
-
-        if (tick.timestamp() < basetime + m_sessionOffset) {
-            // ignored, out of session
+        if (tick.timestamp() < m_openTimestamp) {
             return;
         }
 
-        if (tick.timestamp() >= basetime + m_sessionOffset + m_sessionDuration) {
-            // ignored, out of session
+        if (tick.timestamp() >= m_openTimestamp + (m_sessionDuration > 0.0 ? m_sessionDuration : timeframe())) {
             return;
         }
     }
@@ -232,25 +238,38 @@ void VolumeProfile::finalize()
         return;
     }
 
-    o3d::Double ltimeframe = timeframe() > 0.0 ? timeframe() : (lastTimestamp() - m_pCurrent->timestamp);
+    if (m_pCurrent->timeframe <= 0) {
+        m_pCurrent->timeframe = timeframe() > 0.0 ? timeframe() : (lastTimestamp() - m_pCurrent->timestamp);
+    }
 
-    T_VolumeByPrice volumeByPrices;
-    computeVolumeByPrices(volumeByPrices);
+    T_MergedVolumeByPriceVector mergedVolumesByPrice;
 
     if (m_computePeaksAndValleys) {
-        if (volumeByPrices.empty()) {
-            computeVolumeByPrices(volumeByPrices);
+        if (mergedVolumesByPrice.empty()) {
+            computeMergedVolumesByPrice(mergedVolumesByPrice);
         }
 
-        // @todo
+        std::vector<o3d::Int32> peaksIdx;
+        std::vector<o3d::Int32> valleysIdx;
+
+        findPeaksAndValleys(mergedVolumesByPrice, m_pCurrent->pocVolume, peaksIdx, valleysIdx);
+
+        for (o3d::Int32 i = 0; i < peaksIdx.size(); ++i) {
+            m_pCurrent->peaks.push(mergedVolumesByPrice[i].first);
+        }
+
+        for (o3d::Int32 i = 0; i < valleysIdx.size(); ++i) {
+            m_pCurrent->valleys.push(mergedVolumesByPrice[i].first);
+        }
     }
 
     if (isComputeValueArea()) {
-        if (volumeByPrices.empty()) {
-            computeVolumeByPrices(volumeByPrices);
+        if (mergedVolumesByPrice.empty()) {
+            computeMergedVolumesByPrice(mergedVolumesByPrice);
         }
 
-        // @todo
+        std::make_pair(m_pCurrent->valPrice, m_pCurrent->vahPrice) = computeValueArea(
+            mergedVolumesByPrice, m_pCurrent->pocPrice, m_valueAreaSize);
     }
 
     // copy ptr
@@ -267,38 +286,165 @@ void VolumeProfile::finalize()
     m_pCurrent = nullptr;
 }
 
-void VolumeProfile::computeVolumeByPrices(T_VolumeByPrice &outVolumeByPrices) const
+void VolumeProfile::computeVolumesByPrice(T_VolumeByPriceVector &outVolumesByPrice) const
 {
     if (m_pCurrent == nullptr) {
         return;
     }
 
-    // @todo
+    size_t size = m_pCurrent->bins.size();
+
+    outVolumesByPrice.resize(size);
+
+    for (VolumeProfileData::CIT_BinHashMap cit = m_pCurrent->bins.cbegin(); cit != m_pCurrent->bins.cend(); ++cit) {
+        outVolumesByPrice.push_back(std::make_pair(cit->first, std::make_pair(cit->second.first, cit->second.second)));
+    }
+
+    std::sort(outVolumesByPrice.begin(), outVolumesByPrice.end(),
+              [](const T_VolumeByPrice& a, const T_VolumeByPrice &b) { return a.first < b.first; });
+}
+
+void VolumeProfile::computeMergedVolumesByPrice(T_MergedVolumeByPriceVector &outMergedVolumesByPrice) const
+{
+    if (m_pCurrent == nullptr) {
+        return;
+    }
+
+    size_t size = m_pCurrent->bins.size();
+
+    outMergedVolumesByPrice.resize(size);
+
+    for (VolumeProfileData::CIT_BinHashMap cit = m_pCurrent->bins.cbegin(); cit != m_pCurrent->bins.cend(); ++cit) {
+        outMergedVolumesByPrice.push_back(std::make_pair(cit->first, cit->second.first + cit->second.second));
+    }
+
+    std::sort(outMergedVolumesByPrice.begin(), outMergedVolumesByPrice.end(),
+              [](const T_MergedVolumeByPrice& a, const T_MergedVolumeByPrice &b) { return a.first < b.first; });
 }
 
 std::pair<o3d::Double, o3d::Double> VolumeProfile::computeValueArea(
-    const T_VolumeByPrice &volumeByPrices,
+    const T_MergedVolumeByPriceVector &mergedVolumesByPrice,
     o3d::Double pocPrice,
     o3d::Double valueAreaSize) const
 {
-    if (volumeByPrices.empty()) {
+    if (mergedVolumesByPrice.empty()) {
         return {0, 0};
     }
 
-    o3d::Double supPrice = 0.0;
-    o3d::Double infPrice = 0.0;
+    o3d::Int32 pocIdx = -1;
+    o3d::Double sumVols = 0.0;
 
-    // @todo
+    for (o3d::Int32 i = 0; i < mergedVolumesByPrice.size(); ++i) {
+        if (mergedVolumesByPrice[i].first == pocPrice) {
+            pocIdx = i;
+        }
+
+        // sumVols += volumesByPrice[i].second.first + volumesByPrice[i].second.second;
+        sumVols += mergedVolumesByPrice[i].second + mergedVolumesByPrice[i].second;
+    }
+
+    if (pocIdx < 0) {
+        return {0, 0};
+    }
+
+    o3d::Double supPrice = pocPrice;
+    o3d::Double infPrice = pocPrice;
+
+    o3d::Double inArea = sumVols * valueAreaSize * 0.01;
+
+    o3d::Int32 maxIndex = mergedVolumesByPrice.size() - 1;
+    // o3d::Double summed = volumesByPrice[pocIdx].second.first + volumesByPrice[pocIdx].second.second;
+    o3d::Double summed = mergedVolumesByPrice[pocIdx].second;
+
+    // start from left and right of the POC
+    o3d::Int32 left = pocIdx - 1;
+    o3d::Int32 right = pocIdx + 1;
+
+    while (summed < inArea) {
+        if (left < 0 && right > maxIndex) {
+            break;
+        }
+
+        if (left >= 0 && ((right <= maxIndex && mergedVolumesByPrice[left].second > mergedVolumesByPrice[right].second)
+                          || right > maxIndex)) {
+            summed += mergedVolumesByPrice[left].second;
+            infPrice = mergedVolumesByPrice[left].first;
+            left -= 1;
+        } else if (right <= maxIndex) {
+            summed += mergedVolumesByPrice[right].second;
+            supPrice = mergedVolumesByPrice[right].first;
+            right += 1;
+        }
+    }
 
     return {o3d::min(supPrice, infPrice), o3d::max(supPrice, infPrice)};
 }
 
-void VolumeProfile::findPeaksAndValleys(
-    const T_VolumeByPrice &volumeByPrices,
-    std::vector<o3d::Double> &outPeaks,
-    std::vector<o3d::Double> &outValleys) const
+void findPeaks(const DataArray &weights, o3d::Double minHeight, o3d::Int32 minDistance,
+               std::vector<o3d::Int32> &peaksIdx)
 {
-    // @todo
+    for (o3d::Int32 i = 1; i < weights.getSize() - 1; ++i) {
+        // detect a peak of min height
+        if (weights[i] > weights[i-1] && weights[i] > weights[i+1] && weights[i] >= minHeight) {
+            // check for min distance
+            if (!peaksIdx.empty()) {
+                o3d::Int32 lastPeakIdx = peaksIdx.back();
+                if (o3d::abs(i - lastPeakIdx) >= minDistance) {
+                    peaksIdx.push_back(i);
+                } else if (weights[i] > weights[lastPeakIdx]) {
+                    // if current peak is higher than previous peak but to near, replace by current peak
+                    peaksIdx.back() = i;
+                }
+            } else {
+                // first peak, add it
+                peaksIdx.push_back(i);
+            }
+        }
+    }
+}
+
+void findValleys(const DataArray &weights, o3d::Double minHeight, o3d::Int32 minDistance,
+                 std::vector<o3d::Int32> &peaksIdx)
+{
+    // same as findPeakcs but negate all weights and minHeight
+    for (o3d::Int32 i = 1; i < weights.getSize() - 1; ++i) {
+        // detect a peak of min height
+        if (-weights[i] > -weights[i-1] && -weights[i] > -weights[i+1] && -weights[i] >= -minHeight) {
+            // check for min distance
+            if (!peaksIdx.empty()) {
+                o3d::Int32 lastPeakIdx = peaksIdx.back();
+                if (o3d::abs(i - lastPeakIdx) >= minDistance) {
+                    peaksIdx.push_back(i);
+                } else if (-weights[i] > -weights[lastPeakIdx]) {
+                    // if current peak is higher than previous peak but to near, replace by current peak
+                    peaksIdx.back() = i;
+                }
+            } else {
+                // first peak, add it
+                peaksIdx.push_back(i);
+            }
+        }
+    }
+}
+
+void VolumeProfile::findPeaksAndValleys(
+    const T_MergedVolumeByPriceVector &mergedVolumeByPrice,
+    o3d::Double pocVolume,
+    std::vector<o3d::Int32> &outPeaksIdx,
+    std::vector<o3d::Int32> &outValleysIdx) const
+{
+    DataArray weights(mergedVolumeByPrice.size());
+
+    for (size_t i = 0; i < mergedVolumeByPrice.size(); ++i) {
+        // weights[i] = mergedVolumeByPrice[i].second.first + mergedVolumeByPrice[i].second.second;
+        weights[i] = mergedVolumeByPrice[i].second;
+    }
+
+    o3d::Double minHeight = pocVolume * 0.25;
+    o3d::Int32 minDistance = o3d::max(2, static_cast<o3d::Int32>(weights.getSize() / 6));
+
+    findPeaks(weights, minHeight, minDistance, outPeaksIdx);
+    findValleys(weights, minHeight, minDistance, outValleysIdx);
 }
 
 void VolumeProfile::createVolumeProfile(o3d::Double timestamp, o3d::Double price)
