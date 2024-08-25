@@ -86,7 +86,7 @@ public:
 
 private:
 
-    BBands m_bollinger;
+    Bollinger m_bollinger;
     Adx m_adx;  //!< optional ADX
 
     o3d::Int32 m_breakout;

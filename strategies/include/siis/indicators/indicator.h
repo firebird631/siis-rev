@@ -19,12 +19,14 @@ namespace siis {
  * @brief SiiS strategy indicator base model.
  * @author Frederic Scherma
  * @date 2019-03-15
- * normalizeClose = {'EMA', 'DEMA', 'MIDPOINT', 'MIDPRICE', 'SAREXT', 'LINEARREG_INTERCEPT', 'SMA', 'BBANDS', 'TRIMA',
- *   'TEMA', 'KAMA', 'PLUS_DM', 'MINUS_DM', 'T3', 'SAR', 'VAR', 'MA', 'WMA', 'LINEARREG', 'MAMA', 'TSF', 'HT_TRENDLINE', 'STDDEV'}
- * normalize360 = {'HT_DCPHASE', 'HT_PHASOR', 'HT_DCPERIOD'}
- * normalize100 = {'CMO', 'STOCHF', 'MINUS_DI', 'CCI', 'DX', 'TRANGE', 'ROCR100', 'MFI', 'PLUS_DI', 'AROON',
- *   'LINEARREG_ANGLE', 'WILLR', 'ULTOSC', 'MOM', 'ADX', 'LINEARREG_SLOPE', 'MACD', 'MACDEXT', 'STOCH', 'MACDFIX',
- *   'AROONOSC', 'RSI', 'ADXR', 'APO', 'ATR', 'STOCHRSI', 'ADOSC'}
+ * @note For performance reason never add virtual method to inherited indicators.
+ * @ref normalizeClose = {'EMA', 'DEMA', 'MIDPOINT', 'MIDPRICE', 'SAREXT', 'LINEARREG_INTERCEPT', 'SMA', 'BBANDS',
+ *                        'TRIMA', 'TEMA', 'KAMA', 'PLUS_DM', 'MINUS_DM', 'T3', 'SAR', 'VAR', 'MA', 'WMA',
+ *                        'LINEARREG', 'MAMA', 'TSF', 'HT_TRENDLINE', 'STDDEV'}
+ *      normalize360 = {'HT_DCPHASE', 'HT_PHASOR', 'HT_DCPERIOD'}
+ *      normalize100 = {'CMO', 'STOCHF', 'MINUS_DI', 'CCI', 'DX', 'TRANGE', 'ROCR100', 'MFI', 'PLUS_DI', 'AROON',
+ *                      'LINEARREG_ANGLE', 'WILLR', 'ULTOSC', 'MOM', 'ADX', 'LINEARREG_SLOPE', 'MACD', 'MACDEXT',
+ *                      'STOCH', 'MACDFIX', 'AROONOSC', 'RSI', 'ADXR', 'APO', 'ATR', 'STOCHRSI', 'ADOSC'}
  */
 class SIIS_API Indicator
 {
@@ -59,13 +61,24 @@ public:
     Indicator(const o3d::String &name, o3d::Double timeframe) :
         m_name(name),
         m_timeframe(timeframe),
-        m_lastTimestamp(0)
+        m_lastTimestamp(0.0),
+        m_active(true)
     {
     }
 
     const o3d::String& name() const { return m_name; }
     o3d::Double timeframe() const { return m_timeframe; }
     o3d::Double lastTimestamp() const { return m_lastTimestamp; }
+
+    /**
+     * @brief active Is this indicator present and configured.
+     */
+    o3d::Bool active() const { return m_active; }
+
+    /**
+     * @brief disable By configuration disable an indicator.
+     */
+    void disable() { m_active = false; }
 
     // o3d::Int32 lookback() const;
     // void trace(StrategyLogger &logger) const;
@@ -79,7 +92,22 @@ private:
     o3d::String m_name;
     o3d::Double m_timeframe;
     o3d::Double m_lastTimestamp;
+    o3d::Bool m_active;
 };
+
+template <class T>
+typename std::enable_if<std::is_base_of<Indicator, T>::value>::type
+configureIndicator(const AnalyserConfig &conf, const o3d::CString &name, T &indicator)
+{
+    Json::Value indicators = conf.indicators();
+
+    if (indicators.isMember(name.getData())) {
+        Json::Value cnf = indicators.get(name.getData(), Json::Value());
+        indicator.setConf(IndicatorConfig(cnf));
+    } else {
+        indicator.disable();
+    }
+}
 
 } // namespace siis
 

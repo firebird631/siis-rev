@@ -273,7 +273,7 @@ o3d::Int32 DataArray::cross(const DataArray &a) const
     return 0;
 }
 
-o3d::Int32 DataArray::cross(o3d::Double price) const
+o3d::Int32 DataArray::cross(o3d::Double value) const
 {
     o3d::Int32 size = getSize();
 
@@ -281,9 +281,9 @@ o3d::Int32 DataArray::cross(o3d::Double price) const
         return 0;
     }
 
-    if (m_data[size-2] > price && m_data[size-1] < price) {
+    if (m_data[size-2] > value && m_data[size-1] < value) {
         return -1;
-    } else if (m_data[size-2] < price && m_data[size-1] > price) {
+    } else if (m_data[size-2] < value && m_data[size-1] > value) {
         return 1;
     }
 
@@ -307,7 +307,7 @@ o3d::Int32 DataArray::cross(const DataArray &a, const DataArray &b)
     return 0;
 }
 
-o3d::Int32 DataArray::cross(const DataArray &a, o3d::Double price)
+o3d::Int32 DataArray::cross(const DataArray &a, o3d::Double value)
 {
     o3d::Int32 size = a.getSize();
 
@@ -315,9 +315,9 @@ o3d::Int32 DataArray::cross(const DataArray &a, o3d::Double price)
         return 0;
     }
 
-    if (a.m_data[size-2] > price && a.m_data[size-1] < price) {
+    if (a.m_data[size-2] > value && a.m_data[size-1] < value) {
         return -1;
-    } else if (a.m_data[size-2] < price && a.m_data[size-1] > price) {
+    } else if (a.m_data[size-2] < value && a.m_data[size-1] > value) {
         return 1;
     }
 

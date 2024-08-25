@@ -29,6 +29,7 @@ MaAdxRbSigAnalyser::MaAdxRbSigAnalyser(
     m_trend(0),
     m_sig(0),
     m_cvdTrend(0),
+    m_cvdCross(0),
     m_confirmation(0)
 {
 
@@ -59,8 +60,9 @@ void MaAdxRbSigAnalyser::init(const AnalyserConfig &conf)
 
     m_confirmation = 0;
     m_trend = 0;
-    m_cvdTrend = 0;
     m_sig = 0;
+    m_cvdTrend = 0;
+    m_cvdCross = 0;
 
     RangeBarAnalyser::init(conf);
 }
@@ -91,6 +93,8 @@ void MaAdxRbSigAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestam
     o3d::Int32 hc = 0;
     o3d::Int32 lc = 0;
 
+    m_cvdCross = 0;
+
     if (compute) {
         m_fast_h_ma.compute(timestamp, price().high());
         m_fast_m_ma.compute(timestamp, price().price());
@@ -103,12 +107,18 @@ void MaAdxRbSigAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestam
 
         m_cvd_ma.compute(timestamp, m_cvd.cvd().asArray());
 
-        m_cvdTrend = 0;
+        o3d::Int32 cvdTrend = 0;
         if (m_cvd.last() > m_cvd_ma.last()) {
-            m_cvdTrend = 1;
+            cvdTrend = 1;
         } else if (m_cvd.last() < m_cvd_ma.last()) {
-            m_cvdTrend = -1;
+            cvdTrend = -1;
         }
+
+        if (m_cvdTrend != cvdTrend && cvdTrend != 0) {
+            m_cvdCross = cvdTrend;
+        }
+
+        m_cvdTrend = cvdTrend;
     }
 
     if (hc > 0) {

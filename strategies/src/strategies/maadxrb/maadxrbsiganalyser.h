@@ -50,6 +50,7 @@ public:
 
     inline const CumulativeVolumeDelta& cvd() const { return m_cvd; }
     inline o3d::Int32 cvdTrend() const { return m_cvdTrend; }
+    inline o3d::Int32 cvdCross() const { return m_cvdCross; }
 
     o3d::Double takeProfit(o3d::Double profitScale) const;
     o3d::Double stopLoss(o3d::Double lossScale, o3d::Double riskReward) const;
@@ -63,11 +64,12 @@ private:
     Adx m_adx;
 
     CumulativeVolumeDelta m_cvd;
-    Sma m_cvd_ma;
+    Hma m_cvd_ma;
 
     o3d::Int32 m_trend;
     o3d::Int32 m_sig;
     o3d::Int32 m_cvdTrend;
+    o3d::Int32 m_cvdCross;
 
     o3d::Int32 m_confirmation;
 };

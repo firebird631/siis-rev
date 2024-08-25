@@ -472,19 +472,19 @@ o3d::Bool MaAdx::checkTrend(o3d::Int32 direction, o3d::Int32 vpUp, o3d::Int32 vp
     // return checkVp(direction, vpUp, vpDn) && checkVWap(direction);
 
     // 3 interesting
-    // return checkVp(direction, vpUp, vpDn) && checkCvd(direction);
+    return checkVp(direction, vpUp, vpDn) && checkCvd(direction);
 
     // 4 very interesting
-    return checkVp(direction, vpUp, vpDn) && checkVWap(direction) && checkCvd(direction);
+    // return checkVp(direction, vpUp, vpDn) && checkVWap(direction) && checkCvd(direction);
 
     // 5 inefficient
-    // return self.trend_ma_analyser.trend == direction and check_vp(direction) and check_vwap(direction);
+    // return (m_sigAnalyser->sig() == direction && checkVp(direction, vpUp, vpDn) && checkVWap(direction));
 
     // 6 too strict
-    // return self.trend_ma_analyser.trend == direction and check_vp(direction) and check_cvd(direction);
+    // return (m_sigAnalyser->sig() == direction && checkVp(direction, vpUp, vpDn) && checkCvd(direction));
 
     // 7 (full) too strict
-    // return self.trend_ma_analyser.trend == direction and check_vp(direction) and check_vwap(direction) and check_cvd(direction);
+    // return (m_sigAnalyser->sig() == direction && checkVp(direction, vpUp, vpDn) && checkVWap(direction) && checkCvd(direction));
 }
 
 TradeSignal MaAdx::computeSignal(o3d::Double timestamp)
@@ -497,11 +497,8 @@ TradeSignal MaAdx::computeSignal(o3d::Double timestamp)
     // volume-profile signal
     if (m_sessionAnalyser && m_sessionAnalyser->lastPrice()) {
         o3d::Double price = m_sessionAnalyser->lastPrice();
-        // o3d::Int32 n = -m_sessionAnalyser->vp().vp().size();
 
         for (auto const vp : m_sessionAnalyser->vp().vp()) {
-            // price = m_sessionAnalyser->price().close().last();
-            // ++n;
 
             if (price > vp->pocPrice) {
                 ++vpUp;
@@ -511,10 +508,10 @@ TradeSignal MaAdx::computeSignal(o3d::Double timestamp)
         }
     }
 
-    if (checkTrend(1, vpUp, vpDn)) {
+    if (m_sigAnalyser->cvdCross() > 0) { // checkTrend(1, vpUp, vpDn)) {
         if (m_sigAnalyser->adx() > m_adxSig) {
             if (m_sigAnalyser->sig() > 0 && m_sigAnalyser->adx() <= ADX_MAX) {
-                if (m_confAnalyser->confirmation() > 0) {
+                if (1){//m_confAnalyser->confirmation() > 0) {
                     // keep only one signal per timeframe
                     if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
                         signal.setEntry();
@@ -538,10 +535,10 @@ TradeSignal MaAdx::computeSignal(o3d::Double timestamp)
                 }
             }
         }
-    } else if (checkTrend(-1, vpUp, vpDn)) {
+    } else if (m_sigAnalyser->cvdCross() < 0) { //checkTrend(-1, vpUp, vpDn)) {
         if (m_sigAnalyser->adx() > m_adxSig) {
             if (m_sigAnalyser->sig() < 0 && m_sigAnalyser->adx() <= ADX_MAX) {
-                if (m_confAnalyser->confirmation() < 0) {
+                if (1){//m_confAnalyser->confirmation() < 0) {
                     // keep only one signal per timeframe
                     if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
                         signal.setEntry();

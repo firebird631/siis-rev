@@ -24,6 +24,8 @@ public:
 
     o3d::Double lowPrice {0};
     o3d::Double highPrice {0};
+
+    o3d::Double height() const { return highPrice - lowPrice; }
 };
 
 /**
@@ -70,7 +72,15 @@ public:
 
     o3d::Bool hasValues() const { return !m_imbalances.empty(); }
 
-    const T_Imbalance imbalance() const { return m_imbalances; }
+    /**
+     * @brief imbalance Retrieves all previous and recents imbalances, orderer from older to most recent.
+     */
+    const T_Imbalance& imbalance() const { return m_imbalances; }
+
+    /**
+     * @brief lastImbalances Retrieves only the last generated imbalances (since last compute call).
+     */
+    const T_Imbalance& lastImbalances() const { return m_foundImbalances; }
 
     /**
      * @brief compute Compute imbalance for last bars and update previous.
@@ -92,6 +102,7 @@ private:
     o3d::Double m_minHeight;
 
     T_Imbalance m_imbalances;
+    T_Imbalance m_foundImbalances;
 
     T_Imbalance updateImbalances(T_Imbalance& imbalances,
                                  const DataArray &high, const DataArray &low, o3d::Int32 numLastBars);

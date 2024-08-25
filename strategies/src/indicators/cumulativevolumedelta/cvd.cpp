@@ -26,6 +26,8 @@ CumulativeVolumeDelta::CumulativeVolumeDelta(const o3d::String &name,
     m_sessionFilter(sessionFilter),
     m_openTimestamp(0.0),
     m_prevTickPrice(0.0),
+    m_prevTickDir(0),
+    m_tmpCvd(0.0),
     m_cvd(depth),
     m_prev(0.0),
     m_last(0.0)
@@ -50,6 +52,8 @@ CumulativeVolumeDelta::CumulativeVolumeDelta(const o3d::String &name, o3d::Doubl
     m_sessionFilter(false),
     m_openTimestamp(0.0),
     m_prevTickPrice(0.0),
+    m_prevTickDir(0),
+    m_tmpCvd(0.0),
     m_cvd(depth),
     m_prev(0.0),
     m_last(0.0)
@@ -133,14 +137,41 @@ void CumulativeVolumeDelta::update(const Tick &tick, o3d::Bool finalize)
     // -1  for bid, 1 for ask, or 0 if no info
     if (tick.buyOrSell() < 0) {
         deltaVolume = -tick.volume();
+        m_prevTickDir = -1;
     } else if (tick.buyOrSell() > 0) {
         deltaVolume = tick.volume();
+        m_prevTickDir = 1;
     } else if (m_prevTickPrice != 0.0) {
         // detect direction from last tick price, but need at least a previous sample
+        // 3 modes are offered when the tick price does not change from previous
+
+        // mode 1: basic, up tick or down tick are accumulated but no changes in price means ignored tick
+//        if (tick.last() > m_prevTickPrice) {
+//            deltaVolume = tick.volume();
+//        } else if (tick.last() < m_prevTickPrice) {
+//            deltaVolume = -tick.volume();
+//        }
+
+        // mode 2: uses the previous direction (if was up or down tick, assume it is in the same direction)
+//        if (tick.last() > m_prevTickPrice) {
+//            deltaVolume = tick.volume();
+//            m_prevTickDir = 1;
+//        } else if (tick.last() < m_prevTickPrice) {
+//            deltaVolume = -tick.volume();
+//            m_prevTickDir = -1;
+//        } else {
+//            deltaVolume = m_prevTickDir * tick.volume();
+//        }
+
+        // mode 3: wait the next up or down tick, else keep the volume into a temporary accumulator
         if (tick.last() > m_prevTickPrice) {
-            deltaVolume = tick.volume();
+            deltaVolume = tick.volume() + m_tmpCvd;
+            m_tmpCvd = 0.0;
         } else if (tick.last() < m_prevTickPrice) {
-            deltaVolume = -tick.volume();
+            deltaVolume = -tick.volume() - m_tmpCvd;
+            m_tmpCvd = 0.0;
+        } else {
+            m_tmpCvd += tick.volume();
         }
     }
 

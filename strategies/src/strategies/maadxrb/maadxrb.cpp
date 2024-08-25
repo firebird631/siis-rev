@@ -465,18 +465,19 @@ o3d::Bool MaAdxRb::checkTrend(o3d::Int32 direction, o3d::Int32 vpUp, o3d::Int32 
 
     // 3 interesting
     // return checkVp(direction, vpUp, vpDn) && checkCvd(direction);
+    return (m_sigAnalyser->sig() == direction && m_sessionAnalyser->vPocBreakout() == direction);
 
     // 4 very interesting
-    return checkVp(direction, vpUp, vpDn) && checkVWap(direction) && checkCvd(direction);
+    // return checkVp(direction, vpUp, vpDn) && checkVWap(direction) && checkCvd(direction);
 
     // 5 inefficient
-    // return self.trend_ma_analyser.trend == direction and check_vp(direction) and check_vwap(direction);
+    // return (m_sigAnalyser->sig() == direction && checkVp(direction, vpUp, vpDn) && checkVWap(direction));
 
     // 6 too strict
-    // return self.trend_ma_analyser.trend == direction and check_vp(direction) and check_cvd(direction);
+    // return (m_sigAnalyser->sig() == direction && checkVp(direction, vpUp, vpDn) && checkCvd(direction));
 
     // 7 (full) too strict
-    // return self.trend_ma_analyser.trend == direction and check_vp(direction) and check_vwap(direction) and check_cvd(direction);
+    // return (m_sigAnalyser->sig() == direction && checkVp(direction, vpUp, vpDn) && checkVWap(direction) && checkCvd(direction));
 }
 
 TradeSignal MaAdxRb::computeSignal(o3d::Double timestamp)
@@ -489,12 +490,8 @@ TradeSignal MaAdxRb::computeSignal(o3d::Double timestamp)
     // volume-profile signal
     if (m_sessionAnalyser && m_sessionAnalyser->lastPrice()) {
         o3d::Double price = m_sessionAnalyser->lastPrice();
-        // o3d::Int32 n = -m_sessionAnalyser->vp().vp().size();
 
         for (auto const vp : m_sessionAnalyser->vp().vp()) {
-            // price = m_sessionAnalyser->price().close().last();
-            // ++n;
-
             if (price > vp->pocPrice) {
                 ++vpUp;
             } else if (price < vp->pocPrice) {

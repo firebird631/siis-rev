@@ -22,8 +22,6 @@ namespace siis {
  * @brief SiiS tick volume profile indicator.
  * @author Frederic Scherma
  * @date 2024-08-02
- * @todo Complete VA detection (as Python version)
- * @todo Complete peaks & valleys detection (need an equivalent of scipy.find_peaks method
  */
 class SIIS_API VolumeProfile : public Indicator
 {

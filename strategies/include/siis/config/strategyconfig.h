@@ -309,17 +309,6 @@ private:
     Json::Value *m_root;
 };
 
-template <class T>
-void configureIndicator(const AnalyserConfig &conf, const o3d::CString &name, T &indicator)
-{
-    Json::Value indicators = conf.indicators();
-
-    if (indicators.isMember(name.getData())) {
-        Json::Value cnf = indicators.get(name.getData(), Json::Value());
-        indicator.setConf(IndicatorConfig(cnf));
-    }
-}
-
 } // namespace siis
 
 #endif // SIIS_STRATEGYCONFIG_H

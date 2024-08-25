@@ -139,11 +139,11 @@ const VolumeProfileData* VolumeProfile::previous(o3d::Int32 n) const
 {
     o3d::Int32 size = static_cast<o3d::Int32>(m_vp.size());
 
-    if (n >= size) throw o3d::E_IndexOutOfRange("");
+    if (n >= size) throw o3d::E_IndexOutOfRange("VolumeProfile::previous(n>=size)");
 
     if (n < 0) {
         n = size + n;
-        if (n < 0) throw o3d::E_IndexOutOfRange("");
+        if (n < 0) throw o3d::E_IndexOutOfRange("VolumeProfile::previous(n<0)");
     }
 
     return m_vp[n];

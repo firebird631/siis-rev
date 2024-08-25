@@ -19,20 +19,20 @@ namespace siis {
  * @author Frederic Scherma
  * @date 2019-03-15
  */
-class SIIS_API BBands : public Indicator
+class SIIS_API Bollinger : public Indicator
 {
 public:
 
     // TYPE_VOLATILITY
     // CLS_INDEX
 
-    BBands(const o3d::String &name,
+    Bollinger(const o3d::String &name,
            o3d::Double timeframe,
            o3d::Int32 len=20,
            MAType maType=MA_SMA,
            o3d::Double numDevUp=2.0,
            o3d::Double numDevDn=2.0);
-    BBands(const o3d::String &name, o3d::Double timeframe, IndicatorConfig conf);
+    Bollinger(const o3d::String &name, o3d::Double timeframe, IndicatorConfig conf);
 
     void setConf(IndicatorConfig conf);
 

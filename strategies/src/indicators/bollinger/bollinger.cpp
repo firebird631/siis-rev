@@ -14,7 +14,7 @@ using namespace siis;
 using o3d::Logger;
 using o3d::Debug;
 
-BBands::BBands(const o3d::String &name,
+Bollinger::Bollinger(const o3d::String &name,
                o3d::Double timeframe,
                o3d::Int32 len,
                MAType maType,
@@ -34,7 +34,7 @@ BBands::BBands(const o3d::String &name,
 {
 }
 
-BBands::BBands(const o3d::String &name, o3d::Double timeframe, IndicatorConfig conf) :
+Bollinger::Bollinger(const o3d::String &name, o3d::Double timeframe, IndicatorConfig conf) :
     Indicator (name, timeframe),
     m_len(0),
     m_maType(MA_SMA),
@@ -61,7 +61,7 @@ BBands::BBands(const o3d::String &name, o3d::Double timeframe, IndicatorConfig c
     }
 }
 
-void BBands::setConf(IndicatorConfig conf)
+void Bollinger::setConf(IndicatorConfig conf)
 {
     if (conf.data().isObject()) {
         m_len = conf.data().get("len", 21).asInt();
@@ -72,12 +72,13 @@ void BBands::setConf(IndicatorConfig conf)
     } else if (conf.data().isArray()) {
         m_len = conf.data().get((Json::ArrayIndex)1, 21).asInt();
 
-        m_numDevUp = 2.0;
-        m_numDevDn = 2.0;
+        // keep them from ctor
+//        m_numDevUp = 2.0;
+//        m_numDevDn = 2.0;
     }
 }
 
-void BBands::compute(o3d::Double timestamp, const DataArray &price)
+void Bollinger::compute(o3d::Double timestamp, const DataArray &price)
 {
     o3d::Int32 lb = lookback();
     if (price.getSize() <= lb) {
@@ -112,7 +113,7 @@ void BBands::compute(o3d::Double timestamp, const DataArray &price)
     done(timestamp);
 }
 
-o3d::Int32 BBands::lookback() const
+o3d::Int32 Bollinger::lookback() const
 {
     return ::TA_BBANDS_Lookback(m_len, m_numDevUp, m_numDevDn, static_cast<TA_MAType>(m_maType));
 }

@@ -77,7 +77,7 @@ void BarImbalance::compute(o3d::Double timestamp, const DataArray &timestamps,
         return;
     }
 
-    T_Imbalance foundImbalances;
+    m_foundImbalances.clear();
 
     if (numLastBars > 1) {
         o3d::Int32 baseIdx = o3d::max(1, timestamps.getSize() - numLastBars - 1);
@@ -100,9 +100,9 @@ void BarImbalance::compute(o3d::Double timestamp, const DataArray &timestamps,
                 //if (curOpen <= prevHigh && curClose >= nextLow) {
                 if (nextLow - prevHigh > m_minHeight) {
                     // found at timestamp
-                    foundImbalances.push_back(Imbalance());
+                    m_foundImbalances.push_back(Imbalance());
 
-                    Imbalance &imbalance = foundImbalances.back();
+                    Imbalance &imbalance = m_foundImbalances.back();
 
                     imbalance.direction = 1;
                     imbalance.lowPrice = prevHigh;
@@ -119,9 +119,9 @@ void BarImbalance::compute(o3d::Double timestamp, const DataArray &timestamps,
                 //if (curOpen >= prevLow && curClose <= nextHigh) {
                 if (prevLow - nextHigh > m_minHeight) {
                     // found at timestamp
-                    foundImbalances.push_back(Imbalance());
+                    m_foundImbalances.push_back(Imbalance());
 
-                    Imbalance &imbalance = foundImbalances.back();
+                    Imbalance &imbalance = m_foundImbalances.back();
 
                     imbalance.direction = -1;
                     imbalance.lowPrice = prevLow;
@@ -141,11 +141,11 @@ void BarImbalance::compute(o3d::Double timestamp, const DataArray &timestamps,
     // keep filtered previous and newly found
     m_imbalances = previousImbalances;
 
-    if (foundImbalances.size()) {
+    if (m_foundImbalances.size()) {
         if (m_imbalances.empty()) {
-            m_imbalances = foundImbalances;
+            m_imbalances = m_foundImbalances;
         } else {
-            m_imbalances.insert(m_imbalances.end(), foundImbalances.begin(), foundImbalances.end());
+            m_imbalances.insert(m_imbalances.end(), m_foundImbalances.begin(), m_foundImbalances.end());
         }
     }
 

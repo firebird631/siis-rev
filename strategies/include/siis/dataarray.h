@@ -47,11 +47,11 @@ public:
      * @param i Positive or negative index or 0
      */
     inline const o3d::Double& at(o3d::Int32 n) const {
-        if (n >= m_size) throw o3d::E_IndexOutOfRange("");
+        if (n >= m_size) throw o3d::E_IndexOutOfRange("DataArray:at(n>=size)");
 
         if (n < 0) {
             n = m_size + n;
-            if (n < 0) throw o3d::E_IndexOutOfRange("");
+            if (n < 0) throw o3d::E_IndexOutOfRange("DataArray:at(n<0)");
         }
 
         return m_data[n];
@@ -63,11 +63,11 @@ public:
      * @param v New value to set
      */
     inline void set(o3d::Int32 n, o3d::Double v) const {
-        if (n >= m_size) throw o3d::E_IndexOutOfRange("");
+        if (n >= m_size) throw o3d::E_IndexOutOfRange("DataArray:set(n>=size)");
 
         if (n < 0) {
             n = m_size + n;
-            if (n < 0) throw o3d::E_IndexOutOfRange("");
+            if (n < 0) throw o3d::E_IndexOutOfRange("DataArray:set(n<0)");
         }
 
         m_data[n] = v;
@@ -126,10 +126,10 @@ public:
     o3d::Int32 cross(const DataArray &a) const;
 
     /**
-     * @brief cross With the two last values and a line
+     * @brief cross With the two last values and a single value
      * @return -1, 1 or 0 (this cross under a, this cross upper a, none)
      */
-    o3d::Int32 cross(o3d::Double price) const;
+    o3d::Int32 cross(o3d::Double value) const;
 
     /**
      * @brief cross With the two last values
@@ -138,10 +138,10 @@ public:
     static o3d::Int32 cross(const DataArray &a, const DataArray &b);
 
     /**
-     * @brief cross With the two last values
+     * @brief cross With the two last values and a single value
      * @return -1, 1 or 0 (this cross under a, this cross upper a, none)
      */
-    static o3d::Int32 cross(const DataArray &a, o3d::Double price);
+    static o3d::Int32 cross(const DataArray &a, o3d::Double value);
 };
 
 } // namespace siis

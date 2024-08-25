@@ -76,7 +76,10 @@ private:
     o3d::Bool m_sessionFilter;
 
     o3d::Double m_openTimestamp;
+
     o3d::Double m_prevTickPrice;
+    o3d::Int32 m_prevTickDir;
+    o3d::Double m_tmpCvd;
 
     DataCircular m_cvd;
 
