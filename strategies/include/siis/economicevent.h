@@ -52,7 +52,7 @@ public:
     inline o3d::String toString() const
     {
         return o3d::String("{0} at={1} UTC lvl={2} curr={3} (impact={4})")
-                .arg(code).arg(date.buildString("%Y-%m-%d %H:%M").arg(level).arg(currency)
+                .arg(code.isEmpty() ? "-" : code).arg(date.buildString("%Y-%m-%d %H:%M").arg(level).arg(currency)
                 .arg(EconomicEventData.meaningToStr(actualMeaning)));
     }
 

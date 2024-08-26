@@ -77,50 +77,52 @@ void MaAdx::init(Config *config)
 
     initBasicsParameters(conf);
 
-    if (conf.root().isMember("timeframes")) {
-        Json::Value timeframes = conf.root().get("timeframes", Json::Value());
+    if (conf.root().isMember("analysers")) {
+        Json::Value timeframes = conf.root().get("analysers", Json::Value());
         for (auto it = timeframes.begin(); it != timeframes.end(); ++it) {
-            Json::Value timeframe = *it;
+            Json::Value analyser = *it;
 
             o3d::String name = it.name().c_str();
-            o3d::String mode = timeframe.get("mode", "").asString().c_str();
+            o3d::String type = analyser.get("type", "").asString().c_str();
+            o3d::String mode = analyser.get("mode", "").asString().c_str();
 
-            o3d::Double tf = conf.timeframeAsDouble(timeframe, "timeframe");
+            o3d::Double timeframe = conf.timeframeAsDouble(analyser, "timeframe");
+            o3d::Int32 barSize = conf.barSizeAsInt(analyser, "size");
 
-            o3d::Int32 depth = timeframe.get("depth", 0).asInt();
-            o3d::Int32 history = timeframe.get("history", 0).asInt();
+            o3d::Int32 depth = analyser.get("depth", 0).asInt();
+            o3d::Int32 history = analyser.get("history", 0).asInt();
 
-            if (!timeframe.get("enabled", true).asBool()) {
+            if (!analyser.get("enabled", true).asBool()) {
                 continue;
             }
 
-            if (mode == "profile") {
-                Analyser *a = new MaAdxProfileAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
-                a->init(AnalyserConfig(timeframe));
+            if (mode == "profile" && type == "timeframe") {
+                Analyser *a = new MaAdxProfileAnalyser(this, name, timeframe, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
+                a->init(AnalyserConfig(analyser));
 
                 m_analysers.push_back(a);
                 m_profileAnalyser = static_cast<MaAdxProfileAnalyser*>(a);
             } else if (mode == "session") {
-                Analyser *a = new MaAdxSessionAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
-                a->init(AnalyserConfig(timeframe));
+                Analyser *a = new MaAdxSessionAnalyser(this, name, timeframe, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
+                a->init(AnalyserConfig(analyser));
 
                 m_analysers.push_back(a);
                 m_sessionAnalyser = static_cast<MaAdxSessionAnalyser*>(a);
             } else if (mode == "trend") {
-                Analyser *a = new MaAdxTrendAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
-                a->init(AnalyserConfig(timeframe));
+                Analyser *a = new MaAdxTrendAnalyser(this, name, timeframe, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
+                a->init(AnalyserConfig(analyser));
 
                 m_analysers.push_back(a);
                 m_trendAnalyser = static_cast<MaAdxTrendAnalyser*>(a);
             } else if (mode == "sig") {
-                Analyser *a = new MaAdxSigAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
-                a->init(AnalyserConfig(timeframe));
+                Analyser *a = new MaAdxSigAnalyser(this, name, timeframe, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
+                a->init(AnalyserConfig(analyser));
 
                 m_analysers.push_back(a);
                 m_sigAnalyser = static_cast<MaAdxSigAnalyser*>(a);
             } else if (mode == "conf") {
-                Analyser *a = new MaAdxConfAnalyser(this, name, tf, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
-                a->init(AnalyserConfig(timeframe));
+                Analyser *a = new MaAdxConfAnalyser(this, name, timeframe, baseTimeframe(), depth, history, Price::PRICE_CLOSE);
+                a->init(AnalyserConfig(analyser));
 
                 m_analysers.push_back(a);
                 m_confAnalyser = static_cast<MaAdxConfAnalyser*>(a);
@@ -472,7 +474,9 @@ o3d::Bool MaAdx::checkTrend(o3d::Int32 direction, o3d::Int32 vpUp, o3d::Int32 vp
     // return checkVp(direction, vpUp, vpDn) && checkVWap(direction);
 
     // 3 interesting
-    return checkVp(direction, vpUp, vpDn) && checkCvd(direction);
+    // return checkVp(direction, vpUp, vpDn) && checkCvd(direction);
+
+    return (m_sigAnalyser->trend() == direction && m_sessionAnalyser->vPocBreakout() == direction);
 
     // 4 very interesting
     // return checkVp(direction, vpUp, vpDn) && checkVWap(direction) && checkCvd(direction);
@@ -508,10 +512,10 @@ TradeSignal MaAdx::computeSignal(o3d::Double timestamp)
         }
     }
 
-    if (m_sigAnalyser->cvdCross() > 0) { // checkTrend(1, vpUp, vpDn)) {
+    if (checkTrend(1, vpUp, vpDn)) {
         if (m_sigAnalyser->adx() > m_adxSig) {
             if (m_sigAnalyser->sig() > 0 && m_sigAnalyser->adx() <= ADX_MAX) {
-                if (1){//m_confAnalyser->confirmation() > 0) {
+                if (m_confAnalyser->confirmation() > 0) {
                     // keep only one signal per timeframe
                     if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
                         signal.setEntry();
@@ -535,10 +539,10 @@ TradeSignal MaAdx::computeSignal(o3d::Double timestamp)
                 }
             }
         }
-    } else if (m_sigAnalyser->cvdCross() < 0) { //checkTrend(-1, vpUp, vpDn)) {
+    } else if (checkTrend(-1, vpUp, vpDn)) {
         if (m_sigAnalyser->adx() > m_adxSig) {
             if (m_sigAnalyser->sig() < 0 && m_sigAnalyser->adx() <= ADX_MAX) {
-                if (1){//m_confAnalyser->confirmation() < 0) {
+                if (m_confAnalyser->confirmation() < 0) {
                     // keep only one signal per timeframe
                     if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
                         signal.setEntry();
@@ -579,6 +583,8 @@ TradeSignal MaAdx::computeSignal(o3d::Double timestamp)
             signal.reset();
         }
     }
+
+    // signal.revert();
 
     return signal;
 }

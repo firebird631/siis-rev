@@ -102,6 +102,7 @@ set(STRATEGY_LIB_CXX
     indicators/td9/td9.cpp
     indicators/triangle/triangle.cpp
     indicators/volume/volume.cpp
+    indicators/volumeprofile/compositevolumeprofile.cpp
     indicators/volumeprofile/volumeprofile.cpp
     indicators/vwma/vwma.cpp
     indicators/vwap/vwap.cpp

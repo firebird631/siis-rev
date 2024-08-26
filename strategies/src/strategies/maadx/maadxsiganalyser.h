@@ -48,6 +48,7 @@ public:
 
     inline o3d::Double adx() const { return m_adx.last(); }
     inline o3d::Int32 sig() const { return m_sig; }
+    inline o3d::Int32 trend() const { return m_trend; }
 
     inline const CumulativeVolumeDelta& cvd() const { return m_cvd; }
     inline o3d::Int32 cvdTrend() const { return m_cvdTrend; }

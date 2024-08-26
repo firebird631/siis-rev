@@ -465,19 +465,19 @@ o3d::Bool MaAdxRb::checkTrend(o3d::Int32 direction, o3d::Int32 vpUp, o3d::Int32 
 
     // 3 interesting
     // return checkVp(direction, vpUp, vpDn) && checkCvd(direction);
-    return (m_sigAnalyser->sig() == direction && m_sessionAnalyser->vPocBreakout() == direction);
+    return m_sigAnalyser->trend() == direction && m_sessionAnalyser->vPocBreakout() == direction;
 
     // 4 very interesting
     // return checkVp(direction, vpUp, vpDn) && checkVWap(direction) && checkCvd(direction);
 
     // 5 inefficient
-    // return (m_sigAnalyser->sig() == direction && checkVp(direction, vpUp, vpDn) && checkVWap(direction));
+    // return m_sigAnalyser->sig() == direction && checkVp(direction, vpUp, vpDn) && checkVWap(direction);
 
     // 6 too strict
-    // return (m_sigAnalyser->sig() == direction && checkVp(direction, vpUp, vpDn) && checkCvd(direction));
+    // return m_sigAnalyser->sig() == direction && checkVp(direction, vpUp, vpDn) && checkCvd(direction);
 
     // 7 (full) too strict
-    // return (m_sigAnalyser->sig() == direction && checkVp(direction, vpUp, vpDn) && checkVWap(direction) && checkCvd(direction));
+    // return m_sigAnalyser->sig() == direction && checkVp(direction, vpUp, vpDn) && checkVWap(direction) && checkCvd(direction);
 }
 
 TradeSignal MaAdxRb::computeSignal(o3d::Double timestamp)

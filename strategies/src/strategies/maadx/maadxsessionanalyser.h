@@ -11,7 +11,10 @@
 #include "siis/analysers/timeframebaranalyser.h"
 
 #include "siis/indicators/volumeprofile/volumeprofile.h"
+#include "siis/indicators/volumeprofile/compositevolumeprofile.h"
 #include "siis/indicators/bollinger/bollinger.h"
+
+#include "siis/datacircular.h"
 
 namespace siis {
 
@@ -52,9 +55,12 @@ private:
 
     VolumeProfile m_vp;
     Bollinger m_vpoc_bollinger;
+    CompositeVolumeProfile m_compositeVP;
 
     o3d::Int32 m_vPocBreakout;
     o3d::Int32 m_vPocTrend;
+
+    DataCircular m_vPocs;
 };
 
 } // namespace siis

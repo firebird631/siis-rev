@@ -193,6 +193,14 @@ public:
         return 0.0;
     }
 
+    void revert()
+    {
+        o3d::Double tmp = m_takeProfitPrice;
+        m_takeProfitPrice = m_stopLossPrice;
+        m_stopLossPrice = tmp;
+        m_direction = -m_direction;
+    }
+
     /**
      * @brief addCondition Add a condition related to the emission of this signal.
      */

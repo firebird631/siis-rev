@@ -107,6 +107,7 @@ include/siis/indicators/stochrsi/stochrsi.h
 include/siis/indicators/supertrend/supertrend.h
 include/siis/indicators/td9/td9.h
 include/siis/indicators/volume/volume.h
+include/siis/indicators/volumeprofile/compositevolumeprofile.h
 include/siis/indicators/volumeprofile/volumeprofile.h
 include/siis/indicators/volumeprofile/volumeprofiledata.h
 include/siis/indicators/vwap/vwap.h
@@ -282,6 +283,7 @@ src/indicators/supertrend/supertrend.cpp
 src/indicators/td9/td9.cpp
 src/indicators/triangle/triangle.cpp
 src/indicators/volume/volume.cpp
+src/indicators/volumeprofile/compositevolumeprofile.cpp
 src/indicators/volumeprofile/volumeprofile.cpp
 src/indicators/vwap/vwap.cpp
 src/indicators/vwma/vwma.cpp

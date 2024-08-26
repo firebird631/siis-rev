@@ -112,6 +112,8 @@ If this project helped you out feel free to donate.
 * ETH (ERC20): 0xc2fc512df6ac6b5e2bd23873dc7df4c56bcdc214
 * XRP: rNxp4h8apvRis6mJf9Sh8C6iRxfrDWN7AV / memo 313602045
 
+[![image](https://user-images.githubusercontent.com/8982949/33011169-6da4af5e-cddd-11e7-94e5-a52d776b94ba.png)](https://www.paypal.me/firebird631)
+
 Installation
 ------------
 

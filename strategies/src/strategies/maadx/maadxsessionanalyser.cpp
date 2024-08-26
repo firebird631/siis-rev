@@ -23,8 +23,10 @@ MaAdxSessionAnalyser::MaAdxSessionAnalyser(
     TimeframeBarAnalyser(strategy, name, timeframe, sourceTimeframe, depth, history, priceMethod),
     m_vp("volumeprofile", timeframe),
     m_vpoc_bollinger("vpoc_bollinger", timeframe, 5, MA_EMA, 1.0, 1.0),
+    m_compositeVP("composite_vp", timeframe, 30),
     m_vPocBreakout(0),
-    m_vPocTrend(0)
+    m_vPocTrend(0),
+    m_vPocs(depth)
 {
 
 }
@@ -43,11 +45,15 @@ void MaAdxSessionAnalyser::init(const AnalyserConfig &conf)
 {
     configureIndicator(conf, "vp", m_vp);
     configureIndicator(conf, "vpoc_bollinger", m_vpoc_bollinger);
+    // configureIndicator(conf, "composite_vp", m_compositeVP);
 
     m_vp.init(strategy()->market()->precisionPrice(), strategy()->market()->stepPrice());
     m_vp.setSession(strategy()->sessionOffset(), strategy()->sessionDuration());
 
     m_vPocBreakout = 0;
+
+    m_compositeVP.setVolumeProfile(&m_vp);
+    m_vPocs.setSize(m_vp.historySize());
 
     TimeframeBarAnalyser::init(conf);
 }
@@ -68,16 +74,19 @@ void MaAdxSessionAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimest
     }
 
     if (compute) {
-        if (m_vp.vp().size() > 2 && m_vpoc_bollinger.active()) {
-            // collect VPOC
-            DataArray vPocs;
+        if (m_vp.vp().size() > 0) {
+            // composite
+            m_compositeVP.composite();
 
-            for (o3d::Int32 i = 0; i < m_vp.vp().size(); ++i) {
-                vPocs.push(m_vp.previous(i)->pocPrice);
-            }
+            m_vPocs.append(m_compositeVP.vp().pocPrice);
+        }
 
+        if (m_vPocs.size() > 2 && m_vpoc_bollinger.active()) {
             // bollinger-bands of VPOC
+            DataArray vPocs = m_vPocs.asArray();
+
             m_vpoc_bollinger.compute(timestamp, vPocs);
+            // printf("%f %f\n", vPocs.last(), m_vpoc_bollinger.lastUpper());
 
             if (vPocs.cross(m_vpoc_bollinger.upper()) > 0) {
                 m_vPocBreakout = 1;
