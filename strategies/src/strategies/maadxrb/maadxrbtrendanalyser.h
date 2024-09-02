@@ -43,6 +43,9 @@ public:
     virtual void compute(o3d::Double timestamp, o3d::Double lastTimestamp) override;
     virtual void updateTick(const Tick& tick, o3d::Bool finalize) override;
 
+    inline o3d::Double lastMaHigh() const { return m_slow_h_ma.last(); }
+    inline o3d::Double lastMaLow() const { return m_slow_l_ma.last(); }
+
     inline o3d::Int32 trend() const { return m_trend; }
     inline o3d::Int32 vwapTrend() const { return m_vwapTrend; }
 

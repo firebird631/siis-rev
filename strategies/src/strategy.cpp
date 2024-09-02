@@ -459,7 +459,82 @@ void Strategy::addOrderBookDataSource(o3d::Int32 depth)
     m_dataSources.push_back(DataSource(DataSource::ORDER_BOOK, 0.0, depth));
 }
 
-void Strategy::adjustOhlcFetchRange(o3d::Int32 history, o3d::Int32 depth,
+//! Convert date to number of days
+//! @warning Dates before Oct. 1582 are inaccurate.
+static o3d::Int64 gday(const o3d::DateTime &d)
+{
+    o3d::Int64 y, m;
+
+    m = (d.month + 9) % 12;
+    y = (d.year - m / 10);
+
+    return y*365 + y/4 - y/100 + y/400 + (m*306 + 5)/10 + (d.mday - 1);
+}
+
+o3d::Double Strategy::adjustHistoryDuration(o3d::Double history, o3d::Double toTs) const
+{
+    if (market()->type() == Market::TYPE_CRYPTO) {
+        // h24/d7
+        return history;
+    } else if (market()->type() == Market::TYPE_STOCK) {
+        // @todo 6.5h per week-day
+        return history;
+    } else if (market()->type() == Market::TYPE_INDICE) {
+        // @todo 1h day off, week-day
+/*
+            o3d::DateTime firstDay;
+            firstDay.fromTime(fromTs);
+
+            o3d::DateTime lastDay;
+            lastDay.fromTime(toTs);
+
+            o3d::Int64 numDays = gday(lastDay) - gday(firstDay);
+
+            // @todo
+            if (lastDay.getIsoDayOfWeek() > 5) {
+                // market open at 20:00 sunday, so minus 4h
+                fromTs -= (lastDay.getIsoDayOfWeek() - 5) * TF_DAY;
+
+                if (lastDay.getDayOfWeek() == 7) {
+                    if (lastDay.hour >= 20) {
+                        fromTs += (lastDay.hour - 20) * TF_HOUR;
+                    }
+                }
+            }
+
+            if (numDays >= 7) {
+                // add two days per week
+                fromTs -= (2 * (TF_DAY - TF_4HOUR)) * (numDays / 7);
+            }
+
+            // 1 hour off per week-day
+            if (numDays >= 7) {
+                fromTs -= ((numDays * 5) / 7) * TF_HOUR;
+            } else if (numDays >= 1) {
+                fromTs -= numDays * TF_HOUR;
+            } else {
+                if (history > TF_HOUR) {
+                    if (lastDay.hour == 0) {
+                        // if start
+                        fromTs -= TF_HOUR;
+                    }
+                }
+            }
+            */
+
+        return history;
+    } else if (market()->type() == Market::TYPE_COMMODITY) {
+        // @todo a little bit different than indices, week-day
+        return history;
+    } else if (market()->type() == Market::TYPE_CURRENCY) {
+        // @todo 1h day off, week-day, gold, silver might be currency type
+        return history;
+    }
+
+    return history;
+}
+
+void Strategy::adjustOhlcFetchRange(o3d::Double history, o3d::Int32 depth,
                                     o3d::Double &fromTs, o3d::Double &toTs,
                                     o3d::Int32 &nLast) const
 {
@@ -475,7 +550,11 @@ void Strategy::adjustOhlcFetchRange(o3d::Int32 history, o3d::Int32 depth,
             // n last till date
             fromTs = 0;
             // toTs don't change
-            nLast = o3d::max(history, depth);
+            if (history > 0) {
+                fromTs = toTs - history + 1.0;
+            } else {
+                nLast = depth;
+            }
             return;
         } else if (fromTs && !toTs) {
             // from date till now
@@ -487,21 +566,19 @@ void Strategy::adjustOhlcFetchRange(o3d::Int32 history, o3d::Int32 depth,
             // n last till now
             fromTs = 0;
             toTs = 0;
-            nLast = o3d::max(history, depth);
+            nLast = depth;
             return;
         }
     } else {
-        // there is multiples case, weekend off and nationals days off
-        // and the case of stocks markets closed during the local night
-        // but also some 15 min of twice on indices ...
-
-        // so many complexes cases then we try to get the max of last n OHLCs
-        // here simple direct solution but not correct in case of leaks of data
-
-        // either n last till date, or n last till now
-        fromTs = 0.0;
-        // toTs don't change
-        nLast = o3d::max(history, depth);
+        if (toTs > 0 && history > 0) {
+            o3d::Double adjustedHistory = adjustHistoryDuration(history, toTs);
+            fromTs = toTs - adjustedHistory;
+        } else {
+            // either n last till date, or n last till now
+            fromTs = 0.0;
+            // toTs don't change
+            nLast = depth;
+        }
     }
 }
 

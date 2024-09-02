@@ -314,6 +314,16 @@ public:
      */
     o3d::Bool allowedTradingSession(o3d::Double timestamp) const;
 
+    /**
+     * @brief adjustHistoryDuration According to the type of market increase the history duration when target date
+     *   and history starts during an off day, off hour, have off day or off hours.
+     * @param history
+     * @param toTs
+     * @return
+     * @note It does not support nationals days off because need special calendar (Panda could offers that)
+     */
+    o3d::Double adjustHistoryDuration(o3d::Double history, o3d::Double toTs) const;
+
 protected:
 
     void setProperty(const o3d::String propertyName, const o3d::String value);
@@ -328,7 +338,7 @@ protected:
     void addAskOhlcDataSource(o3d::Double timeframe);
     void addOrderBookDataSource(o3d::Int32 depth);
 
-    void adjustOhlcFetchRange(o3d::Int32 history, o3d::Int32 depth,
+    void adjustOhlcFetchRange(o3d::Double history, o3d::Int32 depth,
                               o3d::Double &fromTs, o3d::Double &toTs,
                               o3d::Int32 &nLast) const;
 

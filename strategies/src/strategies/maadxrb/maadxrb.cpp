@@ -90,7 +90,7 @@ void MaAdxRb::init(Config *config)
             o3d::Int32 barSize = conf.barSizeAsInt(analyser, "size");
 
             o3d::Int32 depth = analyser.get("depth", 0).asInt();
-            o3d::Int32 history = analyser.get("history", 0).asInt();
+            o3d::Double history = conf.timeframeAsDouble(analyser, "history");
 
             if (!analyser.get("enabled", true).asBool()) {
                 continue;
@@ -204,17 +204,23 @@ void MaAdxRb::prepareMarketData(Connector *connector, Database *db, o3d::Double 
     Ohlc::Type ohlcType = Ohlc::TYPE_MID;
 
     for (Analyser *analyser : m_analysers) {
-        // history might be >= depth but in case of...
-        o3d::Int32 depth = o3d::max(analyser->history(), analyser->depth());
-        if (depth <= 0) {
+        if (analyser->depth() <= 0) {
             continue;
         }
 
         o3d::Int32 k = 0;
 
-        o3d::Double srcTs = 0.0;  //!< range-bar are not linear then source timestamp cannot be determined
+        o3d::Double srcTs = 0.0;
         o3d::Double dstTs = fromTs - 1.0;
-        o3d::Int32 lastN = depth;
+        o3d::Int32 lastN = 0;
+
+        if (analyser->history() > 0) {
+            srcTs = fromTs - 1.0 - analyser->history();
+        } else if (analyser->timeframe() > 0) {
+            srcTs = fromTs - 1.0 - analyser->timeframe() * analyser->depth();
+        } else {
+            lastN = analyser->depth();
+        }
 
         adjustOhlcFetchRange(analyser->history(), analyser->depth(), srcTs, dstTs, lastN);
 
@@ -233,14 +239,15 @@ void MaAdxRb::prepareMarketData(Connector *connector, Database *db, o3d::Double 
         if (k > 0) {
             o3d::Int32 lastN = market()->getOhlcBuffer(ohlcType).getSize() - 1;
 
-            o3d::String msg = o3d::String("Retrieved {0}/{1} OHLCs with most recent at {2}").arg(k).arg(depth)
-                              .arg(timestampToStr(market()->getOhlcBuffer(ohlcType).get(lastN)->timestamp()));
+            o3d::String msg = o3d::String("Retrieved {0}/{1} OHLCs with most recent at {2}").arg(k)
+                                  .arg(analyser->depth())
+                                  .arg(timestampToStr(market()->getOhlcBuffer(ohlcType).get(lastN)->timestamp()));
 
             log(analyser->formatUnit(), "init", msg);
 
             analyser->onOhlcUpdate(toTs, 0.0, market()->getOhlcBuffer(ohlcType));
         } else {
-            o3d::String msg = o3d::String("No OHLCs founds (0/{0})").arg(depth);
+            o3d::String msg = o3d::String("No OHLCs founds (0/{0})").arg(analyser->depth());
             log(analyser->formatUnit(), "init", msg);
         }
     }
@@ -500,9 +507,9 @@ TradeSignal MaAdxRb::computeSignal(o3d::Double timestamp)
         }
     }
 
-    if (checkTrend(1, vpUp, vpDn)) {
-        if (m_sigAnalyser->adx() > m_adxSig) {
-            if (m_sigAnalyser->sig() > 0 && m_sigAnalyser->adx() <= ADX_MAX) {
+    if (checkTrend(1, vpUp, vpDn) && !filterMa()) {
+        if (m_sigAnalyser->adx() > m_adxSig && m_sigAnalyser->adx() <= ADX_MAX) {
+            if (1/*m_sigAnalyser->sig() > 0*/) {
                 if (m_confAnalyser->confirmation() > 0) {
                     // keep only one signal per timeframe
                     if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
@@ -527,9 +534,9 @@ TradeSignal MaAdxRb::computeSignal(o3d::Double timestamp)
                 }
             }
         }
-    } else if (checkTrend(-1, vpUp, vpDn)) {
-        if (m_sigAnalyser->adx() > m_adxSig) {
-            if (m_sigAnalyser->sig() < 0 && m_sigAnalyser->adx() <= ADX_MAX) {
+    } else if (checkTrend(-1, vpUp, vpDn) && !filterMa()) {
+        if (m_sigAnalyser->adx() > m_adxSig && m_sigAnalyser->adx() <= ADX_MAX) {
+            if (1/*m_sigAnalyser->sig() < 0*/) {
                 if (m_confAnalyser->confirmation() < 0) {
                     // keep only one signal per timeframe
                     if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
@@ -573,4 +580,25 @@ TradeSignal MaAdxRb::computeSignal(o3d::Double timestamp)
     }
 
     return signal;
+}
+
+o3d::Bool MaAdxRb::filterMa() const
+{
+    if (m_sigAnalyser->lastMaHigh() >= m_trendAnalyser->lastMaLow() && m_sigAnalyser->lastMaHigh() <= m_trendAnalyser->lastMaHigh()) {
+        return true;
+    }
+
+    if (m_sigAnalyser->lastMaLow() >= m_trendAnalyser->lastMaLow() && m_sigAnalyser->lastMaLow() <= m_trendAnalyser->lastMaHigh()) {
+        return true;
+    }
+
+    if (m_trendAnalyser->lastMaHigh() >= m_sigAnalyser->lastMaLow() && m_trendAnalyser->lastMaHigh() <= m_sigAnalyser->lastMaHigh()) {
+        return true;
+    }
+
+    if (m_trendAnalyser->lastMaLow() >= m_sigAnalyser->lastMaLow() && m_trendAnalyser->lastMaLow() <= m_sigAnalyser->lastMaHigh()) {
+        return true;
+    }
+
+    return false;
 }

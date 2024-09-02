@@ -81,12 +81,14 @@ void MaAdxTrendAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestam
         hc = DataArray::cross(price().close(), m_slow_h_ma.hma());
         lc = DataArray::cross(price().close(), m_slow_l_ma.hma());
 
-        if (price().close().last() > m_vwap.last()) {
-            m_vwapTrend = 1;
-        } else if (price().close().last() < m_vwap.last()) {
-            m_vwapTrend = -1;
-        } else {
-            m_vwapTrend = 0;
+        if (m_vwap.active()) {
+            if (price().close().last() > m_vwap.last()) {
+                m_vwapTrend = 1;
+            } else if (price().close().last() < m_vwap.last()) {
+                m_vwapTrend = -1;
+            } else {
+                m_vwapTrend = 0;
+            }
         }
     }
 
@@ -102,5 +104,7 @@ void MaAdxTrendAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestam
 
 void MaAdxTrendAnalyser::updateTick(const Tick &tick, o3d::Bool finalize)
 {
-    m_vwap.update(tick, finalize);
+    if (m_vwap.active()) {
+        m_vwap.update(tick, finalize);
+    }
 }

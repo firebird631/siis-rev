@@ -57,7 +57,7 @@ void MaAdxProfileAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimest
         compute = price().consolidated();
     }
 
-    if (compute) {
+    if (compute && m_imbalance.active()) {
         m_imbalance.compute(timestamp, price().timestamp(),
                             price().open(), price().high(), price().low(), price().close(),
                             numLastBars());

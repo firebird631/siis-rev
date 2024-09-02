@@ -189,14 +189,14 @@ void Backtest::terminate(Config *config)
         config->overwriteLearningFile(globalStats, accountStats);
     }
 
-    INFO("results", o3d::String("Global performance {0}%. Win/loss {1}/{2}={3} best={4}% worst={5}% maxAdjWin/Loss={6}/{7}").arg(globalStats.performance*100, 2)
+    INFO("results", o3d::String("Global performance {0}%, Win/Loss {1}/{2}={3}, MFE={4}%, MAE={5}%, Max Adj. Win/Loss={6}/{7}").arg(globalStats.performance*100, 2)
          .arg(globalStats.succeedTrades).arg(globalStats.failedTrades)
          .arg((globalStats.failedTrades > 0) ? (static_cast<o3d::Double>(globalStats.succeedTrades)/globalStats.failedTrades) : 1.0, 2)
          .arg(globalStats.best*100, 2).arg(globalStats.worst*100, 2).arg(globalStats.maxAdjacentWin).arg(globalStats.maxAdjacentLoss));
 
-    INFO("results", o3d::String("Max draw-down {0} ({1}%)").arg(globalStats.maxDrawDown, 2).arg(globalStats.maxDrawDownRate*100, 2));
+    INFO("results", o3d::String("Max draw-down {0} {1}%").arg(globalStats.maxDrawDown, 2).arg(globalStats.maxDrawDownRate*100, 2));
     INFO("results", o3d::String("Num traded-days {0}").arg(globalStats.numTradedDays));
-    // INFO("results", o3d::String("Avg time in market {0} minutes.").arg(globalStats.avgTimeInMarket / 60.0));
+    INFO("results", o3d::String("Avg time in market {0} minutes").arg(globalStats.avgTimeInMarket / 60.0));
     // INFO("results", o3d::String("Longest flat period {0} minutes.").arg(globalStats.longestFlatPeriod / 60.0));
     INFO("results", o3d::String("Avg Win/Loss {0}").arg(globalStats.percent.avgWinLossRate, 2));
 

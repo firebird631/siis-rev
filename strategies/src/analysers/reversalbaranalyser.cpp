@@ -16,7 +16,7 @@ ReversalBarAnalyser::ReversalBarAnalyser(Strategy *strategy,
         o3d::Int32 rangeSize,
         o3d::Int32 reversalSize,
         o3d::Int32 depth,
-        o3d::Int32 history,
+        o3d::Double history,
         Price::Method priceMethod,
         o3d::Double tickScale) :
     Analyser(strategy, name, rangeSize, 0.0, depth, history),

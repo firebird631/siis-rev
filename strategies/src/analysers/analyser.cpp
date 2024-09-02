@@ -15,7 +15,7 @@ Analyser::Analyser(Strategy *strategy,
         o3d::Double timeframe,
         o3d::Int32 barSize,
         o3d::Int32 depth,
-        o3d::Int32 history) :
+        o3d::Double history) :
     m_strategy(strategy),
     m_name(name),
     m_timeframe(timeframe),

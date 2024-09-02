@@ -83,7 +83,7 @@ void MaIchimoku::init(Config *config)
             o3d::Double tf = conf.timeframeAsDouble(timeframe, "timeframe");
 
             o3d::Int32 depth = timeframe.get("depth", 0).asInt();
-            o3d::Int32 history = timeframe.get("history", 0).asInt();
+            o3d::Double history = conf.timeframeAsDouble(timeframe, "history");
 
             if (!timeframe.get("enabled", true).asBool()) {
                 continue;
@@ -193,17 +193,23 @@ void MaIchimoku::prepareMarketData(Connector *connector, Database *db, o3d::Doub
     Ohlc::Type ohlcType = Ohlc::TYPE_MID;
 
     for (Analyser *analyser : m_analysers) {
-        // history might be >= depth but in case of...
-        o3d::Int32 depth = o3d::max(analyser->history(), analyser->depth());
-        if (depth <= 0) {
+        if (analyser->depth() <= 0) {
             continue;
         }
 
         o3d::Int32 k = 0;
 
-        o3d::Double srcTs = fromTs - 1.0 - analyser->timeframe() * depth;
+        o3d::Double srcTs = 0.0;
         o3d::Double dstTs = fromTs - 1.0;
         o3d::Int32 lastN = 0;
+
+        if (analyser->history() > 0) {
+            srcTs = fromTs - 1.0 - analyser->history();
+        } else if (analyser->timeframe() > 0) {
+            srcTs = fromTs - 1.0 - analyser->timeframe() * analyser->depth();
+        } else {
+            lastN = analyser->depth();
+        }
 
         adjustOhlcFetchRange(analyser->history(), analyser->depth(), srcTs, dstTs, lastN);
 
@@ -222,14 +228,15 @@ void MaIchimoku::prepareMarketData(Connector *connector, Database *db, o3d::Doub
         if (k > 0) {
             o3d::Int32 lastN = market()->getOhlcBuffer(ohlcType).getSize() - 1;
 
-            o3d::String msg = o3d::String("Retrieved {0}/{1} OHLCs with most recent at {2}").arg(k).arg(depth)
-                              .arg(timestampToStr(market()->getOhlcBuffer(ohlcType).get(lastN)->timestamp()));
+            o3d::String msg = o3d::String("Retrieved {0}/{1} OHLCs with most recent at {2}").arg(k)
+                                  .arg(analyser->depth())
+                                  .arg(timestampToStr(market()->getOhlcBuffer(ohlcType).get(lastN)->timestamp()));
 
             log(analyser->formatUnit(), "init", msg);
 
             analyser->onOhlcUpdate(toTs, analyser->timeframe(), market()->getOhlcBuffer(ohlcType));
         } else {
-            o3d::String msg = o3d::String("No OHLCs founds (0/{0})").arg(depth);
+            o3d::String msg = o3d::String("No OHLCs founds (0/{0})").arg(analyser->depth());
             log(analyser->formatUnit(), "init", msg);
         }
     }

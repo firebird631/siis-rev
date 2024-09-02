@@ -33,7 +33,7 @@ public:
         const o3d::String &name,
         o3d::Int32 rangeSize,
         o3d::Int32 depth,
-        o3d::Int32 history,
+        o3d::Double history,
         Price::Method priceMethod=Price::PRICE_CLOSE,
         o3d::Double tickScale=1.0);
 

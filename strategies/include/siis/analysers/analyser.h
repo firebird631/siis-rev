@@ -30,7 +30,7 @@ public:
 
     Analyser(Strategy *strategy, const o3d::String &name,
              o3d::Double timeframe, o3d::Int32 barSize,
-             o3d::Int32 depth, o3d::Int32 history);
+             o3d::Int32 depth, o3d::Double history);
 
     virtual ~Analyser();
 
@@ -130,7 +130,7 @@ public:
     o3d::Int32 barSize() const { return m_barSize; }
 
     o3d::Int32 depth() const { return m_depth; }
-    o3d::Int32 history() const { return m_history; }
+    o3d::Double history() const { return m_history; }
 
     o3d::Double nextTimestamp() const { return m_nextTimestamp; }
     o3d::Double nextTs() const { return m_nextTimestamp; }
@@ -165,7 +165,7 @@ private:
     o3d::Int32 m_barSize;        //!< bar size
 
     o3d::Int32 m_depth;
-    o3d::Int32 m_history;
+    o3d::Double m_history;
 
     o3d::Bool m_updateAtClose;
 

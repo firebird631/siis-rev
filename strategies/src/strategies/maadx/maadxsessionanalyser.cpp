@@ -23,7 +23,7 @@ MaAdxSessionAnalyser::MaAdxSessionAnalyser(
     TimeframeBarAnalyser(strategy, name, timeframe, sourceTimeframe, depth, history, priceMethod),
     m_vp("volumeprofile", timeframe),
     m_vpoc_bollinger("vpoc_bollinger", timeframe, 5, MA_EMA, 1.0, 1.0),
-    m_compositeVP("composite_vp", timeframe, 30),
+    m_compositeVP("composite_vp", timeframe, 60),
     m_vPocBreakout(0),
     m_vPocTrend(0),
     m_vPocs(depth)

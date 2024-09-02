@@ -16,7 +16,7 @@ TimeframeBarAnalyser::TimeframeBarAnalyser(Strategy *strategy,
         o3d::Double timeframe,
         o3d::Double sourceTimeframe,
         o3d::Int32 depth,
-        o3d::Int32 history,
+        o3d::Double history,
         Price::Method priceMethod) :
     Analyser(strategy, name, timeframe, 0, depth, history),
     m_ohlcGen(sourceTimeframe, timeframe),

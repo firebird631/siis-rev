@@ -83,7 +83,7 @@ void ForexAlpha::init(Config *config)
             o3d::Double tf = conf.timeframeAsDouble(timeframe, "timeframe");
 
             o3d::Int32 depth = timeframe.get("depth", 0).asInt();
-            o3d::Int32 history = timeframe.get("history", 0).asInt();
+            o3d::Double history = conf.timeframeAsDouble(timeframe, "history");
 
             if (!timeframe.get("enabled", true).asBool()) {
                 continue;

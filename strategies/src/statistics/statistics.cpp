@@ -434,9 +434,9 @@ void GlobalStatistics::computeStats(const AccountStatistics &accountStats)
     percent.samplers.push_back(loosingTradePnlPct.finalize());
     currency.samplers.push_back(loosingTradePnl.finalize());
 
-    // Win/Loss Rate (after finalize)
-    percent.avgWinLossRate = loosingTradePnlPct.avg != 0.0 ? winningTradePnlPct.avg / -loosingTradePnlPct.avg : 1.0;
-    currency.avgWinLossRate = loosingTradePnl.avg != 0.0 ? winningTradePnl.avg / -loosingTradePnl.avg : 1.0;
+    // Avg Win/Loss Rate (after finalize)
+    percent.avgWinLossRate = loosingTradePnlPct.avg != 0.0 ? (winningTradePnlPct.avg / -loosingTradePnlPct.avg) : 1.0;
+    currency.avgWinLossRate = loosingTradePnl.avg != 0.0 ? (winningTradePnl.avg / -loosingTradePnl.avg) : 1.0;
 
     // MFE, MAE, ETD
     percent.samplers.push_back(mfePct.finalize());

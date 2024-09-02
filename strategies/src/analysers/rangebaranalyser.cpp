@@ -15,7 +15,7 @@ RangeBarAnalyser::RangeBarAnalyser(Strategy *strategy,
         const o3d::String &name,
         o3d::Int32 rangeSize,
         o3d::Int32 depth,
-        o3d::Int32 history,
+        o3d::Double history,
         Price::Method priceMethod,
         o3d::Double tickScale) :
     Analyser(strategy, name, 0.0, rangeSize, depth, history),

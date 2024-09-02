@@ -54,6 +54,9 @@ public:
     inline o3d::Int32 cvdTrend() const { return m_cvdTrend; }
     inline o3d::Int32 cvdCross() const { return m_cvdCross; }
 
+    inline o3d::Double lastMaHigh() const { return m_fast_h_ma.last(); }
+    inline o3d::Double lastMaLow() const { return m_fast_l_ma.last(); }
+
     o3d::Double takeProfit(o3d::Double profitScale) const;
     o3d::Double stopLoss(o3d::Double lossScale, o3d::Double riskReward) const;
 

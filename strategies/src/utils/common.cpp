@@ -47,17 +47,17 @@ o3d::String siis::timeframeToStr(o3d::Double tf)
         return "t";
     } else if (tf > TF_TICK && tf < TF_MIN) {
         return o3d::String::print("%is", static_cast<o3d::Int32>(tf));
-    } else if (tf > TF_MIN && tf < TF_HOUR) {
+    } else if (tf >= TF_MIN && tf < TF_HOUR) {
         return o3d::String::print("%im", static_cast<o3d::Int32>(tf / TF_MIN));
-    } else if (tf > TF_HOUR && tf < TF_DAY) {
+    } else if (tf >= TF_HOUR && tf < TF_DAY) {
         return o3d::String::print("%ih", static_cast<o3d::Int32>(tf / TF_HOUR));
-    } else if (tf > TF_DAY && tf < TF_WEEK) {
+    } else if (tf >= TF_DAY && tf < TF_WEEK) {
         return o3d::String::print("%id", static_cast<o3d::Int32>(tf / TF_DAY));
-    } else if (tf > TF_WEEK && tf < TF_MONTH) {
+    } else if (tf >= TF_WEEK && tf < TF_MONTH) {
         return o3d::String::print("%iw", static_cast<o3d::Int32>(tf / TF_WEEK));
-    } else if (tf > TF_MONTH && tf < TF_YEAR) {
+    } else if (tf >= TF_MONTH && tf < TF_YEAR) {
         return o3d::String::print("%iM", static_cast<o3d::Int32>(tf / TF_MONTH));
-    } else if (tf > TF_YEAR) {
+    } else if (tf >= TF_YEAR) {
         return o3d::String::print("%iy", static_cast<o3d::Int32>(tf / TF_YEAR));
     }
 
