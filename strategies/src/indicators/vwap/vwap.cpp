@@ -37,14 +37,14 @@ const DataArray& VWapData::stdDevAt(o3d::Int32 stdDev) const
 
         if (stdDev >= size) throw o3d::E_IndexOutOfRange("stdDevAt (2)");
 
-        return plusStdDev[stdDev];
+        return plusStdDev[stdDev-1];
     }
 
     o3d::Int32 size = static_cast<o3d::Int32>(minusStdDev.size());
 
     if (-stdDev >= size) throw o3d::E_IndexOutOfRange("stdDevAt (3)");
 
-    return minusStdDev[-stdDev];
+    return minusStdDev[-stdDev-1];
 }
 
 VWap::VWap(const o3d::String &name,
