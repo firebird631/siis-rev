@@ -25,6 +25,8 @@ MaAdxRbTrendAnalyser::MaAdxRbTrendAnalyser(
     m_slow_l_ma("slow_l_ma", rangeSize),
     m_vwap("vwap", rangeSize, depth),
     m_trend(0),
+    m_cross(0),
+    m_sig(0),
     m_vwapTrend(0)
 {
 
@@ -51,6 +53,8 @@ void MaAdxRbTrendAnalyser::init(const AnalyserConfig &conf)
     m_vwap.setSession(strategy()->sessionOffset(), strategy()->sessionDuration());
 
     m_trend = 0;
+    m_cross = 0;
+    m_sig = 0;
     m_vwapTrend = 0;
 
     RangeBarAnalyser::init(conf);
@@ -72,6 +76,9 @@ void MaAdxRbTrendAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimest
     o3d::Int32 hc = 0;
     o3d::Int32 lc = 0;
 
+    // reset sig
+    m_sig = 0;
+
     if (compute) {
         m_slow_h_ma.compute(timestamp, price().high());
         // m_slow_m_ma.compute(timestamp, price().price());
@@ -89,15 +96,29 @@ void MaAdxRbTrendAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimest
                 m_vwapTrend = 0;
             }
         }
-    }
 
-    if (hc > 0) {
-        m_trend = 1;
-    } else if (lc < 0) {
-        m_trend = -1;
-    } else if (lc > 0 || hc < 0) {
-        // no trend between two MAs
-        m_trend = 0;
+        // use the previous cross value (previous close)
+        if (price().open().last() > m_slow_h_ma.last() && m_cross > 0) {
+            m_sig = 1;
+        } else if (price().open().last() < m_slow_l_ma.last() && m_cross < 0) {
+            m_sig = -1;
+        }
+
+        // reset cross
+        m_cross = 0;
+
+        // compute here, take care, cross is not reset until next close
+        // but sig will only trigger once as wish
+        if (hc > 0) {
+            m_trend = 1;
+            m_cross = 1;
+        } else if (lc < 0) {
+            m_trend = -1;
+            m_cross = -1;
+        } else if (lc > 0 || hc < 0) {
+            // no trend between two MAs
+            m_trend = 0;
+        }
     }
 }
 

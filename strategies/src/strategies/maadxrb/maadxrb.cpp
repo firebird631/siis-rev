@@ -355,6 +355,18 @@ void MaAdxRb::updateTrade(Trade *trade)
     if (trade) {
         m_breakeven.updateΤrade(handler()->timestamp(), lastTimestamp(), trade);
         m_dynamicStopLoss.updateΤrade(handler()->timestamp(), lastTimestamp(), trade);
+
+        if (m_trendAnalyser->price().consolidated()) {
+            if (trade->direction() > 0) {
+                if (m_trendAnalyser->price().open().last() < m_trendAnalyser->lastMaLow()) {
+                    trade->close(TradeStats::REASON_CLOSE_MARKET);
+                }
+            } else if (trade->direction() < 0) {
+                if (m_trendAnalyser->price().open().last() > m_trendAnalyser->lastMaHigh()) {
+                    trade->close(TradeStats::REASON_CLOSE_MARKET);
+                }
+            }
+        }
     }
 }
 
@@ -430,15 +442,17 @@ o3d::Bool MaAdxRb::checkVp(o3d::Int32 direction, o3d::Int32 vpUp, o3d::Int32 vpD
         return false;
     }
 
-    if (m_sessionAnalyser) {
-        if (direction > 0) {
-            return vpUp > vpDn;
-        } else if (direction < 0) {
-            return vpUp < vpDn;
-        }
+    if (direction > 0) {
+        //            return vpUp > 0 && vpDn == 0;
+        //            return vpUp > vpDn;
+        return vpDn > 0 ? o3d::Float(vpUp) / o3d::Float(vpDn) >= 1.3 : vpUp > 0;
+    } else if (direction < 0) {
+        //            return vpDn > 0 && vpUp == 0;
+        //            return vpUp < vpDn;
+        return vpUp > 0 ? o3d::Float(vpDn) / o3d::Float(vpUp) >= 1.3 : vpDn > 0;
     }
 
-    return true;
+    return false;
 }
 
 o3d::Bool MaAdxRb::checkVWap(o3d::Int32 direction) const
@@ -465,14 +479,14 @@ o3d::Bool MaAdxRb::checkTrend(o3d::Int32 direction, o3d::Int32 vpUp, o3d::Int32 
     // return m_trendAnalyser->trend() == direction;
 
     // 1 initial with VP
-    // return m_trendAnalyser->trend() == direction && checkVp(direction, vpUp, vpDn);
+    return m_trendAnalyser->sig() == direction && checkVp(direction, vpUp, vpDn);
 
     // 2 interesting
     // return checkVp(direction, vpUp, vpDn) && checkVWap(direction);
 
     // 3 interesting
     // return checkVp(direction, vpUp, vpDn) && checkCvd(direction);
-    return m_sigAnalyser->trend() == direction && m_sessionAnalyser->vPocBreakout() == direction;
+    // return m_sigAnalyser->trend() == direction && m_sessionAnalyser->vPocBreakout() == direction;
 
     // 4 very interesting
     // return checkVp(direction, vpUp, vpDn) && checkVWap(direction) && checkCvd(direction);
@@ -496,7 +510,7 @@ TradeSignal MaAdxRb::computeSignal(o3d::Double timestamp)
 
     // volume-profile signal
     if (m_sessionAnalyser && m_sessionAnalyser->lastPrice()) {
-        o3d::Double price = m_sessionAnalyser->lastPrice();
+        o3d::Double price = m_confAnalyser->lastPrice();
 
         for (auto const vp : m_sessionAnalyser->vp().vp()) {
             if (price > vp->pocPrice) {
@@ -507,56 +521,52 @@ TradeSignal MaAdxRb::computeSignal(o3d::Double timestamp)
         }
     }
 
-    if (checkTrend(1, vpUp, vpDn) && !filterMa()) {
+    if (checkTrend(1, vpUp, vpDn)/* && !filterMa()*/) {
         if (m_sigAnalyser->adx() > m_adxSig && m_sigAnalyser->adx() <= ADX_MAX) {
-            if (1/*m_sigAnalyser->sig() > 0*/) {
-                if (m_confAnalyser->confirmation() > 0) {
-                    // keep only one signal per timeframe
-                    if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
-                        signal.setEntry();
-                        signal.setLong();
+            if (1){//m_sigAnalyser->trend() > 0) {
+                // keep only one signal per timeframe
+                if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
+                    signal.setEntry();
+                    signal.setLong();
 
-                        m_entry.updateSignal(signal, market());
-                        // signal.setPrice(m_confAnalyser->lastPrice());
+                    m_entry.updateSignal(signal, market());
+                    // signal.setPrice(m_confAnalyser->lastPrice());
 
-                        if (m_takeProfit.adjustPolicy() == ADJ_CUSTOM) {
-                            signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_targetScale));
-                        } else {
-                            m_takeProfit.updateSignal(signal);
-                        }
+                    if (m_takeProfit.adjustPolicy() == ADJ_CUSTOM) {
+                        signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_targetScale));
+                    } else {
+                        m_takeProfit.updateSignal(signal);
+                    }
 
-                        if (m_stopLoss.adjustPolicy() == ADJ_CUSTOM) {
-                            signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_targetScale, m_riskReward));
-                        } else {
-                            m_stopLoss.updateSignal(signal);
-                        }
+                    if (m_stopLoss.adjustPolicy() == ADJ_CUSTOM) {
+                        signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_targetScale, m_riskReward));
+                    } else {
+                        m_stopLoss.updateSignal(signal);
                     }
                 }
             }
         }
-    } else if (checkTrend(-1, vpUp, vpDn) && !filterMa()) {
+    } else if (checkTrend(-1, vpUp, vpDn)/* && !filterMa()*/) {
         if (m_sigAnalyser->adx() > m_adxSig && m_sigAnalyser->adx() <= ADX_MAX) {
-            if (1/*m_sigAnalyser->sig() < 0*/) {
-                if (m_confAnalyser->confirmation() < 0) {
-                    // keep only one signal per timeframe
-                    if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
-                        signal.setEntry();
-                        signal.setShort();
+            if (1){//m_sigAnalyser->trend() < 0) {
+                // keep only one signal per timeframe
+                if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
+                    signal.setEntry();
+                    signal.setShort();
 
-                        m_entry.updateSignal(signal, market());
-                        // signal.setPrice(m_confAnalyser->lastPrice());
+                    m_entry.updateSignal(signal, market());
+                    // signal.setPrice(m_confAnalyser->lastPrice());
 
-                        if (m_takeProfit.adjustPolicy() == ADJ_CUSTOM) {
-                            signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_targetScale));
-                        } else {
-                            m_takeProfit.updateSignal(signal);
-                        }
+                    if (m_takeProfit.adjustPolicy() == ADJ_CUSTOM) {
+                        signal.setTakeProfitPrice(m_sigAnalyser->takeProfit(m_targetScale));
+                    } else {
+                        m_takeProfit.updateSignal(signal);
+                    }
 
-                        if (m_stopLoss.adjustPolicy() == ADJ_CUSTOM) {
-                            signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_targetScale, m_riskReward));
-                        } else {
-                            m_stopLoss.updateSignal(signal);
-                        }
+                    if (m_stopLoss.adjustPolicy() == ADJ_CUSTOM) {
+                        signal.setStopLossPrice(m_sigAnalyser->stopLoss(m_targetScale, m_riskReward));
+                    } else {
+                        m_stopLoss.updateSignal(signal);
                     }
                 }
             }
@@ -564,6 +574,7 @@ TradeSignal MaAdxRb::computeSignal(o3d::Double timestamp)
     }
 
     if (signal.valid()) {
+        // default stop-loss only if missing
         m_stopLoss.updateSignal(signal);
 
         signal.setEntryTimeout(m_entry.timeout());

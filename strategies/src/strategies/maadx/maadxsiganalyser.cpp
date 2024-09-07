@@ -94,7 +94,9 @@ void MaAdxSigAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
     o3d::Int32 hc = 0;
     o3d::Int32 lc = 0;
 
+    // reset
     m_cvdCross = 0;
+    m_sig = 0;
 
     if (compute) {
         m_fast_h_ma.compute(timestamp, price().high());
@@ -105,7 +107,7 @@ void MaAdxSigAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
 
         hc = DataArray::cross(price().close(), m_fast_h_ma.hma());
         lc = DataArray::cross(price().close(), m_fast_l_ma.hma());
-
+/*
         if (m_cvd.active() && m_cvd_ma.active()) {
             m_cvd_ma.compute(timestamp, m_cvd.cvd().asArray());
 
@@ -121,25 +123,26 @@ void MaAdxSigAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestamp)
             }
 
             m_cvdTrend = cvdTrend;
-        }
-    }
+        }*/
 
-    if (hc > 0) {
-        m_trend = 1;
-        m_sig = 1;
-    } else if (lc < 0) {
-        m_trend = -1;
-        m_sig = -1;
-    } else {
-        m_sig = 0;
+        if (hc > 0) {
+            m_trend = 1;
+            m_sig = 1;
+        } else if (lc < 0) {
+            m_trend = -1;
+            m_sig = -1;
+        } else if (lc > 0 || hc < 0) {
+            // no trend between two MAs
+            m_trend = 0;
+        }
     }
 }
 
 void MaAdxSigAnalyser::updateTick(const Tick &tick, o3d::Bool finalize)
 {
-    if (m_cvd.active()) {
+  /*  if (m_cvd.active()) {
         m_cvd.update(tick, finalize);
-    }
+    }*/
 }
 
 o3d::Double MaAdxSigAnalyser::takeProfit(o3d::Double profitScale) const

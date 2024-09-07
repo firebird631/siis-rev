@@ -49,6 +49,8 @@ public:
     inline o3d::Int32 trend() const { return m_trend; }
     inline o3d::Int32 vwapTrend() const { return m_vwapTrend; }
 
+    inline o3d::Int32 sig() const { return m_sig; }
+
 private:
 
     Hma m_slow_h_ma;
@@ -58,6 +60,8 @@ private:
     VWap m_vwap;
 
     o3d::Int32 m_trend;
+    o3d::Int32 m_cross;
+    o3d::Int32 m_sig;
     o3d::Int32 m_vwapTrend;
 };
 

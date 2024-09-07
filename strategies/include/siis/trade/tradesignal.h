@@ -201,6 +201,20 @@ public:
         m_direction = -m_direction;
     }
 
+    void equivRevert(o3d::Double ratio = 1.0)
+    {
+        o3d::Double tmp = m_takeProfitPrice;
+        m_takeProfitPrice = m_stopLossPrice;
+        m_stopLossPrice = tmp;
+        m_direction = -m_direction;
+        o3d::Double profit = absDistanceFromTakeProfit();
+        if (m_direction > 0) {
+            m_stopLossPrice = m_price - profit * ratio;
+        } else if (m_direction < 0) {
+            m_stopLossPrice = m_price + profit * ratio;
+        }
+    }
+
     /**
      * @brief addCondition Add a condition related to the emission of this signal.
      */
