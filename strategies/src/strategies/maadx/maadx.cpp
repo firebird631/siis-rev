@@ -366,17 +366,17 @@ void MaAdx::updateTrade(Trade *trade)
         m_breakeven.updateΤrade(handler()->timestamp(), lastTimestamp(), trade);
         m_dynamicStopLoss.updateΤrade(handler()->timestamp(), lastTimestamp(), trade);
 
-        if (m_trendAnalyser->price().consolidated()) {
-            if (trade->direction() > 0) {
-                if (m_trendAnalyser->price().open().last() < m_trendAnalyser->lastMaLow()) {
-                    trade->close(TradeStats::REASON_CLOSE_MARKET);
-                }
-            } else if (trade->direction() < 0) {
-                if (m_trendAnalyser->price().open().last() > m_trendAnalyser->lastMaHigh()) {
-                    trade->close(TradeStats::REASON_CLOSE_MARKET);
-                }
-            }
-        }
+        // if (m_trendAnalyser->price().consolidated()) {
+        //     if (trade->direction() > 0) {
+        //         if (m_trendAnalyser->price().open().last() < m_trendAnalyser->lastMaLow()) {
+        //             trade->close(TradeStats::REASON_CLOSE_MARKET);
+        //         }
+        //     } else if (trade->direction() < 0) {
+        //         if (m_trendAnalyser->price().open().last() > m_trendAnalyser->lastMaHigh()) {
+        //             trade->close(TradeStats::REASON_CLOSE_MARKET);
+        //         }
+        //     }
+        // }
     }
 }
 
@@ -517,8 +517,8 @@ TradeSignal MaAdx::computeSignal(o3d::Double timestamp)
     o3d::Int32 vpDn = 0;
 
     // volume-profile signal
-    if (m_sessionAnalyser && m_sessionAnalyser->lastPrice()) {
-        o3d::Double price = m_sessionAnalyser->lastPrice();
+    if (m_sessionAnalyser && m_confAnalyser) {
+        o3d::Double price = m_confAnalyser->lastPrice();
 
         for (auto const vp : m_sessionAnalyser->vp().vp()) {
 

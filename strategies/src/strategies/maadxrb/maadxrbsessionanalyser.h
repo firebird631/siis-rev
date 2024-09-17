@@ -11,7 +11,11 @@
 #include "siis/analysers/rangebaranalyser.h"
 
 #include "siis/indicators/volumeprofile/volumeprofile.h"
+#include "siis/indicators/volumeprofile/compositevolumeprofile.h"
 #include "siis/indicators/bollinger/bollinger.h"
+#include "siis/indicators/wma/wma.h"
+
+#include "siis/datacircular.h"
 
 namespace siis {
 
@@ -46,14 +50,20 @@ public:
 
     inline o3d::Int32 vPocBreakout() const { return m_vPocBreakout; }
     inline o3d::Int32 vPocTrend() const { return m_vPocTrend; }
+    inline o3d::Int32 vpCross() const { return m_vpCross; }
 
 private:
 
     VolumeProfile m_vp;
     Bollinger m_vpoc_bollinger;
+    CompositeVolumeProfile m_compositeVP;
+    Wma m_ma;
 
     o3d::Int32 m_vPocBreakout;
     o3d::Int32 m_vPocTrend;
+    o3d::Int32 m_vpCross;
+
+    DataCircular m_vPocs;
 };
 
 } // namespace siis

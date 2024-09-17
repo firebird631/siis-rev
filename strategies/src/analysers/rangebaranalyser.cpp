@@ -87,12 +87,12 @@ void RangeBarAnalyser::process(o3d::Double timestamp, o3d::Double lastTimestamp)
     o3d::Int32 n = m_ohlc.size();
 
     if (n < depth()) {
-        // not enought samples
+        // not enough samples
         return;
     }
 
     if ((*m_ohlc.cbegin())->timestamp() <= 0.0) {
-        // not enought samples
+        // not enough samples
         return;
     }
 

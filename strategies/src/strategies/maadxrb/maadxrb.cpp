@@ -356,17 +356,17 @@ void MaAdxRb::updateTrade(Trade *trade)
         m_breakeven.updateΤrade(handler()->timestamp(), lastTimestamp(), trade);
         m_dynamicStopLoss.updateΤrade(handler()->timestamp(), lastTimestamp(), trade);
 
-        if (m_trendAnalyser->price().consolidated()) {
-            if (trade->direction() > 0) {
-                if (m_trendAnalyser->price().open().last() < m_trendAnalyser->lastMaLow()) {
-                    trade->close(TradeStats::REASON_CLOSE_MARKET);
-                }
-            } else if (trade->direction() < 0) {
-                if (m_trendAnalyser->price().open().last() > m_trendAnalyser->lastMaHigh()) {
-                    trade->close(TradeStats::REASON_CLOSE_MARKET);
-                }
-            }
-        }
+        // if (m_trendAnalyser->price().consolidated()) {
+        //     if (trade->direction() > 0) {
+        //         if (m_trendAnalyser->price().open().last() < m_trendAnalyser->lastMaLow()) {
+        //             trade->close(TradeStats::REASON_CLOSE_MARKET);
+        //         }
+        //     } else if (trade->direction() < 0) {
+        //         if (m_trendAnalyser->price().open().last() > m_trendAnalyser->lastMaHigh()) {
+        //             trade->close(TradeStats::REASON_CLOSE_MARKET);
+        //         }
+        //     }
+        // }
     }
 }
 
@@ -479,7 +479,8 @@ o3d::Bool MaAdxRb::checkTrend(o3d::Int32 direction, o3d::Int32 vpUp, o3d::Int32 
     // return m_trendAnalyser->trend() == direction;
 
     // 1 initial with VP
-    return m_trendAnalyser->sig() == direction && checkVp(direction, vpUp, vpDn);
+    // return m_trendAnalyser->sig() == direction && checkVp(direction, vpUp, vpDn);
+    return m_sessionAnalyser->vpCross() == direction;
 
     // 2 interesting
     // return checkVp(direction, vpUp, vpDn) && checkVWap(direction);
@@ -503,13 +504,13 @@ o3d::Bool MaAdxRb::checkTrend(o3d::Int32 direction, o3d::Int32 vpUp, o3d::Int32 
 
 TradeSignal MaAdxRb::computeSignal(o3d::Double timestamp)
 {
-    TradeSignal signal(m_sigAnalyser->barSize(), timestamp);
+    TradeSignal signal(m_entry.timeframe(), timestamp);
 
     o3d::Int32 vpUp = 0;
     o3d::Int32 vpDn = 0;
 
     // volume-profile signal
-    if (m_sessionAnalyser && m_sessionAnalyser->lastPrice()) {
+    if (m_sessionAnalyser && m_confAnalyser) {
         o3d::Double price = m_confAnalyser->lastPrice();
 
         for (auto const vp : m_sessionAnalyser->vp().vp()) {
@@ -521,9 +522,9 @@ TradeSignal MaAdxRb::computeSignal(o3d::Double timestamp)
         }
     }
 
-    if (checkTrend(1, vpUp, vpDn)/* && !filterMa()*/) {
-        if (m_sigAnalyser->adx() > m_adxSig && m_sigAnalyser->adx() <= ADX_MAX) {
-            if (1){//m_sigAnalyser->trend() > 0) {
+    if (checkTrend(1, vpUp, vpDn)) {// && !filterMa()) {
+        //if (m_sigAnalyser->adx() > m_adxSig && m_sigAnalyser->adx() <= ADX_MAX) {
+          //  if (m_sigAnalyser->trend() > 0) {
                 // keep only one signal per timeframe
                 if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
                     signal.setEntry();
@@ -544,11 +545,11 @@ TradeSignal MaAdxRb::computeSignal(o3d::Double timestamp)
                         m_stopLoss.updateSignal(signal);
                     }
                 }
-            }
-        }
-    } else if (checkTrend(-1, vpUp, vpDn)/* && !filterMa()*/) {
-        if (m_sigAnalyser->adx() > m_adxSig && m_sigAnalyser->adx() <= ADX_MAX) {
-            if (1){//m_sigAnalyser->trend() < 0) {
+          //  }
+        //}
+    } else if (checkTrend(-1, vpUp, vpDn)) {// && !filterMa()) {
+        //if (m_sigAnalyser->adx() > m_adxSig && m_sigAnalyser->adx() <= ADX_MAX) {
+          //  if (m_sigAnalyser->trend() < 0) {
                 // keep only one signal per timeframe
                 if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
                     signal.setEntry();
@@ -569,8 +570,8 @@ TradeSignal MaAdxRb::computeSignal(o3d::Double timestamp)
                         m_stopLoss.updateSignal(signal);
                     }
                 }
-            }
-        }
+          //  }
+        //}
     }
 
     if (signal.valid()) {
@@ -588,6 +589,8 @@ TradeSignal MaAdxRb::computeSignal(o3d::Double timestamp)
             // not enought profit
             signal.reset();
         }
+
+        // signal.equivRevert(1.0);
     }
 
     return signal;

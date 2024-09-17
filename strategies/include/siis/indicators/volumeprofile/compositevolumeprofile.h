@@ -41,6 +41,7 @@ public:
 
     void setConf(IndicatorConfig conf);
 
+    void setLength(o3d::Int32 length) { m_length = length; }
     o3d::Int32 length() const { return m_length; }
 
     const VolumeProfileData& vp() const { return m_vp; }

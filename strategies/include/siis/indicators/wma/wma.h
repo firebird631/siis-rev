@@ -32,7 +32,7 @@ public:
 
     o3d::Int32 len() const { return m_len; }
 
-    const DataArray& sma() const { return m_wma; }
+    const DataArray& wma() const { return m_wma; }
 
     o3d::Double last() const { return m_last; }
     o3d::Double prev() const { return m_prev; }

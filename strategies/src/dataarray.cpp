@@ -259,14 +259,15 @@ DataArray &DataArray::ema(o3d::Int32 len, DataArray &out) const
 o3d::Int32 DataArray::cross(const DataArray &a) const
 {
     o3d::Int32 size = getSize();
+    o3d::Int32 aSize = a.getSize();
 
-    if (a.getSize() != size || size < 2) {
+    if (aSize < 2 || size < 2) {  // if (a.getSize() != size || size < 2) {
         return 0;
     }
 
-    if (m_data[size-2] > a.m_data[size-2] && m_data[size-1] < a.m_data[size-1]) {
+    if (m_data[size-2] > a.m_data[aSize-2] && m_data[size-1] < a.m_data[aSize-1]) {
         return -1;
-    } else if (m_data[size-2] < a.m_data[size-2] && m_data[size-1] > a.m_data[size-1]) {
+    } else if (m_data[size-2] < a.m_data[aSize-2] && m_data[size-1] > a.m_data[aSize-1]) {
         return 1;
     }
 
@@ -292,15 +293,16 @@ o3d::Int32 DataArray::cross(o3d::Double value) const
 
 o3d::Int32 DataArray::cross(const DataArray &a, const DataArray &b)
 {
-    o3d::Int32 size = a.getSize();
+    o3d::Int32 aSize = a.getSize();
+    o3d::Int32 bSize = b.getSize();
 
-    if (b.getSize() != size || size < 2) {
+    if (aSize < 2 || bSize < 2) {  // if (b.getSize() != size || size < 2) {
         return 0;
     }
 
-    if (a.m_data[size-2] > b.m_data[size-2] && a.m_data[size-1] < b.m_data[size-1]) {
+    if (a.m_data[aSize-2] > b.m_data[bSize-2] && a.m_data[aSize-1] < b.m_data[bSize-1]) {
         return -1;
-    } else if (a.m_data[size-2] < b.m_data[size-2] && a.m_data[size-1] > b.m_data[size-1]) {
+    } else if (a.m_data[aSize-2] < b.m_data[bSize-2] && a.m_data[aSize-1] > b.m_data[bSize-1]) {
         return 1;
     }
 

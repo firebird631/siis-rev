@@ -46,6 +46,11 @@ public:
      */
     o3d::Bool consolidated() const { return m_timeframe > 0.0 ? m_consolidated : true; }
 
+    /**
+     * @brief timeframe Timeframe of update for a trade.
+     */
+    o3d::Double timeframe() const { return m_timeframe; }
+
     o3d::Double distance() const { return m_distance; }
     DistanceType distanceType() const { return m_distanceType; }
 
