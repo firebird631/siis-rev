@@ -477,10 +477,11 @@ o3d::Bool MaAdxRb::checkTrend(o3d::Int32 direction, o3d::Int32 vpUp, o3d::Int32 
 {
     // 0 initial
     // return m_trendAnalyser->trend() == direction;
+    return m_sigAnalyser->sig2() == direction;
 
     // 1 initial with VP
     // return m_trendAnalyser->sig() == direction && checkVp(direction, vpUp, vpDn);
-    return m_sessionAnalyser->vpCross() == direction;
+    // return m_sessionAnalyser->vpCross() == direction;
 
     // 2 interesting
     // return checkVp(direction, vpUp, vpDn) && checkVWap(direction);
@@ -522,9 +523,9 @@ TradeSignal MaAdxRb::computeSignal(o3d::Double timestamp)
         }
     }
 
-    if (checkTrend(1, vpUp, vpDn)) {// && !filterMa()) {
+    if (checkTrend(1, vpUp, vpDn)/* && !filterMa()*/) {
         //if (m_sigAnalyser->adx() > m_adxSig && m_sigAnalyser->adx() <= ADX_MAX) {
-          //  if (m_sigAnalyser->trend() > 0) {
+            //if (m_sigAnalyser->trend() > 0) {
                 // keep only one signal per timeframe
                 if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
                     signal.setEntry();
@@ -545,11 +546,11 @@ TradeSignal MaAdxRb::computeSignal(o3d::Double timestamp)
                         m_stopLoss.updateSignal(signal);
                     }
                 }
-          //  }
+            //}
         //}
-    } else if (checkTrend(-1, vpUp, vpDn)) {// && !filterMa()) {
+    } else if (checkTrend(-1, vpUp, vpDn)/* && !filterMa()*/) {
         //if (m_sigAnalyser->adx() > m_adxSig && m_sigAnalyser->adx() <= ADX_MAX) {
-          //  if (m_sigAnalyser->trend() < 0) {
+            //if (m_sigAnalyser->trend() < 0) {
                 // keep only one signal per timeframe
                 if (m_lastSignal.timestamp() + m_lastSignal.timeframe() < timestamp) {
                     signal.setEntry();

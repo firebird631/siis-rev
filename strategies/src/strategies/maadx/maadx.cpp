@@ -483,9 +483,10 @@ o3d::Bool MaAdx::checkTrend(o3d::Int32 direction, o3d::Int32 vpUp, o3d::Int32 vp
 {
     // 0 initial
     // return m_trendAnalyser->trend() == direction;
+    return m_sigAnalyser->sig2() == direction;
 
     // 1 initial with VP
-    return m_trendAnalyser->sig() == direction && checkVp(direction, vpUp, vpDn);
+    // return m_trendAnalyser->sig() == direction && checkVp(direction, vpUp, vpDn);
 
     // 2 interesting
     // return checkVp(direction, vpUp, vpDn) && checkVWap(direction);

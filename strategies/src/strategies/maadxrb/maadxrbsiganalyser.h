@@ -12,6 +12,7 @@
 
 #include "siis/indicators/sma/sma.h"
 #include "siis/indicators/hma/hma.h"
+#include "siis/indicators/wma/wma.h"
 #include "siis/indicators/adx/adx.h"
 #include "siis/indicators/cumulativevolumedelta/cvd.h"
 
@@ -47,6 +48,7 @@ public:
 
     inline o3d::Double adx() const { return m_adx.last(); }
     inline o3d::Int32 sig() const { return m_sig; }
+    inline o3d::Int32 sig2() const { return m_sig2; }
     inline o3d::Int32 trend() const { return m_trend; }
 
     inline const CumulativeVolumeDelta& cvd() const { return m_cvd; }
@@ -66,12 +68,14 @@ private:
     Hma m_fast_l_ma;
 
     Adx m_adx;
+    Wma m_wma;
 
     CumulativeVolumeDelta m_cvd;
     Hma m_cvd_ma;
 
     o3d::Int32 m_trend;
     o3d::Int32 m_sig;
+    o3d::Int32 m_sig2;
     o3d::Int32 m_cvdTrend;
     o3d::Int32 m_cvdCross;
 

@@ -24,10 +24,12 @@ MaAdxRbSigAnalyser::MaAdxRbSigAnalyser(
     m_fast_m_ma("fast_m_ma", rangeSize),
     m_fast_l_ma("sfast_l_ma", rangeSize),
     m_adx("adx", rangeSize),
+    m_wma("wma", rangeSize),
     m_cvd("cvd", rangeSize, depth, "1d"),
     m_cvd_ma("cvd_ma", rangeSize),
     m_trend(0),
     m_sig(0),
+    m_sig2(0),
     m_cvdTrend(0),
     m_cvdCross(0),
     m_confirmation(0)
@@ -52,6 +54,7 @@ void MaAdxRbSigAnalyser::init(const AnalyserConfig &conf)
     configureIndicator(conf, "fast_l_ma", m_fast_l_ma);
 
     configureIndicator(conf, "adx", m_adx);
+    configureIndicator(conf, "wma", m_wma);
 
     configureIndicator(conf, "cvd", m_cvd);
     configureIndicator(conf, "cvd_ma", m_cvd_ma);
@@ -61,6 +64,7 @@ void MaAdxRbSigAnalyser::init(const AnalyserConfig &conf)
     m_confirmation = 0;
     m_trend = 0;
     m_sig = 0;
+    m_sig2 = 0;
     m_cvdTrend = 0;
     m_cvdCross = 0;
 
@@ -93,9 +97,13 @@ void MaAdxRbSigAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestam
     o3d::Int32 hc = 0;
     o3d::Int32 lc = 0;
 
+    o3d::Int32 hc2 = 0;
+    o3d::Int32 lc2 = 0;
+
     // reset
     m_cvdCross = 0;
     m_sig = 0;
+    m_sig2 = 0;
 
     if (compute) {
         m_fast_h_ma.compute(timestamp, price().high());
@@ -103,6 +111,7 @@ void MaAdxRbSigAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestam
         m_fast_l_ma.compute(timestamp, price().low());
 
         m_adx.compute(timestamp, price().high(), price().low(), price().close());
+        m_wma.compute(timestamp, price().close());
 
         hc = DataArray::cross(price().close(), m_fast_h_ma.hma());
         lc = DataArray::cross(price().close(), m_fast_l_ma.hma());
@@ -122,7 +131,7 @@ void MaAdxRbSigAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestam
             }
 
             m_cvdTrend = cvdTrend;
-        }  
+        }
 
         if (hc > 0) {
             m_trend = 1;
@@ -133,6 +142,12 @@ void MaAdxRbSigAnalyser::compute(o3d::Double timestamp, o3d::Double lastTimestam
         } else if (lc > 0 || hc < 0) {
             // no trend between two MAs
             m_trend = 0;
+        }
+
+        if (hc2 > 0) {
+            m_sig2 = 1;
+        } else if (lc2 < 0) {
+            m_sig2 = -1;
         }
     }
 }
